@@ -1,0 +1,218 @@
+<ion-header>
+    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+    <div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+        <div class="row-full shadow full-screen">
+            <div>
+                <div *ngIf="segmentView == 's1'">
+                    <div class="ion-padding">
+                        <ion-grid fixed>
+                            <form [formGroup]="formGroup">
+                                <ion-row class="hr-group">
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'erp.app.pages.wms.location.general-information' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="Name">{{'erp.app.pages.wms.location.name' | translate}} <span *ngIf="formGroup.controls.Id.value">(Id: {{formGroup.controls.Id.value}})</span>
+                                                <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="IDZone">{{'erp.app.pages.wms.location.idzone' | translate}}
+                                                <span *ngIf="!formGroup.controls.IDZone.valid && !formGroup.controls.IDZone.pending && (formGroup.controls.IDZone.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" (change)="changedIDZone($event)" labelForId="IDZone" formControlName="IDZone" [items]="zoneList" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.wms.location.search-placeholder' | translate}}">
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <div *ngIf="i">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                                                    </div>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="LocationType">{{'erp.app.pages.wms.location.location-type' | translate}}
+                                                <span *ngIf="!formGroup.controls.LocationType.valid && !formGroup.controls.LocationType.pending && (formGroup.controls.LocationType.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" (change)="saveChange();" labelForId="LocationType" formControlName="LocationType" [items]="locationTypeList" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.wms.location.search-placeholder' | translate}}">
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <div *ngIf="i">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                                                    </div>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="LocationFlag">{{'erp.app.pages.wms.location.location-flag' | translate}}
+                                                <span *ngIf="!formGroup.controls.LocationFlag.valid && !formGroup.controls.LocationFlag.pending && (formGroup.controls.LocationFlag.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" (change)="saveChange();" labelForId="LocationFlag" formControlName="LocationFlag" [items]="locationFlagList" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.wms.location.search-placeholder' | translate}}">
+                                                <ng-template ng-label-tmp let-i="item">
+                                                    <ion-text [color]="i.Color">
+                                                        {{i.Name}}
+                                                    </ion-text>
+                                                </ng-template>
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <ion-text [color]="i.Color">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                                                    </ion-text>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="LocationHandling">{{'erp.app.pages.wms.location.location-handling' | translate}}
+                                                <span *ngIf="!formGroup.controls.LocationHandling.valid && !formGroup.controls.LocationHandling.pending && (formGroup.controls.LocationHandling.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" (change)="saveChange();" labelForId="LocationHandling" formControlName="LocationHandling" [items]="locationHandlingList" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.wms.location.search-placeholder' | translate}}">
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <div *ngIf="i">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                                                    </div>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        
+                                        <div class="c-control">
+                                            <label class="c-label" for="RouteSequence">{{'erp.app.pages.wms.location.route-sequence' | translate}}
+                                                <span *ngIf="!formGroup.controls.RouteSequence.valid && !formGroup.controls.RouteSequence.pending && (formGroup.controls.RouteSequence.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="RouteSequence" (change)="saveChange();" formControlName="RouteSequence" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="Remark">{{'erp.app.pages.wms.location.remark' | translate}}
+                                                <span *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <textarea (change)="saveChange()" rows="3" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
+                                        </div>
+                                        <div class="c-control">
+                                            <span class="no-warp">
+                                                <input (change)="saveChange()" class="c-checkbox" id="IsLoseID" formControlName="IsLoseID" type="checkbox">
+                                                <label class="c-label checkbox" for="IsLoseID">{{'erp.app.pages.wms.location.is-lose-id' | translate}}
+                                                    <span *ngIf="!formGroup.controls.IsLoseID.valid && !formGroup.controls.IsLoseID.pending && (formGroup.controls.IsLoseID.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                                </label>
+                                            </span>
+                                            <span class="no-warp">
+                                                <input (change)="saveChange()" class="c-checkbox" id="IsAutomaticallyShipPickedProduct" formControlName="IsAutomaticallyShipPickedProduct" type="checkbox">
+                                                <label class="c-label checkbox" for="IsAutomaticallyShipPickedProduct">{{'erp.app.pages.wms.location.is-automatically-ship-picked-product' | translate}}
+                                                    <span *ngIf="!formGroup.controls.IsAutomaticallyShipPickedProduct.valid && !formGroup.controls.IsAutomaticallyShipPickedProduct.pending && (formGroup.controls.IsAutomaticallyShipPickedProduct.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                                </label>
+                                            </span>
+                                            <span class="no-warp">
+                                                <input (change)="saveChange()" class="c-checkbox" id="IsCommingleItem" formControlName="IsCommingleItem" type="checkbox">
+                                                <label class="c-label checkbox" for="IsCommingleItem">{{'erp.app.pages.wms.location.is-commingle-item' | translate}}
+                                                    <span *ngIf="!formGroup.controls.IsCommingleItem.valid && !formGroup.controls.IsCommingleItem.pending && (formGroup.controls.IsCommingleItem.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                                </label>
+                                            </span>
+                                            <span class="no-warp">
+                                                <input (change)="saveChange()" class="c-checkbox" id="IsCommingleLot" formControlName="IsCommingleLot" type="checkbox">
+                                                <label class="c-label checkbox" for="IsCommingleLot">{{'erp.app.pages.wms.location.is-commingle-lot' | translate}}
+                                                    <span *ngIf="!formGroup.controls.IsCommingleLot.valid && !formGroup.controls.IsCommingleLot.pending && (formGroup.controls.IsCommingleLot.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </ion-col>
+                                </ion-row>
+                                <ion-row class="hr-group">
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'erp.app.pages.wms.location.location-information' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="Length">{{'erp.app.pages.wms.location.length' | translate}}
+                                                <span *ngIf="!formGroup.controls.Length.valid && !formGroup.controls.Length.pending && (formGroup.controls.Length.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Length" (change)="saveChange();" formControlName="Length" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="Width">{{'erp.app.pages.wms.location.width' | translate}}
+                                                <span *ngIf="!formGroup.controls.Width.valid && !formGroup.controls.Width.pending && (formGroup.controls.Width.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Width" (change)="saveChange();" formControlName="Width" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="Height">{{'erp.app.pages.wms.location.height' | translate}}
+                                                <span *ngIf="!formGroup.controls.Height.valid && !formGroup.controls.Height.pending && (formGroup.controls.Height.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Height" (change)="saveChange();" formControlName="Height" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="CubicCapacity">{{'erp.app.pages.wms.location.cubic-capacity' | translate}}
+                                                <span *ngIf="!formGroup.controls.CubicCapacity.valid && !formGroup.controls.CubicCapacity.pending && (formGroup.controls.CubicCapacity.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="CubicCapacity" (change)="saveChange();" formControlName="CubicCapacity" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="WeightCapacity">{{'erp.app.pages.wms.location.weight-capacity' | translate}}
+                                                <span *ngIf="!formGroup.controls.WeightCapacity.valid && !formGroup.controls.WeightCapacity.pending && (formGroup.controls.WeightCapacity.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="WeightCapacity" (change)="saveChange();" formControlName="WeightCapacity" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="FootPrint">{{'erp.app.pages.wms.location.foot-print' | translate}}
+                                                <span *ngIf="!formGroup.controls.FootPrint.valid && !formGroup.controls.FootPrint.pending && (formGroup.controls.FootPrint.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="FootPrint" (change)="saveChange();" formControlName="FootPrint" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="StackLimit">{{'erp.app.pages.wms.location.stack-limit' | translate}}
+                                                <span *ngIf="!formGroup.controls.StackLimit.valid && !formGroup.controls.StackLimit.pending && (formGroup.controls.StackLimit.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="StackLimit" (change)="saveChange();" formControlName="StackLimit" type="number">
+                                        </div>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="Level">{{'erp.app.pages.wms.location.level' | translate}}
+                                                <span *ngIf="!formGroup.controls.Level.valid && !formGroup.controls.Level.pending && (formGroup.controls.Level.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Level" (change)="saveChange();" formControlName="Level" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="XCoordinate">{{'erp.app.pages.wms.location.x-coordinate' | translate}}
+                                                <span *ngIf="!formGroup.controls.XCoordinate.valid && !formGroup.controls.XCoordinate.pending && (formGroup.controls.XCoordinate.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="XCoordinate" (change)="saveChange();" formControlName="XCoordinate" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="YCoordinate">{{'erp.app.pages.wms.location.y-coordinate' | translate}}
+                                                <span *ngIf="!formGroup.controls.YCoordinate.valid && !formGroup.controls.YCoordinate.pending && (formGroup.controls.YCoordinate.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="YCoordinate" (change)="saveChange();" formControlName="YCoordinate" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="ZCoordinate">{{'erp.app.pages.wms.location.z-coordinate' | translate}}
+                                                <span *ngIf="!formGroup.controls.ZCoordinate.valid && !formGroup.controls.ZCoordinate.pending && (formGroup.controls.ZCoordinate.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="ZCoordinate" (change)="saveChange();" formControlName="ZCoordinate" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="Orientation">{{'erp.app.pages.wms.location.orientation' | translate}}
+                                                <span *ngIf="!formGroup.controls.Orientation.valid && !formGroup.controls.Orientation.pending && (formGroup.controls.Orientation.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Orientation" (change)="saveChange();" formControlName="Orientation" type="number">
+                                        </div>
+                                        
+                                    </ion-col>
+                                </ion-row>
+                            </form>
+                        </ion-grid>
+                    </div>
+                </div>
+                <div *ngIf="segmentView == 's2'">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

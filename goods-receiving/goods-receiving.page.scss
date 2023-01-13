@@ -1,0 +1,198 @@
+
+.col-name {
+    max-width: 250px !important;
+    min-width: 250px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.col-weight {
+    max-width: 90px !important;
+    min-width: 90px !important;
+    justify-content: center;
+}
+
+.filter {
+    
+    ion-text{display: none}
+
+}
+
+@media screen and (max-width: calc(1164px + 0px)) {
+    section > header{
+        display: none;
+    }
+
+    .filter{ 
+        width: 100%;
+        height: 210px;
+        display: block;
+        padding-right: 0;
+        
+        ion-text{
+            display: block;
+            font-size: 1rem;
+            color: #000;
+        }
+
+        .cell{
+            padding: 10px 10px 0 10px;
+            max-width: fit-content;
+            width: 50%;
+            max-width: 1000px;
+            float: left;
+            display: block;
+        }
+
+        .c-input{
+            width: 100%;
+            font-size: 1rem;
+            text-align: left !important;
+            padding: 0px 3px 0 5px;
+            max-width: 1000px;
+        }
+
+        .min-btn{
+            position: absolute;
+            margin-top: 5px;
+        }
+
+        .col-checkbox{display: none;}
+
+        .col-code{
+            .c-dropdown{
+                width: 100%;
+            }
+        }
+
+        .col-status{
+            .c-dropdown{
+                
+            }
+        }
+
+        .col-name{
+            min-width: 0 !important;
+            max-width: 1000px !important;
+        }
+
+    }
+
+    .small-screen {
+        display: flex;
+    }
+
+    .hide-screen {
+        display: none !important;
+    }
+
+    .row {
+        flex-wrap: wrap;
+        padding: 10px 130px 10px 35px !important;
+        
+
+        .cell {
+            padding: 1px 7px 1px 0 !important;
+        }
+
+        .col-id,
+        .col-code,
+        .col-OrderDate,
+        .col-SellerName,
+        .col-estReceivingDate
+        {
+            min-width: fit-content !important;
+            max-width: fit-content !important;
+            order: 4;
+            margin-bottom: 5px;
+            margin-right: 5px;
+        }
+
+
+        .col-checkbox {
+            order: 0;
+            margin-left: -35px;
+            padding: 0 !important;
+        }
+
+        .col-id {
+            order: 1;
+            padding: 1px 7px !important;
+            border-radius: 3px;
+            background-color: var(--ion-color-primary);
+            color: var(--ion-color-primary-contrast) !important;
+        }
+
+        .col-code {
+            order: 2;
+            font-weight: bold;
+            font-size: 90%;
+            min-width: fit-content;
+            margin-right: 0;
+        }
+
+        .col-status{
+            order: 3;
+            position: absolute;
+            right: 0;
+            min-width: fit-content;
+            margin-top: -5px;
+
+            .bar-holder{
+                justify-content: right;
+                height: 16px;
+
+                .bar-title{
+                    text-align: right;
+                }
+            }
+        }
+
+        .col-date {
+            order: 4;
+            border-left: solid 3px rgba(var(--ion-color-primary-rgb, 0, 0, 0), .2);
+            background-color: rgba(var(--ion-color-primary-rgb, 0, 0, 0), .1);
+            border-radius: 2px;
+            font-size: 70%;
+            max-width: fit-content!important;
+            margin-bottom: 5px;
+            margin-right: 5px;
+            min-width: fit-content!important;
+        }
+
+        .col-estReceivingDate{
+            order: 5;
+            border-left: solid 3px rgba(var(--ion-color-success-rgb, 0, 0, 0), .2);
+            background-color: rgba(var(--ion-color-success-rgb, 0, 0, 0), .1);
+            border-radius: 2px;
+            font-size: 70%;
+            max-width: fit-content!important;
+            margin-bottom: 5px;
+            margin-right: 5px;
+            min-width: fit-content!important;
+            min-height: 20px;
+        }
+
+        .col-ImportStatus {
+            order: 6;
+            font-size: 70%;
+            color: var(--ion-color-medium);
+            position: absolute;
+            right: 0;
+            margin-top: 16px;
+            font-size: x-small;
+        }
+
+        .col-name {
+            min-width: 100%;
+            order: 4;
+            font-size: 70%;
+            color: var(--ion-color-medium) !important;
+            min-width: fit-content !important;
+            max-width: fit-content !important;
+            margin-top: -5px;
+        }
+    }
+
+}
