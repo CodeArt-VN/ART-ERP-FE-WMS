@@ -466,7 +466,7 @@
                                 <div class="col-checkbox cell" (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; updateUoM()">
                                     <ion-checkbox [disabled]="!pageConfig.canEditUoM" [checked]="item.SalesUoM == i.Id"></ion-checkbox>
                                 </div>
-                                <div class="col1 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM" class="c-input" (change)="saveUoM(i)" [(ngModel)]="i.AlternativeQuantity" type="number" min="1"></div>
+                                <div class="col1 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM" class="c-input" (change)="saveUoM(i)" [(ngModel)]="i.AlternativeQuantity" type="number" min="0.000000001" step="1" max="999999999999999999"></div>
                                 <div class="col2 cell">
 
                                     <ng-select class="c-input" (change)="changedUoM($event, i)" [disabled]="!pageConfig.canEditUoM" [addTag]="createNewUoM.bind(this)" [(ngModel)]="i.Name" [items]="uomList" appendTo="#order-detail-page" [clearable]="false" bindLabel="Name" bindValue="Name" placeholder="{{'erp.app.pages.wms.item.uom-placeholder' | translate}}">
@@ -483,7 +483,7 @@
                                     </ng-select>
                                 </div>
                                 <div class="col3 cell"><span *ngIf="!i.IsBaseUoM">=</span></div>
-                                <div class="col4 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.BaseQuantity" type="number" min="1"></div>
+                                <div class="col4 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.BaseQuantity" type="number" min="0.000000001" step="1" max="999999999999999999"></div>
                                 <div class="col2 cell"><span *ngIf="!i.IsBaseUoM">{{baseUomName}}</span></div>
                                 <div class="col5 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Length" type="number" min="0"></div>
                                 <div class="col6 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Width" type="number" min="0"></div>

@@ -86,7 +86,7 @@
                                     <ion-range (click)="g.txtQtyShow = !g.txtQtyShow" *ngIf="g['value'].UoMQuantityExpected" [attr.disabled]="(!pageConfig.canEdit || submitAttempt || item.Status=='Palletized')?'':null" (ionChange)="changeSoLuong(g)" debounce="300" min="0" [max]="g['value'].UoMQuantityExpected" formControlName="QuantityReceived" color="success" pin="true" step="1" [snaps]="g['value'].UoMQuantityExpected < 21">
                                         <div slot="start">
                                             <ion-badge class="ion-text-lowercase" slot="start" [color]="g['value'].UoMQuantityExpected == g['value'].QuantityReceived? 'success': 'warning' " *ngIf="g['value'].UoMQuantityExpected"> {{g['value']?.QuantityReceived}} {{item.Lines[idx].UoMName}}</ion-badge>
-                                            <input (focus)="$event.target.select()" [attr.disabled]="(!pageConfig.canEdit || submitAttempt || item.Status=='Palletized')?'':null" class="txtQtyInput" type="number" (change)="changeSoLuong(g, $event)" formControlName="QuantityReceived">
+                                            <input (focus)="$event.target.select()" [attr.disabled]="(!pageConfig.canEdit || submitAttempt || item.Status=='Palletized')?'':null" class="txtQtyInput" type="number" (change)="changeSoLuong(g, $event)" formControlName="QuantityReceived" min="0.000000001" step="1" max="999999999999999999">
                                         </div>
                                     </ion-range>
 
