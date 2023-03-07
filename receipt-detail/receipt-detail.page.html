@@ -146,7 +146,7 @@
                                                 </select>
                                             </div>
                                             <div class="col-qty cell" [ngClass]="{disable: !pageConfig.canEdit}">
-                                                <input formControlName="UoMQuantityExpected" [readonly]="!pageConfig.canEdit || submitAttempt || item.Status=='Palletized'" (focus)="$event.target.select()" (change)="saveOrder()" class="c-input" type="number" min="0.000000001" step="1" max="999999999999999999" onkeydown="return event.keyCode !== 190">
+                                                <input formControlName="UoMQuantityExpected" [readonly]="!pageConfig.canEdit || submitAttempt || item.Status=='Palletized'" (focus)="$event.target.select()" (change)="saveOrder()" class="c-input" type="number" min="0" step="1" max="999999999999999999" onkeydown="return event.keyCode !== 190">
                                             </div>
                                             <div class="col-code cell">
                                                 <input formControlName="Lottable0" [readonly]="!pageConfig.canEdit || submitAttempt || item.Status=='Palletized'" (focus)="$event.target.select()" (change)="saveOrder()" class="c-input" type="text">
@@ -234,7 +234,7 @@
                                                         </select>
                                                     </div>
                                                     <div class="col-qty cell" [ngClass]="{disable: !pageConfig.canEdit}">
-                                                        <input formControlName="UoMQuantityExpected" class="c-input" type="number" min="0.000000001" step="1" max="999999999999999999">
+                                                        <input formControlName="UoMQuantityExpected" class="c-input" type="number" min="0" step="1" max="999999999999999999">
                                                     </div>
                                                     <div class="col-code cell">
                                                         {{p.controls.Remark.value}}
