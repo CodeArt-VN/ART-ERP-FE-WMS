@@ -1,5 +1,9 @@
 <ion-header>
     <app-detail-toolbar [page]="this">
+        <ion-button title="Tạo hóa đơn" *ngIf="pageConfig.canCreateInvoice" (click)="createInvoice()">
+			<ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
+		</ion-button>
+
         <div *ngIf="pageConfig.canEdit">
 
             <ion-button (click)="palletize()" title="{{'erp.app.pages.wms.receipt-detail.palletize' | translate}}" *ngIf="formGroup.controls.Status.value=='New'">
@@ -19,6 +23,7 @@
             </ion-button>
             <span class="split ion-hide-sm-down">|</span>
         </div>
+        
     </app-detail-toolbar>
 </ion-header>
 

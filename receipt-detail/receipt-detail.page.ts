@@ -501,4 +501,21 @@ export class ReceiptDetailPage extends PageBase {
         })
     }
 
+    async createInvoice(){
+        this.env.showLoading('Vui lòng chờ tạo hóa đơn',
+        this.pageProvider.commonService.connect('POST', 'WMS/Receipt/CreateInvoice/', {Ids:[this.item.Id]}).toPromise()
+        ).then((resp:any)=>{
+            this.env.showPrompt("Bạn có muốn mở hóa đơn vừa tạo?").then(_=>{
+                if (resp.length == 1) {
+                    this.nav('/ap-invoice/' + resp[0]);
+                }
+                else{
+                    this.nav('/ap-invoice/');
+                }
+            }).catch(_=>{});
+        }).catch(err=>{
+            this.env.showMessage(err)
+        });
+    }
+
 }
