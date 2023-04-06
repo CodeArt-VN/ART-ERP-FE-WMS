@@ -3,7 +3,7 @@ import { LoadingController, AlertController, NavController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider } from 'src/app/services/static/services.service';
+import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider, SYS_ConfigProvider } from 'src/app/services/static/services.service';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
@@ -49,6 +49,7 @@ export class ItemDetailPage extends PageBase {
         public priceListDetailProvider: WMS_PriceListDetailProvider,
         public itemInWarehouseConfig: WMS_ItemInWarehouseConfigProvider,
         public taxProvider: FINANCE_TaxDefinitionProvider,
+        public sysConfigProvider: SYS_ConfigProvider,
 
         public env: EnvService,
         public route: ActivatedRoute,
@@ -179,6 +180,22 @@ export class ItemDetailPage extends PageBase {
         this.taxProvider.read().then(resp => {
             this.inputTaxList = resp['data'].filter(d => d.Category == 'InputTax');
             this.outputTaxList = resp['data'].filter(d => d.Category == 'OutputTax');
+
+            Promise.all([
+                this.sysConfigProvider.read({ Code: 'TaxInput', IDBranch: this.env.selectedBranch }),
+                this.sysConfigProvider.read({ Code: 'TaxOutput', IDBranch: this.env.selectedBranch })
+            ]).then((values: any) => {
+                if (values[0]['data'].length && this.item.Id == 0) {
+                    let idTaxInput = JSON.parse(values[0]['data'][0].Value).Id;
+                    this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
+                    this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
+                };
+                if (values[1]['data'].length && this.item.Id == 0) {
+                    let idTaxOput = JSON.parse(values[1]['data'][0].Value).Id;
+                    this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
+                    this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
+                };
+            });
         })
 
         this.env.getType('Rotation').then((result: any) => {
