@@ -85,9 +85,9 @@ export class ItemDetailPage extends PageBase {
             ItemType: ['Items', Validators.required],
             Industry: [''],
             Division: [''],
-            IsInventoryItem: [true],
-            IsSalesItem: [true],
-            IsPurchaseItem: [true],
+            IsInventoryItem: ['', Validators.required],
+            IsSalesItem: ['', Validators.required],
+            IsPurchaseItem: ['', Validators.required],
 
             BaseUoM: [''],
             AccountantUoM: [''],
@@ -181,17 +181,32 @@ export class ItemDetailPage extends PageBase {
             this.inputTaxList = resp['data'].filter(d => d.Category == 'InputTax');
             this.outputTaxList = resp['data'].filter(d => d.Category == 'OutputTax');
 
+            let query = {
+                Code: 'TaxInput',
+                IDBranch: this.env.selectedBranch
+            }
+
+            let query2 = {
+                Code: 'TaxOutput',
+                IDBranch: this.env.selectedBranch
+            }
+
+            let apiPath = {
+                method: "GET",
+                url: function () { return ApiSetting.apiDomain("SYS/Config/ConfigByBranch") }
+            };
+
             Promise.all([
-                this.sysConfigProvider.read({ Code: 'TaxInput', IDBranch: this.env.selectedBranch }),
-                this.sysConfigProvider.read({ Code: 'TaxOutput', IDBranch: this.env.selectedBranch })
+                this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), query).toPromise(),
+                this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), query2).toPromise()
             ]).then((values: any) => {
-                if (values[0]['data'].length && this.item.Id == 0) {
-                    let idTaxInput = JSON.parse(values[0]['data'][0].Value).Id;
+                if (values[0]['Value'] && this.item.Id == 0) {
+                    let idTaxInput = JSON.parse(values[0]['Value']).Id;
                     this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
                     this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
                 };
-                if (values[1]['data'].length && this.item.Id == 0) {
-                    let idTaxOput = JSON.parse(values[1]['data'][0].Value).Id;
+                if (values[1]['Value'] && this.item.Id == 0) {
+                    let idTaxOput = JSON.parse(values[1]['Value']).Id;
                     this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
                     this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
                 };
@@ -275,6 +290,13 @@ export class ItemDetailPage extends PageBase {
                 this.item.IDItemGroup = val;
                 this.cdr.detectChanges();
             })
+        }
+
+        if (this.item?.TransactionsExist) {
+            this.pageConfig.canEditTrans = false;
+        }
+        else {
+            this.pageConfig.canEditTrans = true;
         }
 
         super.loadedData(null);
@@ -417,10 +439,15 @@ export class ItemDetailPage extends PageBase {
         if (this.segmentView.Page == 's3') {
             this.loadPriceList();
         }
+        else if (this.segmentView.Page == 's1') {
+            if (!this.pageConfig.canEditTrans) {
+                this.env.showTranslateMessage('erp.app.pages.sale.sale-order-detail.transaction-existed','warning',null,5000);
+            }
+        }
     }
 
     changeBaseUoM(i) {
-        if (!this.pageConfig.canEditUoM) {
+        if (!this.pageConfig.canEditUoM || !this.pageConfig.canEditTrans) {
             return;
         }
         let checkedRows = this.UoMs.filter(d => d.IsBaseUoM);
@@ -565,7 +592,7 @@ export class ItemDetailPage extends PageBase {
     }
 
     updateUoM() {
-        if (this.pageConfig.canEditUoM) {
+        if (this.pageConfig.canEditUoM && this.pageConfig.canEditTrans) {
             this.pageProvider.save(this.item).then(() => {
                 this.env.showTranslateMessage('erp.app.pages.wms.item.message.update-uom');
             });
