@@ -170,55 +170,24 @@ export class ItemPage extends PageBase {
     }
 
     duplicateItem() {
+        if (this.submitAttempt) {
+            this.env.showMessage('Xin vui lòng chờ xử lý hoàn tất.');
+            return;
+        }
 
-        this.alertCtrl.create({
-            header: 'Sao chép',
-            //subHeader: '---',
-            message: 'Bạn chắc muốn sao chép tất cả dữ liệu được chọn?',
-            buttons: [
-                {
-                    text: 'Không',
-                    role: 'cancel',
-                    handler: () => {
-                        //console.log('Không xóa');
-                    }
-                },
-                {
-                    text: 'Đồng ý',
-                    cssClass: 'danger-btn',
-                    handler: () => {
-
-                        let publishEventCode = this.pageConfig.pageName;
-                        let apiPath = {
-                            method: "POST",
-                            url: function () { return ApiSetting.apiDomain("WMS/Item/DuplicateItem/") }
-                        };
-                
-                        if (this.submitAttempt == false) {
-                            this.submitAttempt = true;
-                
-                            let postDTO = { Ids: [] };
-                            postDTO.Ids = this.selectedItems.map(e => e.Id);
-                
-                            this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), postDTO).toPromise()
-                                .then((savedItem: any) => {
-                                    if (publishEventCode) {
-                                        this.env.publishEvent({ Code: publishEventCode });
-                                    }
-                                    this.env.showTranslateMessage('erp.app.pages.accountant.ar-invoice.message.save-complete', 'success');
-                                    this.submitAttempt = false;
-                
-                                }).catch(err => {
-                                    this.submitAttempt = false;
-                                    console.log(err);
-                                });
-                        }
-
-                    }
-                }
-            ]
-        }).then(alert => {
-            alert.present();
+        this.env.showPrompt('Bạn muốn tạo mã Z cho các item đang chọn?', null, 'Copy sản phẩm')
+        .then(_=>{
+            this.env.showLoading('Xin vui lòng chờ copy dữ liệu', this.pageProvider.commonService.connect('POST', "WMS/Item/DuplicateItem/", { Ids: this.selectedItems.map(e => e.Id) }).toPromise())
+            .then(_=>{
+                this.env.showTranslateMessage('erp.app.pages.accountant.ar-invoice.message.save-complete', 'success');
+                this.submitAttempt = false;
+                this.refresh();
+            })
+            .catch(err=>{
+                this.submitAttempt = false;
+                console.log(err);
+            });
         })
+        .catch(_=>{});
     }
 }
