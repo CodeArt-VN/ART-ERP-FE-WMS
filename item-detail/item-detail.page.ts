@@ -3,7 +3,7 @@ import { LoadingController, AlertController, NavController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider } from 'src/app/services/static/services.service';
+import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider, SYS_ConfigProvider } from 'src/app/services/static/services.service';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
@@ -49,6 +49,7 @@ export class ItemDetailPage extends PageBase {
         public priceListDetailProvider: WMS_PriceListDetailProvider,
         public itemInWarehouseConfig: WMS_ItemInWarehouseConfigProvider,
         public taxProvider: FINANCE_TaxDefinitionProvider,
+        public sysConfigProvider: SYS_ConfigProvider,
 
         public env: EnvService,
         public route: ActivatedRoute,
@@ -84,9 +85,9 @@ export class ItemDetailPage extends PageBase {
             ItemType: ['Items', Validators.required],
             Industry: [''],
             Division: [''],
-            IsInventoryItem: [true],
-            IsSalesItem: [true],
-            IsPurchaseItem: [true],
+            IsInventoryItem: ['', Validators.required],
+            IsSalesItem: ['', Validators.required],
+            IsPurchaseItem: ['', Validators.required],
 
             BaseUoM: [''],
             AccountantUoM: [''],
@@ -179,6 +180,37 @@ export class ItemDetailPage extends PageBase {
         this.taxProvider.read().then(resp => {
             this.inputTaxList = resp['data'].filter(d => d.Category == 'InputTax');
             this.outputTaxList = resp['data'].filter(d => d.Category == 'OutputTax');
+
+            let query = {
+                Code: 'TaxInput',
+                IDBranch: this.env.selectedBranch
+            }
+
+            let query2 = {
+                Code: 'TaxOutput',
+                IDBranch: this.env.selectedBranch
+            }
+
+            let apiPath = {
+                method: "GET",
+                url: function () { return ApiSetting.apiDomain("SYS/Config/ConfigByBranch") }
+            };
+
+            Promise.all([
+                this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), query).toPromise(),
+                this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), query2).toPromise()
+            ]).then((values: any) => {
+                if (values[0]['Value'] && this.item.Id == 0) {
+                    let idTaxInput = JSON.parse(values[0]['Value']).Id;
+                    this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
+                    this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
+                };
+                if (values[1]['Value'] && this.item.Id == 0) {
+                    let idTaxOput = JSON.parse(values[1]['Value']).Id;
+                    this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
+                    this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
+                };
+            });
         })
 
         this.env.getType('Rotation').then((result: any) => {
@@ -258,6 +290,13 @@ export class ItemDetailPage extends PageBase {
                 this.item.IDItemGroup = val;
                 this.cdr.detectChanges();
             })
+        }
+
+        if (this.item?.TransactionsExist) {
+            this.pageConfig.canEditTrans = false;
+        }
+        else {
+            this.pageConfig.canEditTrans = true;
         }
 
         super.loadedData(null);
@@ -400,10 +439,15 @@ export class ItemDetailPage extends PageBase {
         if (this.segmentView.Page == 's3') {
             this.loadPriceList();
         }
+        else if (this.segmentView.Page == 's1') {
+            if (!this.pageConfig.canEditTrans) {
+                this.env.showTranslateMessage('erp.app.pages.sale.sale-order-detail.transaction-existed','warning',null,5000);
+            }
+        }
     }
 
     changeBaseUoM(i) {
-        if (!this.pageConfig.canEditUoM) {
+        if (!this.pageConfig.canEditUoM || !this.pageConfig.canEditTrans) {
             return;
         }
         let checkedRows = this.UoMs.filter(d => d.IsBaseUoM);
@@ -548,7 +592,7 @@ export class ItemDetailPage extends PageBase {
     }
 
     updateUoM() {
-        if (this.pageConfig.canEditUoM) {
+        if (this.pageConfig.canEditUoM && this.pageConfig.canEditTrans) {
             this.pageProvider.save(this.item).then(() => {
                 this.env.showTranslateMessage('erp.app.pages.wms.item.message.update-uom');
             });

@@ -452,24 +452,24 @@
                             </header>
                             <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of UoMs; let j = index;">
                                 <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
-                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM" [(ngModel)]="i.IsBaseUoM"></ion-checkbox>
+                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" [(ngModel)]="i.IsBaseUoM"></ion-checkbox>
                                 </div>
                                 <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
-                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM" [(ngModel)]="i.IsBaseUoM"></ion-checkbox>
+                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" [(ngModel)]="i.IsBaseUoM"></ion-checkbox>
                                 </div>
                                 <div class="col-checkbox cell" (click)="item.PurchasingUoM = pageConfig.canEditUoM ? i.Id: item.PurchasingUoM; updateUoM()">
-                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM" [checked]="item.PurchasingUoM == i.Id"></ion-checkbox>
+                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" [checked]="item.PurchasingUoM == i.Id"></ion-checkbox>
                                 </div>
                                 <div class="col-checkbox cell" (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; updateUoM()">
-                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM" [checked]="item.InventoryUoM == i.Id"></ion-checkbox>
+                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" [checked]="item.InventoryUoM == i.Id"></ion-checkbox>
                                 </div>
                                 <div class="col-checkbox cell" (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; updateUoM()">
-                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM" [checked]="item.SalesUoM == i.Id"></ion-checkbox>
+                                    <ion-checkbox [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" [checked]="item.SalesUoM == i.Id"></ion-checkbox>
                                 </div>
-                                <div class="col1 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM" class="c-input" (change)="saveUoM(i)" [(ngModel)]="i.AlternativeQuantity" type="number" min="0" step="1" max="999999999999999999"></div>
+                                <div class="col1 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" class="c-input" (change)="saveUoM(i)" [(ngModel)]="i.AlternativeQuantity" type="number" min="0" step="1" max="999999999999999999"></div>
                                 <div class="col2 cell">
 
-                                    <ng-select class="c-input" (change)="changedUoM($event, i)" [disabled]="!pageConfig.canEditUoM" [addTag]="createNewUoM.bind(this)" [(ngModel)]="i.Name" [items]="uomList" appendTo="#order-detail-page" [clearable]="false" bindLabel="Name" bindValue="Name" placeholder="{{'erp.app.pages.wms.item.uom-placeholder' | translate}}">
+                                    <ng-select class="c-input" (change)="changedUoM($event, i)" [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" [addTag]="createNewUoM.bind(this)" [(ngModel)]="i.Name" [items]="uomList" appendTo="#order-detail-page" [clearable]="false" bindLabel="Name" bindValue="Name" placeholder="{{'erp.app.pages.wms.item.uom-placeholder' | translate}}">
                                         <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                             <div *ngIf="i">
                                                 <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
@@ -483,19 +483,19 @@
                                     </ng-select>
                                 </div>
                                 <div class="col3 cell"><span *ngIf="!i.IsBaseUoM">=</span></div>
-                                <div class="col4 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.BaseQuantity" type="number" min="0" step="1" max="999999999999999999"></div>
+                                <div class="col4 cell"><input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.BaseQuantity" type="number" min="0" step="1" max="999999999999999999"></div>
                                 <div class="col2 cell"><span *ngIf="!i.IsBaseUoM">{{baseUomName}}</span></div>
-                                <div class="col5 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Length" type="number" min="0"></div>
-                                <div class="col6 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Width" type="number" min="0"></div>
-                                <div class="col7 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Height" type="number" min="0"></div>
-                                <div class="col8 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Weight" type="number" min="0"></div>
-                                <div class="col2 cell"><input [disabled]="!pageConfig.canEditUoM" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Barcode" type="text"></div>
-                                <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM">
+                                <div class="col5 cell"><input [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Length" type="number" min="0"></div>
+                                <div class="col6 cell"><input [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Width" type="number" min="0"></div>
+                                <div class="col7 cell"><input [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Height" type="number" min="0"></div>
+                                <div class="col8 cell"><input [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Weight" type="number" min="0"></div>
+                                <div class="col2 cell"><input [disabled]="!pageConfig.canEditUoM || !pageConfig.canEditTrans" (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.Barcode" type="text"></div>
+                                <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM && pageConfig.canEditTrans">
                                     <ion-icon color="danger" (click)="deleteUoM(i)" class="min-btn" name="trash-outline"></ion-icon>
                                 </div>
                             </div>
                         </section>
-                        <div class="row" *ngIf="pageConfig.canAddUoM && this.id">
+                        <div class="row" *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans ) && this.id">
                             <div class="cell">
                                 <ion-button fill="clear" size="small" (click)="addUoM()">
                                     <ion-icon slot="start" name="add-circle-outline"></ion-icon>
