@@ -11,19 +11,7 @@
     min-height: 147mm;
     padding: 0 10mm;
 }
-.ng-select {
-    .ng-select-container {
-        align-items: flex-start;
-    
-        .ng-value ion-icon {
-            display: inline-block;
-            font-size: 1.3rem;
-            margin: -2px 3px;
-            color: var(--ion-color-danger);
-            cursor: pointer;
-        }
-    }
-}
+
 .sheet {
     &.huong-dan {
         padding: 10mm !important;
@@ -40,12 +28,12 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        min-height: calc(110mm/2);
+        min-height: calc(110mm / 2 - 2px);
     }
 
     .label{
         page-break-inside: avoid;
-        width: calc(110mm / 2);
+        width: calc(110mm / 2 - 2px);
         border-right: 1px dashed gray;
         border-bottom: 1px dashed gray;
 
@@ -54,7 +42,8 @@
         }
 
         .l-img-code {
-            padding: 0 20px;
+            padding: 0px;
+            text-align: center;
         }
 
         .l-title{

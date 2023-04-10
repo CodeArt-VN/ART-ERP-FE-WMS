@@ -27,8 +27,7 @@
 
 <ion-content appScrollbarTheme appPrintFix class="Ruy110 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print " vertical="top" horizontal="start" slot="fixed">
-		<div class="ion-padding" style="min-height: calc(100% - 75px);">
-
+		<div class="ion-padding">
 			<div class="c-control">
 				<label class="c-label" for="ItemGroup">{{'erp.app.pages.wms.item.id-item-group' | translate}}</label>
 				<ng-select (change)="changeGroup($event);" bindLabel="Name" bindValue="Id" labelForId="ItemGroup" [(ngModel)]="item.ItemGroup" [items]="ItemGroupDataSource.items$ | async" [typeahead]="ItemGroupDataSource.input$" [loading]="ItemGroupDataSource.loading" placeholder="{{'Search' | translate}}" class="c-input no-check-dirty" [virtualScroll]="true">
@@ -64,7 +63,48 @@
 					</ng-template>
 				</ng-select>
 			</div>
-			
+		</div>
+		<div style="min-height: calc(100% - 75px);">
+			<ion-list-header lines="full">
+				<ion-label color="dark">Label settings</ion-label>
+			</ion-list-header>
+			<ion-list lines="full">
+
+				
+				
+				<ion-item>
+					<ion-icon name="qr-code-outline" slot="start"></ion-icon>
+					<ion-range [(ngModel)]="lableConfig.QRCodeWidth" [pin]="true" [step]="2" [min]="100" [max]="250" ></ion-range>
+					<ion-note slot="end">{{ lableConfig.QRCodeWidth }}</ion-note>
+				</ion-item>
+				<ion-item>
+					<ion-icon name="barcode-outline" slot="start"></ion-icon>
+					<ion-range [(ngModel)]="lableConfig.CodeFontSize" [pin]="true" [step]="1" [min]="0" [max]="80" ></ion-range>
+					<ion-note slot="end">{{ lableConfig.CodeFontSize }}</ion-note>
+				</ion-item>
+				<ion-item>
+					<ion-icon name="text-outline" slot="start"></ion-icon>
+					<ion-range [(ngModel)]="lableConfig.NameFontSize" [pin]="true" [step]="1" [min]="0" [max]="80" ></ion-range>
+					<ion-note slot="end">{{ lableConfig.NameFontSize }}</ion-note>
+				</ion-item>
+				<ion-item>
+					<ion-icon [name]=" lableConfig.NameLineClamp ==1 ? 'remove-outline' : (lableConfig.NameLineClamp == 2 ? 'reorder-two-outline' : 'reorder-three-outline') " slot="start"></ion-icon>
+					<ion-range [(ngModel)]="lableConfig.NameLineClamp" [pin]="true" [step]="1" [min]="1" [max]="3" ></ion-range>
+					<ion-note slot="end">{{ lableConfig.NameLineClamp }}</ion-note>
+				</ion-item>
+
+				<ion-grid fixed>
+					<ion-row>
+						<ion-col>
+							<ion-button expand="block" fill="outline" (click)="this.lableConfig = {PageWidth: 110, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2}">
+								Reset về mặc định
+							</ion-button>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+				
+
+			</ion-list>
 		</div>
 		<div class="functions-list">
 			<ion-grid fixed>
@@ -101,15 +141,15 @@
 							<div class="top-zone">
 								<div class="label" [ngClass]="{odd: j % 2 != 0}" *ngFor="let l of items; let j = index;">
 									<div class="l-frame">
-										<div class="l-img-code">
-											<img class="qrc" [src]="l.QRC">
+										<div class="l-img-code" >
+											<img class="qrc" [src]="l.QRC" [ngStyle]="{width: ''+ lableConfig.QRCodeWidth + 'px' }">
 										</div>
 										<div class="l-logo"></div>
 										<div class="l-title">
-											<div class="l-read-code">
+											<div class="l-read-code" [ngStyle]="{'font-size': ''+ lableConfig.CodeFontSize + 'px' }" >
 												{{l.Value}} - {{l.data.Name}}
 											</div>
-											<div class="l-item-name">
+											<div class="l-item-name" [ngStyle]="{'font-size': ''+ lableConfig.NameFontSize + 'px' , '-webkit-line-clamp': ''+ lableConfig.NameLineClamp + '' }"   > 
 												#{{l.data._Item.Id}} - {{l.data._Item.Name}}
 											</div>
 											

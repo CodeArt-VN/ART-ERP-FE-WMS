@@ -17,6 +17,13 @@ import { lib } from 'src/app/services/static/global-functions';
 })
 export class ItemUomLabelPage extends PageBase {
     isNeedUpdateBarcode = false;
+    lableConfig = {
+        PageWidth: 110,
+        QRCodeWidth: 206,
+        CodeFontSize: 15,
+        NameFontSize: 9,
+        NameLineClamp: 2,
+    };
     printMode = 'Ruy110';
     constructor(
         public pageProvider: WMS_ItemUoMProvider,
