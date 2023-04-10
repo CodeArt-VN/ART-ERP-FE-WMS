@@ -3,7 +3,7 @@ import { LoadingController, AlertController, NavController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider, SYS_ConfigProvider } from 'src/app/services/static/services.service';
+import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider } from 'src/app/services/static/services.service';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
@@ -49,7 +49,6 @@ export class ItemDetailPage extends PageBase {
         public priceListDetailProvider: WMS_PriceListDetailProvider,
         public itemInWarehouseConfig: WMS_ItemInWarehouseConfigProvider,
         public taxProvider: FINANCE_TaxDefinitionProvider,
-        public sysConfigProvider: SYS_ConfigProvider,
 
         public env: EnvService,
         public route: ActivatedRoute,
@@ -181,24 +180,9 @@ export class ItemDetailPage extends PageBase {
             this.inputTaxList = resp['data'].filter(d => d.Category == 'InputTax');
             this.outputTaxList = resp['data'].filter(d => d.Category == 'OutputTax');
 
-            let query = {
-                Code: 'TaxInput',
-                IDBranch: this.env.selectedBranch
-            }
-
-            let query2 = {
-                Code: 'TaxOutput',
-                IDBranch: this.env.selectedBranch
-            }
-
-            let apiPath = {
-                method: "GET",
-                url: function () { return ApiSetting.apiDomain("SYS/Config/ConfigByBranch") }
-            };
-
             Promise.all([
-                this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), query).toPromise(),
-                this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), query2).toPromise()
+                this.pageProvider.commonService.connect('GET', 'SYS/Config/ConfigByBranch', {Code: 'TaxInput', IDBranch: this.env.selectedBranch}).toPromise(),
+                this.pageProvider.commonService.connect('GET', 'SYS/Config/ConfigByBranch', {Code: 'TaxOutput', IDBranch: this.env.selectedBranch}).toPromise(),
             ]).then((values: any) => {
                 if (values[0]['Value'] && this.item.Id == 0) {
                     let idTaxInput = JSON.parse(values[0]['Value']).Id;
