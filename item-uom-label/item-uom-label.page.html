@@ -47,13 +47,13 @@
 					</ion-text>
 				</label>
 				<ng-select (change)="itemUoMChange($event);" labelForId="IDItemUoM" [multiple]="true" [closeOnSelect]="false" [(ngModel)]="item.ItemUoM" [items]="IDItemUoMDataSource.items$ | async" [typeahead]="IDItemUoMDataSource.input$" [loading]="IDItemUoMDataSource.loading" placeholder="{{'Search' | translate}}" class="c-input no-check-dirty" [virtualScroll]="true">
-					<ng-template ng-label-tmp let-i="item">
+					<ng-template ng-label-tmp let-i="item" let-clear="clear">
 						<div>
 							<span>{{i._Item.Name}}</span>
 							<b><span class="important"> {{i.Name}}</span></b>
 							<span *ngIf="i._UoM.Code"> ({{i._UoM.Code}})</span>
 							<span *ngIf="i.Barcode"> - {{i.Barcode}}</span>
-
+							<ion-icon (click)="clear(i)" name="close-circle"></ion-icon>
 						</div>
 					</ng-template>
 					<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
@@ -107,7 +107,7 @@
 										<div class="l-logo"></div>
 										<div class="l-title">
 											<div class="l-read-code">
-												<b>{{l.Value}} - {{l.data.Name}}</b>
+												{{l.Value}} - {{l.data.Name}}
 											</div>
 											<div class="l-item-name">
 												#{{l.data._Item.Id}} - {{l.data._Item.Name}}

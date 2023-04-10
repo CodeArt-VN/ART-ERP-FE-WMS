@@ -11,8 +11,18 @@
     min-height: 147mm;
     padding: 0 10mm;
 }
-.ng-select .ng-select-container {
-    align-items: flex-start;
+.ng-select {
+    .ng-select-container {
+        align-items: flex-start;
+    
+        .ng-value ion-icon {
+            display: inline-block;
+            font-size: 1.3rem;
+            margin: -2px 3px;
+            color: var(--ion-color-danger);
+            cursor: pointer;
+        }
+    }
 }
 .sheet {
     &.huong-dan {
@@ -53,11 +63,14 @@
             padding: 0 16px 16px;
 
             .l-read-code{
-                font-size: 16px;
+                font-size: 15px;
             }
             .l-item-name{
-                white-space: nowrap;
                 width: 100%;
+                font-size: 9px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 
