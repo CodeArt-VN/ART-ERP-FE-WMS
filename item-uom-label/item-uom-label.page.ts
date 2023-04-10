@@ -62,24 +62,25 @@ export class ItemUomLabelPage extends PageBase {
             return;
         }
 
-        this.pageConfig.showSpinner =  true;
-        this.env.showLoading('Xin vui lòng chờ tạo nhãn in', this.loadLabel())
-        .then(data => {
-            this.items = data;
-            this.pageConfig.showSpinner =  false;
-            this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
-        }).catch(err => {
-            console.log(err);
-        })
-        this.env.showMessage('gg.');
+        this.pageConfig.showSpinner = true;
+        this.submitAttempt = true;
+        this.env.showLoading('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.ItemUoM))
+            .then(data => {
+                this.items = data;
+                this.pageConfig.showSpinner = false;
+                this.submitAttempt = false;
+                this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
+            }).catch(err => {
+                console.log(err);
+            })
 
     }
 
     IDItemUoMDataSource = {
         searchProvider: this.pageProvider,
-        loading : false,
-        input$ : new Subject<string>(),
-        selected : [],
+        loading: false,
+        input$: new Subject<string>(),
+        selected: [],
         items$: null,
         initSearch() {
             this.loading = false;
@@ -88,11 +89,11 @@ export class ItemUomLabelPage extends PageBase {
                 this.input$.pipe(
                     distinctUntilChanged(),
                     tap(() => this.loading = true),
-                    switchMap(term => this.searchProvider.search({SortBy: ['Id_desc'], Take: 200, Skip: 0, Term: term }).pipe(
+                    switchMap(term => this.searchProvider.search({ SortBy: ['Id_desc'], Take: 200, Skip: 0, Term: term }).pipe(
                         catchError(() => of([])), // empty list on error
                         tap(() => this.loading = false)
                     ))
-    
+
                 )
             );
         }
@@ -100,9 +101,9 @@ export class ItemUomLabelPage extends PageBase {
 
     ItemGroupDataSource = {
         searchProvider: this.itemGroupProvider,
-        loading : false,
-        input$ : new Subject<string>(),
-        selected : [],
+        loading: false,
+        input$: new Subject<string>(),
+        selected: [],
         items$: null,
         initSearch() {
             this.loading = false;
@@ -111,26 +112,26 @@ export class ItemUomLabelPage extends PageBase {
                 this.input$.pipe(
                     distinctUntilChanged(),
                     tap(() => this.loading = true),
-                    switchMap(term => this.searchProvider.search({SortBy: ['Id_desc'], Take: 200, Skip: 0, Keyword: term })
-                    .pipe(
-                        catchError(() => of([])), // empty list on error
-                        tap(() => this.loading = false),
-                        mergeMap(e => lib.buildFlatTree(e, e))
-                    ))
-                    
-                    
-    
+                    switchMap(term => this.searchProvider.search({ SortBy: ['Id_desc'], Take: 200, Skip: 0, Keyword: term })
+                        .pipe(
+                            catchError(() => of([])), // empty list on error
+                            tap(() => this.loading = false),
+                            mergeMap(e => lib.buildFlatTree(e, e))
+                        ))
+
+
+
                 )
             );
         }
     };
 
-    loadLabel() {
+    loadLabel(ItemUoMs) {
         return new Promise((resolve) => {
             let result = [];
-            this.item.ItemUoM.forEach(i => {
+            ItemUoMs.forEach(i => {
                 let label: any = {};
-                label.Value = '' + (i.Barcode? i.Barcode : i.Id);
+                label.Value = '' + (i.Barcode ? i.Barcode : i.Id);
                 label.data = i;
                 QRCode.toDataURL(label.Value, { errorCorrectionLevel: 'H', version: 2, width: 500, scale: 20, type: 'image/webp' }, function (err, url) {
                     label.QRC = url;
@@ -138,25 +139,25 @@ export class ItemUomLabelPage extends PageBase {
 
                 result.push(label);
             });
-            
+
             resolve(result);
         });
     }
 
-    itemUoMChange(e){
+    itemUoMChange(e) {
     }
 
-    changeGroup(e){
+    changeGroup(e) {
         console.log(e);
 
-        this.pageProvider.search({SortBy: ['Id_desc'], Take: 20000, Skip: 0, IDItemGroup: e.Id }).toPromise().then((data:any)=>{
+        this.pageProvider.search({ SortBy: ['Id_desc'], Take: 20000, Skip: 0, IDItemGroup: e.Id }).toPromise().then((data: any) => {
             this.item.ItemUoM = [...data]
-        }).catch(err=>{
+        }).catch(err => {
             this.item.ItemUoM = [...[]];
             console.log(err);
-            
+
         });
-        
+
     }
-    
+
 }

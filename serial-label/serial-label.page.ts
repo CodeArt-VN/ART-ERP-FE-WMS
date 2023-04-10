@@ -59,16 +59,17 @@ export class SerialLabelPage extends PageBase {
             this.item.FromNumber = this.item.ToNumber;
             this.item.ToNumber = tNum;
         }
-        this.pageConfig.showSpinner =  true;
-        this.env.showLoading('Xin vui lòng chờ tạo nhãn in', this.loadLabel(this.item.FromNumber, this.item.ToNumber))
-        .then(data => {
-            this.items = data;
-            this.pageConfig.showSpinner =  false;
-            this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
-        }).catch(err => {
-            console.log(err);
-        })
-        this.env.showMessage('gg.');
+        this.pageConfig.showSpinner = true;
+        this.submitAttempt = true;
+        this.env.showLoading('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.FromNumber, this.item.ToNumber))
+            .then(data => {
+                this.items = data;
+                this.pageConfig.showSpinner = false;
+                this.submitAttempt = false;
+                this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
+            }).catch(err => {
+                console.log(err);
+            })
 
     }
 
@@ -88,8 +89,8 @@ export class SerialLabelPage extends PageBase {
         });
     }
 
-    
-    
-    
+
+
+
 
 }
