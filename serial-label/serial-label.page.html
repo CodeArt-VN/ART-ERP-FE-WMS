@@ -1,0 +1,102 @@
+<ion-header>
+	<ion-toolbar>
+		<ion-buttons slot="start" class="ion-hide-sm-down_">
+			<ion-button color="dark" class="ion-hide-sm-down">
+				{{'erp.app.app-component.menu.menu-group.serial-label' | translate}}
+			</ion-button>
+		</ion-buttons>
+		<ion-buttons slot="end">
+			<!-- <ion-button (click)="changePrintMode()" title="{{'erp.app.pages.shipping.delivery-note.print-mode' | translate}}">
+				<ion-icon slot="icon-only" [name]="printMode == 'Ruy110' ? 'cut-outline':'file-tray-full-outline'"></ion-icon>
+			</ion-button> -->
+			<span class="split ion-hide-sm-down">|</span>
+			<ion-button (click)="print()" title="{{'erp.app.pages.shipping.delivery-note.print' | translate}}">
+				<ion-icon slot="icon-only" name="print"></ion-icon>
+			</ion-button>
+			<ion-button (click)="refresh()" title="{{'erp.app.pages.shipping.delivery-note.refresh' | translate}}">
+				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+			</ion-button>
+			<ion-button title="{{'erp.app.pages.shipping.delivery-note.show-feature' | translate}}" (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;">
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'">
+				</ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+
+<ion-content appScrollbarTheme appPrintFix class="Ruy110 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print " vertical="top" horizontal="start" slot="fixed">
+		<div class="ion-padding" style="min-height: calc(100% - 75px);">
+			<div class="c-control">
+				<label class="c-label" for="Storer">
+					<ion-text color="primary">
+						Từ số
+					</ion-text>
+				</label>
+				<input class="c-input" mask="separator.0" thousandSeparator="," [allowNegativeNumbers]="true" [(ngModel)]="item.FromNumber">
+			</div>
+			<div class="c-control">
+				<label class="c-label" for="Storer">
+					<ion-text color="primary">
+						Đến số
+					</ion-text>
+				</label>
+				<input class="c-input" mask="separator.0" thousandSeparator="," [allowNegativeNumbers]="true" [(ngModel)]="item.ToNumber">
+			</div>
+		</div>
+		<div *ngIf="item.FromNumber && item.ToNumber" class="functions-list">
+			<ion-grid fixed>
+				<ion-row>
+					<ion-col>
+						<ion-button expand="block" (click)="createPages()" [disabled]="submitAttempt">
+							Tạo nhãn in
+						</ion-button>
+					</ion-col>
+				</ion-row>
+			</ion-grid>
+		</div>
+	</ion-fab>
+
+	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	
+	<div style="overflow: auto;" *ngIf="items.length && !pageConfig.showSpinner">
+		<section class="sheet rpt">
+			<table>
+				<!-- <thead>
+					<tr>
+						<td>
+							<div class="page-header-space"></div>
+						</td>
+					</tr>
+				</thead> -->
+				<tbody>
+					<tr>
+						<td>
+							<div class="top-zone">
+								<div class="label" [ngClass]="{odd: j % 2 != 0}" *ngFor="let l of items; let j = index;">
+									<div class="l-frame">
+										<div class="l-img-code">
+											<img class="qrc" [src]="l.QRC">
+										</div>
+										<div class="l-logo"></div>
+										<div class="l-title">
+											{{l.Value}}
+										</div>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+				<!-- <tfoot>
+					<tr>
+						<td>
+							<div class="page-footer-space"></div>
+						</td>
+					</tr>
+				</tfoot> -->
+			</table>
+		</section>
+	</div>
+</ion-content>
