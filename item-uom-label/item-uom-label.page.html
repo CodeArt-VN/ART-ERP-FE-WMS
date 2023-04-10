@@ -52,7 +52,7 @@
 							<b><span class="important"> {{i.Name}}</span></b>
 							<span *ngIf="i._UoM.Code"> ({{i._UoM.Code}})</span>
 							<span *ngIf="i.Barcode"> - {{i.Barcode}}</span>
-							<ion-icon (click)="clear(i)" name="close-circle"></ion-icon>
+							<ion-icon (click)="clear(i)" name="close-outline"></ion-icon>
 						</div>
 					</ng-template>
 					<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
@@ -120,10 +120,6 @@
 	</ion-fab>
 
 	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-
-	<div *ngIf="item.ItemUoM.length && isNeedUpdateBarcode" style="min-width: 300px; height: calc(100vh - 65px);">
-	</div>
-
 
 	<div style="overflow: auto;" *ngIf="items.length && !pageConfig.showSpinner">
 		<section class="sheet rpt">

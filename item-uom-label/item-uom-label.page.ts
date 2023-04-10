@@ -16,7 +16,6 @@ import { lib } from 'src/app/services/static/global-functions';
     styleUrls: ['item-uom-label.page.scss']
 })
 export class ItemUomLabelPage extends PageBase {
-    isNeedUpdateBarcode = false;
     lableConfig = {
         PageWidth: 110,
         QRCodeWidth: 206,

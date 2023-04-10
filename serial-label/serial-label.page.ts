@@ -15,7 +15,13 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['serial-label.page.scss']
 })
 export class SerialLabelPage extends PageBase {
-    branchList = [];
+    lableConfig = {
+        PageWidth: 110,
+        QRCodeWidth: 206,
+        CodeFontSize: 0,
+        NameFontSize: 48,
+        NameLineClamp: 2,
+    };
     printMode = 'Ruy110';
     constructor(
         public pageProvider: WMS_ItemProvider,
