@@ -16,13 +16,13 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class SerialLabelPage extends PageBase {
     lableConfig = {
-        PageWidth: 110,
+        PageWidth: 96,
         QRCodeWidth: 206,
         CodeFontSize: 0,
         NameFontSize: 48,
         NameLineClamp: 2,
     };
-    printMode = 'Ruy110';
+    printMode = 'Ruy96';
     constructor(
         public pageProvider: WMS_ItemProvider,
         public modalController: ModalController,

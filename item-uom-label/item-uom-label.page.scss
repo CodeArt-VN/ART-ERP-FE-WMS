@@ -1,12 +1,12 @@
-.Ruy110 .sheet {
-    width: 110mm;
+.Ruy96 .sheet {
+    width: 96mm;
     height: auto;
     min-height: auto;//295mm;
     padding: 0;
 }
 
 .A5.landscape .sheet {
-    width: 110mm;
+    width: 96mm;
     height: auto;
     min-height: 147mm;
     padding: 0 10mm;
@@ -28,12 +28,12 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        min-height: calc(110mm / 2 - 2px);
+        min-height: calc(96mm / 2 - 2px);
     }
 
     .label{
         page-break-inside: avoid;
-        width: calc(110mm / 2 - 2px);
+        width: calc(96mm / 2 - 2px);
         border-right: 1px dashed gray;
         border-bottom: 1px dashed gray;
 

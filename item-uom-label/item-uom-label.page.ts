@@ -17,13 +17,13 @@ import { lib } from 'src/app/services/static/global-functions';
 })
 export class ItemUomLabelPage extends PageBase {
     lableConfig = {
-        PageWidth: 110,
+        PageWidth: 96,
         QRCodeWidth: 206,
         CodeFontSize: 15,
         NameFontSize: 9,
         NameLineClamp: 2,
     };
-    printMode = 'Ruy110';
+    printMode = 'Ruy96';
     constructor(
         public pageProvider: WMS_ItemUoMProvider,
         public itemGroupProvider: WMS_ItemGroupProvider,

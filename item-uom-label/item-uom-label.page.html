@@ -7,7 +7,7 @@
 		</ion-buttons>
 		<ion-buttons slot="end">
 			<!-- <ion-button (click)="changePrintMode()" title="{{'erp.app.pages.shipping.delivery-note.print-mode' | translate}}">
-				<ion-icon slot="icon-only" [name]="printMode == 'Ruy110' ? 'cut-outline':'file-tray-full-outline'"></ion-icon>
+				<ion-icon slot="icon-only" [name]="printMode == 'Ruy96' ? 'cut-outline':'file-tray-full-outline'"></ion-icon>
 			</ion-button> -->
 			<span class="split ion-hide-sm-down">|</span>
 			<ion-button (click)="print()" title="{{'erp.app.pages.shipping.delivery-note.print' | translate}}">
@@ -25,7 +25,7 @@
 </ion-header>
 
 
-<ion-content appScrollbarTheme appPrintFix class="Ruy110 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+<ion-content appScrollbarTheme appPrintFix class="Ruy96 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print " vertical="top" horizontal="start" slot="fixed">
 		<div class="ion-padding">
 			<div class="c-control">
@@ -96,7 +96,7 @@
 				<ion-grid fixed>
 					<ion-row>
 						<ion-col>
-							<ion-button expand="block" fill="outline" (click)="this.lableConfig = {PageWidth: 110, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2}">
+							<ion-button expand="block" fill="outline" (click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2}">
 								Reset về mặc định
 							</ion-button>
 						</ion-col>
