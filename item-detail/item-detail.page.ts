@@ -276,13 +276,6 @@ export class ItemDetailPage extends PageBase {
             })
         }
 
-        if (this.item?.TransactionsExist) {
-            this.pageConfig.canEditTrans = false;
-        }
-        else {
-            this.pageConfig.canEditTrans = true;
-        }
-
         super.loadedData(null);
         this.setItemConfigs();
 
@@ -423,15 +416,10 @@ export class ItemDetailPage extends PageBase {
         if (this.segmentView.Page == 's3') {
             this.loadPriceList();
         }
-        else if (this.segmentView.Page == 's1') {
-            if (!this.pageConfig.canEditTrans) {
-                this.env.showTranslateMessage('erp.app.pages.sale.sale-order-detail.transaction-existed','warning',null,5000);
-            }
-        }
     }
 
     changeBaseUoM(i) {
-        if (!this.pageConfig.canEditUoM || !this.pageConfig.canEditTrans) {
+        if (!this.pageConfig.canEditUoM || this.item?.TransactionsExist) {
             return;
         }
         let checkedRows = this.UoMs.filter(d => d.IsBaseUoM);
@@ -576,7 +564,7 @@ export class ItemDetailPage extends PageBase {
     }
 
     updateUoM() {
-        if (this.pageConfig.canEditUoM && this.pageConfig.canEditTrans) {
+        if (this.pageConfig.canEditUoM) {
             this.pageProvider.save(this.item).then(() => {
                 this.env.showTranslateMessage('erp.app.pages.wms.item.message.update-uom');
             });
