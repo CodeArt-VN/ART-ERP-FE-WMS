@@ -129,8 +129,7 @@ export class POSTableLabelPage extends PageBase {
                 let label: any = {};
                 label.Value = '' + (i.Barcode ? i.Barcode : i.Id);
                 label.data = i;
-                //Chuyển lại thành app.inholdings.vn khi chạy chính thức
-                QRCode.toDataURL('http://beta.inholdings.vn/#/pos-welcome/' + label.Value, { errorCorrectionLevel: 'M', version: 4, width: 500, scale: 20, type: 'image/webp' }, function (err, url) {
+                QRCode.toDataURL('http://app.inholdings.vn/#/pos-welcome/' + label.Value, { errorCorrectionLevel: 'M', version: 4, width: 500, scale: 20, type: 'image/webp' }, function (err, url) {
                     label.QRC = url;
                 });
 
