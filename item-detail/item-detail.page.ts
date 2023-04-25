@@ -84,9 +84,9 @@ export class ItemDetailPage extends PageBase {
             ItemType: ['Items', Validators.required],
             Industry: [''],
             Division: [''],
-            IsInventoryItem: ['', Validators.required],
-            IsSalesItem: ['', Validators.required],
-            IsPurchaseItem: ['', Validators.required],
+            IsInventoryItem: [true, Validators.required],
+            IsSalesItem: [true, Validators.required],
+            IsPurchaseItem: [true, Validators.required],
 
             BaseUoM: [''],
             AccountantUoM: [''],
