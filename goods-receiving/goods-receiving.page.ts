@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, ModalController, AlertController, LoadingController, PopoverController, Platform } from '@ionic/angular';
+import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, CRM_ContactProvider, PURCHASE_OrderProvider, SYS_StatusProvider, SYS_TypeProvider, WMS_ReceiptProvider } from 'src/app/services/static/services.service';
-import { Location } from '@angular/common';
+import { BRA_BranchProvider, CRM_ContactProvider, PURCHASE_OrderProvider, WMS_ReceiptProvider } from 'src/app/services/static/services.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
@@ -19,18 +18,13 @@ export class GoodsReceivingPage extends PageBase {
         public pageProvider: WMS_ReceiptProvider,
         public branchProvider: BRA_BranchProvider,
         public contactProvider: CRM_ContactProvider,
-        public statusProvider: SYS_StatusProvider,
-        public typeProvider: SYS_TypeProvider,
-        //add PURCHASE_OrderProvider
         public purchaseProvider: PURCHASE_OrderProvider,
-
         public modalController: ModalController,
 		public popoverCtrl: PopoverController,
         public alertCtrl: AlertController,
         public loadingController: LoadingController,
         public env: EnvService,
         public navCtrl: NavController,
-        public location: Location,
     ) {
         super();
 
@@ -63,13 +57,13 @@ export class GoodsReceivingPage extends PageBase {
         Promise.all([
             this.contactProvider.read({ IsStorer: true }),
             this.branchProvider.read({ Id: this.env.selectedBranchAndChildren, IDType: 115 }),
-            this.statusProvider.read({ Code_eq: 'ReceiptStatus', AllChildren: true }),
-            this.typeProvider.read({ Code_eq: 'ReceiptType', AllChildren: true })
+            this.env.getStatus('ReceiptStatus'),
+            this.env.getType('ReceiptType')
         ]).then(values => {
             this.storerList = values[0]['data'];
             this.warehouseList = values[1]['data'];
-            this.statusList = values[2]['data'].filter(d => d.Code != 'ReceiptStatus');
-            this.typeList = values[3]['data'].filter(d => d.Code != 'ReceiptType');
+            this.statusList = values[2];
+            this.typeList = values[3];
             
             super.preLoadData(event);
 

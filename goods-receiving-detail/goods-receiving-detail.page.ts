@@ -1,12 +1,11 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { NavController, ModalController, LoadingController, AlertController } from '@ionic/angular';
+import { NavController, LoadingController, AlertController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, CRM_ContactProvider, WMS_ItemProvider, WMS_ReceiptProvider, WMS_ReceiptDetailProvider, WMS_ReceiptPalletizationProvider, SYS_StatusProvider, SYS_TypeProvider, WMS_LocationProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, CRM_ContactProvider, WMS_ItemProvider, WMS_ReceiptProvider, WMS_ReceiptDetailProvider, WMS_ReceiptPalletizationProvider, WMS_LocationProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
-import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { ApiSetting } from 'src/app/services/static/api-setting';
@@ -34,12 +33,9 @@ export class GoodReceivingDetailPage extends PageBase {
     constructor(
         public pageProvider: WMS_ReceiptProvider,
         public receiptDetailProvider: WMS_ReceiptDetailProvider,
-        public receiptPalletizationProvider: WMS_ReceiptPalletizationProvider,
         public contactProvider: CRM_ContactProvider,
         public branchProvider: BRA_BranchProvider,
         public itemProvider: WMS_ItemProvider,
-        public statusProvider: SYS_StatusProvider,
-        public typeProvider: SYS_TypeProvider,
         public locationProvider: WMS_LocationProvider,
         public env: EnvService,
         public navCtrl: NavController,
@@ -48,7 +44,6 @@ export class GoodReceivingDetailPage extends PageBase {
         public formBuilder: FormBuilder,
         public cdr: ChangeDetectorRef,
         public loadingController: LoadingController,
-        public commonService: CommonService,
     ) {
         super();
         this.pageConfig.isDetailPage = true;
@@ -129,15 +124,13 @@ export class GoodReceivingDetailPage extends PageBase {
             this.carrierList = resp['data'];
         });
 
-        this.statusProvider.read({ Code_eq: 'ReceiptStatus', AllChildren: true }).then(resp => {
-            let it = resp['data'].find(d => d.Code == 'ReceiptStatus');
-            this.statusList = resp['data'].filter(d => d.IDParent == it.Id);
-        });
+        this.env.getStatus('ReceiptStatus').then(data => {
+            this.statusList = data;
+        })
 
-        this.typeProvider.read({ Code_eq: 'ReceiptType', AllChildren: true }).then(resp => {
-            let it = resp['data'].find(d => d.Code == 'ReceiptType');
-            this.typeList = resp['data'].filter(d => d.IDParent == it.Id);
-        });
+        this.env.getType('ReceiptType').then(data => {
+            this.typeList = data;
+        })
     }
 
     markNestedNode(ls, Id) {
@@ -154,7 +147,7 @@ export class GoodReceivingDetailPage extends PageBase {
             if (this.item.Lines) {
                 this.item.Lines.sort((a, b) => (a.Id > b.Id) ? 1 : ((b.Id > a.Id) ? -1 : 0));
                 this.item.Lines.forEach(l => {
-                    l.UoMName = lib.getAttrib(l.IDUoM, l._Item.UoMs,'Name');
+                    l.UoMName = lib.getAttrib(l.IDUoM, l._Item.UoMs, 'Name');
                     l.Lottable5 = lib.dateFormat(l.Lottable5);
                     l.Lottable6 = lib.dateFormat(l.Lottable6);
                 });
@@ -433,7 +426,7 @@ export class GoodReceivingDetailPage extends PageBase {
         });
     }
 
-    count=0;
+    count = 0;
     changeSoLuong(line, e = null, checkFullQuantity = true) {
         this.count++;
         let index = this.item.Lines.findIndex(i => i.Id == line.value.Id);
@@ -442,7 +435,7 @@ export class GoodReceivingDetailPage extends PageBase {
         if (!line.value.QuantityReceived) {
             line.value.QuantityReceived = 0
         }
-        
+
         if (line.value.QuantityReceived > line.value.UoMQuantityExpected) {
             line.value.QuantityReceived = line.value.UoMQuantityExpected;
             this.item.Lines[index].QuantityReceived = line.value.UoMQuantityExpected;
@@ -565,7 +558,7 @@ export class GoodReceivingDetailPage extends PageBase {
             i.DiscountByItem = 0;
         }
 
-        if (i.ShippedQuantity==0) {
+        if (i.ShippedQuantity == 0) {
             i.DiscountFromSalesman = 0;
         }
 

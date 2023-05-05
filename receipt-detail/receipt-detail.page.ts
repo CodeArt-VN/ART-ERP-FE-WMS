@@ -3,7 +3,7 @@ import { NavController, LoadingController, AlertController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, CRM_ContactProvider, SYS_StatusProvider, SYS_TypeProvider, WMS_ItemProvider, WMS_LocationProvider, WMS_ReceiptDetailProvider, WMS_ReceiptPalletizationProvider, WMS_ReceiptProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, CRM_ContactProvider, WMS_ItemProvider, WMS_LocationProvider, WMS_ReceiptDetailProvider, WMS_ReceiptPalletizationProvider, WMS_ReceiptProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
@@ -31,8 +31,6 @@ export class ReceiptDetailPage extends PageBase {
         public contactProvider: CRM_ContactProvider,
         public branchProvider: BRA_BranchProvider,
         public itemProvider: WMS_ItemProvider,
-        public statusProvider: SYS_StatusProvider,
-        public typeProvider: SYS_TypeProvider,
         public locationProvider: WMS_LocationProvider,
         public env: EnvService,
         public navCtrl: NavController,
@@ -40,8 +38,7 @@ export class ReceiptDetailPage extends PageBase {
         public alertCtrl: AlertController,
         public formBuilder: FormBuilder,
         public cdr: ChangeDetectorRef,
-        public loadingController: LoadingController,
-        public commonService: CommonService,
+        public loadingController: LoadingController
     ) {
         super();
         this.pageConfig.isDetailPage = true;
@@ -83,7 +80,7 @@ export class ReceiptDetailPage extends PageBase {
                     formData.append('fileKey', fileToUpload, fileToUpload.name);
                     return new Promise((resolve, reject) => {
 
-                        this.commonService.connect('UPLOAD', ApiSetting.apiDomain("WMS/Receipt/ImportReceiptDetailFile/" + id), formData).toPromise()
+                        this.pageProvider.commonService.connect('UPLOAD', ApiSetting.apiDomain("WMS/Receipt/ImportReceiptDetailFile/" + id), formData).toPromise()
                             .then((data) => {
                                 resolve(data);
                             }).catch(err => {
@@ -122,15 +119,13 @@ export class ReceiptDetailPage extends PageBase {
             this.carrierList = resp['data'];
         });
 
-        this.statusProvider.read({ Code_eq: 'ReceiptStatus', AllChildren: true }).then(resp => {
-            let it = resp['data'].find(d => d.Code == 'ReceiptStatus');
-            this.statusList = resp['data'].filter(d => d.IDParent == it.Id);
-        });
+        this.env.getStatus('ReceiptStatus').then(data => {
+            this.statusList = data;
+        })
 
-        this.typeProvider.read({ Code_eq: 'ReceiptType', AllChildren: true }).then(resp => {
-            let it = resp['data'].find(d => d.Code == 'ReceiptType');
-            this.typeList = resp['data'].filter(d => d.IDParent == it.Id);
-        });
+        this.env.getType('ReceiptType').then(data => {
+            this.typeList = data;
+        })
     }
 
     markNestedNode(ls, Id) {
@@ -320,7 +315,7 @@ export class ReceiptDetailPage extends PageBase {
         if (this.formGroup.controls.Lines.valid)
             super.saveChange2();
         else
-            this.env.showTranslateMessage('erp.app.app-component.page-bage.check-red-above','warning');
+            this.env.showTranslateMessage('erp.app.app-component.page-bage.check-red-above', 'warning');
     }
 
     calcTotalLine() {
@@ -406,20 +401,20 @@ export class ReceiptDetailPage extends PageBase {
         });
         await loading.present().then(() => {
             return this.pageProvider.commonService
-            .connect("POST", ApiSetting.apiDomain("WMS/Receipt/Palletize"), { Id: this.id })
-            .toPromise().then(resp => {
-                this.item = resp;
-                this.env.publishEvent({ Code: this.pageConfig.pageName });
-                if (loading) loading.dismiss();
-                this.loadedData();
-            }).catch(ex=>{
-                if(ex.error && ex.error.ExceptionMessage)
-                    this.env.showMessage(ex.error.ExceptionMessage,'danger');
-                else
-                    this.env.showTranslateMessage('erp.app.app-component.page-bage.can-not-save','danger');
-                console.log(ex);
-                if (loading) loading.dismiss();
-            });
+                .connect("POST", ApiSetting.apiDomain("WMS/Receipt/Palletize"), { Id: this.id })
+                .toPromise().then(resp => {
+                    this.item = resp;
+                    this.env.publishEvent({ Code: this.pageConfig.pageName });
+                    if (loading) loading.dismiss();
+                    this.loadedData();
+                }).catch(ex => {
+                    if (ex.error && ex.error.ExceptionMessage)
+                        this.env.showMessage(ex.error.ExceptionMessage, 'danger');
+                    else
+                        this.env.showTranslateMessage('erp.app.app-component.page-bage.can-not-save', 'danger');
+                    console.log(ex);
+                    if (loading) loading.dismiss();
+                });
         });
     }
 
@@ -501,19 +496,19 @@ export class ReceiptDetailPage extends PageBase {
         })
     }
 
-    async createInvoice(){
+    async createInvoice() {
         this.env.showLoading('Vui lòng chờ tạo hóa đơn',
-        this.pageProvider.commonService.connect('POST', 'WMS/Receipt/CreateInvoice/', {Ids:[this.item.Id]}).toPromise()
-        ).then((resp:any)=>{
-            this.env.showPrompt("Bạn có muốn mở hóa đơn vừa tạo?").then(_=>{
+            this.pageProvider.commonService.connect('POST', 'WMS/Receipt/CreateInvoice/', { Ids: [this.item.Id] }).toPromise()
+        ).then((resp: any) => {
+            this.env.showPrompt("Bạn có muốn mở hóa đơn vừa tạo?").then(_ => {
                 if (resp.length == 1) {
                     this.nav('/ap-invoice/' + resp[0]);
                 }
-                else{
+                else {
                     this.nav('/ap-invoice/');
                 }
-            }).catch(_=>{});
-        }).catch(err=>{
+            }).catch(_ => { });
+        }).catch(err => {
             this.env.showMessage(err)
         });
     }
