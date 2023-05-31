@@ -130,7 +130,7 @@ export class ReceiptDetailPage extends PageBase {
 
     markNestedNode(ls, Id) {
         ls.filter(d => d.IDParent == Id).forEach(i => {
-            if (i.IDType == 115)
+            if (i.Type == 'Warehouse')
                 i.disabled = false;
             this.markNestedNode(ls, i.Id);
         });

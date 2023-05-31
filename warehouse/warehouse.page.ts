@@ -194,7 +194,7 @@ export class WarehousePage extends PageBase {
         let current = ls.find(d => d.Id == Id);;
         current.disabled = current.IDType != 115;
         ls.filter(d => d.IDParent == Id).forEach(i => {
-            if (i.IDType == 115)
+            if (i.Type == 'Warehouse')
                 i.disabled = false;
             this.markNestedNode(ls, i.Id);
         });
