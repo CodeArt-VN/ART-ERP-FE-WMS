@@ -5,8 +5,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WarehousePage } from './warehouse.page';
 import { ShareModule } from 'src/app/share.module';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 import { WarehouseComponentsModule } from './components/warehouse-components.module';
 
 @NgModule({
@@ -17,8 +15,6 @@ import { WarehouseComponentsModule } from './components/warehouse-components.mod
     ReactiveFormsModule,
     WarehouseComponentsModule,
     ShareModule,
-    NgSelectModule,
-    NgOptionHighlightModule,
     RouterModule.forChild([{ path: '', component: WarehousePage }])
   ],
   declarations: [WarehousePage]
