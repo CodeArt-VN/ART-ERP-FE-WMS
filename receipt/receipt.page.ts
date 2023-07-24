@@ -57,7 +57,7 @@ export class ReceiptPage extends PageBase {
         }
         Promise.all([
             this.contactProvider.read({ IsStorer: true }),
-            this.branchProvider.read({ Id: this.env.selectedBranchAndChildren, IDType: 115 }),
+            this.branchProvider.read({ Id: this.env.selectedBranchAndChildren, Type: 'Warehouse' }),
             this.env.getStatus('ReceiptStatus'),
             this.env.getType('ReceiptType')
         ]).then(values => {

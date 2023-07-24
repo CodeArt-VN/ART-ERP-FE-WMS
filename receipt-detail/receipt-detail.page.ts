@@ -96,7 +96,7 @@ export class ReceiptDetailPage extends PageBase {
 
 
     preLoadData(event) {
-        this.branchProvider.read({ Skip: 0, Take: 5000, IDType: 115, AllParent: true, Id: this.env.selectedBranchAndChildren }).then(resp => {
+        this.branchProvider.read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren }).then(resp => {
             lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
                 this.branchList = result;
                 this.branchList.forEach(i => {
