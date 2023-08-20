@@ -69,7 +69,7 @@ export class ReceiptDetailPage extends PageBase {
 
             Type: ['KeyIn'], //new FormControl({ value: '', disabled: false }),
             Status: new FormControl({ value: '', disabled: true }),
-            IsDisabled: [''],
+            IsDisabled: new FormControl({ value: '', disabled: true }),
             Lines: this.formBuilder.array([]),
         });
 

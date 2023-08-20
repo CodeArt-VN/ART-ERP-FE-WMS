@@ -4,7 +4,7 @@ import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 import { WMS_ItemProvider, WMS_ItemUoMProvider, WMS_PriceListDetailProvider, WMS_PriceListProvider, WMS_ItemGroupProvider, WMS_UoMProvider, WMS_ZoneProvider, WMS_CartonGroupProvider, WMS_ItemInWarehouseConfigProvider, BRA_BranchProvider, CRM_ContactProvider, WMS_LocationProvider, FINANCE_TaxDefinitionProvider } from 'src/app/services/static/services.service';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, map, mergeMap, switchMap, tap } from 'rxjs/operators';
@@ -70,15 +70,26 @@ export class ItemDetailPage extends PageBase {
 
         this.id = this.route.snapshot.paramMap.get('id');
         this.formGroup = formBuilder.group({
+            IDBranch: new FormControl({ value: null, disabled: false }),
+            Id: new FormControl({ value: '0', disabled: true }),
+            Code: ['', Validators.required],
+            Name: ['', Validators.required],
+            Remark: new FormControl(),
+            Sort: [''],
+            IsDisabled: new FormControl({ value: '', disabled: true }),
+            CreatedBy: new FormControl({ value: '', disabled: true }),
+            CreatedDate: new FormControl({ value: '', disabled: true }),
+            ModifiedBy: new FormControl({ value: '', disabled: true }),
+            ModifiedDate: new FormControl({ value: '', disabled: true }),
+
             Storers: [],
 
             IDItemGroup: ['', Validators.required],
-            IDBranch: [null],
-            Id: [0],
-            Code: ['', Validators.required],
-            Name: ['', Validators.required],
+            
+           
+            
             ForeignName: [''],
-            Remark: [''],
+            
             ForeignRemark: [''],
 
             ItemType: ['Items', Validators.required],
@@ -141,9 +152,6 @@ export class ItemDetailPage extends PageBase {
 
             TI: [''],
             HI: [''],
-
-            Sort: [''],
-            IsDisabled: [''],
 
             WMS_ItemInWarehouseConfig: this.formBuilder.array([]),
             VendorIds: []
@@ -269,12 +277,7 @@ export class ItemDetailPage extends PageBase {
                 }
             });
         }
-        else {
-            this.env.getStorage('item.IDItemGroup').then(val => {
-                this.item.IDItemGroup = val;
-                this.cdr.detectChanges();
-            })
-        }
+       
 
         super.loadedData(null);
         this.setItemConfigs();
@@ -298,6 +301,13 @@ export class ItemDetailPage extends PageBase {
             this.formGroup.controls.Lottable7.markAsDirty();
             this.formGroup.controls.Lottable8.markAsDirty();
             this.formGroup.controls.Lottable9.markAsDirty();
+
+            // this.env.getStorage('item.IDItemGroup').then(val => {
+            //     this.formGroup.controls.IDItemGroup.setValue(val);
+            //     this.formGroup.controls.IDItemGroup.markAsDirty();
+            //     this.item.IDItemGroup = val;
+                
+            // })
         }
     }
 

@@ -38,7 +38,7 @@ export class LocationDetailPage extends PageBase {
             Name: ['', Validators.required],
             Remark: [''],
             Sort: [''],
-            IsDisabled: [''],
+            IsDisabled: new FormControl({ value: '', disabled: true }),
             IDZone: ['', Validators.required],
             LocationType: [''],
             IsAutomaticallyShipPickedProduct: [''],

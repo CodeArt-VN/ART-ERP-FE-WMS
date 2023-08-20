@@ -170,7 +170,7 @@
                                     <ion-col size="12" size-sm size-xl="4">
                                         <div class="c-control">
                                             <label class="c-label" for="IDItemGroup">{{'erp.app.pages.wms.item.id-item-group' | translate}}</label>
-                                            <ng-select class="c-input" [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="changeGroup();  saveChange();" #IDItemGroup labelForId="IDItemGroup" formControlName="IDItemGroup" [items]="itemGroupList$ | async" [typeahead]="itemGroupListInput$" [loading]='itemGroupListLoading' [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.wms.item.group-search-placeholder' | translate}}">
+                                            <ng-select class="c-input" [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="saveChange();" #IDItemGroup labelForId="IDItemGroup" formControlName="IDItemGroup" [items]="itemGroupList$ | async" [typeahead]="itemGroupListInput$" [loading]='itemGroupListLoading' [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.wms.item.group-search-placeholder' | translate}}">
                                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                                     <div *ngIf="i">
                                                         <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
@@ -379,7 +379,7 @@
                                 <ion-row class="hr-group">
                                     <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
                                         <ion-list-header class="ion-no-padding">
-                                            <ion-label color="primary">{{'erp.app.pages.wms.item.other' | translate}}</ion-label>
+                                            <ion-label color="primary">{{'TI-HI' | translate}}</ion-label>
                                         </ion-list-header>
                                         <ion-item class="ion-no-padding" lines="none">
                                             <ion-label color="medium" class="ion-text-wrap">
@@ -410,19 +410,24 @@
                                         </div>
 
                                     </ion-col>
+                                    
+                                </ion-row>
+                                <!-- Other information -->
+                                <ion-row class="hr-group" *ngIf="item.Id">
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'Other information' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
                                     <ion-col size="12" size-sm size-xl="4">
-                                        <!-- <div class="c-control">
-                                            <label class="c-label" for="ForeignRemark">Mô tả tiếng Anh
-                                                <span *ngIf="!formGroup.controls.ForeignRemark.valid && !formGroup.controls.ForeignRemark.pending && (formGroup.controls.ForeignRemark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                            </label>
-                                            <textarea [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="saveChange()" rows="3" class="c-input" id="ForeignRemark" formControlName="ForeignRemark" type="textarea"></textarea>
-                                        </div> -->
-                                        <div class="c-control">
-                                            <label class="c-label" for="Remark">{{'erp.app.pages.wms.item.remark' | translate}}
-                                                <span *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                            </label>
-                                            <textarea [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="saveChange()" rows="3" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
-                                        </div>
+                                        <app-form-control [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"></app-form-control>
+                                        <app-form-control [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
+                                        <app-form-control [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"></app-form-control>
+                                        <app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <app-form-control [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
+                                        <app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
                                     </ion-col>
                                 </ion-row>
                             </form>
