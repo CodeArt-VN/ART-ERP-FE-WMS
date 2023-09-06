@@ -40,7 +40,7 @@
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Type" name="search" color="primary"></ion-icon>
 			</div>
 
-			
+
 
 			<!-- <div class="col-code cell" (click)="sortToggle('Code')">Đơn vị
 				<ion-icon class="min-btn" *ngIf="sort.Code" [name]="sort.Code == 'Code'?'arrow-down': 'arrow-up'"></ion-icon>
@@ -73,7 +73,7 @@
 					</select>
 					<ion-icon class="min-btn" (click)="query.IDStorer=''; refresh()" *ngIf="query.IDStorer" name="close-circle-outline"></ion-icon>
 				</div>
-				
+
 				<div class="col-date cell">
 					<ion-text>{{'erp.app.pages.wms.receipt.expected-receipt-date' | translate}}</ion-text>
 					<input style="text-align: center;" [ngModelOptions]="{standalone: true}" (change)="refresh();" [(ngModel)]="query.ExpectedReceiptDate" class="c-input" [ngClass]="{active: query.ExpectedReceiptDate}" type="date">
@@ -111,31 +111,28 @@
 
 	<div *ngIf="items.length && pageConfig.showSpinner==false">
 		<section class="table">
-			<ion-virtual-scroll [items]="items" approxItemHeight="27px">
-				<ng-container *virtualItem="let i; let itemBounds = bounds; let j = index; ">
-					<div class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}" [ngStyle]="{'border-left': 'solid 5px rgba(var(--ion-color-' + i.StatusColor + '-rgb, 0, 0, 0), .2)'}">
-						<div class="col-checkbox cell">
-							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-						</div>
-						<div (click)="nav('goods-receiving/'+i.Id,'forward')" class="col-id cell">
-							{{i.Id}}
-						</div>
-						<div class="col-status cell">
-							<span class="bar-holder">
-								<ion-text class="bar-title" [color]="i.StatusColor">{{i.StatusText}}</ion-text>
-								<span class="bar" [ngClass]="{active: s.Code==i.Status}" [ngStyle]="{'background-color': 'var(--ion-color-'+s.Color+')'}" *ngFor="let s of statusList" [title]="s.Name"></span>
-							</span>
-						</div>
-						<div (click)="nav('goods-receiving/'+i.Id,'forward')" class="col-code cell">
-							{{i.StorerName}}
-						</div>
-						<div class="col-date cell">{{i.ExpectedReceiptDateText}}</div>
-						<div class="col-date col-estReceivingDate cell" ><span *ngIf="i.ReceiptedDateText"> {{i.ReceiptedDateText}}</span></div>
-						<div class="col-name cell">{{i.VehicleNumber}}</div>
-						<div class="col-status col-ImportStatus cell"><span>{{i.TypeText}} <small *ngIf="i.IDPurchaseOrder">{{i.IDPurchaseOrder}}</small></span></div>
-					</div>
-				</ng-container>
-			</ion-virtual-scroll>
+			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}" [ngStyle]="{'border-left': 'solid 5px rgba(var(--ion-color-' + i.StatusColor + '-rgb, 0, 0, 0), .2)'}">
+				<div class="col-checkbox cell">
+					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
+				</div>
+				<div (click)="nav('goods-receiving/'+i.Id,'forward')" class="col-id cell">
+					{{i.Id}}
+				</div>
+				<div class="col-status cell">
+					<span class="bar-holder">
+						<ion-text class="bar-title" [color]="i.StatusColor">{{i.StatusText}}</ion-text>
+						<span class="bar" [ngClass]="{active: s.Code==i.Status}" [ngStyle]="{'background-color': 'var(--ion-color-'+s.Color+')'}" *ngFor="let s of statusList" [title]="s.Name"></span>
+					</span>
+				</div>
+				<div (click)="nav('goods-receiving/'+i.Id,'forward')" class="col-code cell">
+					{{i.StorerName}}
+				</div>
+				<div class="col-date cell">{{i.ExpectedReceiptDateText}}</div>
+				<div class="col-date col-estReceivingDate cell"><span *ngIf="i.ReceiptedDateText"> {{i.ReceiptedDateText}}</span></div>
+				<div class="col-name cell">{{i.VehicleNumber}}</div>
+				<div class="col-status col-ImportStatus cell"><span>{{i.TypeText}} <small *ngIf="i.IDPurchaseOrder">{{i.IDPurchaseOrder}}</small></span></div>
+			</div>
+
 		</section>
 	</div>
 

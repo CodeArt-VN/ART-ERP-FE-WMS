@@ -61,47 +61,43 @@
     </header>
   </form>
 
-  <ion-virtual-scroll [items]="items" approxItemHeight="27px">
-    <ng-container *virtualItem="let i; let itemBounds = bounds; let j = index;">
-      <div class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-        <div class="col-checkbox cell">
-          <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-        </div>
+  <div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+    <div class="col-checkbox cell">
+      <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
+    </div>
 
-        <div class="col-name cell">
-          <span><b>{{i._Item.Code}}</b> - {{i._Item.Name}}</span>
-        </div>
-        <div class="col-code cell">
-          <small>{{i._Location.ZoneName}}</small> {{i._Location.Name}}
-        </div>
-        <div class="col-code cell">
-          {{i._Lot.Lottable0}}
-        </div>
-        <div class="col-code cell">
-          <ion-icon name="arrow-forward"></ion-icon>
-          <span *ngIf="i._LPN">{{i._LPN.Id}}</span>
-        </div>
-        <div class="col-number cell">
-          {{i.QuantityExpected}}
-        </div>
-        <div class="col-number cell">
-          {{i.QuantityOnHand}}
-        </div>
-        <div class="col-number cell">
-          {{i.QuantityAllocated}}
-        </div>
-        <div class="col-number cell">
-          {{i.QuantityPicked}}
-        </div>
-        <div class="col-number cell">
-          {{i.QuantityPickInProcess}}
-        </div>
-        <div class="col-number cell">
-          {{i.QuantityPendingMoveIn}}
-        </div>
-      </div>
-    </ng-container>
-  </ion-virtual-scroll>
+    <div class="col-name cell">
+      <span><b>{{i._Item.Code}}</b> - {{i._Item.Name}}</span>
+    </div>
+    <div class="col-code cell">
+      <small>{{i._Location.ZoneName}}</small> {{i._Location.Name}}
+    </div>
+    <div class="col-code cell">
+      {{i._Lot.Lottable0}}
+    </div>
+    <div class="col-code cell">
+      <ion-icon name="arrow-forward"></ion-icon>
+      <span *ngIf="i._LPN">{{i._LPN.Id}}</span>
+    </div>
+    <div class="col-number cell">
+      {{i.QuantityExpected}}
+    </div>
+    <div class="col-number cell">
+      {{i.QuantityOnHand}}
+    </div>
+    <div class="col-number cell">
+      {{i.QuantityAllocated}}
+    </div>
+    <div class="col-number cell">
+      {{i.QuantityPicked}}
+    </div>
+    <div class="col-number cell">
+      {{i.QuantityPickInProcess}}
+    </div>
+    <div class="col-number cell">
+      {{i.QuantityPendingMoveIn}}
+    </div>
+  </div>
 </section>
 
 <ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">

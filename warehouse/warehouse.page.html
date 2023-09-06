@@ -113,15 +113,7 @@
 			<div class="ion-padding" style="padding-bottom: 0;"></div>
 		</div>
 	</ion-fab>
-	<!-- <ion-content>
-		<ion-slides pager="false" scrollbar="false" [options]="slideOpts">
-		  <ion-slide>
-			<div class="swiper-zoom-container">
-				<app-warehouse-transaction [showSearch]="pageConfig.isShowSearch" [setQuery]="setQuery" *ngIf="segmentView=='warehouse-transaction'"></app-warehouse-transaction>
-			</div>
-		  </ion-slide>
-		</ion-slides>
-	  </ion-content> -->
+
 	<div *ngIf="selectedBranch && setQuery" style="min-width: 300px; height: calc(100vh - 65px);">
 		<app-warehouse-input-output-inventory [setQuery]="setQuery" *ngIf="segmentView=='warehouse-input-output-inventory'"></app-warehouse-input-output-inventory>
 		<app-warehouse-transaction [showSearch]="pageConfig.isShowSearch" [setQuery]="setQuery" *ngIf="segmentView=='warehouse-transaction'"></app-warehouse-transaction>
@@ -130,42 +122,5 @@
 		<app-warehouse-item-location-lot-lpn [setQuery]="setQuery" *ngIf="segmentView=='warehouse-item-location-lot-lpn'"></app-warehouse-item-location-lot-lpn>
 	</div>
 
-	<!-- <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-			<ion-virtual-scroll [items]="items" approxItemHeight="27px">
-				<ng-container *virtualItem="let i; let itemBounds = bounds; let j = index;">
-					<div class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-						<div class="col-checkbox cell">
-							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-						</div>
-						<div class="col-code cell">
-							{{i.Storer}}
-						</div>
-						<div class="col-code cell">
-							{{i.Zone}}
-						</div>
-						<div class="col-code cell">
-							{{i.Location}}
-						</div>
-						<div class="col-code cell">
-							{{i.LOT}}
-						</div>
-						<div class="col-code cell">
-							{{i.LPN}}
-						</div>
-						<div class="col-code cell">
-							{{i.Item}}
-						</div>
-						<div class="col-number cell">
-							i.
-						</div>
-					</div>
-				</ng-container>
-			</ion-virtual-scroll>
-		</section>
-	</div>
-	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-	</ion-infinite-scroll> -->
+
 </ion-content>
