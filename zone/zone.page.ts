@@ -23,7 +23,7 @@ export class ZonePage extends PageBase {
         public location: Location,
     ) {
         super();
-        this.query.IDType = 115; //For export branch query
+        this.query.Type == 'Warehouse'; //For export branch query
     }
 
 }

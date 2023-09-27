@@ -51,7 +51,7 @@ export class WarehousePage extends PageBase {
         public locationProvider: WMS_LocationProvider,
         public itemProvider: WMS_ItemProvider,
         public modalController: ModalController,
-		public popoverCtrl: PopoverController,
+        public popoverCtrl: PopoverController,
         public alertCtrl: AlertController,
         public loadingController: LoadingController,
         public env: EnvService,
@@ -138,7 +138,7 @@ export class WarehousePage extends PageBase {
         history.pushState({}, null, newURL);
 
         console.log('set');
-        
+
         this.setQuery = {
             IDBranch: this.selectedBranch?.Id,
             IDStorer: this.selectedStorer?.Id,
@@ -163,7 +163,7 @@ export class WarehousePage extends PageBase {
                 this.translate.get('erp.app.pages.wms.warehouse.all').subscribe((message: string) => {
                     translateResult = message;
                 });
-                let all = { Id: 'all', Name: translateResult};
+                let all = { Id: 'all', Name: translateResult };
                 this.zoneList.unshift(all);
                 this.selectedZone = all;
                 this.selectZone();
@@ -182,7 +182,7 @@ export class WarehousePage extends PageBase {
                 this.translate.get('erp.app.pages.wms.warehouse.all').subscribe((message: string) => {
                     translateResult = message;
                 });
-                let all = { Id: 'all', Name: translateResult};
+                let all = { Id: 'all', Name: translateResult };
                 this.locationList.unshift(all);
                 this.selectedLocation = all;
                 this.loadNode();
@@ -191,13 +191,15 @@ export class WarehousePage extends PageBase {
     }
 
     private markNestedNode(ls, Id) {
-        let current = ls.find(d => d.Id == Id);;
-        current.disabled = current.IDType != 115;
-        ls.filter(d => d.IDParent == Id).forEach(i => {
-            if (i.Type == 'Warehouse')
-                i.disabled = false;
-            this.markNestedNode(ls, i.Id);
-        });
+        let current = ls.find(d => d.Id == Id);
+        if (current) {
+            current.disabled = current.Type != 'Warehouse';
+            ls.filter(d => d.IDParent == Id).forEach(i => {
+                if (i.Type == 'Warehouse')
+                    i.disabled = false;
+                this.markNestedNode(ls, i.Id);
+            });
+        }
     }
 
 }
