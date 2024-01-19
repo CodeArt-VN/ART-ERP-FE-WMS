@@ -1,0 +1,191 @@
+<ion-header>
+	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+<!-- *ngIf="item && pageConfig.showSpinner==false" -->
+<ion-content appScrollbarTheme class="ion-padding">
+	<div class="main-view">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Schema' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'Name', label: 'Name', type : 'text', form : formGroup }" (inputChange)="saveChange()">
+							<small label *ngIf="item?.Id">Id: {{item?.Id}}</small>
+						</app-form-control>
+
+						<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+
+						<app-form-control [field]="{id:'IsShowSysQty', label: 'IsShowSysQty', type : 'ion-checkbox', form : formGroup }" (inputChange)="saveChange()"></app-form-control>
+
+						<app-form-control [field]="{id:'IsPrintAllCounterPerSheet', label: 'IsPrintAllCounterPerSheet', type :'ion-checkbox', form : formGroup }" (inputChange)="saveChange()"></app-form-control>
+						
+						<app-form-control [field]="{id:'Status', label: 'Status', type :'text', form : formGroup }" (inputChange)="saveChange()"></app-form-control>
+					
+						<ion-button size="small" (click)="presentModal($event)">{{'Filter' | translate}}</ion-button>
+
+					</ion-col>
+
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'CountType', label: 'CountType', type : 'ng-select', dataSorurce: countTypeDataSource, bindValue:'Code', bindLabel:'Name', form : formGroup }" (change)="saveChange()"> </app-form-control>
+
+						<app-form-control [field]="{id:'CountDate', type : 'datetime-local', label: 'CountDate', form : formGroup }"(change)="saveChange()"></app-form-control>
+
+						<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+
+						<app-form-control [field]="{id:'Remark', label: 'Remark', type : 'textarea', form : formGroup }" (change)="saveChange()"></app-form-control>
+
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
+		<ion-content class="ion-padding">
+			<ion-modal [isOpen]="isModalOpen"(willDismiss)="dismissModal($event)">
+				<ng-template>
+					<ion-header>
+						<ion-toolbar>
+							<ion-title *ngIf="countItem == 0">{{'Filter' | translate}} </ion-title>
+							<ion-title *ngIf="countItem > 0">{{'Found' | translate}} : {{countItem}} {{'item' | translate}}</ion-title>
+							<ion-buttons slot="end">
+								<ion-button (click)="dismissModal()">
+									<ion-icon name="close"></ion-icon>
+								</ion-button>
+							</ion-buttons>
+						</ion-toolbar>
+					</ion-header>
+
+					<ion-content class="ion-padding">
+						<app-filter #appFilter [schema]="schema" [item]="config" [smallWidth]="true" (submit)="filterConfig($event)"></app-filter>
+					</ion-content>
+
+					<ion-footer>
+						<ion-toolbar>
+							<ion-buttons slot="start">
+								<ion-button size="default" *ngIf="countItem > 0" (click)="applyFilter()">
+									{{'Apply' | translate}}
+								</ion-button>
+							</ion-buttons>
+
+							<ion-buttons slot="end">
+								<ion-button size="default" slot="end" shape="round" expand="block" (click)="appFilter.onFormSubmit($event)">
+									{{'Filter' | translate}}
+								</ion-button>
+							</ion-buttons>
+
+						</ion-toolbar>
+					</ion-footer>
+				</ng-template>
+			</ion-modal>
+		</ion-content>
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'Properties' | translate }}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				</ion-segment>
+				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
+					<!-- <ion-button (click)="addField({},true)">
+						<ion-icon slot="start" name="add"></ion-icon>
+						{{'Add' | translate}}
+					</ion-button> -->
+				</ion-buttons>
+			</ion-toolbar>
+
+			<div class="table-contain" *ngIf="segmentView == 's1'">
+				<section class="table responsive">
+					
+							<header class="bold">
+								<div class="col-id cell">#</div>
+								<div class="col-name cell" (click)="sortToggle('Name')">
+									{{'Item name' | translate}}
+								</div>
+								<div class="col-number cell" (click)="sortToggle('Name')">
+									{{'UoM' | translate}}
+								</div>
+								<div class="col-qty cell" (click)="sortToggle('Name')">
+									{{'Current quantity' | translate}}
+								</div>
+								<div class="col-qty cell" (click)="sortToggle('Name')">
+									{{'Counted quantity' | translate}}
+								</div>
+								<div class="col-promotion cell" (click)="sortToggle('Name')">
+									{{'Counted' | translate}}
+								</div>
+								<!-- <div class="col-name cell" (click)="sortToggle('Name')">
+									{{'Zone' | translate}}
+								</div>
+								<div class="col-number cell" (click)="sortToggle('Name')">
+									{{'Row' | translate}}
+								</div>
+								<div class="col-number cell" (click)="sortToggle('Name')">
+									{{'Level' | translate}}
+								</div>
+								<div class="col-name cell" (click)="sortToggle('Name')">
+									{{'Location' | translate}}
+								</div> -->
+								<div class="col-remark cell" (click)="sortToggle('Name')">
+									{{'Remark' | translate}}
+								</div>
+								<div class="col-icon cell" >
+								</div>
+							</header>
+							<div *ngFor="let c of formGroup.get('CycleCountDetails')['controls'] ;let j = index"class="row" [ngClass]="{odd: j % 2 != 0}" >
+								<div class="col-id cell">{{j+1}}</div>
+
+								<div class="col-name cell">
+									<div *ngIf="c.get('IDItem')?.value">
+										<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
+										<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
+
+									</div>
+								</div>
+							
+								<div class="col-number cell">
+									<b>{{c.get('UoMName')?.value}}</b>
+								</div>
+
+								<div class="col-qty cell">
+									<b>{{c.get('CurrentQuantity')?.value}}</b>
+								</div>
+								<div class="col-qty cell">
+									<app-input-control [field]="{id:'CountedQuantity', type : 'text', form : c, }" (inputChange)="saveChangeDetail(c)"></app-input-control>
+								</div>
+								<div class="col-promotion cell">
+									<app-input-control [field]="{id:'IsCounted', type : 'ion-checkbox', form : c, }" (inputChange)="saveChangeDetail(c)"></app-input-control>
+								</div>
+							
+								<!-- <div class="col-name cell" (click)="sortToggle('Name')">
+									{{c.get('Zone')?.value}}
+								</div>
+								<div class="col-number cell" (click)="sortToggle('Name')">
+									{{c.get('Row')?.value}}
+								</div>
+								<div class="col-number cell" (click)="sortToggle('Name')">
+									{{c.get('Level')?.value}}
+								</div>
+								<div class="col-name cell" (click)="sortToggle('Name')">
+									{{c.get('Location')?.value}}
+								</div> -->
+								<div class="col-remark cell" (click)="sortToggle('Name')">
+									<app-input-control [field]="{id:'Remark', type : 'text', form : c, }" (change)="saveChangeDetail(c)"></app-input-control>
+								</div>
+								<div class="col-icon cell" (click)="removeField(c,j)" clickable>
+									<ion-icon name="trash"></ion-icon>
+								</div>
+						</div>
+				</section>
+			</div>
+
+			<!-- Order information -->
+
+		</div>
+	</div>
+	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
+</ion-content>
