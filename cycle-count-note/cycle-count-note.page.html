@@ -1,0 +1,198 @@
+<ion-header>
+	<ion-toolbar>
+		<ion-buttons slot="start" class="ion-hide-sm-down_">
+			<ion-button color="dark" class="ion-hide-sm-down">
+				{{'erp.app.pages.wms.cycle-count-note.page-detail' | translate}}
+			</ion-button>
+		</ion-buttons>
+		<ion-buttons slot="end">
+			<ion-button (click)="changePrintMode()" title="{{'erp.app.pages.wms.cycle-count-note.print-mode' | translate}}">
+				<ion-icon slot="icon-only" [name]="printMode == 'A4' ? 'cut-outline':'file-tray-full-outline'"></ion-icon>
+			</ion-button>
+			<span class="split ion-hide-sm-down">|</span>
+			<ion-button (click)="print()" title="{{'erp.app.pages.wms.cycle-count-note.print' | translate}}">
+				<ion-icon slot="icon-only" name="print"></ion-icon>
+			</ion-button>
+			<ion-button (click)="refresh()" title="{{'erp.app.pages.wms.cycle-count-note.refresh' | translate}}">
+				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+			</ion-button>
+			<ion-button title="{{'erp.app.components.detail-toolbar.show-feature' | translate}}" (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;">
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'">
+				</ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+
+<ion-content appScrollbarTheme appPrintFix class="A4 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print " vertical="top" horizontal="start" slot="fixed">
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'erp.app.pages.wms.cycle-count-note.toggle-date-filter' | translate}}</ion-label>
+
+				<ion-button size="small" (click)="toggleDateFilter()">
+					<ion-icon slot="icon-only" [name]="query.IDStatus=='[301]' ? 'calendar-outline' : 'calendar'"></ion-icon>
+				</ion-button>
+			</ion-list-header>
+
+		</ion-list>
+
+		<ion-list>
+			<ion-item lines="full" >
+				<div class="c-control">
+					<label class="c-label" for="CycleCountDate">{{'erp.app.pages.wms.cycle-count-note.cycle-count-date' | translate}}</label>
+					<input class="c-input" (change)="refresh()" id="CycleCountDate" type="date" [(ngModel)]="query.CountDate">
+				</div>
+			</ion-item>
+
+			<ion-item [color]="i.Id == selectedCycleCount? 'primary': '' " button detail="true" lines="full" class="clickable" *ngFor="let i of items" (click)="loadCycleCountNote(i)">
+				<ion-label class="ion-text-wrap">
+					<ion-text>
+						<h3>{{i.Name}} - {{i.Code}}</h3>
+					</ion-text>
+					<p>
+						<b>
+							<small>
+								<ion-text [color]="'primary'">{{'Id' | translate}}:{{i.Id}}</ion-text>
+							</small>
+							<ion-text [color]="'dark'" *ngIf="i.CountedDate"> - {{i.CountedDate}}</ion-text>
+						</b>
+					</p>
+				</ion-label>
+			</ion-item>
+		</ion-list>
+
+		<img style="width: 1px; height: 1px; opacity: 0;" src="assets/RPT-Logo-ART.png">
+
+	</ion-fab>
+
+	<div style="overflow: auto;">
+		<section class="sheet rpt" *ngFor="let s of sheets">
+			<table>
+				<thead>
+					<tr>
+						<td>
+							<div class="page-header-space"></div>
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<div class="top-zone">
+								<table class="rpt-header" cellpadding="0" cellspacing="0">
+									<tbody>
+										<tr>
+											<td class="head-c1">{{'erp.app.pages.wms.cycle-count-note.warehouse' | translate}}:</td>
+											<td class="bol">{{s.WarehouseName}} ({{s.WarehousePhone}})</td>
+										
+										</tr>
+										<tr>
+											<td colspan="6" class="bol title">{{'erp.app.pages.wms.cycle-count-note.cycle-count-detail' | translate}}</td>
+										</tr>
+									</tbody>
+								</table>
+								<div class="ion-text-center bol" >
+									{{'erp.app.pages.wms.cycle-count-note.cycle-count-date' | translate}}:  {{s.CycleCountDateText}}
+								</div>
+								<div class="ion-text-center">
+									<span>{{'erp.app.pages.wms.cycle-count-note.counter-name' | translate}}: </span>
+									<span class="bol" *ngFor="let c of s.Counters ; let j = index">{{j == s.Counters.length-1? c.FullName : c.FullName+' - '}}  </span>
+								</div>
+								
+								<table class="rpt-header" cellpadding="0" cellspacing="0">
+									<tbody>
+									
+									</tbody>
+								</table>
+
+								<div class="ds-san-pham">
+									<table cellpadding="0" cellspacing="0">
+										<tbody>
+											<tr class="head">
+												<td class="cen">{{'erp.app.pages.wms.cycle-count-note.stt' | translate}}</td>
+												<td>{{'erp.app.pages.wms.cycle-count-note.item' | translate}}</td>
+												<td>{{'Unit' | translate}}</td>
+												<td *ngIf="s.IsShowSysQty">{{'erp.app.pages.wms.cycle-count-note.current-quantity' | translate}}</td>
+												<!-- <td class="num tien">Bù giá</td> -->
+												<td *ngFor="let a of s.Counters ; let j = index">
+													{{'erp.app.pages.wms.cycle-count-note.counter-name' | translate}} {{ j+1}}
+												</td>
+												<td class="num tien">{{'Remark' | translate}}</td>
+											</tr>
+
+
+											<ng-container>
+												<tr *ngFor="let c of s.CycleCountDetails; let idx = index; ">
+													<td class="cen">{{idx+1}}</td>
+													<td >
+														<div class="ten-kh">
+															<b>{{c.ItemCode? c.ItemCode : c.Id }} - {{c.ItemName}} </b> <br>
+														</div>
+													</td>
+													<td>
+														<div >
+															{{c.UoMName}}
+														</div>
+													</td>
+													<td *ngIf="s.IsShowSysQty">
+															{{c.CurrentQuantity? c.CurrentQuantity: ''}}
+													</td>
+													<td *ngFor="let a of s.Counters ; let j = index">
+													</td>
+													<td>
+														<div>
+															{{c.Remark}}
+														</div>
+													</td>
+													<!-- <td class="num "> <span *ngIf="o.OriginalDiscountFromSalesman">{{o.OriginalDiscountFromSalesmanText}}</span></td>
+													 -->
+												</tr>
+											</ng-container>
+
+										</tbody>
+									</table>
+								</div>
+
+								<div class="no-break-page">
+
+									<table class="chu-ky" cellpadding="0" cellspacing="0">
+										<tbody>
+											<tr>
+												<td>
+													{{'erp.app.pages.wms.cycle-count-note.stocker' | translate}}
+													<div class="line2">
+														{{'erp.app.pages.wms.cycle-count-note.sign-full-name' | translate}}
+													</div>
+												</td>
+												<td *ngFor="let c of s.Counters ; let j = index">
+													{{'erp.app.pages.wms.cycle-count-note.counter' | translate}} {{ j+1}}
+													<div class="line2">
+														{{'erp.app.pages.wms.cycle-count-note.sign-full-name' | translate}}
+													</div>
+												</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+						</td>
+					</tr>
+				</tbody>
+
+				<tfoot>
+					<tr>
+						<td>
+							<div class="page-footer-space"></div>
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</section>
+
+	</div>
+
+</ion-content>

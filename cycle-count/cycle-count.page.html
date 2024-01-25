@@ -4,21 +4,22 @@
 		<header class="bold">
 			<div class="col-checkbox cell"></div>
 			<div class="col-id cell" (click)="sortToggle('Id')">
-				{{'erp.app.pages.wms.cycle-count.id' | translate}}
+				{{'Id' | translate}}
 				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
 			</div>
 			<div class="col-name cell" (click)="sortToggle('Name')">
-				{{'erp.app.pages.wms.cycle-count.name' | translate}}
+				{{'Name' | translate}}
 				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
 			</div>
-			<div class="col-remark cell">{{'erp.app.pages.wms.cycle-count.remark' | translate}}</div>
 			<div class="col-name cell" (click)="sortToggle('BranchName')">
-				{{'erp.app.pages.wms.cycle-count.branch-name' | translate}}
+				{{'erp.app.pages.wms.cycle-count-note.warehouse' | translate}}
 				<ion-icon class="min-btn" *ngIf="sort.BranchName" [name]="sort.BranchName == 'BranchName'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.BranchName" name="search" color="primary"></ion-icon>
 			</div>
+			<div class="col-remark cell">{{'Remark' | translate}}</div>
+			
 		</header>
 		<form (submit)="refresh()" action="#">
 			<header class="filter" *ngIf="pageConfig.isShowSearch">
@@ -31,11 +32,12 @@
 					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text">
 					<ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
 				</div>
-				<div class="col-remark cell"></div>
 				<div class="col-name cell">
 					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.BranchName" class="c-input" [ngClass]="{active: query.BranchName}" type="text">
 					<ion-icon class="min-btn" (click)="query.BranchName=''; refresh()" *ngIf="query.BranchName" name="close-circle-outline"></ion-icon>
 				</div>
+				<div class="col-remark cell"></div>
+			
 				<button mat-raised-button type="submit" style="display:none">Search</button>
 			</header>
 		</form>
@@ -56,10 +58,11 @@
 						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">
 							{{i.Name}}
 						</div>
-						<div class="col-remark cell">{{i.Remark}}</div>
 						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">
-							{{i.BranchName}}
+							{{i.WarehouseName}}
 						</div>
+						<div class="col-remark cell">{{i.Remark}}</div>
+						
 					</div>
 				
 		</section>

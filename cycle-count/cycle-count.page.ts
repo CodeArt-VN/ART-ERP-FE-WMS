@@ -23,6 +23,7 @@ export class CycleCountPage extends PageBase {
         public location: Location,
     ) {
         super();
+        this.pageConfig.canDelete = true;
         this.query.Type == 'Warehouse'; //For export branch query
     }
 
