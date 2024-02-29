@@ -1,0 +1,378 @@
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
+import { EnvService } from 'src/app/services/core/env.service';
+import { PageBase } from 'src/app/page-base';
+import { BRA_BranchProvider, HRM_StaffProvider, SYS_SchemaProvider, WMS_AdjustmentDetailProvider, WMS_AdjustmentProvider, WMS_CycleCountProvider, WMS_ItemProvider } from 'src/app/services/static/services.service';
+import { Location } from '@angular/common';
+import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
+import { Schema } from 'src/app/models/options-interface';
+import { ApiSetting } from 'src/app/services/static/api-setting';
+import { ActivatedRoute } from '@angular/router';
+import { CommonService } from 'src/app/services/core/common.service';
+import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
+import { lib } from 'src/app/services/static/global-functions';
+import { WMS_Adjustment } from 'src/app/models/model-list-interface';
+
+@Component({
+    selector: 'app-adjustment-detail',
+    templateUrl: 'adjustment-detail.page.html',
+    styleUrls: ['adjustment-detail.page.scss']
+})
+export class AdjustmentDetailPage extends PageBase {
+    countTypeDataSource: any;
+    statusDataSource: any;
+    schema: Schema;
+    config: any = null;
+    itemList: any;
+    tempItemList: any;
+    countItem: number = 0;
+    branchList
+    constructor(
+        public pageProvider: WMS_AdjustmentProvider,
+        public adjustmentDetailService: WMS_AdjustmentDetailProvider,
+        public staffService: HRM_StaffProvider,
+        public schemaService: SYS_SchemaProvider,
+        public itemService: WMS_ItemProvider,
+        public commonService: CommonService,
+        public branchProvider: BRA_BranchProvider,
+        public route: ActivatedRoute,
+        public modalController: ModalController,
+        public formBuilder: FormBuilder,
+        public cdr: ChangeDetectorRef,
+        public popoverCtrl: PopoverController,
+        public alertCtrl: AlertController,
+        public loadingController: LoadingController,
+        public env: EnvService,
+        public navCtrl: NavController,
+        public location: Location,
+    ) {
+        super();
+        this.pageConfig.isDetailPage = true;
+        this.pageConfig.canEdit = true;
+        this.pageConfig.canDelete = true;
+        this.pageConfig.canImport = true;
+        this.pageConfig.canExport = true;
+        this.formGroup = this.formBuilder.group({
+            Id: new FormControl({ value: '', disabled: true }),
+            IDBranch: ['', Validators.required],
+            IDCycleCount: new FormControl({ value: '', disabled: false }),
+            AdjustmentDetails: this.formBuilder.array([]),
+          
+            IDStorer:[''],
+            StorerName:[''],
+            Reason : [''],
+            Remark: [''],
+            Sort: [''],
+            CountType: [''],
+            CountDate: [''],
+            Status: ['', Validators.required],
+         
+            IsDisabled: new FormControl({ value: '', disabled: true }),
+            IsDeleted: new FormControl({ value: '', disabled: true }),
+            CreatedBy: new FormControl({ value: '', disabled: true }),
+            CreatedDate: new FormControl({ value: '', disabled: true }),
+            ModifiedBy: new FormControl({ value: '', disabled: true }),
+            ModifiedDate: new FormControl({ value: '', disabled: true }),
+        });
+    }
+
+    preLoadData(event) {
+
+        this.statusDataSource = [
+            { Name: 'Done', Code: 'Done' },
+            { Name: 'Pending', Code: 'Pending' },
+        ];
+
+    
+        super.preLoadData(event);
+    }
+
+    loadedData(event?: any, ignoredFromGroup?: boolean): void {
+        super.loadedData(event, ignoredFromGroup);
+        this.patchFieldsValue();
+     
+    }
+    private patchFieldsValue() {
+        this.pageConfig.showSpinner = true;
+        let IDBranch = 0;
+        let IDItemSnapshot = 0;
+        let quantityAdjustedSnapshot = 0;
+        if(this.route.snapshot.queryParams.IDItem){
+            IDItemSnapshot = this.route.snapshot.queryParams.IDItem;
+        }
+        if(this.route.snapshot.queryParams.adjustValue){
+            quantityAdjustedSnapshot = this.route.snapshot.queryParams.adjustValue;
+        }
+        
+        if (this.item.AdjustmentDetails?.length) {
+            this.item.AdjustmentDetails.forEach(i => {
+                if(i.IDItem == IDItemSnapshot){
+                    i.QuantityAdjusted = quantityAdjustedSnapshot;
+                }
+                this.addField(i);
+            })
+        }
+      
+        if(!this.item.AdjustmentDetails?.find(d=> d.IDItem == IDItemSnapshot) && IDItemSnapshot>0){
+            let adjustmentDetail = {
+                QuantityAdjusted : quantityAdjustedSnapshot,
+                IDItem : IDItemSnapshot,
+                ItemName : this.route.snapshot.queryParams.ItemName
+            }
+            this.addField(adjustmentDetail);
+        }
+     
+        if (!this.pageConfig.canEdit) {
+            this.formGroup.controls.AdjustmentDetails.disable();
+        }
+
+        if(this.route.snapshot.queryParams.IDCycleCount){
+            this.formGroup.get('IDCycleCount').setValue(parseInt(this.route.snapshot.queryParams.IDCycleCount));
+            this.formGroup.get('IDCycleCount').markAsDirty()
+
+        }
+        if(this.route.snapshot.queryParams.IDBranch){
+            this.formGroup.get('IDBranch').setValue(parseInt( this.route.snapshot.queryParams.IDBranch));
+        }
+        this.pageConfig.showSpinner = false;
+    }
+
+    addField(field: any, markAsDirty = false) {
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        let group = this.formBuilder.group({
+            IDAdjustment:[this.formGroup.get('Id').value, Validators.required],
+            IDItem:[field.IDItem, Validators.required],
+            QuantityAdjusted : [field.QuantityAdjusted],
+            WarehouseQuantity:[field.WarehouseQuantity],
+            Cube:[field.Cube || 0],
+            GrossWeight:[field.GrossWeight || 0],
+            NetWeight:[field.NetWeight || 0],
+            Lot:[field.Lot || 0],
+            Location:[field.Location || 0],
+            LPN:[field.LPN || 0],
+            Status:[field.Status || 'Pending'],
+            ItemName: new FormControl({ value: field.ItemName, disabled: true }), //de hien thi
+            IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
+            IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
+            CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
+            CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
+            ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
+            ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
+            IsChecked: new FormControl({ value: false, disabled: false }),
+        })
+        groups.push(group);
+    }
+
+
+    saveFields() {
+        let adjustmentDetails = this.formGroup.getRawValue().AdjustmentDetails;
+        adjustmentDetails.forEach(s=>s.IDAdjustment = this.item.Id);
+            // loại AdjustmentDetail đã tồn tại
+        let obj: any = {
+            id: this.formGroup.get('Id').value,
+            Items: adjustmentDetails,
+        }
+        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.adjustmentDetailService.commonService.connect( 'POST', 'WMS/adjustment/PostListDetail', obj).toPromise())
+            .then((result: any) => {
+                if (result && result.length > 0) {
+                    if (this.item.AdjustmentDetails.length>0) this.item.AdjustmentDetails.concat(result);
+                    else this.item.AdjustmentDetails = result;
+                    result.forEach(i => this.addField(i))
+                }
+
+            })
+    }
+
+    saveChangeDetail(fg: FormGroup) {
+        this.saveChange2(fg, null, this.adjustmentDetailService)
+    }
+
+    changeCountType(e){
+        if(e.Code == 'Simple'){//kiểm đơn
+            this.formGroup.get('Counters').setValue(null);
+            this.formGroup.get('_Counters').setValue(null);
+        } 
+        this.formGroup.get('Counters').markAsDirty();
+        this.saveChange();
+    }
+    changeCounters(e) {
+        this.formGroup.get('Counters').setValue(JSON.stringify(e));
+        this.formGroup.get('Counters').markAsDirty();
+        this.saveChange();
+    }
+
+    changeWarehouse(ev) {
+        this.formGroup.get('IDBranch').setValue(ev.Id);
+        this.formGroup.get('IDBranch').markAsDirty();
+        this.saveChange();
+    }
+
+    // isModalAddFieldOpen = false;
+
+    isModalAddRangesOpen = false;
+
+    _staffDataSource = {
+        searchProvider: this.staffService,
+        loading: false,
+        input$: new Subject<string>(),
+        selected: [],
+        items$: null,
+        initSearch() {
+            this.loading = false;
+            this.items$ = concat(
+                of(this.selected),
+                this.input$.pipe(
+                    distinctUntilChanged(),
+                    tap(() => this.loading = true),
+                    switchMap(term => this.searchProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
+                        catchError(() => of([])), // empty list on error
+                        tap(() => this.loading = false)
+                    ))
+
+                )
+            );
+        }
+    };
+
+    async saveChange() {
+        let submitItem = this.getDirtyValues(this.formGroup);
+        super.saveChange2();
+    }
+
+    savedChange(savedItem = null, form = this.formGroup) {
+        if (savedItem) {
+            if (form.controls.Id && savedItem.Id && form.controls.Id.value != savedItem.Id)
+                form.controls.Id.setValue(savedItem.Id);
+
+            if (this.pageConfig.isDetailPage && form == this.formGroup && this.id == 0) {
+                this.item = savedItem;
+                this.id = savedItem.Id;
+                 this.saveFields();
+                if (window.location.hash.endsWith('/0') || window.location.hash.startsWith('#/adjustment/0')) {
+                    let newURL =  window.location.hash.substring(0, window.location.hash.indexOf('/0')+1)+ savedItem.Id
+                    history.pushState({}, null, newURL);
+                }
+            }
+        }
+
+        form.markAsPristine();
+        this.cdr.detectChanges();
+        this.submitAttempt = false;
+        this.env.showTranslateMessage('Saving completed!','success');
+    }
+
+    removeField(fg, j) {
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        let itemToDelete = fg.getRawValue();
+        this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then(_ => {
+            this.adjustmentDetailService.delete(itemToDelete).then(result => {
+                groups.removeAt(j);
+            })
+        })
+    }
+
+    checkedFields: any = new FormArray([]);
+    changeSelection(i, e = null) {
+        if (i.get('IsChecked').value) {
+            this.checkedFields.push(i);
+        }
+        else {
+            let index =  this.checkedFields.getRawValue().findIndex(d => d.Id == i.get('Id').value)
+            this.checkedFields.removeAt(index);
+        }
+    }
+
+    deleteItems() {
+        if (this.pageConfig.canDelete) {
+            let itemsToDelete = this.checkedFields.getRawValue();
+            this.env.showPrompt('Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?', null, 'Xóa ' + itemsToDelete.length + ' dòng').then(_ => {
+                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.adjustmentDetailService.delete(itemsToDelete))
+                    .then(_ => {
+                        this.removeSelectedItems();
+                        this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+                        this.isAllChecked = false;
+                    }).catch(err => {
+                        this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+                        console.log(err);
+                    });
+            });
+        }
+    }
+
+    removeSelectedItems() {
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        this.checkedFields.controls.forEach(fg => {
+            const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
+            groups.removeAt(indexToRemove);
+        })
+        this.checkedFields = new FormArray([]);
+    }
+
+    sortDetail: any = {};
+    sortToggle(field) {
+        if (!this.sortDetail[field]) {
+            this.sortDetail[field] = field
+        } else if (this.sortDetail[field] == field) {
+            this.sortDetail[field] = field + '_desc'
+        }
+        else {
+            delete this.sortDetail[field];
+        }
+        // let s = Object.keys(sortTerms).reduce(function (res, v) {
+        //     return res.concat(sortTerms[v]);
+        // }, []);
+        if (Object.keys(this.sortDetail).length === 0) {
+            this.refresh();
+        }
+        else{
+            this.reInitAdjustmentDetails();
+        }
+    }
+
+    reInitAdjustmentDetails() {
+        const adjustmentDetailsArray = this.formGroup.get('AdjustmentDetails') as FormArray;
+        this.item.AdjustmentDetails = adjustmentDetailsArray.getRawValue();
+        for (const key in this.sortDetail) {
+            if (this.sortDetail.hasOwnProperty(key)) {
+                const value = this.sortDetail[key];
+                this.sortByKey(value);
+            }
+        }
+        adjustmentDetailsArray.clear();
+        this.item.AdjustmentDetails.forEach(s => this.addField(s));
+    }
+
+    sortByKey(key: string, desc: boolean = false) {
+        if(key.includes('_desc')){
+            key = key.replace('_desc','');
+            desc = true;
+        }
+        this.item.AdjustmentDetails.sort((a, b) => {
+            const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+            return desc ? -comparison : comparison;
+        });
+     
+    }
+
+    markNestedNode(ls, Id) {
+        ls.filter(d => d.IDParent == Id).forEach(i => {
+            if (i.Type == 'Warehouse')
+                i.disabled = false;
+            this.markNestedNode(ls, i.Id);
+        });
+    }
+
+    isAllChecked: boolean = false;
+    toggleSelectAll() {
+        this.checkedFields = new FormArray([]);
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        groups.controls.forEach(i => {
+            i.get('IsChecked').setValue(this.isAllChecked)
+            if (this.isAllChecked) this.checkedFields.push(i);
+        });
+    }
+    segmentView = 's1';
+    segmentChanged(ev: any) {
+        this.segmentView = ev.detail.value;
+    }
+}

@@ -1,11 +1,25 @@
 <ion-header>
+
 	<app-detail-toolbar [page]="this">
-		
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Draft'  && formGroup.controls.CycleCountDetails['controls'].length >0" >
+			<ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
+				<ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+		<span class="split ion-hide-sm-down">|</span>
+		<ion-buttons slot="primary" *ngIf="formGroup.get('CycleCountDetails')['controls'].length > 0" >
+			<ion-button title="{{'Merge counter' | translate}}" color="secondary" (click)="presentModal('merge')">
+				<ion-icon color="success" slot="icon-only" name="git-pull-request"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+		<span class="split ion-hide-sm-down" *ngIf="pageConfig.canEdit &&  formGroup.get('CycleCountDetails')['controls'].length > 0">|</span>
 	</app-detail-toolbar>
+	
+
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
 <ion-content appScrollbarTheme class="ion-padding">
-	<div class="main-view">
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
 		<ion-grid fixed>
 			<form [formGroup]="formGroup">
 				<ion-row class="hr-group">
@@ -17,46 +31,49 @@
 				
 					<ion-col size="12" size-sm size-xl="4">
 						<div class="c-control">
-							<label class="c-label" for="IDBranch">{{'Warehouse' | translate}}
+							<label class="c-label" for="IDBranch">{{'erp.app.pages.purchase.purchase-order.id-branch' | translate}}
 								<span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
 							</label>
-							<ng-select class="c-input" (change)="changeWarehouse($event)" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}">
-								
+							<ng-select class="c-input" (change)="changeWarehouse($event);" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}">
+								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+									<div *ngIf="i">
+										<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+									</div>
+								</ng-template>
 							</ng-select>
 						</div>
-						<app-form-control [field]="{id:'Name', label: 'Name', type : 'text', form : formGroup }" (inputChange)="saveChange()">
-							<small label *ngIf="item?.Id">Id: {{item?.Id}}</small>
-						</app-form-control>
+                        
+						<div class="c-control">
+							<label class="c-label" for="IDBranch">{{'Status' | translate}}
+								<span >: {{item?.Status}}</span>
+							</label>
+							
+						</div>
 
-						<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id:'IsShowSysQty', label: 'IsShowSysQty', type : 'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
 
-
-						<app-form-control [field]="{id:'Status', label: 'Status',type:'ng-select', dataSource: statusDataSource, bindLabel:'Name', bindValue:'Code',
-						form : formGroup }" (inputChange)="saveChange()"></app-form-control>
-
-						<app-form-control [field]="{id:'IsShowSysQty', label: 'IsShowSysQty', type : 'checkbox', form : formGroup }" (inputChange)="saveChange()"></app-form-control>
-
-						<app-form-control [field]="{id:'IsPrintAllCounterPerSheet', label: 'IsPrintAllCounterPerSheet', type :'checkbox', form : formGroup }" (inputChange)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id:'IsPrintAllCounterPerSheet', label: 'Print all counter per sheet', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id:'IsCountByLocation', label: 'Count by location', type : 'checkbox', form : formGroup }" (controlChange)="changeLocationAndLot($event,'Location')"></app-form-control>
+						<app-form-control [field]="{id:'IsCountByLot', label: 'Count by lot', type : 'checkbox', form : formGroup }" (controlChange)="changeLocationAndLot($event,'Lot')"></app-form-control>
 						
 					</ion-col>
 
 					<ion-col size="12" size-sm size-xl="4">
-						<app-form-control [field]="{id:'CountType', label: 'CountType', type : 'ng-select', dataSource: countTypeDataSource, bindValue:'Code', bindLabel:'Name', form : formGroup }" (inputChange)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{id:'CountType', label: 'Count type', type : 'ng-select', dataSource: countTypeDataSource, bindValue:'Code', bindLabel:'Name', form : formGroup }" (change)="changeCountType($event)"> </app-form-control>
 
-						<app-form-control [field]="{id:'CountDate', type : 'datetime-local', label: 'erp.app.pages.wms.cycle-count-note.cycle-count-date', form : formGroup }"(change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id:'CountDate', type : 'datetime-local', label: 'Count date', form : formGroup }"(change)="saveChange()"></app-form-control>
 						
-						<app-form-control [field]="{id:'_Counters', label: 'Counters', type : 'ng-select-staff', dataSource: _staffDataSource, bindLabel: 'FullName', bindValue: 'Id', form : formGroup, clearable:true,multiple:true }" (inputChange)="changeCounters($event)"></app-form-control>
+						<app-form-control *ngIf="formGroup.get('CountType').value == 'Validation'" [field]="{id:'_Counters', label: 'Counter', type : 'ng-select-staff', dataSource: _staffDataSource, bindLabel: 'FullName', bindValue: 'Id', form : formGroup, clearable:true,multiple:true }" (change)="changeCounters($event)"></app-form-control>
 					</ion-col>
 				</ion-row>
 			</form>
 		</ion-grid>
-		<ion-content class="ion-padding">
+	
 			<ion-modal [isOpen]="isModalAddRangesOpen"(willDismiss)="dismissModal('addRanges')">
 				<ng-template>
 					<ion-header>
 						<ion-toolbar>
-							<ion-title *ngIf="countItem == 0">{{'Filter' | translate}} </ion-title>
-							<ion-title *ngIf="countItem > 0">{{'Found' | translate}} : {{countItem}} {{'item' | translate}}</ion-title>
+							<ion-title>{{'Filter' | translate}} </ion-title>
 							<ion-buttons slot="end">
 								<ion-button (click)="dismissModal('addRanges')">
 									<ion-icon name="close"></ion-icon>
@@ -68,73 +85,211 @@
 					<ion-content class="ion-padding">
 						<app-filter #appFilter [schema]="schema" [item]="config" [smallWidth]="true" (submit)="filterConfig($event)"></app-filter>
 					</ion-content>
-
+					
 					<ion-footer>
 						<ion-toolbar>
-							<ion-buttons slot="start">
-								<ion-button size="default" *ngIf="countItem > 0" (click)="applyFilter()">
-									{{'Apply' | translate}}
-								</ion-button>
-							</ion-buttons>
-
-							<ion-buttons slot="end">
-								<ion-button size="default" slot="end" shape="round" expand="block" (click)="appFilter.onFormSubmit($event)">
-									{{'Filter' | translate}}
-								</ion-button>
-							</ion-buttons>
-
+							<ion-button  size="large" slot="end"(click)="appFilter.onFormSubmit()">{{'Filter' | translate}}</ion-button>
 						</ion-toolbar>
+						
 					</ion-footer>
 				</ng-template>
 			</ion-modal>
-			<ion-modal [isOpen]="isModalAddFieldOpen"(willDismiss)="dismissModal('addField')">
+			<ion-modal [isOpen]="isModalMergeOpen" (willDismiss)="dismissModal('merge')">
 				<ng-template>
 					<ion-header>
 						<ion-toolbar>
-							<ion-title>{{'Add item' | translate}} </ion-title>
+							<ion-title>{{'Merge counter' | translate}} </ion-title>
 							<ion-buttons slot="end">
-								<ion-button (click)="dismissModal('addField')">
+								<!-- <input type="checkbox" id="myCheckbox" [(ngModel)]="isShowEqualityTask" name="myCheckbox">
+								<label for="myCheckbox">Check me</label> -->
+								<!-- <ion-button (click)="dismissModal()">
+									<ion-icon name="close"></ion-icon>
+								</ion-button> -->
+								<div class="col-checkbox cell">
+									<input (click)="changeShowTaskDetail()" class="c-checkbox" [(ngModel)]="isHideEqualityTask" type="checkbox">
+									<label for="myCheckbox">Hide equal quantity </label> 
+								</div>
+								<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="exportTask()" title="{{'Export' | translate}}">
+									<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+								</ion-button> 
+								<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport" (click)="onClickImportTask()" title="{{'Import' | translate}}">
+									<ion-icon slot="icon-only" name="cloud-upload-outline"></ion-icon>
+									<input class="hide-all" #importfileTask type="file" accept=".xlsx" (change)="importTask($event)" />
+								</ion-button>
+							</ion-buttons>
+							<ion-buttons slot="end">
+								<ion-button (click)="dismissModal('merge')">
 									<ion-icon name="close"></ion-icon>
 								</ion-button>
 							</ion-buttons>
 						</ion-toolbar>
 					</ion-header>
 
-					<ion-content class="ion-padding" >
-						<ion-col size="12" size-sm size-xl="4" id="order-detail-page">
-							<app-form-control [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item', form : field,  dataSource: _itemDataSource ,  bindValue: 'Id', bindLabel: 'Name',multiple:true, clearable: true, placeholder: 'Type to search...' }"></app-form-control>
-						</ion-col>
+					<ion-content class="ion-padding">
+						<section class="table table-contain responsive">
+							<header class="bold">
+								<div class="col-checkbox cell">
+									<input (change)="toggleSelectAllInModal()" [(ngModel)]="isAllCheckedModal" class="c-checkbox" type="checkbox">
+								</div>
+								<div class="col-name cell" >
+									{{'Item name' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-uom cell" >
+									{{'UoM' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-status cell">
+									{{'Status' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
+									{{'Zone' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
+									{{'Location' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-name cell" *ngIf="formGroup.get('IsCountByLot').value">
+									{{'Lot' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-qty cell">
+									{{'Current quantity' | translate}}
+								</div>
+	
+								<ng-container *ngIf="formGroup.get('CountType').value =='Validation'">
+									<div  class="col-qty cell" *ngFor="let c of formGroup.controls?._Counters?.value; let j = index">
+										{{'Counter' | translate}} {{ (j+1)}}
+									</div>
+								</ng-container>
+	
+								<div *ngIf="formGroup.get('CountType').value == 'Simple'" class="col-qty cell" >
+									{{'Counter' | translate}} 
+								</div>	
+								<!-- <div class="col-icon cell">
+									<ion-icon  *ngIf="checkCycleCountDetailsInModal.controls.length>0" (click)="createAdjustment()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
+								</div> -->
+							</header>
+							<ng-container  *ngFor="let c of formGroup.get('CycleCountDetails')['controls']">
+								<div class="row" *ngIf="c.get('IsShowInModal').value == true">
+									<div class="col-checkbox cell" style="text-align: center;">
+										<app-input-control [field]="{id:'IsCheckedModal', type : 'checkbox', form : c, }" (change)="changeSelection(c,'modal', $event)"></app-input-control>
+									</div>
+									<div class="col-name cell">
+										<div *ngIf="c.get('IDItem')?.value">
+											<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
+											<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
+	
+										</div>
+									</div>
+									<div class="col-uom cell" >
+										{{c.get('UoMName').value}}
+										
+									</div>
+									<div class="col-status cell">
+										{{c.get('Status').value}}
+									</div>
+									<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
+										{{c.get('ZoneName').value}}
+										
+									</div>
+									<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
+										{{c.get('LocationName').value}}
+										
+									</div>
+									<div class="col-name cell" *ngIf="formGroup.get('IsCountByLot').value">
+										{{c.get('LotName').value}}
+										
+									</div>
+									<div class="col-qty cell">
+										{{c.get('CurrentQuantity').value}}
+									</div>
+									<ng-container *ngIf="formGroup.get('CountType').value == 'Validation'">
+										<div [ngClass]="{bold: (c.get('IDCycleCountTask').value == c.controls.CycleCountTasks?.controls[j]?.value?.Id) &&  c.controls.CycleCountTasks?.controls[j]?.value?.Id>0}" *ngFor="let d of formGroup.controls?._Counters?.value; let j = index" [ngStyle]="{'color': c.controls.CycleCountTasks.value[j]?.Status !='Closed'? 'gray' : c.controls.CycleCountTasks.value[j]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											<div *ngIf="c.get('Status').value != 'Closed'  && c.controls.CycleCountTasks.controls[j]?.value.Status == 'Closed'" (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTasks.controls[j]?.value)" >
+												{{c.controls.CycleCountTasks.value[j]?.CountedQuantity}}
+											</div>
+											<div *ngIf="c.get('Status').value == 'Closed'  || c.controls.CycleCountTasks.controls[j]?.value.Status != 'Closed'" >
+												{{c.controls.CycleCountTasks.value[j]?.CountedQuantity}}
+											</div>
+										</div>
+									</ng-container>
+
+									<ng-container *ngIf="formGroup.get('CountType').value == 'Simple'">
+										<div [ngClass]="{bold: (c.get('IDCycleCountTask').value == c.controls.CycleCountTasks.value[0]?.Id) &&  c.controls.CycleCountTasks.value[0]?.Id>0}" [ngStyle]="{'color': c.controls.CycleCountTasks.value[0]?.Status !='Closed'? 'gray' : c.controls.CycleCountTasks.value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											<div *ngIf="c.get('Status').value != 'Closed'  && c.controls.CycleCountTasks.value[0]?.Status == 'Closed'" (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTasks.controls[0]?.value)" >
+												{{c.controls.CycleCountTasks.value[0]?.CountedQuantity}}
+											</div>
+											<div *ngIf="c.get('Status').value == 'Closed'  || c.controls.CycleCountTasks.controls[0]?.value.Status != 'Closed'" >
+												{{c.controls.CycleCountTasks.value[0]?.CountedQuantity}}
+											</div>
+										</div>
+									</ng-container>
+
+									<!-- <ng-container *ngIf="formGroup.get('CountType').value == 'Simple' && c.get('Status').value != 'Closed' && c.controls.CycleCountTasks.value[0].Status == 'Closed'">
+										<div  (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTasks.controls[0]?.value)"  [ngStyle]="{'color': c.controls.CycleCountTasks.value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											{{c.controls.CycleCountTasks.value[0]?.CountedQuantity}}
+											<ion-icon name="checkmark-outline" color="success" *ngIf="(c.get('IDCycleCountTask').value == c.controls.CycleCountTasks?.value[0]?.Id) &&  c.controls.CycleCountTasks?.value[0]?.Id>0"></ion-icon>
+										</div>
+									</ng-container>
+									
+									<ng-container *ngIf="formGroup.get('CountType').value == 'Simple' && (c.get('Status').value == 'Closed' || c.controls.CycleCountTasks.value[0].Status != 'Closed')" >
+										<div   [ngStyle]="{'color': c.controls.CycleCountTasks.value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											{{c.controls.CycleCountTasks.value[0]?.CountedQuantity}}
+											<ion-icon name="checkmark-outline" color="success" *ngIf="(c.get('IDCycleCountTask').value == c.controls.CycleCountTasks?.value[0]?.Id) &&  c.controls.CycleCountTasks?.value[0]?.Id>0"></ion-icon>
+										</div>
+									</ng-container> -->
+								
+									
+								</div>
+							</ng-container>
+						
+						</section>
 					</ion-content>
-					<div>
-						<ion-button expand="block" size="default" (click)="applyItems()">
-							{{'Add' | translate}}
-						</ion-button>
-					</div>
+						<ion-footer>
+							<ion-toolbar>
+									<ion-button color="warning" size="default" slot="end"(click)="updateCountedQuantity()" >
+										{{'Update' | translate}}
+									</ion-button>
+									<ion-button  size="default" slot="end"(click)="createAdjustment()" *ngIf="checkCycleCountDetailsInModal.controls.length>0 && pageConfig.canAdd && trackChangeCountedFormGroup.controls.length == 0 ">
+										{{'Create adjustment' | translate}}
+									</ion-button>
+							
+							</ion-toolbar>
+						
+						</ion-footer>
 				</ng-template>
 			</ion-modal>
-		</ion-content>
+			<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 		<div class="row-full shadow full-screen">
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
 					<ion-segment-button value="s1">
-						<ion-label>{{'Properties' | translate }}</ion-label>
+						<ion-label>{{'List' | translate }}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
 				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
-                    <!-- <ion-button (click)="presentModal('addField')">
-                        <ion-icon slot="start" name="add"></ion-icon>
-                        {{'Add' | translate}}
-                    </ion-button>| -->
-					
-					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport" (click)="onClickImport()" title="{{'Import' | translate}}">
+
+					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
+						<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+					</ion-button> 
+					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport && formGroup.get('Status').value != 'Closed'" (click)="onClickImport()" title="{{'Import' | translate}}">
 						<ion-icon slot="icon-only" name="cloud-upload-outline"></ion-icon>
 						<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="import($event)" />
 					</ion-button>
 
-					<ion-button (click)="presentModal('addRanges')">
+					<ion-button (click)="presentModal('addRanges')" *ngIf="item?.Id > 0">
 						<ion-icon slot="start" name="search"></ion-icon>
 						{{'Filter' | translate}}
 					</ion-button>
@@ -150,93 +305,167 @@
 									<input (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox">
 								</div>
 								<div class="col-id cell">#</div>
-								<div class="col-name cell" (click)="sortToggle('Name')">
-									{{'erp.app.pages.wms.item.item-name' | translate}}
+								<div class="col-name cell" (click)="sortToggle('ItemName')">
+									{{'Item name' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
 								</div>
-								<div class="col-number cell" (click)="sortToggle('Name')">
+
+								<div class="col-uom cell" (click)="sortToggle('UoMName')">
 									{{'Unit' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.UoMName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
 								</div>
-								<div class="col-qty cell" (click)="sortToggle('Name')">
-									{{'erp.app.pages.wms.item.inventory' | translate}}
-								</div>
-								<div class="col-qty cell" (click)="sortToggle('Name')">
-									{{'erp.app.pages.wms.cycle-count-note.counted-quantity' | translate}}
-								</div>
-								<div class="col-promotion cell" (click)="sortToggle('Name')">
-									{{'erp.app.pages.wms.cycle-count-note.counted' | translate}}
-								</div>
-								<!-- <div class="col-name cell" (click)="sortToggle('Name')">
+
+								<div class="col-name cell" (click)="sortToggle('ZoneName')" *ngIf="formGroup.get('IsCountByLocation').value">
 									{{'Zone' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.ZoneName" [name]="sortDetail.ZoneName == 'ZoneName'?'arrow-down': 'arrow-up'"></ion-icon>
 								</div>
-								<div class="col-number cell" (click)="sortToggle('Name')">
+
+								<div class="col-code cell" (click)="sortToggle('LocationName')" *ngIf="formGroup.get('IsCountByLocation').value">
+									{{'Location' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.LocationName" [name]="sortDetail.LocationName == 'LocationName'?'arrow-down': 'arrow-up'"></ion-icon>
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+
+								<div class="col-code cell" (click)="sortToggle('LotName')" *ngIf="formGroup.get('IsCountByLot').value">
+									{{'Lot' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.LotName" [name]="sortDetail.LotName == 'LotName'?'arrow-down': 'arrow-up'"></ion-icon>
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+
+								<div class="col-qty cell" (click)="sortToggle('CurrentQuantity')">
+									{{'Current quantity' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.CurrentQuantity" [name]="sortDetail.CurrentQuantity == 'CurrentQuantity'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+
+								<div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
+									{{'Counted quantity' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.CountedQuantity" [name]="sortDetail.CountedQuantity == 'CountedQuantity'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+
+								
+								<ng-container *ngIf="formGroup.get('CountType').value =='Validation' && formGroup.get('_Counters').value" >
+									<div  class="col-qty cell" *ngFor="let c of formGroup?.controls?._Counters?.value; let j = index">
+										{{'Counter' | translate}} {{ (j+1)}}
+									</div>
+								</ng-container>
+	
+								<ng-container *ngIf="formGroup.get('CountType').value == 'Simple'">
+									<div class="col-qty cell">
+										{{'Counter' | translate}}
+									</div>
+								</ng-container>
+								<!-- <ng-container *ngIf="formGroup.get('CountType').value == 'Validation' && formGroup.get('_Counters').value" >
+									<div *ngFor="let counter of formGroup.get('_Counters').value ; let j = index" class="col-qty cell">
+										<div *ngIf="j >0">	{{'Counter' | translate}} {{ j}}</div> 
+										<div *ngIf="j == 0"> {{'Counter' | translate}}</div> 
+									</div>
+								</ng-container>
+								 -->
+								<div class="col-promotion cell" (click)="sortToggle('Counted')">
+									{{'Counted' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.Counted" [name]="sortDetail.Counted == 'Counted'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+						
+								<!-- <div class="col-number cell" (click)="sortToggle('Name')">
 									{{'Row' | translate}}
 								</div>
 								<div class="col-number cell" (click)="sortToggle('Name')">
 									{{'Level' | translate}}
 								</div>
-								<div class="col-name cell" (click)="sortToggle('Name')">
-									{{'Location' | translate}}
-								</div> -->
-								<div class="col-remark cell" (click)="sortToggle('Name')">
-									{{'Remark' | translate}}
-								</div>
-								<div class="col-icon cell" >
-									<ion-icon  (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
+							 -->
+							
+								<div class="col-icon cell">
+									<ion-icon  *ngIf="checkCycleCountDetails.controls.length>0 && pageConfig.canEdit" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
 								</div>
 							</header>
-							<app-page-message   [itemsLength]= "formGroup.get('CycleCountDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-							<div *ngFor="let c of formGroup.get('CycleCountDetails')['controls'] ;let j = index"class="row" [ngClass]="{odd: j % 2 != 0}" >
-								<div class="col-checkbox cell" style="text-align: center;">
-									<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
-								</div>
-								<div class="col-id cell">{{j+1}}</div>
+							<app-page-message [itemsLength]= "formGroup.get('CycleCountDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+							<ng-container  *ngIf="!pageConfig.showSpinner">
+								<div *ngFor="let c of formGroup.get('CycleCountDetails')['controls'] ;let j = index"class="row" [ngClass]="{odd: j % 2 != 0}" >
+										<div class="col-checkbox cell" style="text-align: center;">
+											<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (change)="changeSelection(c,'main', $event)"></app-input-control>
+										</div>
+										<div class="col-id cell">{{j+1}}</div>
 
-								<div class="col-name cell">
-									<div *ngIf="c.get('IDItem')?.value">
-										<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
-										<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
+										<div class="col-name cell">
+											<div *ngIf="c.get('IDItem')?.value">
+												<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
+												<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
 
+											</div>
+										</div>
+										<div class="col-uom cell">
+											{{c.get('UoMName')?.value}}
+										</div>
+
+										<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
+											{{c.get('ZoneName')?.value}}
+										</div>
+
+										<div class="col-code cell"*ngIf="formGroup.get('IsCountByLocation').value">
+											{{c.get('LocationName')?.value}}
+										</div>
+
+										<div class="col-code cell"*ngIf="formGroup.get('IsCountByLot').value">
+											{{c.get('LotName')?.value}}
+										</div>
+
+										<div class="col-qty cell">
+											{{c.get('CurrentQuantity')?.value}}
+										</div>
+										<div class="col-qty cell">
+											<app-input-control [field]="{id:'CountedQuantity', type : 'text', form : c, }" (change)="saveChangeDetail(c)"></app-input-control>
+										</div>
+
+										<!-- <ng-container *ngIf="formGroup.get('CountType').value =='Validation'">
+											<div  class="col-qty cell" *ngFor="let d of c?.controls?.CycleCountTasks?.controls; let j = index">
+												{{ d.value.CountedQuantity}}
+											</div>
+										</ng-container> -->
+										<ng-container *ngIf="formGroup.get('CountType').value =='Validation'">
+											<div  class="col-qty cell"  *ngFor="let d of formGroup?.controls?._Counters?.value; let j = index">
+												{{c.get('CycleCountTasks').controls[j]?.value?.CountedQuantity}}
+											</div>
+										</ng-container>
+
+										<div *ngIf="formGroup.get('CountType').value == 'Simple' " class="col-qty cell"  [ngStyle]="{'color': c.get('CycleCountTasks')[0]?.value != c.get('CurrentQuantity').value? 'red':'green' }">
+												{{c.get('CycleCountTasks').controls[0]?.value?.CountedQuantity}}
+										</div>
+
+										<!-- <ng-container >
+											<div class="col-qty cell" (click)="presentViewCounter($event,c)"><ion-icon name="eye-outline"></ion-icon></div>
+										</ng-container> -->
+		
+										<div class="col-promotion cell">
+											<app-input-control [field]="{id:'IsCounted', type : 'checkbox', form : c, }" (change)="saveChangeDetail(c)"></app-input-control>
+										</div>
+									
+										<!-- <div class="col-name cell" (click)="sortToggle('Name')">
+											{{c.get('Zone')?.value}}
+										</div>
+										<div class="col-number cell" (click)="sortToggle('Name')">
+											{{c.get('Row')?.value}}
+										</div>
+										<div class="col-number cell" (click)="sortToggle('Name')">
+											{{c.get('Level')?.value}}
+										</div>
+										<div class="col-name cell" (click)="sortToggle('Name')">
+											{{c.get('Location')?.value}}
+										</div> -->
+									
+										<div class="col-icon cell" (click)="removeField(c,j)" clickable>
+											<ion-icon color="danger" *ngIf="pageConfig.canEdit && pageConfig.canDelete" name="trash"></ion-icon>
+										</div>
 									</div>
-								</div>
+							</ng-container>
 							
-								<div class="col-number cell">
-									<b>{{c.get('UoMName')?.value}}</b>
-								</div>
-
-								<div class="col-qty cell">
-									<b>{{c.get('CurrentQuantity')?.value}}</b>
-								</div>
-								<div class="col-qty cell">
-									<app-input-control [field]="{id:'CountedQuantity', type : 'text', form : c, }" (inputChange)="saveChangeDetail(c)"></app-input-control>
-								</div>
-								<div class="col-promotion cell">
-									<app-input-control [field]="{id:'IsCounted', type : 'checkbox', form : c, }" (inputChange)="saveChangeDetail(c)"></app-input-control>
-								</div>
-							
-								<!-- <div class="col-name cell" (click)="sortToggle('Name')">
-									{{c.get('Zone')?.value}}
-								</div>
-								<div class="col-number cell" (click)="sortToggle('Name')">
-									{{c.get('Row')?.value}}
-								</div>
-								<div class="col-number cell" (click)="sortToggle('Name')">
-									{{c.get('Level')?.value}}
-								</div>
-								<div class="col-name cell" (click)="sortToggle('Name')">
-									{{c.get('Location')?.value}}
-								</div> -->
-								<div class="col-remark cell">
-									<app-input-control [field]="{id:'Remark', type : 'text', form : c, }" (change)="saveChangeDetail(c)"></app-input-control>
-								</div>
-								<div class="col-icon cell" (click)="removeField(c,j)" clickable>
-									<ion-icon color="danger" name="trash"></ion-icon>
-								</div>
-
-						</div>
 				</section>
 			</div>
 			<div *ngIf="segmentView == 's2'">
-				<ion-row class="hr-group" *ngIf="item.Id">
+				<ion-row class="hr-group" *ngIf="item?.Id">
 					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
 						<ion-list-header class="ion-no-padding">
 							<ion-label color="primary">{{'Other information' | translate}}</ion-label>
@@ -257,6 +486,7 @@
 			<!-- Order information -->
 
 		</div>
+		
 	</div>
-	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>
