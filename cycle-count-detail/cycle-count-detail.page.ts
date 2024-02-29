@@ -29,6 +29,7 @@ export class CycleCountDetailPage extends PageBase {
     isHideEqualityTask: boolean = false;
     filterItems: any;
     branchList
+    isShowRowTaskStatus: boolean = false;
     constructor(
         public pageProvider: WMS_CycleCountProvider,
         public cycleCountDetailService: WMS_CycleCountDetailProvider,
@@ -151,6 +152,9 @@ export class CycleCountDetailPage extends PageBase {
         this.toggleSelectAllInModal();
         this.toggleSelectAll();
       
+        if(this.item.CycleCountTasks.some(d=> d.Status == 'New')) {
+            this.isShowRowTaskStatus = true;
+        }
         //  this.patchFormValue();
     }
 
@@ -821,6 +825,28 @@ export class CycleCountDetailPage extends PageBase {
     async saveChange() {
         let submitItem = this.getDirtyValues(this.formGroup);
         super.saveChange2();
+    }
+
+   
+
+    changeStatusTask(i, e = null ){
+        if (this.submitAttempt) return;
+
+        this.submitAttempt = true;
+        this.query.IDTask = i.Id
+        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeTaskStatus/', this.query).toPromise())
+            .then((response: boolean) => {
+                if(response) {
+                    i.Status = 'Closed';
+                    this.submitAttempt = false;
+                    if(this.item.CycleCountTasks.some(d=> d.Status == 'New')) {
+                        this.isShowRowTaskStatus = true;
+                    }
+                }
+            }).catch(err => {
+                this.submitAttempt = false;
+            });
+        this.query.IDTask = undefined;
     }
 
 }
