@@ -1,18 +1,18 @@
 <ion-header>
 
 	<app-detail-toolbar [page]="this">
-		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Draft'  && formGroup.controls.CycleCountDetails['controls'].length >0" >
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Draft'  && item?.CycleCountDetails?.length >0" >
 			<ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
 				<ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
 			</ion-button>
 		</ion-buttons>
 		<span class="split ion-hide-sm-down">|</span>
-		<ion-buttons slot="primary" *ngIf="formGroup.get('CycleCountDetails')['controls'].length > 0" >
+		<ion-buttons slot="primary" *ngIf="item?.CycleCountDetails?.length > 0" >
 			<ion-button title="{{'Merge counter' | translate}}" color="secondary" (click)="presentModal('merge')">
 				<ion-icon color="success" slot="icon-only" name="git-pull-request"></ion-icon>
 			</ion-button>
 		</ion-buttons>
-		<span class="split ion-hide-sm-down" *ngIf="pageConfig.canEdit &&  formGroup.get('CycleCountDetails')['controls'].length > 0">|</span>
+		<span class="split ion-hide-sm-down" *ngIf="pageConfig.canEdit &&  item?.CycleCountDetails?.length > 0">|</span>
 	</app-detail-toolbar>
 	
 
@@ -213,12 +213,12 @@
 										{{c.get('CurrentQuantity').value}}
 									</div>
 									<ng-container *ngIf="formGroup.get('CountType').value == 'Validation'">
-										<div [ngClass]="{bold: (c.get('IDCycleCountTask').value == c.controls.CycleCountTasks?.controls[j]?.value?.Id) &&  c.controls.CycleCountTasks?.controls[j]?.value?.Id>0}" *ngFor="let d of formGroup.controls?._Counters?.value; let j = index" [ngStyle]="{'color': c.controls.CycleCountTasks.value[j]?.Status !='Closed'? 'gray' : c.controls.CycleCountTasks.value[j]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
-											<div *ngIf="c.get('Status').value != 'Closed'  && c.controls.CycleCountTasks.controls[j]?.value.Status == 'Closed'" (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTasks.controls[j]?.value)" >
-												{{c.controls.CycleCountTasks.value[j]?.CountedQuantity}}
+										<div [ngClass]="{bold: (c.get('IDCycleCountTask').value == c.controls.CycleCountTaskDetails.value[j]?.Id) &&  c.controls.CycleCountTaskDetails.value[j]?.Id>0}" *ngFor="let d of formGroup.controls?._Counters?.value; let j = index" [ngStyle]="{'color': c.controls.CycleCountTaskDetails.value[j]?.Status !='Closed'? 'gray' : c.controls.CycleCountTaskDetails.value[j]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											<div *ngIf="c.get('Status').value != 'Closed'  && c.controls.CycleCountTaskDetails.value[j]?.Status == 'Closed'" (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTasks.controls[j]?.value)" >
+												{{c.controls.CycleCountTaskDetails.value[j]?.CountedQuantity}}
 											</div>
-											<div *ngIf="c.get('Status').value == 'Closed'  || c.controls.CycleCountTasks.controls[j]?.value.Status != 'Closed'" >
-												{{c.controls.CycleCountTasks.value[j]?.CountedQuantity}}
+											<div *ngIf="c.get('Status').value == 'Closed'  || c.controls.CycleCountTaskDetails.value[j]?.Status != 'Closed'" >
+												{{c.controls.CycleCountTaskDetails.value[j]?.CountedQuantity}}
 											</div>
 										</div>
 									</ng-container>
@@ -425,15 +425,13 @@
 												{{ d.value.CountedQuantity}}
 											</div>
 										</ng-container> -->
-										<ng-container *ngIf="formGroup.get('CountType').value =='Validation'">
-											<div  class="col-qty cell"  *ngFor="let d of formGroup?.controls?._Counters?.value; let j = index">
-												{{c.get('CycleCountTasks').controls[j]?.value?.CountedQuantity}}
+											<div  class="col-qty cell"  *ngFor="let task of c.controls.CycleCountTaskDetails.value; let j = index">
+												{{task.CountedQuantity}}
 											</div>
-										</ng-container>
-
+<!-- 
 										<div *ngIf="formGroup.get('CountType').value == 'Simple' " class="col-qty cell"  [ngStyle]="{'color': c.get('CycleCountTasks')[0]?.value != c.get('CurrentQuantity').value? 'red':'green' }">
 												{{c.get('CycleCountTasks').controls[0]?.value?.CountedQuantity}}
-										</div>
+										</div> -->
 
 										<!-- <ng-container >
 											<div class="col-qty cell" (click)="presentViewCounter($event,c)"><ion-icon name="eye-outline"></ion-icon></div>

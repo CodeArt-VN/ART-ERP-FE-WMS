@@ -115,8 +115,15 @@ export class CycleCountDetailPage extends PageBase {
             this.pageConfig.canEdit = false;
         }
         super.loadedData(event, ignoredFromGroup);
-
-        this.patchFieldsValue();
+        this.query.IDCycleCount = this.item.Id;
+        this.query.Id = undefined;
+        this.cycleCountDetailService.read(this.query,false).then((listCCDetail:any) =>{
+            if(listCCDetail!= null && listCCDetail.data.length>0){
+                this.item.CycleCountDetails = listCCDetail.data;
+                this.patchFieldsValue();
+            }
+        })
+     
         // this._itemDataSource.initSearch();
 
         if (this.item.Counters) {
@@ -182,7 +189,7 @@ export class CycleCountDetailPage extends PageBase {
             this.formGroup.controls.CycleCountDetails.disable();
             let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
             groups.controls.forEach(s=>{
-                if(s.get('CycleCountTasks').value?.length > 0 && s.get('Status').value != 'Closed' && s.get('IsCounted').value){
+                if(s.get('CycleCountTaskDetails').value?.length > 0 && s.get('Status').value != 'Closed' && s.get('IsCounted').value){
                     s.get('IsCheckedModal').enable();
                 }
             })
@@ -199,9 +206,10 @@ export class CycleCountDetailPage extends PageBase {
             IDUoM: new FormControl({ value: field.IDUoM, disabled: false }),
             IDCycleCountTask: new FormControl({ value: field.IDCycleCountTask, disabled: true }),
 
+            CycleCountTaskDetails: [field.CycleCountTaskDetails],
             Status: [field.Status || 'New'],
             CurrentQuantity: [field.CurrentQuantity],
-            CycleCountTasks: this.formBuilder.array(field.CycleCountTasks),
+            CycleCountTasks: this.formBuilder.array(field.CycleCountTasks||[]),
             IsCounted: [field.IsCounted],
             CountedQuantity: new FormControl({ value: field.CountedQuantity, disabled: false }),
             ZoneName: [field.ZoneName],
@@ -229,7 +237,7 @@ export class CycleCountDetailPage extends PageBase {
 
         })
         // field.DetailCounters?.forEach(d=>d.)
-        if (field.CycleCountTasks?.length <= 0 || !field.IsCounted) {
+        if (field.CycleCountTaskDetails?.length <= 0 || !field.IsCounted) {
             group.get('IsCheckedModal').disable();
         }
         
@@ -308,6 +316,7 @@ export class CycleCountDetailPage extends PageBase {
         .then((result: any) => {
             this.refresh();
         })
+        this.query.Id = undefined;
         
     }
     changeShowTaskDetail() {
@@ -459,9 +468,9 @@ export class CycleCountDetailPage extends PageBase {
         this.isSubmitUpdateButton = true;
         let filteredCycleCountDetails = this.formGroup.getRawValue().CycleCountDetails.filter(detail => {
             // Assuming 'CycleCountTasks' is an array property of 'detail'
-            if (detail.CycleCountTasks && detail.CycleCountTasks.length > 0 && !detail.IsCounted) {
+            if (detail.CycleCountTaskDetails && detail.CycleCountTaskDetails.length > 0 && !detail.IsCounted) {
                 // Check if all 'CurrentQuantity' values are equal
-                return detail.CycleCountTasks.every(task => task.CountedQuantity === detail.CurrentQuantity);
+                return detail.CycleCountTaskDetails.every(task => task.CountedQuantity === detail.CurrentQuantity);
             } else {
                 // If there are no associated tasks, return true to include the detail
                 return false;
