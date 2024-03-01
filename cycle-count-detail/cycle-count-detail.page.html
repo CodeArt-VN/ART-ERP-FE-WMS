@@ -191,13 +191,11 @@
 								<div class="col-status cell">
 								</div>
 
-								<div class="col-name cell">
+								<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
 								</div>
-
-								<div class="col-name cell">
+								<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">
 								</div>
-
-								<div class="col-name cell">
+								<div class="col-name cell" *ngIf="formGroup.get('IsCountByLot').value">
 								</div>
 
 								<div class="col-qty cell">
@@ -337,7 +335,7 @@
 					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
 						<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
 					</ion-button> 
-					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport && formGroup.get('Status').value != 'Closed'" (click)="onClickImport()" title="{{'Import' | translate}}">
+					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport && formGroup.get('Status').value == 'Draft'" (click)="onClickImport()" title="{{'Import' | translate}}">
 						<ion-icon slot="icon-only" name="cloud-upload-outline"></ion-icon>
 						<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="import($event)" />
 					</ion-button>
@@ -478,10 +476,21 @@
 												{{ d.value.CountedQuantity}}
 											</div>
 										</ng-container> -->
-											<div  class="col-qty cell"  *ngFor="let task of c.controls.CycleCountTaskDetails.value; let j = index">
-												{{task.CountedQuantity}}
+										<ng-container *ngIf="item.CycleCountTasks.length>0" >
+											<div  *ngFor="let d of item.CycleCountTasks"  class="col-qty cell clickable">
+												<ng-container *ngFor="let taskDetail of c.controls.CycleCountTaskDetails.value; let j = index">
+													<ng-container *ngIf="taskDetail.IDTask == d.Id">
+															{{taskDetail.CountedQuantity}}
+													</ng-container>
+												</ng-container>
 											</div>
-<!-- 
+										</ng-container>
+										<ng-container   *ngIf="!item.CycleCountTasks.length>0"  >
+											<div  class="col-qty cell" *ngFor="let c of formGroup.controls?._Counters?.value">
+											</div>
+										</ng-container>
+									
+											<!-- 
 										<div *ngIf="formGroup.get('CountType').value == 'Simple' " class="col-qty cell"  [ngStyle]="{'color': c.get('CycleCountTasks')[0]?.value != c.get('CurrentQuantity').value? 'red':'green' }">
 												{{c.get('CycleCountTasks').controls[0]?.value?.CountedQuantity}}
 										</div> -->

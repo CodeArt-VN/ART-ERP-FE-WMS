@@ -147,15 +147,31 @@ export class CycleCountDetailPage extends PageBase {
 
         this.formGroup.get('Status').markAsDirty();
         console.log(this.formGroup);
-        this.isHideEqualityTask = false;
         this.removeSelectedItems();
         this.isAllChecked = false;
         this.isAllCheckedModal = false;
         this.toggleSelectAllInModal();
         this.toggleSelectAll();
       
-        if(this.item.CycleCountTasks.some(d=> d.Status == 'New')) {
+        if(this.item?.CycleCountTasks?.some(d=> d.Status == 'New')) {
             this.isShowRowTaskStatus = true;
+        }
+
+        if (!this.isHideEqualityTask) {
+            this.formGroup.get('CycleCountDetails')['controls'].forEach(c => {
+                if (c.controls.CycleCountTaskDetails?.value.every(e => e.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
+                    c.get('IsShowInModal').setValue(false);
+                    console.log(c.get('IsShowInModal').value)
+                }
+
+
+            })
+        }
+        else {
+            this.formGroup.get('CycleCountDetails')['controls'].forEach(c => {
+                c.get('IsShowInModal').setValue(true);
+                console.log(c.get('IsShowInModal').value)
+            })
         }
         //  this.patchFormValue();
     }
@@ -328,7 +344,7 @@ export class CycleCountDetailPage extends PageBase {
         this.isHideEqualityTask = !this.isHideEqualityTask;
         if (this.isHideEqualityTask) {
             this.formGroup.get('CycleCountDetails')['controls'].forEach(c => {
-                if (c.controls.CycleCountTaskDetails?.controls?.every(e => e.value?.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
+                if (c.controls.CycleCountTaskDetails?.value.every(e => e.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
                     c.get('IsShowInModal').setValue(false);
                     console.log(c.get('IsShowInModal').value)
                 }
@@ -422,9 +438,9 @@ export class CycleCountDetailPage extends PageBase {
                 });
         }
         else {
+            this.submitAttempt = false;
             this.formGroup.get('IsCountBy'+type).markAsDirty();
             this.saveChange();
-            this.submitAttempt = false;
         }
       
     }
@@ -502,12 +518,13 @@ export class CycleCountDetailPage extends PageBase {
             .then(rs => {
                 if (rs) {
                     this.isSubmitUpdateButton = true;
-                    this.trackChangeCountedFormGroup.controls.forEach(s=>{
-                        if(s.get('Status').value != 'Closed'){
-                            s.get('IsCheckedModal').enable();
-                        }
-                    })
+                    // this.trackChangeCountedFormGroup.controls.forEach(s=>{
+                    //     if(s.get('Status').value != 'Closed'){
+                    //         s.get('IsCheckedModal').enable();
+                    //     }
+                    // })
                     this.trackChangeCountedFormGroup = new FormArray([]); 
+                    this.loadedData();
                     this.env.showTranslateMessage('Saving completed!', 'success');
                     // this.dismissModal();
                 }
@@ -832,9 +849,14 @@ export class CycleCountDetailPage extends PageBase {
                 if(response) {
                     i.Status = 'Closed';
                     this.submitAttempt = false;
-                    if(this.item.CycleCountTasks.some(d=> d.Status == 'New')) {
+                    this.loadedData();
+                    if(this.item?.CycleCountTasks.some(d=> d.Status == 'New')) {
                         this.isShowRowTaskStatus = true;
                     }
+                    else{
+                        this.isShowRowTaskStatus = false;
+                    }
+
                 }
             }).catch(err => {
                 this.submitAttempt = false;
