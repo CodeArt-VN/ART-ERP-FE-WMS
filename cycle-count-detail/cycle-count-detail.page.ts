@@ -119,6 +119,8 @@ export class CycleCountDetailPage extends PageBase {
         this.query.Id = undefined;
         this.cycleCountDetailService.read(this.query,false).then((listCCDetail:any) =>{
             if(listCCDetail!= null && listCCDetail.data.length>0){
+                const cycleCountDetailsArray = this.formGroup.get('CycleCountDetails') as FormArray;
+                cycleCountDetailsArray.clear();
                 this.item.CycleCountDetails = listCCDetail.data;
                 this.patchFieldsValue();
             }
@@ -209,7 +211,6 @@ export class CycleCountDetailPage extends PageBase {
             CycleCountTaskDetails: [field.CycleCountTaskDetails],
             Status: [field.Status || 'New'],
             CurrentQuantity: [field.CurrentQuantity],
-            CycleCountTasks: this.formBuilder.array(field.CycleCountTasks||[]),
             IsCounted: [field.IsCounted],
             CountedQuantity: new FormControl({ value: field.CountedQuantity, disabled: false }),
             ZoneName: [field.ZoneName],
@@ -323,7 +324,7 @@ export class CycleCountDetailPage extends PageBase {
         this.isHideEqualityTask = !this.isHideEqualityTask;
         if (this.isHideEqualityTask) {
             this.formGroup.get('CycleCountDetails')['controls'].forEach(c => {
-                if (c.controls.CycleCountTasks?.controls?.every(e => e.value?.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
+                if (c.controls.CycleCountTaskDetails?.controls?.every(e => e.value?.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
                     c.get('IsShowInModal').setValue(false);
                     console.log(c.get('IsShowInModal').value)
                 }
@@ -341,6 +342,10 @@ export class CycleCountDetailPage extends PageBase {
     }
 
     changeLocationAndLot(e, type) {
+        if(this.submitAttempt){
+            return;
+        }
+        this.submitAttempt = true;
         let detailLength = this.formGroup.getRawValue().CycleCountDetails.length
         if (detailLength > 0) {
             this.env.showPrompt('Thay đổi ' + type + ' sẽ xoá hết chi tiết hàng kiểm hiện tại, bạn có tiếp tục?', null, 'Xóa ' + detailLength + ' dòng')
@@ -392,39 +397,43 @@ export class CycleCountDetailPage extends PageBase {
                                         }
                                         this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise())
                                             .then((result: any) => {
+                                                this.submitAttempt = false;
                                                 this.refresh();
                                             })
                                     }
                                 })
                             this.saveChange();
-
                         }).catch(err => {
                             this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
                             console.log(err);
+                            this.submitAttempt = false;
+
                         });
                 }).catch(er => {
                     let formControlName = '';
                     if (type == "Location") formControlName = 'IsCountByLocation';
                     if (type == "Lot") formControlName = 'IsCountByLot';
                     this.formGroup.get(formControlName).setValue(!this.formGroup.get(formControlName).value);
+                    this.submitAttempt = false;
                 });
         }
         else {
             this.formGroup.get('IsCountBy'+type).markAsDirty();
             this.saveChange();
-            
+            this.submitAttempt = false;
         }
+      
     }
 
     trackChangeCountedFormGroup: any =new FormArray([]);
     isSubmitUpdateButton = false;
     setCounterForCycleCountDetail(fg, task) {
-        if(fg.get('IDCycleCountTask').value == task.Id){
+        if(fg.get('IDCycleCountTask').value == task.IDTask){
             return;
         }
         fg.get('CountedQuantity').setValue(task.CountedQuantity);
         fg.get('IsCounted').setValue(true);
-        fg.get('IDCycleCountTask').setValue(task.Id);
+        fg.get('IDCycleCountTask').setValue(task.IDTask);
 
         fg.get('CountedQuantity').markAsDirty();
         fg.get('IsCounted').markAsDirty();
@@ -467,12 +476,10 @@ export class CycleCountDetailPage extends PageBase {
     updateCountedQuantity() {
         this.isSubmitUpdateButton = true;
         let filteredCycleCountDetails = this.formGroup.getRawValue().CycleCountDetails.filter(detail => {
-            // Assuming 'CycleCountTasks' is an array property of 'detail'
             if (detail.CycleCountTaskDetails && detail.CycleCountTaskDetails.length > 0 && !detail.IsCounted) {
-                // Check if all 'CurrentQuantity' values are equal
                 return detail.CycleCountTaskDetails.every(task => task.CountedQuantity === detail.CurrentQuantity);
-            } else {
-                // If there are no associated tasks, return true to include the detail
+            } 
+            else {
                 return false;
             }
         }).map(detail => ({
@@ -482,7 +489,7 @@ export class CycleCountDetailPage extends PageBase {
         }));
         let obj = filteredCycleCountDetails.concat(this.trackChangeCountedFormGroup.getRawValue().map(m=>({
             Id: m.Id,
-            CountedQuantity: m.CurrentQuantity,
+            CountedQuantity: m.CountedQuantity,
             IDCycleCountTask: m.IDCycleCountTask
             })
         ));
@@ -523,15 +530,6 @@ export class CycleCountDetailPage extends PageBase {
         this.isModalAddRangesOpen = false;
         this.isModalMergeOpen = false;
         this.isSubmitUpdateButton = false;
-        // if (type == 'merge') {
-         
-        //     // if (!this.isSubmitUpdateButton && this.trackChangeCounted.length > 0) {
-        //     //     this.refresh();
-        //     // }
-        //     this.isSubmitUpdateButton = false;
-        //     this.trackChangeCounted = [];
-        //     return;
-        // }
     }
 
     removeField(fg, j) {
@@ -659,7 +657,7 @@ export class CycleCountDetailPage extends PageBase {
             this.checkCycleCountDetailsInModal = new FormArray([]);
         }
         groups.controls.forEach(i => {
-            if (!i.get('IsCheckedModal').disabled && i.get('Status').value != 'Closed' && i.get('IsShowInModal').value && i.getRawValue().CycleCountTasks?.length > 0) {
+            if (!i.get('IsCheckedModal').disabled && i.get('Status').value != 'Closed' && i.get('IsShowInModal').value && i.getRawValue().CycleCountTaskDetails?.length > 0) {
                 i.get('IsCheckedModal').setValue(this.isAllCheckedModal)
                 if (this.isAllCheckedModal) this.checkCycleCountDetailsInModal.push(i)
             }
@@ -779,7 +777,7 @@ export class CycleCountDetailPage extends PageBase {
                 this.env.showTranslateMessage('Import completed!','success');
             }
             
-            this.refresh();
+            this.loadedData();
             this.isModalMergeOpen = true;
             // this.download(data);
         }).catch(err => {
@@ -787,11 +785,6 @@ export class CycleCountDetailPage extends PageBase {
             this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
             this.env.showTranslateMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
         })
-        // new Promise((resolve, reject) => {
-        //     this.commonService.connect("UPLOAD", ApiSetting.apiDomain("WMS/CycleCount/ImportTaskDetail/" + this.formGroup.get('Id').value), formData).toPromise()
-              
-
-        // });
 
     }
 

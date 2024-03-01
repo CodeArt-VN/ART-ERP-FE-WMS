@@ -126,7 +126,7 @@
 					</ion-header>
 
 					<ion-content class="ion-padding">
-						<section class="table table-contain responsive">
+						<section class="table table-contain responsive modalMerge">
 							<header class="bold">
 								<div class="col-checkbox cell">
 									<input (change)="toggleSelectAllInModal()" [(ngModel)]="isAllCheckedModal" class="c-checkbox" type="checkbox">
@@ -213,13 +213,23 @@
 										{{c.get('CurrentQuantity').value}}
 									</div>
 									<ng-container *ngIf="formGroup.get('CountType').value == 'Validation'">
-										<div [ngClass]="{bold: (c.get('IDCycleCountTask').value == c.controls.CycleCountTaskDetails.value[j]?.Id) &&  c.controls.CycleCountTaskDetails.value[j]?.Id>0}" *ngFor="let d of formGroup.controls?._Counters?.value; let j = index" [ngStyle]="{'color': c.controls.CycleCountTaskDetails.value[j]?.Status !='Closed'? 'gray' : c.controls.CycleCountTaskDetails.value[j]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
-											<div *ngIf="c.get('Status').value != 'Closed'  && c.controls.CycleCountTaskDetails.value[j]?.Status == 'Closed'" (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTasks.controls[j]?.value)" >
-												{{c.controls.CycleCountTaskDetails.value[j]?.CountedQuantity}}
-											</div>
-											<div *ngIf="c.get('Status').value == 'Closed'  || c.controls.CycleCountTaskDetails.value[j]?.Status != 'Closed'" >
-												{{c.controls.CycleCountTaskDetails.value[j]?.CountedQuantity}}
-											</div>
+										<div  *ngFor="let d of item.CycleCountTasks"  class="col-qty cell clickable">
+											<ng-container *ngFor="let taskDetail of c.controls.CycleCountTaskDetails.value; let j = index">
+												<ng-container *ngIf="taskDetail.IDTask == d.Id">
+													<div *ngIf="c.get('Status').value != 'Closed'  && taskDetail.Status == 'Closed'" (click)="setCounterForCycleCountDetail(c,taskDetail)" 
+													[ngClass]="{bold: (c.get('IDCycleCountTask').value == taskDetail.IDTask) &&  taskDetail.IDTask>0}" 
+													[ngStyle]="{'color': taskDetail.Status !='Closed'? 'gray' : taskDetail.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}">
+														{{taskDetail.CountedQuantity}}
+													</div>
+													<div *ngIf="c.get('Status').value == 'Closed'  || taskDetail.Status != 'Closed'" 
+													[ngClass]="{bold: (c.get('IDCycleCountTask').value == taskDetail.IDTask) &&  taskDetail.IDTask>0}" 
+													[ngStyle]="{'color': taskDetail.Status !='Closed'? 'gray' : taskDetail.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}">
+														{{taskDetail.CountedQuantity}}
+													</div>
+												</ng-container>
+												
+											</ng-container>
+										
 										</div>
 									</ng-container>
 

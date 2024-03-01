@@ -98,19 +98,7 @@
 
     
 }
-.selectedTask{
-    position: relative;
-}
-.selectedTask:before{
-    content: "";
-    position: absolute;
-    right: -5px;
-    bottom: 0;
-    height: 95%;
-    width: 35%;
-    border: 1px solid black;
-    border-radius: 50%;
-}
+
 ion-icon {
     cursor: pointer;
   }
@@ -121,3 +109,53 @@ ion-icon {
         --height: 600px;
     }
   }
+
+@media screen and (max-width: 1164px)
+{
+    .table.responsive header{
+        display:flex;
+        
+    }
+    .table.responsive{
+        .row > div{
+            order:unset !important;
+        }
+        .row{
+            margin: unset !important;
+            flex-wrap: nowrap;
+        }
+       
+    }
+    .table-contain{
+        .col-name{
+            min-width: 250px;
+            max-width: 250px;
+        }
+        .col-code{
+            max-width: 50px !important; 
+            min-width: 50px !important;
+        }
+        .col-id{
+            max-width: 50px !important; 
+            min-width: 50px !important;
+        }
+    } 
+    .table.responsive.modalMerge{
+        header{
+            // display: flex;
+            padding: 16px 16px 16px 0 !important;
+        }
+        .row{
+            width: fit-content;
+            padding-right: 16px !important;
+        }
+  
+       .col-status{
+            position:unset;
+            max-width: 125px;
+            min-width: 125px;
+            justify-content: center;
+        }
+    }
+     
+}
