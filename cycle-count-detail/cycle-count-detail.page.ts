@@ -363,6 +363,7 @@ export class CycleCountDetailPage extends PageBase {
 
     changeLocationAndLot(e, type) {
         if(this.submitAttempt){
+            this.formGroup.get('IsCountBy'+type).setValue(!this.formGroup.get('IsCountBy'+type).value)
             return;
         }
         this.submitAttempt = true;
