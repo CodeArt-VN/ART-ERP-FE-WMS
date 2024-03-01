@@ -178,6 +178,49 @@
 									<ion-icon  *ngIf="checkCycleCountDetailsInModal.controls.length>0" (click)="createAdjustment()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
 								</div> -->
 							</header>
+							<div class="row" *ngIf="isShowRowTaskStatus">
+								<div class="col-checkbox cell">
+								</div>
+
+								<div class="col-name cell">
+								</div>
+
+								<div class="col-uom cell" >
+								</div>
+
+								<div class="col-status cell">
+								</div>
+
+								<div class="col-name cell">
+								</div>
+
+								<div class="col-name cell">
+								</div>
+
+								<div class="col-name cell">
+								</div>
+
+								<div class="col-qty cell">
+								</div>
+								<ng-container *ngIf="formGroup.get('CountType').value == 'Validation'">
+									<ng-container  *ngFor="let c of item.CycleCountTasks">
+										<div class="col-qty cell clickable" *ngIf="c.Status == 'New'">
+											<a (click)="changeStatusTask(c, $event)">Close</a>
+										</div>
+										<div class="col-qty cell" *ngIf="c.Status != 'New'">
+										</div>
+									</ng-container>	
+								</ng-container>
+								
+								<ng-container *ngIf="formGroup.get('CountType').value == 'Simple'">
+									<div class="col-qty cell clickable" *ngIf="item.CycleCountTasks[0].Status == 'New'">
+										<a (click)="changeStatusTask(c, $event)">Close</a>
+									</div>
+									<div class="col-qty cell" *ngIf="item.CycleCountTasks[0].Status != 'New'">
+									</div>
+								</ng-container>
+
+							</div>
 							<ng-container  *ngFor="let c of formGroup.get('CycleCountDetails')['controls']">
 								<div class="row" *ngIf="c.get('IsShowInModal').value == true">
 									<div class="col-checkbox cell" style="text-align: center;">
