@@ -11,24 +11,19 @@
 				<ion-row class="hr-group">
 					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
 						<ion-list-header class="ion-no-padding">
-							<ion-label color="primary">{{'Warehouse adjustment slip' | translate}}</ion-label>
+							<ion-label color="primary">{{'Warehouse adjustment' | translate}}</ion-label>
 						</ion-list-header>
 					</ion-col>
 				
 					<ion-col size="12" size-sm size-xl="4">
-						<app-form-control [field]="{id:'StorerName', label: 'Storer name', type : 'text', form : formGroup }"(change)="saveChange()">
-							<small label *ngIf="item?.IDStorer">Id: {{item.IDStorer}}</small>
-						</app-form-control>
-						
-						<app-form-control [field]="{id:'Status', label: 'Status',type:'ng-select', dataSource: statusDataSource, bindLabel:'Name', bindValue:'Code',
-						form : formGroup }" (inputChange)="saveChange()"></app-form-control>
-						
+						<div class="c-control">
+							<label class="c-label">{{'Status' | translate}}: {{formGroup.get('Status').value}}</label>
+						</div>
+						<app-form-control [field]="{id:'Reason', label: 'Reason', type : 'textarea', form : formGroup }" (change)="saveChange()"></app-form-control>
+			
 					</ion-col>
 
-					<ion-col size="12" size-sm size-xl="4">
-						<app-form-control [field]="{id:'Reason', label: 'Reason', type : 'textarea', form : formGroup }" (change)="saveChange()"></app-form-control>
-						
-					</ion-col>
+					
 				</ion-row>
 			</form>
 		</ion-grid>
@@ -75,7 +70,22 @@
 									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
 										name="search" color="primary"></ion-icon> -->
 								</div>
-								
+							
+								<div class="col-Name cell" (click)="sortToggle('ZoneName')">
+									{{'ZoneName' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.ZoneName" [name]="sortDetail.ZoneName == 'ZoneName'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+								<div class="col-Name cell" (click)="sortToggle('Location')">
+									{{'Location' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.Location" [name]="sortDetail.Location == 'Location'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+								<div class="col-code cell" (click)="sortToggle('Lot')">
+									{{'Lot' | translate}}
+								</div>
+								<div class="col-number cell" (click)="sortToggle('LPN')">
+									{{'LPN' | translate}}
+								</div>
+									
 								<div class="col-qty cell" (click)="sortToggle('WarehouseQuantity')">
 									{{'Warehouse quantity' | translate}}
 									<ion-icon class="min-btn" *ngIf="sortDetail.WarehouseQuantity" [name]="sortDetail.WarehouseQuantity == 'WarehouseQuantity'?'arrow-down': 'arrow-up'"></ion-icon>
@@ -88,17 +98,7 @@
 									{{'Variance' | translate}}
 									<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
 								</div>
-								
-								<div class="col-number cell" (click)="sortToggle('Location')">
-									{{'Location' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.Location" [name]="sortDetail.Location == 'Location'?'arrow-down': 'arrow-up'"></ion-icon>
-								</div>
-								<div class="col-number cell" (click)="sortToggle('Lot')">
-									{{'Lot' | translate}}
-								</div>
-								<div class="col-number cell" (click)="sortToggle('LPN')">
-									{{'LPN' | translate}}
-								</div>
+
 								<div class="col-number cell" (click)="sortToggle('Cube')">
 									{{'Cube' | translate}}
 								</div>
@@ -127,6 +127,22 @@
 
 											</div>
 										</div>
+									
+										<div class="col-Name cell">
+											{{c.get('ZoneName')?.value}}
+										</div>
+										<div class="col-Name cell">
+											{{c.get('LocationName')?.value}}
+										</div>
+
+										<div class="col-code cell">
+											{{c.get('LotName')?.value}}
+										</div>
+
+										<div class="col-number cell">
+											{{c.get('LPN')?.value}}
+										</div>
+										
 										<div class="col-qty cell">
 											<b>{{c.get('WarehouseQuantity')?.value}}</b>
 										</div>
@@ -136,18 +152,6 @@
 										<div class="col-qty cell" [ngStyle]="{'color': c.get('QuantityAdjusted').value - c.get('WarehouseQuantity')?.value >= 0 ? 'green':'red' }">
 											{{c.get('QuantityAdjusted').value - c.get('WarehouseQuantity')?.value}}
 										</div>
-										<div class="col-number cell">
-											{{c.get('Location')?.value}}
-										</div>
-
-										<div class="col-number cell">
-											{{c.get('Lot')?.value}}
-										</div>
-
-										<div class="col-number cell">
-											{{c.get('LPN')?.value}}
-										</div>
-
 										<div class="col-number cell">
 											{{c.get('Cube')?.value}}
 										</div>
