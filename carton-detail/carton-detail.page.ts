@@ -34,7 +34,7 @@ export class CartonDetailPage extends PageBase {
         this.pageConfig.isDetailPage = true;
 
         this.formGroup = formBuilder.group({
-            IDBranch: [''],
+            IDBranch: [this.env.selectedBranch],
             IDCartonGroup: ['', Validators.required],
             Id: new FormControl({ value: '', disabled: true }),
             Code: [''],
