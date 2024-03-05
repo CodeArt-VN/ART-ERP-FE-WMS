@@ -1,0 +1,57 @@
+<ion-header>
+	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.cycle-count.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" (changeBranch)="changeBranch($event)"></app-list-toolbar>
+	<section class="table">
+		<header class="bold">
+			<div class="col-checkbox cell"></div>
+			<div class="col-id cell" (click)="sortToggle('Id')">
+				{{'Id' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell" (click)="sortToggle('BranchName')">
+				{{'Warehouse' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.BranchName" [name]="sort.BranchName == 'BranchName'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.BranchName" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell" (click)="sortToggle('CountDate')">
+				{{'Count date' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.CountDate" [name]="sort.CountDate == 'CountDate'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.CountDate" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-status cell" (click)="sortToggle('Status')">
+				{{'Status' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Status" [name]="sort.Status == 'Status'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Status" name="search" color="primary"></ion-icon>
+			</div>
+		</header>
+	</section>
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
+	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	<div *ngIf="items.length && pageConfig.showSpinner==false">
+		<section class="table">
+					<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+						<div class="col-checkbox cell">
+							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
+						</div>
+						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-id cell">
+							{{i.Id}}
+						</div>
+						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">
+							{{i.WarehouseName}}
+						</div>
+						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">
+							{{i.CountDate | date:'dd/MM/yyyy HH:mm'}}
+						</div>
+						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-status cell">
+							{{i.Status}}
+						</div>
+					</div>
+				
+		</section>
+	</div>
+	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>
