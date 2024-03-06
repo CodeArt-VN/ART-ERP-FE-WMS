@@ -18,11 +18,11 @@ export class WarehouseInputOutputInventoryComponent extends PageBase {
     this.query = value ? value : {};
     this.query.ToLocation = this.query.IDLocation;
     if (this.query.CreatedDateTo) {
-      this.query.CreatedDateTo += 'T23:59:59'
+      this.query.CreatedDateTo += 'T23:59:59';
     }
     this.clearData();
     this.loadData(null);
-  };
+  }
 
   constructor(
     public pageProvider: CommonService,
@@ -37,60 +37,60 @@ export class WarehouseInputOutputInventoryComponent extends PageBase {
     super();
   }
 
-  preLoadData(event) { }
+  preLoadData(event) {}
 
   loadData(event) {
     let apiPath = {
-      method: "GET",
-      url: function () { return ApiSetting.apiDomain("WMS/Transaction/InputOutputInventory/") }
+      method: 'GET',
+      url: function () {
+        return ApiSetting.apiDomain('WMS/Transaction/InputOutputInventory/');
+      },
     };
 
     if (this.pageConfig.isDetailPage) {
       this.loadAnItem(event);
-    }
-    else {
+    } else {
       if (this.pageProvider && !this.pageConfig.isEndOfData) {
         if (event == 'search') {
-          this.pageProvider.connect(apiPath.method, apiPath.url(), this.query).toPromise().then((result: any) => {
-            if (result.length == 0 || result.length < this.query.Take) {
-              this.pageConfig.isEndOfData = true;
-            }
-            this.items = result;
-            this.loadedData(null);
-          });
-        }
-        else {
+          this.pageProvider
+            .connect(apiPath.method, apiPath.url(), this.query)
+            .toPromise()
+            .then((result: any) => {
+              if (result.length == 0 || result.length < this.query.Take) {
+                this.pageConfig.isEndOfData = true;
+              }
+              this.items = result;
+              this.loadedData(null);
+            });
+        } else {
           this.query.Skip = this.items.length;
-          this.pageProvider.connect(apiPath.method, apiPath.url(), this.query).toPromise().then((result: any) => {
-            if (result.length == 0 || result.length < this.query.Take) {
-              this.pageConfig.isEndOfData = true;
-            }
-            if (result.length > 0) {
-              let firstRow = result[0];
+          this.pageProvider
+            .connect(apiPath.method, apiPath.url(), this.query)
+            .toPromise()
+            .then((result: any) => {
+              if (result.length == 0 || result.length < this.query.Take) {
+                this.pageConfig.isEndOfData = true;
+              }
+              if (result.length > 0) {
+                let firstRow = result[0];
 
-              //Fix dupplicate rows
-              //if (this.items.findIndex(d => d.Id == firstRow.Id) == -1) {
+                //Fix dupplicate rows
+                //if (this.items.findIndex(d => d.Id == firstRow.Id) == -1) {
                 this.items = [...this.items, ...result];
-              //}
-            }
+                //}
+              }
 
-            this.loadedData(event);
-          });
+              this.loadedData(event);
+            });
         }
-
-      }
-      else {
+      } else {
         this.loadedData(event);
       }
     }
-
   }
 
-
-
   loadedData(event) {
-    this.items.forEach(i => {
-
+    this.items.forEach((i) => {
       i.OpenQuantity = lib.formatMoney(i.OpenQuantity, 0);
       i.OpenCube = lib.formatMoney(i.OpenCube / 1000000, 3);
       i.OpenGrossWeight = lib.formatMoney(i.OpenGrossWeight / 1000, 3);
@@ -110,12 +110,9 @@ export class WarehouseInputOutputInventoryComponent extends PageBase {
       i.CloseCube = lib.formatMoney(i.CloseCube / 1000000, 3);
       i.CloseGrossWeight = lib.formatMoney(i.CloseGrossWeight / 1000, 3);
       i.CloseNetWeight = lib.formatMoney(i.CloseNetWeight / 1000, 3);
-
-
     });
     super.loadedData(event);
   }
 }
 
 //SaleProductReport
-

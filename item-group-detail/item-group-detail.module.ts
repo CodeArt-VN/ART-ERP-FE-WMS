@@ -4,14 +4,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
-import { FileUploadModule } from 'ng2-file-upload';
 import { ItemGroupDetailPage } from './item-group-detail.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ItemGroupDetailPage
-  }
+    component: ItemGroupDetailPage,
+  },
 ];
 
 @NgModule({
@@ -21,10 +20,9 @@ const routes: Routes = [
     ShareModule,
     IonicModule,
     ReactiveFormsModule,
-    FileUploadModule,
     ShareModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
-  declarations: [ItemGroupDetailPage]
+  declarations: [ItemGroupDetailPage],
 })
 export class ItemGroupDetailPageModule {}

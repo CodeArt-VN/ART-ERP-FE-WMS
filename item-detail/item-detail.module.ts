@@ -5,13 +5,12 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ItemDetailPage } from './item-detail.page';
 import { ShareModule } from 'src/app/share.module';
-import { FileUploadModule } from 'ng2-file-upload';
 
 const routes: Routes = [
   {
     path: '',
-    component: ItemDetailPage
-  }
+    component: ItemDetailPage,
+  },
 ];
 
 @NgModule({
@@ -21,10 +20,9 @@ const routes: Routes = [
     ShareModule,
     IonicModule,
     ReactiveFormsModule,
-    FileUploadModule,
     ShareModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
-  declarations: [ItemDetailPage]
+  declarations: [ItemDetailPage],
 })
 export class ItemDetailPageModule {}

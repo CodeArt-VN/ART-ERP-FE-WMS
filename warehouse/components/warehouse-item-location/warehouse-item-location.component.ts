@@ -16,14 +16,12 @@ export class WarehouseItemLocationComponent extends PageBase {
   @Input() set setQuery(value) {
     this.query = value ? value : {};
     this.query.ToLocation = this.query.IDLocation;
-    if (this.query.CreatedDateFrom) 
-      delete this.query.CreatedDateFrom;
-    if (this.query.CreatedDateTo) 
-      delete this.query.CreatedDateTo;
-    
+    if (this.query.CreatedDateFrom) delete this.query.CreatedDateFrom;
+    if (this.query.CreatedDateTo) delete this.query.CreatedDateTo;
+
     this.clearData();
     this.loadData(null);
-  };
+  }
 
   constructor(
     public pageProvider: WMS_ItemInLocationProvider,
@@ -38,14 +36,14 @@ export class WarehouseItemLocationComponent extends PageBase {
     super();
   }
 
-  preLoadData(event) { }
+  preLoadData(event) {}
 
   loadData(event) {
     super.loadData(event);
   }
 
   loadedData(event) {
-    this.items.forEach(i => {
+    this.items.forEach((i) => {
       i.QuantityExpected = lib.formatMoney(i.QuantityExpected, 0);
       i.QuantityOnHand = lib.formatMoney(i.QuantityOnHand, 0);
       i.QuantityPreallocated = lib.formatMoney(i.QuantityPreallocated, 0);

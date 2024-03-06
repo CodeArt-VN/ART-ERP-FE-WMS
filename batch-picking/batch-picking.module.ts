@@ -13,8 +13,8 @@ import { ShareModule } from 'src/app/share.module';
     FormsModule,
     ReactiveFormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: BatchPickingPage }])
+    RouterModule.forChild([{ path: '', component: BatchPickingPage }]),
   ],
-  declarations: [BatchPickingPage]
+  declarations: [BatchPickingPage],
 })
 export class BatchPickingPageModule {}

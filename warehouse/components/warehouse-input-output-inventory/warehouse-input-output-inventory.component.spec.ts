@@ -9,8 +9,8 @@ describe('WarehouseInputOutputInventoryComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ WarehouseInputOutputInventoryComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [WarehouseInputOutputInventoryComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WarehouseInputOutputInventoryComponent);

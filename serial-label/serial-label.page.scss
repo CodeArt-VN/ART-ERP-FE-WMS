@@ -1,66 +1,65 @@
 .Ruy96 .sheet {
-    width: 96mm;
-    height: auto;
-    min-height: auto;//295mm;
-    padding: 0;
+  width: 96mm;
+  height: auto;
+  min-height: auto; //295mm;
+  padding: 0;
 }
 
 .A5.landscape .sheet {
-    width: 96mm;
-    height: auto;
-    min-height: 147mm;
-    padding: 0 10mm;
+  width: 96mm;
+  height: auto;
+  min-height: 147mm;
+  padding: 0 10mm;
 }
 
 .sheet {
-    &.huong-dan {
-        padding: 10mm !important;
-        height: auto !important;
-        min-height: auto !important;
-        color: #af305a;
+  &.huong-dan {
+    padding: 10mm !important;
+    height: auto !important;
+    min-height: auto !important;
+    color: #af305a;
 
-        a {
-            color: #af305a;
-        }
+    a {
+      color: #af305a;
+    }
+  }
+
+  .top-zone {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-height: calc(96mm / 2 - 2px);
+  }
+
+  .label {
+    page-break-inside: avoid;
+    width: calc(96mm / 2 - 2px);
+    border-right: 1px dashed gray;
+    border-bottom: 1px dashed gray;
+
+    &.odd {
+      border-right: none;
     }
 
-    .top-zone{
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        min-height: calc(96mm / 2 - 2px);
+    .l-img-code {
+      padding: 0px;
+      text-align: center;
     }
 
-    .label{
-        page-break-inside: avoid;
-        width: calc(96mm / 2 - 2px);
-        border-right: 1px dashed gray;
-        border-bottom: 1px dashed gray;
-
-        &.odd{
-            border-right: none;
-        }
-
-        .l-img-code {
-            padding: 0px;
-            text-align: center;
-        }
-
-        .l-title{
-            text-align: center;
-            font-size: 48px;
-            margin-top: -25px;
-        }
+    .l-title {
+      text-align: center;
+      font-size: 48px;
+      margin-top: -25px;
     }
-
+  }
 }
 
 .functions-list {
-    top: auto;
-    border-top: solid 1px var(--menu-right-border-color);
-    box-shadow: 0px -2px 5px 0 rgb(0 0 0 / 10%);
+  top: auto;
+  border-top: solid 1px var(--menu-right-border-color);
+  box-shadow: 0px -2px 5px 0 rgb(0 0 0 / 10%);
 
-    position: sticky;
-    bottom: 0;
-    background: linear-gradient(180deg, var(--feature-background-top), var(--feature-background-bottom));
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, var(--feature-background-top), var(--feature-background-bottom));
 }

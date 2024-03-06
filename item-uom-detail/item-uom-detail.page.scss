@@ -1,51 +1,54 @@
-.table-contain{
-    max-width: 500px;
-    margin: auto;
+.table-contain {
+  max-width: 500px;
+  margin: auto;
 
-    section.table header{
-        height: 45px;
-    }
-    .row{
-        width: unset;
-    }
+  section.table header {
+    height: 45px;
+  }
+  .row {
+    width: unset;
+  }
 
-    .c-input{
-        text-align: right;
-    }
+  .c-input {
+    text-align: right;
+  }
 
-    .cell{
-        padding: 2px 2px;
+  .cell {
+    padding: 2px 2px;
 
-        .info-color{
-            margin-left: 4px;
-        }
+    .info-color {
+      margin-left: 4px;
     }
+  }
 
-    .disable.cell,input[disabled], input[readonly], select[disabled]{
-        background: linear-gradient(180deg, var(--main-background-top), var(--main-background-bottom));
-    }
+  .disable.cell,
+  input[disabled],
+  input[readonly],
+  select[disabled] {
+    background: linear-gradient(180deg, var(--main-background-top), var(--main-background-bottom));
+  }
 }
 
-.col-name{
-    table{
-        margin-top: 2px;
-    }
-    table tr td{
-        padding: 2px 0 ;
-    }
-    input.c-input {
-        padding-right: 16px;
-    }
-    .label{
-        padding-left: 13px !important;
-        color: var(--ion-color-medium);
-        vertical-align: middle;
-        position: relative;
-    }
+.col-name {
+  table {
+    margin-top: 2px;
+  }
+  table tr td {
+    padding: 2px 0;
+  }
+  input.c-input {
+    padding-right: 16px;
+  }
+  .label {
+    padding-left: 13px !important;
+    color: var(--ion-color-medium);
+    vertical-align: middle;
+    position: relative;
+  }
 
-    .right-btn{
-        position: absolute;
-        right: 0;
-        top: 4px;
-    }
+  .right-btn {
+    position: absolute;
+    right: 0;
+    top: 4px;
+  }
 }

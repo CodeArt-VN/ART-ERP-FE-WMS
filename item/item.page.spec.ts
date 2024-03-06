@@ -10,7 +10,7 @@ describe('ItemPage', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ItemPage],
-      imports: [IonicModule.forRoot()]
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ItemPage);

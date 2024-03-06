@@ -5,25 +5,16 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
 import { ZoneDetailPage } from './zone-detail.page';
-import { FileUploadModule } from 'ng2-file-upload';
 
 const routes: Routes = [
   {
     path: '',
-    component: ZoneDetailPage
-  }
+    component: ZoneDetailPage,
+  },
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    FileUploadModule,
-    ShareModule,
-    RouterModule.forChild(routes)
-  ],
-  declarations: [ZoneDetailPage]
+  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+  declarations: [ZoneDetailPage],
 })
-export class ZoneDetailPageModule { }
+export class ZoneDetailPageModule {}

@@ -10,7 +10,7 @@ describe('ReturnedLlistPage', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ReturnedLlistPage],
-      imports: [IonicModule.forRoot()]
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReturnedLlistPage);

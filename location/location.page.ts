@@ -6,23 +6,22 @@ import { BRA_BranchProvider, WMS_LocationProvider } from 'src/app/services/stati
 import { Location } from '@angular/common';
 
 @Component({
-    selector: 'app-location',
-    templateUrl: 'location.page.html',
-    styleUrls: ['location.page.scss']
+  selector: 'app-location',
+  templateUrl: 'location.page.html',
+  styleUrls: ['location.page.scss'],
 })
 export class LocationPage extends PageBase {
-    constructor(
-        public pageProvider: WMS_LocationProvider,
-        public branchProvider: BRA_BranchProvider,
-        public modalController: ModalController,
-		public popoverCtrl: PopoverController,
-        public alertCtrl: AlertController,
-        public loadingController: LoadingController,
-        public env: EnvService,
-        public navCtrl: NavController,
-        public location: Location,
-    ) {
-        super();
-    }
-
+  constructor(
+    public pageProvider: WMS_LocationProvider,
+    public branchProvider: BRA_BranchProvider,
+    public modalController: ModalController,
+    public popoverCtrl: PopoverController,
+    public alertCtrl: AlertController,
+    public loadingController: LoadingController,
+    public env: EnvService,
+    public navCtrl: NavController,
+    public location: Location,
+  ) {
+    super();
+  }
 }

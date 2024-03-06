@@ -12,8 +12,8 @@ import { ShareModule } from 'src/app/share.module';
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: ItemPage }])
+    RouterModule.forChild([{ path: '', component: ItemPage }]),
   ],
-  declarations: [ItemPage]
+  declarations: [ItemPage],
 })
-export class ItemPageModule { }
+export class ItemPageModule {}

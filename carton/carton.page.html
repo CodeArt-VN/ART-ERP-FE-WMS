@@ -1,127 +1,286 @@
 <ion-header>
-	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.carton.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" (changeBranch)="changeBranch($event)"></app-list-toolbar>
-	<section class="table">
-		<header class="bold">
-			<div class="col-checkbox cell"></div>
-			<div class="col-id cell" (click)="sortToggle('Id')">
-				{{'erp.app.pages.wms.carton.id' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-code cell" (click)="sortToggle('CartonGroupName')">
-				{{'erp.app.pages.wms.carton.carton-group-name' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.CartonGroupName" [name]="sort.CartonGroupName == 'CartonGroupName'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.CartonGroupName" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-name cell" (click)="sortToggle('Name')">
-				{{'erp.app.pages.wms.carton.name-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-id cell money" (click)="sortToggle('Length')">
-				{{'erp.app.pages.wms.carton.length-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Length" [name]="sort.Length == 'Length'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Length" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-id cell money" (click)="sortToggle('Width')">
-				{{'erp.app.pages.wms.carton.width-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Width" [name]="sort.Width == 'Width'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Width" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-id cell money" (click)="sortToggle('Height')">
-				{{'erp.app.pages.wms.carton.height-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Height" [name]="sort.Height == 'Height'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Height" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-code cell money" (click)="sortToggle('Cube')">
-				{{'erp.app.pages.wms.carton.cube-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Cube" [name]="sort.Cube == 'Cube'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Cube" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-code cell money" (click)="sortToggle('MaxWeight')">
-				{{'erp.app.pages.wms.carton.max-weight-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.MaxWeight" [name]="sort.MaxWeight == 'MaxWeight'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.MaxWeight" name="search" color="primary"></ion-icon>
-			</div>
-		</header>
-		<form (submit)="refresh()" action="#">
-			<header class="filter" *ngIf="pageConfig.isShowSearch">
-				<div class="col-checkbox cell"></div>
-				<div class="col-id cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Id" class="c-input" [ngClass]="{active: query.Id}" type="text">
-					<ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-code cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.CartonGroupName" class="c-input" [ngClass]="{active: query.CartonGroupName}" type="text">
-					<ion-icon class="min-btn" (click)="query.CartonGroupName=''; refresh()" *ngIf="query.CartonGroupName" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-name cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text">
-					<ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-id cell money" >
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Length" class="c-input" [ngClass]="{active: query.Length}" type="text">
-					<ion-icon class="min-btn" (click)="query.Length=''; refresh()" *ngIf="query.Length" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-id cell money" >
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Width" class="c-input" [ngClass]="{active: query.Width}" type="text">
-					<ion-icon class="min-btn" (click)="query.Width=''; refresh()" *ngIf="query.Width" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-id cell money" >
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Height" class="c-input" [ngClass]="{active: query.Height}" type="text">
-					<ion-icon class="min-btn" (click)="query.Height=''; refresh()" *ngIf="query.Height" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-code cell money" >
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Cube" class="c-input" [ngClass]="{active: query.Cube}" type="text">
-					<ion-icon class="min-btn" (click)="query.Cube=''; refresh()" *ngIf="query.Cube" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-code cell money" >
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.MaxWeight" class="c-input" [ngClass]="{active: query.MaxWeight}" type="text">
-					<ion-icon class="min-btn" (click)="query.MaxWeight=''; refresh()" *ngIf="query.MaxWeight" name="close-circle-outline"></ion-icon>
-				</div>
-				<button mat-raised-button type="submit" style="display:none">Search</button>
-			</header>
-		</form>
-	</section>
+  <app-list-toolbar
+    pageTitle="{{'List' | translate}}"
+    [pageConfig]="pageConfig"
+    [selectedItems]="selectedItems"
+    [query]="query"
+    (add)="add()"
+    (refresh)="refresh()"
+    (export)="export()"
+    (import)="import($event)"
+    (help)="help()"
+    (unselect)="unselect()"
+    (archiveItems)="archiveItems()"
+    (deleteItems)="deleteItems()"
+    (changeBranch)="changeBranch($event)"
+  ></app-list-toolbar>
+  <section class="table">
+    <header class="bold">
+      <div class="col-checkbox cell"></div>
+      <div class="col-id cell" (click)="sortToggle('Id')">
+        {{'Id' | translate}}
+        <ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Id"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-code cell" (click)="sortToggle('CartonGroupName')">
+        {{'Group' | translate}}
+        <ion-icon
+          class="min-btn"
+          *ngIf="sort.CartonGroupName"
+          [name]="sort.CartonGroupName == 'CartonGroupName'?'arrow-down': 'arrow-up'"
+        ></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.CartonGroupName"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-name cell" (click)="sortToggle('Name')">
+        {{'Name' | translate}}
+        <ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Name"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-id cell money" (click)="sortToggle('Length')">
+        {{'Length (cm)' | translate}}
+        <ion-icon
+          class="min-btn"
+          *ngIf="sort.Length"
+          [name]="sort.Length == 'Length'?'arrow-down': 'arrow-up'"
+        ></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Length"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-id cell money" (click)="sortToggle('Width')">
+        {{'Width' | translate}}
+        <ion-icon class="min-btn" *ngIf="sort.Width" [name]="sort.Width == 'Width'?'arrow-down': 'arrow-up'"></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Width"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-id cell money" (click)="sortToggle('Height')">
+        {{'High' | translate}}
+        <ion-icon
+          class="min-btn"
+          *ngIf="sort.Height"
+          [name]="sort.Height == 'Height'?'arrow-down': 'arrow-up'"
+        ></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Height"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-code cell money" (click)="sortToggle('Cube')">
+        {{'Cube' | translate}}
+        <ion-icon class="min-btn" *ngIf="sort.Cube" [name]="sort.Cube == 'Cube'?'arrow-down': 'arrow-up'"></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Cube"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-code cell money" (click)="sortToggle('MaxWeight')">
+        {{'MaxWeight' | translate}}
+        <ion-icon
+          class="min-btn"
+          *ngIf="sort.MaxWeight"
+          [name]="sort.MaxWeight == 'MaxWeight'?'arrow-down': 'arrow-up'"
+        ></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.MaxWeight"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+    </header>
+    <form (submit)="refresh()" action="#">
+      <header class="filter" *ngIf="pageConfig.isShowSearch">
+        <div class="col-checkbox cell"></div>
+        <div class="col-id cell">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Id"
+            class="c-input"
+            [ngClass]="{active: query.Id}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Id=''; refresh()"
+            *ngIf="query.Id"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-code cell">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.CartonGroupName"
+            class="c-input"
+            [ngClass]="{active: query.CartonGroupName}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.CartonGroupName=''; refresh()"
+            *ngIf="query.CartonGroupName"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-name cell">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Name"
+            class="c-input"
+            [ngClass]="{active: query.Name}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Name=''; refresh()"
+            *ngIf="query.Name"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-id cell money">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Length"
+            class="c-input"
+            [ngClass]="{active: query.Length}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Length=''; refresh()"
+            *ngIf="query.Length"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-id cell money">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Width"
+            class="c-input"
+            [ngClass]="{active: query.Width}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Width=''; refresh()"
+            *ngIf="query.Width"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-id cell money">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Height"
+            class="c-input"
+            [ngClass]="{active: query.Height}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Height=''; refresh()"
+            *ngIf="query.Height"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-code cell money">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Cube"
+            class="c-input"
+            [ngClass]="{active: query.Cube}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Cube=''; refresh()"
+            *ngIf="query.Cube"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-code cell money">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.MaxWeight"
+            class="c-input"
+            [ngClass]="{active: query.MaxWeight}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.MaxWeight=''; refresh()"
+            *ngIf="query.MaxWeight"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <button mat-raised-button type="submit" style="display: none">Search</button>
+      </header>
+    </form>
+  </section>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-								<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-						<div class="col-checkbox cell">
-							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-						</div>
-						<div (click)="nav('carton/'+i.Id,'forward')" class="col-id cell">
-							{{i.Id}}
-						</div>
-						<div (click)="nav('carton/'+i.Id,'forward')" class="col-code cell">
-							{{i.CartonGroupName}}
-						</div>
-						<div (click)="nav('carton/'+i.Id,'forward')" class="col-name cell">
-							{{i.Name}}
-						</div>
-						<div class="col-id cell money" >
-							{{i.Length}}
-						</div>
-						<div class="col-id cell money" >
-							{{i.Width}}
-						</div>
-						<div class="col-id cell money" >
-							{{i.Height}}
-						</div>
-						<div class="col-code cell money" >
-							{{i.Cube}}
-						</div>
-						<div class="col-code cell money" >
-							{{i.MaxWeight}}
-						</div>
-					</div>
-				
-		</section>
-	</div>
-	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-	</ion-infinite-scroll>
+  <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+  <div *ngIf="items.length && pageConfig.showSpinner==false">
+    <section class="table">
+      <div
+        *ngFor="let i of items; let j = index;"
+        class="row"
+        [ngClass]="{odd: j % 2 != 0}"
+        [ngClass]="{selected: i.checked}"
+      >
+        <div class="col-checkbox cell">
+          <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
+        </div>
+        <div (click)="nav('carton/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
+        <div (click)="nav('carton/'+i.Id,'forward')" class="col-code cell">{{i.CartonGroupName}}</div>
+        <div (click)="nav('carton/'+i.Id,'forward')" class="col-name cell">{{i.Name}}</div>
+        <div class="col-id cell money">{{i.Length}}</div>
+        <div class="col-id cell money">{{i.Width}}</div>
+        <div class="col-id cell money">{{i.Height}}</div>
+        <div class="col-code cell money">{{i.Cube}}</div>
+        <div class="col-code cell money">{{i.MaxWeight}}</div>
+      </div>
+    </section>
+  </div>
+  <ion-infinite-scroll
+    color="primary"
+    threshold="20%"
+    (ionInfinite)="loadData($event)"
+    [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData"
+  >
+    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>

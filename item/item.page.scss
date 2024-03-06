@@ -1,23 +1,22 @@
-.responsive{
-    @media screen and (max-width: calc(1164px + 0px)) {
-        .filter{
-            .col-id{
-                order: 1;
-            }
-            .col-code{
-                order: 2;
-            }
-            .col-remark{
-                order: 3;
-            }
-            .col-name{
-                order: 4;
-            }
-        }
-
-        .empty-message{
-            height: calc( 100vh - 215px);
-        }
+.responsive {
+  @media screen and (max-width: calc(1164px + 0px)) {
+    .filter {
+      .col-id {
+        order: 1;
+      }
+      .col-code {
+        order: 2;
+      }
+      .col-remark {
+        order: 3;
+      }
+      .col-name {
+        order: 4;
+      }
     }
-}
 
+    .empty-message {
+      height: calc(100vh - 215px);
+    }
+  }
+}

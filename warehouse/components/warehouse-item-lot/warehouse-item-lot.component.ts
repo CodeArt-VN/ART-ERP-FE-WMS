@@ -17,11 +17,11 @@ export class WarehouseItemLotComponent extends PageBase {
     this.query = value ? value : {};
     this.query.ToLocation = this.query.IDLocation;
     if (this.query.CreatedDateTo) {
-      this.query.CreatedDateTo += 'T23:59:59'
+      this.query.CreatedDateTo += 'T23:59:59';
     }
     this.clearData();
     this.loadData(null);
-  };
+  }
 
   constructor(
     public pageProvider: WMS_LotProvider,
@@ -36,15 +36,14 @@ export class WarehouseItemLotComponent extends PageBase {
     super();
   }
 
-  preLoadData(event) { }
+  preLoadData(event) {}
 
   loadData(event) {
     super.loadData(event);
   }
 
   loadedData(event) {
-    this.items.forEach(i => {
-     
+    this.items.forEach((i) => {
       i.QuantityOnHand = lib.formatMoney(i.QuantityOnHand, 0);
       i.QuantityAllocated = lib.formatMoney(i.QuantityAllocated, 0);
       i.QuantityPicked = lib.formatMoney(i.QuantityPicked, 0);
@@ -53,8 +52,6 @@ export class WarehouseItemLotComponent extends PageBase {
       i.CubeText = lib.formatMoney(i.Cube / 1000000, 3);
       i.GrossWeightText = lib.formatMoney(i.GrossWeight / 1000, 3);
       i.NetWeightText = lib.formatMoney(i.NetWeight / 1000, 3);
-
-      
 
       i.Lottable5Text = lib.dateFormat(i.Lottable5, 'dd/mm/yyyy');
     });

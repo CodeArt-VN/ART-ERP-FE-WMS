@@ -15,8 +15,8 @@ import { WarehouseComponentsModule } from './components/warehouse-components.mod
     ReactiveFormsModule,
     WarehouseComponentsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: WarehousePage }])
+    RouterModule.forChild([{ path: '', component: WarehousePage }]),
   ],
-  declarations: [WarehousePage]
+  declarations: [WarehousePage],
 })
 export class WarehousePageModule {}

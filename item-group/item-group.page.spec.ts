@@ -10,7 +10,7 @@ describe('ItemGroupPage', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ItemGroupPage],
-      imports: [IonicModule.forRoot()]
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ItemGroupPage);

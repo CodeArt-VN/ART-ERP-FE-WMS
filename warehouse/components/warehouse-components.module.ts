@@ -9,29 +9,21 @@ import { WarehouseItemLocationComponent } from './warehouse-item-location/wareho
 import { WarehouseItemLocationLotLpnComponent } from './warehouse-item-location-lot-lpn/warehouse-item-location-lot-lpn.component';
 import { WarehouseItemLotComponent } from './warehouse-item-lot/warehouse-item-lot.component';
 
-
-
-
 @NgModule({
-	imports: [IonicModule,
-		CommonModule,
-		ShareModule,
-		FormsModule,
-		ReactiveFormsModule,
-	],
-	declarations: [
-		WarehouseInputOutputInventoryComponent,
-		WarehouseTransactionComponent,
-		WarehouseItemLocationComponent,
-		WarehouseItemLocationLotLpnComponent,
-		WarehouseItemLotComponent
-	],
-	exports: [
-		WarehouseInputOutputInventoryComponent,
-		WarehouseTransactionComponent,
-		WarehouseItemLocationComponent,
-		WarehouseItemLocationLotLpnComponent,
-		WarehouseItemLotComponent
-	],
+  imports: [IonicModule, CommonModule, ShareModule, FormsModule, ReactiveFormsModule],
+  declarations: [
+    WarehouseInputOutputInventoryComponent,
+    WarehouseTransactionComponent,
+    WarehouseItemLocationComponent,
+    WarehouseItemLocationLotLpnComponent,
+    WarehouseItemLotComponent,
+  ],
+  exports: [
+    WarehouseInputOutputInventoryComponent,
+    WarehouseTransactionComponent,
+    WarehouseItemLocationComponent,
+    WarehouseItemLocationLotLpnComponent,
+    WarehouseItemLotComponent,
+  ],
 })
-export class WarehouseComponentsModule { }
+export class WarehouseComponentsModule {}

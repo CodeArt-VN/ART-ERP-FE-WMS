@@ -12,8 +12,8 @@ import { ShareModule } from 'src/app/share.module';
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: LocationPage }])
+    RouterModule.forChild([{ path: '', component: LocationPage }]),
   ],
-  declarations: [LocationPage]
+  declarations: [LocationPage],
 })
 export class LocationPageModule {}

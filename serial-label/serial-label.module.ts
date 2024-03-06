@@ -13,8 +13,8 @@ import { ShareModule } from 'src/app/share.module';
     FormsModule,
     ReactiveFormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: SerialLabelPage }])
+    RouterModule.forChild([{ path: '', component: SerialLabelPage }]),
   ],
-  declarations: [SerialLabelPage]
+  declarations: [SerialLabelPage],
 })
 export class SerialLabelPageModule {}

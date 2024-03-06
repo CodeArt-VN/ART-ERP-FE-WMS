@@ -13,8 +13,8 @@ import { ShareModule } from 'src/app/share.module';
     FormsModule,
     ReactiveFormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: ReturnedLlistPage }])
+    RouterModule.forChild([{ path: '', component: ReturnedLlistPage }]),
   ],
-  declarations: [ReturnedLlistPage]
+  declarations: [ReturnedLlistPage],
 })
 export class ReturnedLlistPageModule {}
