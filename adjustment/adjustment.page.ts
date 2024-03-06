@@ -26,15 +26,47 @@ export class AdjustmentPage extends PageBase {
         this.pageConfig.canDelete = true;
         this.pageConfig.canEdit = true;
         this.pageConfig.canApprove = true;
-        this.query.Type == 'Warehouse'; //For export branch query
     }
-
-    approver(){
+ 
+ 
+    approve(){
+        if(this.selectedItems.some(d=>d.Status =="Done")){
+            return;
+        }
         let obj = {
             IDs : this.selectedItems.map(s=>s.Id)
         }
-        this.pageProvider.commonService.connect( 'POST', 'WMS/adjustment/PostListDetail', obj).toPromise().then(result=>{
-            this.refresh();
-        })
+        this.env.showPrompt('Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?', null, 'Duyệt ' + this.selectedItems.length + ' dòng').then(_ => {
+            this.pageProvider.commonService.connect( 'POST', 'WMS/adjustment/Approve', obj).toPromise()
+                .then(_ => {
+                    this.refresh()
+                }).catch(err => {
+                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+                    console.log(err);
+                });
+        });
+
+       
+    }
+
+    
+    disapprove(){
+        if(this.selectedItems.some(d=>d.Status =="Pending")){
+            return;
+        }
+        let obj = {
+            IDs : this.selectedItems.map(s=>s.Id)
+        }
+   
+        this.env.showPrompt('Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?', null, 'Bỏ duyệt ' + this.selectedItems.length + ' dòng').then(_ => {
+            this.pageProvider.commonService.connect( 'POST', 'WMS/adjustment/Disapprove', obj).toPromise()
+                .then(_ => {
+                    this.refresh()
+                }).catch(err => {
+                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+                    console.log(err);
+                });
+        });
+       
     }
 }

@@ -60,9 +60,9 @@
 				<section class="table responsive">
 					
 							<header class="bold">
-								<div class="col-checkbox cell">
+								<!-- <div class="col-checkbox cell">
 									<input (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox">
-								</div>
+								</div> -->
 								<div class="col-id cell">#</div>
 								<div class="col-name cell" (click)="sortToggle('ItemName')">
 									{{'Item name' | translate}}
@@ -71,34 +71,26 @@
 										name="search" color="primary"></ion-icon> -->
 								</div>
 							
-								<div class="col-Name cell" (click)="sortToggle('ZoneName')">
+								<div class="col-name cell" (click)="sortToggle('ZoneName')">
 									{{'ZoneName' | translate}}
 									<ion-icon class="min-btn" *ngIf="sortDetail.ZoneName" [name]="sortDetail.ZoneName == 'ZoneName'?'arrow-down': 'arrow-up'"></ion-icon>
 								</div>
-								<div class="col-Name cell" (click)="sortToggle('Location')">
+								<div class="col-name cell" (click)="sortToggle('Location')">
 									{{'Location' | translate}}
 									<ion-icon class="min-btn" *ngIf="sortDetail.Location" [name]="sortDetail.Location == 'Location'?'arrow-down': 'arrow-up'"></ion-icon>
 								</div>
 								<div class="col-code cell" (click)="sortToggle('Lot')">
 									{{'Lot' | translate}}
 								</div>
-								<div class="col-number cell" (click)="sortToggle('LPN')">
+								<div class="col-qty cell" (click)="sortToggle('LPN')">
 									{{'LPN' | translate}}
 								</div>
-									
-								<div class="col-qty cell" (click)="sortToggle('WarehouseQuantity')">
-									{{'Warehouse quantity' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.WarehouseQuantity" [name]="sortDetail.WarehouseQuantity == 'WarehouseQuantity'?'arrow-down': 'arrow-up'"></ion-icon>
-								</div>
+							
 								<div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
 									{{'Quantity adjusted' | translate}}
 									<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
 								</div>
-								<div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
-									{{'Variance' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
-								</div>
-
+						
 								<div class="col-number cell" (click)="sortToggle('Cube')">
 									{{'Cube' | translate}}
 								</div>
@@ -108,16 +100,16 @@
 								<div class="col-number cell" (click)="sortToggle('NetWeight')">
 									{{'NetWeight' | translate}}
 								</div>
-								<div class="col-icon cell">
+								<!-- <div class="col-icon cell">
 									<ion-icon  *ngIf="checkedFields.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
-								</div>
+								</div> -->
 							</header>
 							<app-page-message [itemsLength]= "formGroup.get('AdjustmentDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 							<ng-container  *ngIf="!pageConfig.showSpinner">
 								<div *ngFor="let c of formGroup.get('AdjustmentDetails')['controls'] ;let j = index"class="row" [ngClass]="{odd: j % 2 != 0}" >
-										<div class="col-checkbox cell" style="text-align: center;">
+										<!-- <div class="col-checkbox cell" style="text-align: center;">
 											<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
-										</div>
+										</div> -->
 										<div class="col-id cell">{{j+1}}</div>
 
 										<div class="col-name cell">
@@ -128,10 +120,10 @@
 											</div>
 										</div>
 									
-										<div class="col-Name cell">
+										<div class="col-name cell">
 											{{c.get('ZoneName')?.value}}
 										</div>
-										<div class="col-Name cell">
+										<div class="col-name cell">
 											{{c.get('LocationName')?.value}}
 										</div>
 
@@ -139,19 +131,14 @@
 											{{c.get('LotName')?.value}}
 										</div>
 
-										<div class="col-number cell">
+										<div class="col-qty cell">
 											{{c.get('LPN')?.value}}
 										</div>
 										
 										<div class="col-qty cell">
-											<b>{{c.get('WarehouseQuantity')?.value}}</b>
-										</div>
-										<div class="col-qty cell">
-											<app-input-control [field]="{id:'QuantityAdjusted', type : 'text', form : c, }" (inputChange)="saveChangeDetail(c)"></app-input-control>
-										</div>
-										<div class="col-qty cell" [ngStyle]="{'color': c.get('QuantityAdjusted').value - c.get('WarehouseQuantity')?.value >= 0 ? 'green':'red' }">
 											{{c.get('QuantityAdjusted').value - c.get('WarehouseQuantity')?.value}}
 										</div>
+
 										<div class="col-number cell">
 											{{c.get('Cube')?.value}}
 										</div>
@@ -163,10 +150,10 @@
 										<div class="col-number cell">
 											{{c.get('NetWeight')?.value}}
 										</div>
-
+<!-- 
 										<div class="col-icon cell clickable" (click)="removeField(c,j)">
 											<ion-icon color="danger" name="trash"></ion-icon>
-										</div>
+										</div> -->
 									</div>
 							</ng-container>
 							

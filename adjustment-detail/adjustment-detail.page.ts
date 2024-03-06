@@ -58,8 +58,7 @@ export class AdjustmentDetailPage extends PageBase {
             IDCycleCount: new FormControl({ value: '', disabled: false }),
             AdjustmentDetails: this.formBuilder.array([]),
           
-            IDStorer:[''],
-            StorerName:[''],
+          
             Reason : [''],
             Remark: [''],
             Sort: [''],
@@ -150,150 +149,29 @@ export class AdjustmentDetailPage extends PageBase {
         groups.push(group);
     }
 
-
-    saveFields() {
-        let adjustmentDetails = this.formGroup.getRawValue().AdjustmentDetails;
-        adjustmentDetails.forEach(s=>s.IDAdjustment = this.item.Id);
-            // loại AdjustmentDetail đã tồn tại
-        let obj: any = {
-            id: this.formGroup.get('Id').value,
-            Items: adjustmentDetails,
-        }
-        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.adjustmentDetailService.commonService.connect( 'POST', 'WMS/adjustment/PostListDetail', obj).toPromise())
-            .then((result: any) => {
-                if (result && result.length > 0) {
-                    if (this.item.AdjustmentDetails.length>0) this.item.AdjustmentDetails.concat(result);
-                    else this.item.AdjustmentDetails = result;
-                    result.forEach(i => this.addField(i))
-                }
-
-            })
-    }
-
-    saveChangeDetail(fg: FormGroup) {
-        this.saveChange2(fg, null, this.adjustmentDetailService)
-    }
-
-    changeCountType(e){
-        if(e.Code == 'Simple'){//kiểm đơn
-            this.formGroup.get('Counters').setValue(null);
-            this.formGroup.get('_Counters').setValue(null);
-        } 
-        this.formGroup.get('Counters').markAsDirty();
-        this.saveChange();
-    }
-    changeCounters(e) {
-        this.formGroup.get('Counters').setValue(JSON.stringify(e));
-        this.formGroup.get('Counters').markAsDirty();
-        this.saveChange();
-    }
-
-    changeWarehouse(ev) {
-        this.formGroup.get('IDBranch').setValue(ev.Id);
-        this.formGroup.get('IDBranch').markAsDirty();
-        this.saveChange();
-    }
-
-    // isModalAddFieldOpen = false;
-
-    isModalAddRangesOpen = false;
-
-    _staffDataSource = {
-        searchProvider: this.staffService,
-        loading: false,
-        input$: new Subject<string>(),
-        selected: [],
-        items$: null,
-        initSearch() {
-            this.loading = false;
-            this.items$ = concat(
-                of(this.selected),
-                this.input$.pipe(
-                    distinctUntilChanged(),
-                    tap(() => this.loading = true),
-                    switchMap(term => this.searchProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
-                        catchError(() => of([])), // empty list on error
-                        tap(() => this.loading = false)
-                    ))
-
-                )
-            );
-        }
-    };
-
     async saveChange() {
         let submitItem = this.getDirtyValues(this.formGroup);
         super.saveChange2();
     }
 
-    savedChange(savedItem = null, form = this.formGroup) {
-        if (savedItem) {
-            if (form.controls.Id && savedItem.Id && form.controls.Id.value != savedItem.Id)
-                form.controls.Id.setValue(savedItem.Id);
-
-            if (this.pageConfig.isDetailPage && form == this.formGroup && this.id == 0) {
-                this.item = savedItem;
-                this.id = savedItem.Id;
-                 this.saveFields();
-                if (window.location.hash.endsWith('/0') || window.location.hash.startsWith('#/adjustment/0')) {
-                    let newURL =  window.location.hash.substring(0, window.location.hash.indexOf('/0')+1)+ savedItem.Id
-                    history.pushState({}, null, newURL);
-                }
-            }
-        }
-
-        form.markAsPristine();
-        this.cdr.detectChanges();
-        this.submitAttempt = false;
-        this.env.showTranslateMessage('Saving completed!','success');
-    }
-
-    removeField(fg, j) {
-        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
-        let itemToDelete = fg.getRawValue();
-        this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then(_ => {
-            this.adjustmentDetailService.delete(itemToDelete).then(result => {
-                groups.removeAt(j);
-            })
-        })
-    }
-
-    checkedFields: any = new FormArray([]);
-    changeSelection(i, e = null) {
-        if (i.get('IsChecked').value) {
-            this.checkedFields.push(i);
-        }
-        else {
-            let index =  this.checkedFields.getRawValue().findIndex(d => d.Id == i.get('Id').value)
-            this.checkedFields.removeAt(index);
-        }
-    }
-
-    deleteItems() {
-        if (this.pageConfig.canDelete) {
-            let itemsToDelete = this.checkedFields.getRawValue();
-            this.env.showPrompt('Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?', null, 'Xóa ' + itemsToDelete.length + ' dòng').then(_ => {
-                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.adjustmentDetailService.delete(itemsToDelete))
-                    .then(_ => {
-                        this.removeSelectedItems();
-                        this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
-                        this.isAllChecked = false;
-                    }).catch(err => {
-                        this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-                        console.log(err);
-                    });
-            });
-        }
-    }
-
-    removeSelectedItems() {
-        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
-        this.checkedFields.controls.forEach(fg => {
-            const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
-            groups.removeAt(indexToRemove);
-        })
-        this.checkedFields = new FormArray([]);
-    }
+    // checkedFields: any = new FormArray([]);
+    // changeSelection(i, e = null) {
+    //     if (i.get('IsChecked').value) {
+    //         this.checkedFields.push(i);
+    //     }
+    //     else {
+    //         let index =  this.checkedFields.getRawValue().findIndex(d => d.Id == i.get('Id').value)
+    //         this.checkedFields.removeAt(index);
+    //     }
+    // }
+    // removeSelectedItems() {
+    //     let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+    //     this.checkedFields.controls.forEach(fg => {
+    //         const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
+    //         groups.removeAt(indexToRemove);
+    //     })
+    //     this.checkedFields = new FormArray([]);
+    // }
 
     sortDetail: any = {};
     sortToggle(field) {
@@ -349,15 +227,15 @@ export class AdjustmentDetailPage extends PageBase {
         });
     }
 
-    isAllChecked: boolean = false;
-    toggleSelectAll() {
-        this.checkedFields = new FormArray([]);
-        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
-        groups.controls.forEach(i => {
-            i.get('IsChecked').setValue(this.isAllChecked)
-            if (this.isAllChecked) this.checkedFields.push(i);
-        });
-    }
+    // isAllChecked: boolean = false;
+    // toggleSelectAll() {
+    //     this.checkedFields = new FormArray([]);
+    //     let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+    //     groups.controls.forEach(i => {
+    //         i.get('IsChecked').setValue(this.isAllChecked)
+    //         if (this.isAllChecked) this.checkedFields.push(i);
+    //     });
+    // }
     segmentView = 's1';
     segmentChanged(ev: any) {
         this.segmentView = ev.detail.value;
