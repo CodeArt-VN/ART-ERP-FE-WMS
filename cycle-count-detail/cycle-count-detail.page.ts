@@ -483,7 +483,12 @@ export class CycleCountDetailPage extends PageBase {
                   
                         fg?.get('IsCheckedModal').setValue(false)
                         fg?.disable();
-                        
+                        let controlsInModel = <FormArray>this.formGroup.controls.checkCycleCountDetailsInModal;
+                        this.checkCycleCountDetails.controls.forEach(fg => {
+                            const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
+                            controlsInModel.removeAt(indexToRemove);
+                        })
+                        this.checkCycleCountDetailsInModal.removeAt(fg)
                     })
                     this.env.showTranslateMessage('Saving completed!','success');
                 }
@@ -714,8 +719,8 @@ export class CycleCountDetailPage extends PageBase {
         this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: true, Id: 'FileImport', Icon: 'flash', IsBlink: true, Color: 'danger', Message: 'đang import' });
         const formData: FormData = new FormData();
         formData.append('fileKey', event.target.files[0], event.target.files[0].name);
-        new Promise((resolve, reject) => {
-            this.commonService.connect("UPLOAD", ApiSetting.apiDomain("WMS/CycleCount/ImportExcel/" + this.formGroup.get('Id').value), formData).toPromise()
+        this.env.showLoading('Vui lòng chờ import dữ liệu...', 
+            this.commonService.connect("UPLOAD", ApiSetting.apiDomain("WMS/CycleCount/ImportExcel/" + this.formGroup.get('Id').value), formData).toPromise())
                 .then((resp:any) => {
                     this.submitAttempt = false;
                     this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
@@ -742,9 +747,6 @@ export class CycleCountDetailPage extends PageBase {
                     this.refresh();
                     this.env.showTranslateMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
                 })
-
-        });
-
     }
 
     async export() {

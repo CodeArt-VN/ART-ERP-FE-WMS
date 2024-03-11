@@ -4,6 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { BRA_BranchProvider, WMS_AdjustmentProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
+import { SortConfig } from 'src/app/models/options-interface';
 
 @Component({
     selector: 'app-adjustment',
@@ -23,12 +24,17 @@ export class AdjustmentPage extends PageBase {
         public location: Location,
     ) {
         super();
-        this.pageConfig.canDelete = true;
-        this.pageConfig.canEdit = true;
-        this.pageConfig.canApprove = true;
     }
  
- 
+    preLoadData(event?: any): void {
+        let sorted: SortConfig[] = [
+            { Dimension: 'Id', Order: 'DESC' }
+        ];
+        this.pageConfig.sort = sorted;
+        super.preLoadData(event);
+        console.log(this.pageConfig.pageName)
+    }
+    
     approve(){
         if(this.selectedItems.some(d=>d.Status =="Done")){
             return;
