@@ -102,3 +102,51 @@
 ion-icon {
     cursor: pointer;
   }
+  
+  @media only screen and (min-width: 768px) and (min-height: 768px){
+    ion-modal{
+        --width: 80%;
+        --height: 600px;
+    }
+  }
+
+@media screen and (max-width: 1164px)
+{
+    .table.responsive header{
+        display:flex;
+        padding: 16px 100px 16px 35px;
+        
+    }
+    .table.responsive{
+        .row > div{
+            order:unset !important;
+        }
+        .row{
+            margin: unset !important;
+            width:fit-content;
+            flex-wrap: nowrap;
+            .col-number{
+                position: unset;
+                max-width: 100px;
+                min-width: 100px;
+            }
+        }
+       
+    }
+    .table-contain{
+        .col-name{
+            min-width: 250px;
+            max-width: 250px;
+        }
+        .col-code{
+            max-width: 50px !important; 
+            min-width: 50px !important;
+        }
+        .col-id{
+            max-width: 50px !important; 
+            min-width: 50px !important;
+        }
+    } 
+    
+     
+}

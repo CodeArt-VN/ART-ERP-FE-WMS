@@ -4,6 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { BRA_BranchProvider, WMS_CycleCountProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
+import { SortConfig } from 'src/app/models/options-interface';
 
 @Component({
     selector: 'app-cycle-count',
@@ -26,5 +27,11 @@ export class CycleCountPage extends PageBase {
         this.pageConfig.canDelete = true;
         this.query.Type == 'Warehouse'; //For export branch query
     }
-
+    preLoadData(event?: any): void {
+        let sorted: SortConfig[] = [
+            { Dimension: 'Id', Order: 'DESC' }
+        ];
+        this.pageConfig.sort = sorted;
+        super.preLoadData(event);
+    }
 }
