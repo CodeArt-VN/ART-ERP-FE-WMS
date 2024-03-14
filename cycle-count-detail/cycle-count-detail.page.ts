@@ -734,7 +734,7 @@ export class CycleCountDetailPage extends PageBase {
                                 message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
                             }
                         this.env.showPrompt('Có ' + resp.ErrorList.length + ' lỗi khi import:' + message, 'Bạn có muốn xem lại các mục bị lỗi?', 'Có lỗi import dữ liệu').then(_=>{
-                            this.downloadURLContent(ApiSetting.mainService.base + resp.FileUrl);
+                            this.downloadURLContent(resp.FileUrl);
                         }).catch(e => { });
                     }
                     else {
@@ -755,7 +755,7 @@ export class CycleCountDetailPage extends PageBase {
         this.submitAttempt = true;
         this.env.showLoading('Vui lòng chờ export dữ liệu...', this.cycleCountDetailService.export(this.query))
             .then((response: any) => {
-                this.downloadURLContent(ApiSetting.mainService.base + response);
+                this.downloadURLContent(response);
                 this.submitAttempt = false;
             }).catch(err => {
                 this.submitAttempt = false;
@@ -792,7 +792,7 @@ export class CycleCountDetailPage extends PageBase {
                         message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
                     }
                 this.env.showPrompt('Có ' + resp.ErrorList.length + ' lỗi khi import:' + message, 'Bạn có muốn xem lại các mục bị lỗi?', 'Có lỗi import dữ liệu').then(_=>{
-                    this.downloadURLContent(ApiSetting.mainService.base + resp.FileUrl);
+                    this.downloadURLContent(resp.FileUrl);
                 }).catch(e => { });
                 
 
@@ -818,7 +818,7 @@ export class CycleCountDetailPage extends PageBase {
         this.submitAttempt = true;
         this.env.showLoading('Vui lòng chờ export dữ liệu...', this.cycleCountTaskService.export(this.query))
             .then((response: any) => {
-                this.downloadURLContent(ApiSetting.mainService.base + response);
+                this.downloadURLContent(response);
                 this.submitAttempt = false;
             }).catch(err => {
                 this.submitAttempt = false;
