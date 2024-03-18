@@ -28,7 +28,7 @@ export class CycleCountDetailPage extends PageBase {
     countItem: number = 0;
     isHideEqualityTask: boolean = false;
     filterItems: any;
-    branchList
+    branchList = [];
     isShowRowTaskStatus: boolean = false;
     constructor(
         public pageProvider: WMS_CycleCountProvider,
