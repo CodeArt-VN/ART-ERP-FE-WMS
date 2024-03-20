@@ -70,6 +70,11 @@
 									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
 										name="search" color="primary"></ion-icon> -->
 								</div>
+								<div class="col-name cell" (click)="sortToggle('UoMName')">
+									{{'UoM' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
+									
+								</div>
 							
 								<div class="col-name cell" (click)="sortToggle('ZoneName')">
 									{{'ZoneName' | translate}}
@@ -119,7 +124,9 @@
 
 											</div>
 										</div>
-									
+										<div class="col-name cell">
+											{{c.get('UoMName')?.value}}
+										</div>
 										<div class="col-name cell">
 											{{c.get('ZoneName')?.value}}
 										</div>

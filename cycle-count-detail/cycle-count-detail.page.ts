@@ -348,8 +348,6 @@ export class CycleCountDetailPage extends PageBase {
                     c.get('IsShowInModal').setValue(false);
                     console.log(c.get('IsShowInModal').value)
                 }
-
-
             })
         }
         else {
