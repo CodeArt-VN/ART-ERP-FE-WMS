@@ -150,25 +150,6 @@ export class AdjustmentDetailPage extends PageBase {
         super.saveChange2();
     }
 
-    // checkedFields: any = new FormArray([]);
-    // changeSelection(i, e = null) {
-    //     if (i.get('IsChecked').value) {
-    //         this.checkedFields.push(i);
-    //     }
-    //     else {
-    //         let index =  this.checkedFields.getRawValue().findIndex(d => d.Id == i.get('Id').value)
-    //         this.checkedFields.removeAt(index);
-    //     }
-    // }
-    // removeSelectedItems() {
-    //     let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
-    //     this.checkedFields.controls.forEach(fg => {
-    //         const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
-    //         groups.removeAt(indexToRemove);
-    //     })
-    //     this.checkedFields = new FormArray([]);
-    // }
-
     sortDetail: any = {};
     sortToggle(field) {
         if (!this.sortDetail[field]) {
@@ -223,15 +204,6 @@ export class AdjustmentDetailPage extends PageBase {
         });
     }
 
-    // isAllChecked: boolean = false;
-    // toggleSelectAll() {
-    //     this.checkedFields = new FormArray([]);
-    //     let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
-    //     groups.controls.forEach(i => {
-    //         i.get('IsChecked').setValue(this.isAllChecked)
-    //         if (this.isAllChecked) this.checkedFields.push(i);
-    //     });
-    // }
     segmentView = 's1';
     segmentChanged(ev: any) {
         this.segmentView = ev.detail.value;
