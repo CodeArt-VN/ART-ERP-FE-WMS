@@ -152,7 +152,7 @@
           >
             <option value="">{{'All' | translate}}</option>
             <option disabled value="">----------</option>
-            <option *ngFor="let t of statusList" [value]="t.Id">{{t.Name}}</option>
+            <option *ngFor="let t of statusList" [value]="t.Code">{{t.Name}}</option>
           </select>
           <ion-icon
             class="min-btn"
