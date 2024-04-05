@@ -63,7 +63,7 @@ export class CycleCountDetailPage extends PageBase {
             Name: [''],
             Remark: [''],
             Sort: [''],
-            CountType: [''],
+            CountType: ['Simple'],
             CountDate: [''],
             Status: ['Draft', Validators.required],
             Counters: [''],

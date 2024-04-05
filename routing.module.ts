@@ -44,6 +44,7 @@ export const WMSRoutes: Routes = [
     { path: 'cycle-count', loadChildren: () => import('./cycle-count/cycle-count.module').then(m => m.CycleCountPageModule), canActivate: [AuthGuard] },
     { path: 'cycle-count/:id', loadChildren: () => import('./cycle-count-detail/cycle-count-detail.module').then(m => m.CycleCountDetailPageModule), canActivate: [AuthGuard] },
     { path: 'cycle-count-note', loadChildren: () => import('./cycle-count-note/cycle-count-note.module').then(m => m.CycleCountNotePageModule), canActivate: [AuthGuard] },
+    { path: 'cycle-count-note/:id', loadChildren: () => import('./cycle-count-note/cycle-count-note.module').then(m => m.CycleCountNotePageModule), canActivate: [AuthGuard] },
     
     { path: 'adjustment', loadChildren: () => import('./adjustment/adjustment.module').then(m => m.AdjustmentPageModule), canActivate: [AuthGuard]},
     { path: 'adjustment/:id', loadChildren: () => import('./adjustment-detail/adjustment-detail.module').then(m => m.AdjustmentDetailPageModule), canActivate: [AuthGuard]},

@@ -8,6 +8,7 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import QRCode from 'qrcode'
 import { ActivatedRoute } from '@angular/router';
+import { SortConfig } from 'src/app/models/options-interface';
 
 @Component({
     selector: 'app-cycle-count-note',
@@ -16,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class CycleCountNotePage extends PageBase {
     branchList = [];
-
+    statusList = [];
     constructor(
         public pageProvider: WMS_CycleCountProvider,
         public branchProvider: BRA_BranchProvider,
@@ -37,15 +38,32 @@ export class CycleCountNotePage extends PageBase {
         this.query.IDStatus = '[301]';
     }
 
+    preLoadData(event) {
+        let sorted: SortConfig[] = [
+            { Dimension: 'Id', Order: 'DESC' }
+        ];
+        this.pageConfig.sort = sorted;
+
+        Promise.all([
+          this.env.getStatus('CycleCountStatus'),
+        ]).then((values: any) => {
+          this.statusList = values[0];
+          super.preLoadData(event);
+        });
+      }
     loadData(event) {
+        this.sort
         this.pageProvider.apiPath.getList.url = function () { return ApiSetting.apiDomain("WMS/CycleCount/List") };
         super.loadData(event);
     }
 
     loadedData(event) {
         this.items.forEach(i => {
-           // i.CycleCountDateText = lib.dateFormat(i.CycleCountDate, 'dd/mm/yy hh:MM');
-           // i.CycleCountTimeText = lib.dateFormat(i.CycleCountDate, 'hh:MM');
+            i._Status = this.statusList.find((d) => d.Id == i.IDStatsus || (i.Status && d.Code == i.Status));
+            if(i.CountDate){
+                i.CountDateText = lib.dateFormat( i.CountDate , 'dd/mm/yy hh:MM');
+
+            }
         });
         super.loadedData(event);
 
