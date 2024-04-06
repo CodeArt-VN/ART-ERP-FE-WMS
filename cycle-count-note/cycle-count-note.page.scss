@@ -25,7 +25,35 @@
     }
 
 }
-
+.qrc{
+    width: 90px;
+    height: 90px;
+    border: solid 1px #ccc;
+    display: block;
+    float: right;
+}
+.topQR{
+    vertical-align: top;
+    padding: 0;
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+}
+.topQR div{
+    position: absolute;
+    width: 100px;
+    text-align: center;
+    margin-top: 80px;
+    font-size: 10px;
+    padding-left: 10px;
+}
+.topQR img {
+    width: 90px;
+    height: 90px;
+    border: solid 1px #CCC;
+    display: block;
+    float: right;
+}
 .giao-nhan {
 
     .page-header,

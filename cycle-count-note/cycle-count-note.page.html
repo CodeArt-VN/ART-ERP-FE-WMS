@@ -86,14 +86,19 @@
 							<div class="top-zone">
 								<table class="rpt-header" cellpadding="0" cellspacing="0">
 									<tbody>
-										<tr>
+										<tr style="vertical-align: top;height: 20px;">
 											<td class="head-c1">{{'Warehouse' | translate}}:</td>
 											<td class="bol">{{s.WarehouseName}} ({{s.WarehousePhone}})</td>
-										
+											<!-- Additional <td> for the right-side content -->
+											<td class="topQR">
+												<div *ngIf="s.QRC">CC:{{s.Id}}</div>
+												<a [href]="'#/'+'cycle-count/'+s.Id" (click)="nav('cycle-count/'+s.Id,'forward')">
+													<img class="qrc" [src]="s.QRC" />
+												</a>
+											</td>
 										</tr>
-										<tr>
-											<td colspan="6" class="bol title">{{'Detail' | translate}}</td>
-										</tr>
+										<tr style="vertical-align: top;"><td  class="topQR bol">{{'Cycle count' | translate}}
+										</td></tr>
 									</tbody>
 								</table>
 								<div class="ion-text-center bol" >
@@ -114,7 +119,7 @@
 									<table cellpadding="0" cellspacing="0">
 										<tbody>
 											<tr class="head">
-												<td class="cen">{{'stt' | translate}}</td>
+												<td class="cen">{{'STT' | translate}}</td>
 												<td>{{'Item' | translate}}</td>
 												<td>{{'Unit' | translate}}</td>
 												<td *ngIf="s.IsShowSysQty">{{'Current quantity' | translate}}</td>

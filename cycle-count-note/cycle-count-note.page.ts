@@ -81,6 +81,19 @@ export class CycleCountNotePage extends PageBase {
         let newURL = window.location.hash.substring(0, 18) + '/' + this.id;
         history.pushState({}, null, newURL);
 
+        QRCode.toDataURL(
+            'CC:' + i.Id,
+            {
+              errorCorrectionLevel: 'H',
+              version: 2,
+              width: 500,
+              scale: 20,
+              type: 'image/webp',
+            },
+            function (err, url) {
+              i.QRC = url;
+            },
+          );
         // if(!this.query.CycleCountDate){
         //     let today = new Date;
         //     this.query.CycleCountDate = lib.dateFormat(today.setDate(today.getDate() + 1), 'yyyy-mm-dd');
@@ -109,10 +122,12 @@ export class CycleCountNotePage extends PageBase {
 
             this.pageProvider.commonService.connect(apiPath.method, apiPath.url(), docQuery).toPromise()
                 .then((resp: any) => {
+                    resp
                     this.sheets = resp;
 
                     for (let si = 0; si < this.sheets.length; si++) {
                         const s = this.sheets[si];
+                        s.QRC = i.QRC;
                         s.CycleCountDateText = lib.dateFormat(s.CountDate, 'dd/mm/yy');
                     };
 
