@@ -57,7 +57,7 @@
 								<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
 							  </div>
 							  
-								<ion-text [color]="'primary'" style="line-height: 20px;"> - {{'Id' | translate}}:{{i.Id}}</ion-text>
+								<ion-text [color]="i.Id != selectedCycleCount? 'primary': 'dark'" style="line-height: 20px;"> - {{'Id' | translate}}:{{i.Id}}</ion-text>
 						
 							<ion-text [color]="'dark'" *ngIf="i.CountDateText" style="line-height: 20px;"> - {{i.CountDateText}}</ion-text>
 						</b>
@@ -86,35 +86,53 @@
 							<div class="top-zone">
 								<table class="rpt-header" cellpadding="0" cellspacing="0">
 									<tbody>
-										<tr style="vertical-align: top;height: 20px;">
-											<td class="head-c1">{{'Warehouse' | translate}}:</td>
-											<td class="bol">{{s.WarehouseName}} ({{s.WarehousePhone}})</td>
-											<!-- Additional <td> for the right-side content -->
-											<td class="topQR">
-												<div *ngIf="s.QRC">CC:{{s.Id}}</div>
-												<a [href]="'#/'+'cycle-count/'+s.Id" (click)="nav('cycle-count/'+s.Id,'forward')">
-													<img class="qrc" [src]="s.QRC" />
-												</a>
-											</td>
-										</tr>
-										<tr style="vertical-align: top;"><td  class="topQR bol">{{'Cycle count' | translate}}
-										</td></tr>
-									</tbody>
-								</table>
-								<div class="ion-text-center bol" >
-									{{'Count date' | translate}}:  {{s.CycleCountDateText}}
-								</div>
-								<div class="ion-text-center">
-									<span>{{'Counter name' | translate}}: </span>
+									  <tr>
+										<td rowspan="7" class="logo">
+										  <img [src]="s.BranchLogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
+										</td>
+										<td colspan="2" class="bol title">{{'Cycle count detail listings' | translate}}</td>
+				
+										<td class="bol num" colspan="2">{{s.WarehouseCode? s.WarehouseCode : '#'+s.Id}}</td>
+										<td rowspan="7" class="topQR">
+										  <div>CC:{{s.Id}}</div>
+										  <a [href]="'#/'+'cycle-count/'+s.Id" (click)="nav('cycle-count/'+s.Id,'forward')">
+											<img class="qrc" [src]="s.QRC" />
+										  </a>
+										</td>
+									  </tr>
+				
+									  <tr>
+										<td class="head-c1">{{'Warehouse' | translate}}:</td>
+										<td class="bol">{{s.WarehouseName}}</td>
+										<td class="bol num" colspan="2">{{s.OrderDateText}}</td>
+									  </tr>
+									  <tr  *ngIf="s.WarehouseAddress">
+										<td>{{'Address' | translate}}:</td>
+										<td colspan="2">
+										  <span class="bol">{{s.WarehouseAddress}} </span>
+										</td>
+									  </tr>
+									  
+									  <tr *ngIf="s.WarehousePhone">
+										<td>{{'Phone number' | translate}}:</td>
+										<td class="bol" colspan="2">{{s.WarehousePhone}}</td>
+									  </tr>
+									  <tr>
+										<td>{{'Count date' | translate}}:</td>
+										<td colspan="2">
+											<span class="bol">  {{s.CycleCountDateText}}</span>
+										  </td>
+									  </tr>
+									  <tr>
+										<td>{{'Counters' | translate}}:</td>
+										<td colspan="2">
 									<span class="bol" *ngFor="let c of s.Counters ; let j = index">{{j == s.Counters.length-1? c.FullName : c.FullName+' - '}}  </span>
-								</div>
-								
-								<table class="rpt-header" cellpadding="0" cellspacing="0">
-									<tbody>
-									
+									<!-- <span class="bol">{{s.WarehouseAddress}} </span> -->
+										</td>
+									  </tr>
 									</tbody>
-								</table>
-
+								  </table>
+								
 								<div class="ds-san-pham">
 									<table cellpadding="0" cellspacing="0">
 										<tbody>
@@ -159,7 +177,7 @@
 															{{c.Remark}}
 														</div>
 													</td>
-													<!-- <td class="num "> <span *ngIf="o.OriginalDiscountFromSalesman">{{o.OriginalDiscountFromSalesmanText}}</span></td>
+													<!-- <td class="num "> <span *ngIf="s.OriginalDiscountFromSalesman">{{s.OriginalDiscountFromSalesmanText}}</span></td>
 													 -->
 												</tr>
 											</ng-container>

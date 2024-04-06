@@ -18,6 +18,7 @@ import { SortConfig } from 'src/app/models/options-interface';
 export class CycleCountNotePage extends PageBase {
     branchList = [];
     statusList = [];
+    branch;
     constructor(
         public pageProvider: WMS_CycleCountProvider,
         public branchProvider: BRA_BranchProvider,
@@ -61,7 +62,7 @@ export class CycleCountNotePage extends PageBase {
         this.items.forEach(i => {
             i._Status = this.statusList.find((d) => d.Id == i.IDStatsus || (i.Status && d.Code == i.Status));
             if(i.CountDate){
-                i.CountDateText = lib.dateFormat( i.CountDate , 'dd/mm/yy hh:MM');
+                i.CountDateText = lib.dateFormat( i.CountDate , 'dd/mm/yyyy hh:MM');
 
             }
         });
@@ -124,7 +125,7 @@ export class CycleCountNotePage extends PageBase {
                 .then((resp: any) => {
                     resp
                     this.sheets = resp;
-
+                  
                     for (let si = 0; si < this.sheets.length; si++) {
                         const s = this.sheets[si];
                         s.QRC = i.QRC;
