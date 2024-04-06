@@ -63,7 +63,7 @@ export class CycleCountDetailPage extends PageBase {
             Name: [''],
             Remark: [''],
             Sort: [''],
-            CountType: [''],
+            CountType: ['Simple'],
             CountDate: [''],
             Status: ['Draft', Validators.required],
             Counters: [''],
@@ -372,6 +372,9 @@ export class CycleCountDetailPage extends PageBase {
                     this.cycleCountDetailService.delete(this.formGroup.getRawValue().CycleCountDetails)
                         .then(rs => {
                             this.removeSelectedItems();
+                            this.formGroup.get('IsCountBy'+type).markAsDirty();
+                            this.submitAttempt = false;
+                            this.saveChange();
                             this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
                             this.isAllChecked = false;
                             let value = this.formGroup.get('CycleCountDetails').value.map(d => d.IDItem).join(',')
@@ -407,6 +410,8 @@ export class CycleCountDetailPage extends PageBase {
                             if (this.formGroup.get('IsCountByLot').value) {
                                 config.CompareBy.push({ Property: 'LotId' })
                             }
+                            let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+                            groups.clear();
                             this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
                                 .then((data: any) => {
                                     if (data) {
@@ -421,7 +426,6 @@ export class CycleCountDetailPage extends PageBase {
                                             })
                                     }
                                 })
-                            this.saveChange();
                         }).catch(err => {
                             this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
                             console.log(err);

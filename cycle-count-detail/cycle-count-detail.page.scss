@@ -5,7 +5,7 @@
 .table-contain{
     max-width: 1440px;
     margin: auto;
-
+    min-width: unset !important;
     section.table header{
         height: 45px;
     }
@@ -102,13 +102,6 @@
 ion-icon {
     cursor: pointer;
   }
-  
-  @media only screen and (min-width: 768px) and (min-height: 768px){
-    ion-modal{
-        --width: 80%;
-        --height: 600px;
-    }
-  }
 
 @media screen and (max-width: 1164px)
 {
@@ -159,4 +152,11 @@ ion-icon {
         }
     }
      
+
 }
+@media only screen and (min-width: 768px) and (min-height: 600px){
+    ion-modal{
+        --width: 80% !important;
+        --height: 600px;
+    }
+  }

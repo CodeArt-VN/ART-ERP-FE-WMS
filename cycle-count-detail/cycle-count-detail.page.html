@@ -6,8 +6,8 @@
 				<ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
 			</ion-button>
 		</ion-buttons>
-		<span class="split ion-hide-sm-down">|</span>
-		<ion-buttons slot="primary" *ngIf="item?.CycleCountDetails?.length > 0" >
+		<span class="split ion-hide-sm-down" *ngIf="item?.CycleCountDetails?.length > 0 && formGroup.get('Status').value=='Open'" >|</span>
+		<ion-buttons slot="primary" *ngIf="item?.CycleCountDetails?.length > 0 && formGroup.get('Status').value=='Open'" >
 			<ion-button title="{{'Merge counter' | translate}}" color="secondary" (click)="presentModal('merge')">
 				<ion-icon color="success" slot="icon-only" name="git-pull-request"></ion-icon>
 			</ion-button>
@@ -69,7 +69,7 @@
 			</form>
 		</ion-grid>
 	
-			<ion-modal [isOpen]="isModalAddRangesOpen"(willDismiss)="dismissModal('addRanges')">
+			<ion-modal [isOpen]="isModalAddRangesOpen"(willDismiss)="dismissModal('addRanges')" >
 				<ng-template>
 					<ion-header>
 						<ion-toolbar>

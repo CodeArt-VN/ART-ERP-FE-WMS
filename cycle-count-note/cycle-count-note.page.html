@@ -49,14 +49,17 @@
 			<ion-item [color]="i.Id == selectedCycleCount? 'primary': '' " button detail="true" lines="full" class="clickable" *ngFor="let i of items" (click)="loadCycleCountNote(i)">
 				<ion-label class="ion-text-wrap">
 					<ion-text>
-						<h3>{{i.Name}} - {{i.Code}}</h3>
+						<h3>{{i.WarehouseCode}} - {{i.WarehouseName}}</h3>
 					</ion-text>
 					<p>
-						<b>
-							<small>
-								<ion-text [color]="'primary'">{{'Id' | translate}}:{{i.Id}}</ion-text>
-							</small>
-							<ion-text [color]="'dark'" *ngIf="i.CountedDate"> - {{i.CountedDate}}</ion-text>
+						<b style="display:flex">
+							<div class="col-status cell">
+								<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
+							  </div>
+							  
+								<ion-text [color]="'primary'" style="line-height: 20px;"> - {{'Id' | translate}}:{{i.Id}}</ion-text>
+						
+							<ion-text [color]="'dark'" *ngIf="i.CountDateText" style="line-height: 20px;"> - {{i.CountDateText}}</ion-text>
 						</b>
 					</p>
 				</ion-label>
