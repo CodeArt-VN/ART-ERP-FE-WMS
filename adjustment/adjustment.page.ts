@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, WMS_AdjustmentProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, SYS_ConfigProvider, WMS_AdjustmentProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { SortConfig } from 'src/app/models/options-interface';
 
@@ -16,7 +16,8 @@ export class AdjustmentPage extends PageBase {
         public pageProvider: WMS_AdjustmentProvider,
         public branchProvider: BRA_BranchProvider,
         public modalController: ModalController,
-		public popoverCtrl: PopoverController,
+        public sysConfigProvider: SYS_ConfigProvider,
+        public popoverCtrl: PopoverController,
         public alertCtrl: AlertController,
         public loadingController: LoadingController,
         public env: EnvService,
@@ -31,6 +32,27 @@ export class AdjustmentPage extends PageBase {
             { Dimension: 'Id', Order: 'DESC' }
         ];
         this.pageConfig.sort = sorted;
+
+        let sysConfigQuery = ['AdjustmentUsedApprovalModule'];
+        Promise.all([
+        this.sysConfigProvider.read({
+            Code_in: sysConfigQuery,
+            IDBranch: this.env.selectedBranch,
+            }),
+            ]).then((values: any) => {
+            if (values[0]['data']) {
+                values[0]['data'].forEach((e) => {
+                if ((e.Value == null || e.Value == 'null') && e._InheritedConfig) {
+                    e.Value = e._InheritedConfig.Value;
+                }
+                this.pageConfig[e.Code] = JSON.parse(e.Value);
+                if (this.pageConfig.AdjustmentUsedApprovalModule) {
+                    this.pageConfig.canApprove = false;
+                    this.pageConfig.canDisapprove = false;
+                }
+                });
+            }
+        })
         super.preLoadData(event);
         console.log(this.pageConfig.pageName)
     }
