@@ -1,0 +1,190 @@
+<ion-header>
+	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.shipping.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" ></app-list-toolbar>
+	<section class="table">
+		<header class="bold">
+			<div class="col-checkbox cell"></div>
+			<div class="col-id cell" (click)="sortToggle('Id')">
+				{{'Id' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-id cell" (click)="sortToggle('IDOutboundOrder')">
+				{{'IDOutbound' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell" (click)="sortToggle('WarehouseName')">
+				{{'Warehouse' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.WarehouseName" [name]="sort.WarehouseName == 'WarehouseName'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.WarehouseName" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell" (click)="sortToggle('WarehouseCode')">
+				{{'Code' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.WarehouseCode" [name]="sort.WarehouseCode == 'WarehouseCode'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.WarehouseCode" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell">
+				{{'Truck' | translate}}
+				<small>{{'shipper' | translate}}</small>
+			  </div>
+			<div class="col-date cell" (click)="sortToggle('ExpectedDate')">
+				{{'Expected date' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.WarehouseCode" [name]="sort.ExpectedDate == 'ExpectedDate'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.ExpectedDate" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-date cell" (click)="sortToggle('ShippedDate')">
+				{{'Shipped date' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.ShippedDate" [name]="sort.ShippedDate == 'ShippedDate'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.ShippedDate" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-status cell" (click)="sortToggle('Status')">
+				{{'Status' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Status" [name]="sort.Status == 'Status'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Status" name="search" color="primary"></ion-icon>
+			</div>
+		</header>
+		<form (submit)="refresh()" action="#">
+			<header class="filter" *ngIf="pageConfig.isShowSearch">
+			  <div class="col-checkbox cell"></div>
+			  <div class="col-id cell">
+				<input
+				  [ngModelOptions]="{standalone: true}"
+				  [(ngModel)]="query.Id"
+				  class="c-input"
+				  [ngClass]="{active: query.Id}"
+				  type="text"
+				/>
+				<ion-icon
+				  class="min-btn"
+				  (click)="query.Id=''; refresh()"
+				  *ngIf="query.Id"
+				  name="close-circle-outline"
+				></ion-icon>
+			  </div>
+			  <div class="col-id cell">
+				<input
+				  [ngModelOptions]="{standalone: true}"
+				  [(ngModel)]="query.IDOutboundOrder"
+				  class="c-input"
+				  [ngClass]="{active: query.IDOutboundOrder}"
+				  type="text"
+				/>
+				<ion-icon
+				  class="min-btn"
+				  (click)="query.IDOutboundOrder=''; refresh()"
+				  *ngIf="query.IDOutboundOrder"
+				  name="close-circle-outline"
+				></ion-icon>
+			  </div>
+			  <div class="col-name cell"></div>
+			  <div class="col-name cell"></div>
+			  <div class="col-name cell"></div>
+			  <div class="col-date cell">
+				<input
+				  (change)="refresh()"
+				  [ngModelOptions]="{standalone: true}"
+				  [(ngModel)]="query.ExpectedDate"
+				  class="c-input"
+				  [ngClass]="{active: query.ExpectedDate}"
+				  type="date"
+				/>
+				<ion-icon
+				  class="min-btn"
+				  (click)="query.ExpectedDate=''; refresh()"
+				  *ngIf="query.ExpectedDate"
+				  name="close-circle-outline"
+				></ion-icon>
+			  </div>
+			  <div class="col-date cell">
+				<input
+				  (change)="refresh()"
+				  [ngModelOptions]="{standalone: true}"
+				  [(ngModel)]="query.ShippedDate"
+				  class="c-input"
+				  [ngClass]="{active: query.ShippedDate}"
+				  type="date"
+				/>
+				<ion-icon
+				  class="min-btn"
+				  (click)="query.ShippedDate=''; refresh()"
+				  *ngIf="query.ShippedDate"
+				  name="close-circle-outline"
+				></ion-icon>
+			  </div>
+			  <div class="col-status cell">
+				<select
+				  (change)="refresh()"
+				  class="c-input c-dropdown"
+				  [ngModelOptions]="{standalone: true}"
+				  [(ngModel)]="query.Status"
+				  [ngClass]="{active: query.Status}"
+				>
+				  <option value="">{{'All' | translate}}</option>
+				  <option disabled value="">----------</option>
+				  <option *ngFor="let t of statusList" [value]="t.Code">{{t.Name}}</option>
+				</select>
+			  </div>
+			  <button mat-raised-button type="submit" style="display: none">Search</button>
+			</header>
+		  </form>
+	</section>
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
+	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	<div *ngIf="items.length && pageConfig.showSpinner==false">
+		<section class="table">
+					<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+						<div class="col-checkbox cell">
+							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
+						</div>
+						<div (click)="nav('shipping/'+i.Id,'forward')" class="col-id cell">
+							{{i.Id}}
+						</div>
+						<div (click)="nav('outbound-order/'+i.IDOutboundOrder,'forward')" class="col-id cell">
+							{{i.IDOutboundOrder}}
+						</div>
+						<div  class="col-name cell">
+							{{i.WarehouseName}}
+						</div>
+						<div  class="col-name cell">
+							{{i.WarehouseCode}}
+						</div>
+						<div class="col-name cell">
+							<span
+							  title="{{'View details' | translate}}"
+							  (click)="nav('shipment/'+i.Id,'forward')"
+							  [ngOptionHighlight]="query.ShipmentTerm"
+							  >{{i.Vehicle}}</span
+							>
+							<small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')"
+							  >{{i.Shipper}}</small
+							>
+						  </div>
+					
+						<div class="col-date cell">
+							{{i.ExpectedDate | date: 'dd/MM/yyyy'}}
+						</div>
+						<div class="col-date cell">
+							{{i.ShippedDate | date: 'dd/MM/yyyy'}}
+						</div>
+						<div class="col-status cell">
+							<span class="bar-holder">
+							  <ion-text class="bar-title" [color]="i.StatusColor">{{i.StatusText}}</ion-text>
+							  <span
+								class="bar"
+								[ngClass]="{active: s.Code==i.Status}"
+								[ngStyle]="{'background-color': 'var(--ion-color-'+s.Color+')'}"
+								*ngFor="let s of statusList"
+								[title]="s.Name"
+							  ></span>
+							</span>
+						  </div>
+					</div>
+				
+		</section>
+	</div>
+	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

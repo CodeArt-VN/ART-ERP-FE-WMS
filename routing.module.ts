@@ -48,4 +48,16 @@ export const WMSRoutes: Routes = [
     
     { path: 'adjustment', loadChildren: () => import('./adjustment/adjustment.module').then(m => m.AdjustmentPageModule), canActivate: [AuthGuard]},
     { path: 'adjustment/:id', loadChildren: () => import('./adjustment-detail/adjustment-detail.module').then(m => m.AdjustmentDetailPageModule), canActivate: [AuthGuard]},
+
+    { path: 'outbound-order', loadChildren: () => import('./outbound-order/outbound-order.module').then(m => m.OutboundOrderPageModule), canActivate: [AuthGuard]},
+    { path: 'outbound-order/:id', loadChildren: () => import('./outbound-order-detail/outbound-order-detail.module').then(m => m.OutboundOrderDetailPageModule), canActivate: [AuthGuard]},
+
+    { path: 'picking-order', loadChildren: () => import('./picking-order/picking-order.module').then(m => m.PickingOrderPageModule), canActivate: [AuthGuard]},
+    { path: 'picking-order/:id', loadChildren: () => import('./picking-order-detail/picking-order-detail.module').then(m => m.PickingOrderDetailPageModule), canActivate: [AuthGuard]},
+    
+    { path: 'packing-order', loadChildren: () => import('./packing-order/packing-order.module').then(m => m.PackingOrderPageModule), canActivate: [AuthGuard]},
+    { path: 'packing-order/:id', loadChildren: () => import('./packing-order-detail/packing-order-detail.module').then(m => m.PackingOrderDetailPageModule), canActivate: [AuthGuard]},
+    
+    { path: 'shipping', loadChildren: () => import('./shipping/shipping.module').then(m => m.ShippingPageModule), canActivate: [AuthGuard]},
+    { path: 'shipping/:id', loadChildren: () => import('./shipping-detail/shipping-detail.module').then(m => m.ShippingDetailPageModule), canActivate: [AuthGuard]},
 ];
