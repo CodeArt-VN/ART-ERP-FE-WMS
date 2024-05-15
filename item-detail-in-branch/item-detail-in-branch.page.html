@@ -1,0 +1,1677 @@
+<ion-header>
+  <app-toolbar
+    [page]="this"
+    pageTitle="{{'Item detail in branch' | translate}}"
+    [pageConfig]="pageConfig"
+    [selectedItems]="selectedItems"
+    [ShowArchive]="false"
+    (refresh)="refresh()"
+    (help)="help()"
+  ></app-toolbar>
+  <div class="withFeature left" [ngClass]="{withFeature: pageConfig.isShowFeature}" *ngIf="pageConfig.isShowSearch">
+    <section class="table">
+      <header class="bold">
+        <div class="col-checkbox cell"></div>
+        <div class="col-name cell">
+          {{'Search info' | translate}}
+          <ion-icon
+            class="min-btn"
+            (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+            *ngIf="optionQuery.Keyword"
+            name="search"
+            color="primary"
+          ></ion-icon>
+        </div>
+      </header>
+      <form (submit)="preLoadData(null)" action="#">
+        <header class="filter">
+          <div class="col-checkbox cell"></div>
+          <div class="cell">
+            <input
+              [ngModelOptions]="{standalone: true}"
+              [(ngModel)]="optionQuery.Keyword"
+              class="c-input"
+              [ngClass]="{active: optionQuery.Keyword}"
+              type="text"
+            />
+            <ion-icon
+              class="min-btn"
+              (click)="optionQuery.Keyword=''; preLoadData(null)"
+              *ngIf="optionQuery.Keyword"
+              name="close-circle-outline"
+            ></ion-icon>
+          </div>
+          <button mat-raised-button type="submit" style="display: none">Search</button>
+        </header>
+      </form>
+    </section>
+  </div>
+</ion-header>
+
+<ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+  <ion-fab
+    *ngIf="pageConfig.isShowFeature"
+    [ngClass]="{withSearch: pageConfig.isShowSearch,'ion-hide-md-down': pageConfig.isSubActive}"
+    class="feature no-print"
+    vertical="bottom"
+    horizontal="start"
+    slot="fixed"
+  >
+    <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+    <div *ngIf="pageConfig.showSpinner==false">
+      <div class="ion-padding" style="padding-bottom: 0">
+        <div class="c-control">
+          <label class="c-label" for="IDBranch">
+            <ion-text color="primary"> {{'Unit' | translate}} </ion-text>
+          </label>
+          <ng-select
+            class="c-input no-check-dirty"
+            [searchFn]="searchShowAllChildren"
+            (change)="selectBranch();"
+            appendTo=""
+            #IDBranch
+            [(ngModel)]="selectedBranch"
+            labelForId="IDBranch"
+            [items]="branchList"
+            bindLabel="Name"
+            bindValue=""
+            placeholder="{{'Select unit' | translate}}"
+          >
+            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+              <div *ngIf="i">
+                <div>
+                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                  <ion-text [color]=" i.Type == 'Company'? 'primary':'dark'" [ngOptionHighlight]="search"
+                    >{{i.Name}}</ion-text
+                  >
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+      <div *ngIf="selectedBranch">
+        <ion-list-header lines="full">
+          <ion-label color="dark">{{'Information' | translate}}</ion-label>
+        </ion-list-header>
+        <ion-list>
+          <ion-item
+            *ngFor="let i of optionGroup"
+            [color]="segmentView == i.Code? 'primary': '' "
+            button
+            detail="true"
+            lines="full"
+            class="clickable"
+            (click)="loadNode(i)"
+          >
+            <ion-label class="ion-text-wrap">
+              <h3>{{i.Name}}</h3>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+      <div class="ion-padding" style="padding-bottom: 0"></div>
+    </div>
+  </ion-fab>
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col size="12">
+        <div class="ion-padding" *ngIf="selectedBranch" style="min-width: 300px">
+          <app-page-title
+            class="ion-margin-bottom"
+            *ngIf="selectedOption"
+            icon="cog-outline"
+            color="primary"
+            [title]="selectedOption.Name">
+          </app-page-title>
+          <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+            <div class="main-view" *ngIf="pageConfig.showSpinner == false">
+              <div class="row-full shadow full-screen ion-padding">
+                <ion-grid fixed>
+                  <div>
+                    <div *ngIf="segmentView.Page == 'GeneralInformation'">
+                      <div class="ion-padding">
+                        <ion-grid fixed>
+                          <form [formGroup]="formGroup">
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Product information' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="Id">Id</label>
+                                  <input class="c-input" readonly id="Id" formControlName="Id" type="number" />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Code"
+                                    >{{'Product code' | translate}}
+                                    <small>{{'from vendor' | translate}}</small>
+                                    <span
+                                      *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Code"
+                                    formControlName="Code"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Name"
+                                    >{{'Product name' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Name"
+                                    formControlName="Name"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="ForeignName"
+                                    >{{'English name' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.ForeignName.valid && !formGroup.controls.ForeignName.pending && (formGroup.controls.ForeignName.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="ForeignName"
+                                    formControlName="ForeignName"
+                                    type="text"
+                                  />
+                                </div>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="Expiry"
+                                    >{{'Shelf life from manufactured date' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Expiry.valid && !formGroup.controls.Expiry.pending && (formGroup.controls.Expiry.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Expiry"
+                                    formControlName="Expiry"
+                                    type="int"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="ExpiryUnit"
+                                    >{{'Unit' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.ExpiryUnit.valid && !formGroup.controls.ExpiryUnit.pending && (formGroup.controls.ExpiryUnit.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <ng-select
+                                    class="c-input"
+                                    (change)="saveChange();"
+                                    labelForId="ExpiryUnit"
+                                    formControlName="ExpiryUnit"
+                                    [items]="ExpiryUnitList"
+                                    bindLabel="Name"
+                                    bindValue="Code"
+                                    placeholder="{{'Search' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                                <div class="c-control">
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-checkbox"
+                                    id="IsInventoryItem"
+                                    formControlName="IsInventoryItem"
+                                    type="checkbox"
+                                  />
+                                  <label class="c-label checkbox" for="IsInventoryItem"
+                                    >{{'Goods for storage' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.IsInventoryItem.valid && !formGroup.controls.IsInventoryItem.pending && (formGroup.controls.IsInventoryItem.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <br />
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-checkbox"
+                                    id="IsSalesItem"
+                                    formControlName="IsSalesItem"
+                                    type="checkbox"
+                                  />
+                                  <label class="c-label checkbox" for="IsSalesItem"
+                                    >{{'Goods for sale' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.IsSalesItem.valid && !formGroup.controls.IsSalesItem.pending && (formGroup.controls.IsSalesItem.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <br />
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-checkbox"
+                                    id="IsPurchaseItem"
+                                    formControlName="IsPurchaseItem"
+                                    type="checkbox"
+                                  />
+                                  <label class="c-label checkbox" for="IsPurchaseItem"
+                                    >{{'Goods to order' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.IsPurchaseItem.valid && !formGroup.controls.IsPurchaseItem.pending && (formGroup.controls.IsPurchaseItem.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <br />
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-checkbox"
+                                    id="IsDisabled"
+                                    formControlName="IsDisabled"
+                                    type="checkbox"
+                                  />
+                                  <label class="c-label checkbox" for="IsDisabled"
+                                    >{{'Sản phẩm đã ngưng sử dụng' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.IsDisabled.valid && !formGroup.controls.IsDisabled.pending && (formGroup.controls.IsDisabled.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                </div>
+                              </ion-col>
+                            </ion-row>
+
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Vendor' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="8">
+                                <div class="c-control">
+                                  <ng-select
+                                    class="c-input vendors"
+                                    (change)="saveChange();"
+                                    labelForId="VendorIds"
+                                    formControlName="VendorIds"
+                                    [items]="vendorList"
+                                    bindLabel="Name"
+                                    bindValue="Id"
+                                    [multiple]="true"
+                                    placeholder="{{'Select Vendor' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                              </ion-col>
+                            </ion-row>
+
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Products classification' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="IDItemGroup">{{'Belonged to group' | translate}}</label>
+                                  <ng-select
+                                    class="c-input"
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange();"
+                                    #IDItemGroup
+                                    labelForId="IDItemGroup"
+                                    formControlName="IDItemGroup"
+                                    [items]="itemGroupList$ | async"
+                                    [typeahead]="itemGroupListInput$"
+                                    [loading]="itemGroupListLoading"
+                                    [virtualScroll]="true"
+                                    bindLabel="Name"
+                                    bindValue="Id"
+                                    placeholder="{{'Search product group' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="ItemType"
+                                    >{{'Product type' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.ItemType.valid && !formGroup.controls.ItemType.pending && (formGroup.controls.ItemType.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <ng-select
+                                    class="c-input"
+                                    (change)="saveChange();"
+                                    labelForId="ItemType"
+                                    formControlName="ItemType"
+                                    [items]="ItemTypeList"
+                                    bindLabel="Name"
+                                    bindValue="Code"
+                                    placeholder="{{'Search' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+
+                                <div class="c-control">
+                                  <label class="c-label" for="IDCartonGroup"
+                                    >{{'Carton group' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.IDCartonGroup.valid && !formGroup.controls.IDCartonGroup.pending && (formGroup.controls.IDCartonGroup.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <ng-select
+                                    class="c-input"
+                                    (change)="saveChange();"
+                                    labelForId="IDCartonGroup"
+                                    formControlName="IDCartonGroup"
+                                    [items]="cartonGroupList"
+                                    bindLabel="Name"
+                                    bindValue="Id"
+                                    placeholder="{{'Search' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="Industry"
+                                    >{{'Industry' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Industry.valid && !formGroup.controls.Industry.pending && (formGroup.controls.Industry.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <ng-select
+                                    class="c-input"
+                                    (change)="saveChange();"
+                                    labelForId="Industry"
+                                    formControlName="Industry"
+                                    [items]="IndustryList"
+                                    bindLabel="Name"
+                                    bindValue="Code"
+                                    placeholder="{{'Search' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Division"
+                                    >{{'Division' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Division.valid && !formGroup.controls.Division.pending && (formGroup.controls.Division.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <ng-select
+                                    class="c-input"
+                                    (change)="saveChange();"
+                                    labelForId="Division"
+                                    formControlName="Division"
+                                    [items]="DivisionList"
+                                    bindLabel="Name"
+                                    bindValue="Code"
+                                    placeholder="{{'Search' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                              </ion-col>
+                            </ion-row>
+
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Tax' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="IDSalesTaxDefinition">{{'Sales Tax' | translate}}</label>
+                                  <ng-select
+                                    class="c-input"
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="changeGroup();  saveChange();"
+                                    #IDSalesTaxDefinition
+                                    labelForId="IDSalesTaxDefinition"
+                                    formControlName="IDSalesTaxDefinition"
+                                    [items]="outputTaxList"
+                                    [virtualScroll]="true"
+                                    bindLabel="Name"
+                                    bindValue="Id"
+                                    placeholder="{{'Search product group' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+
+                                <div class="c-control">
+                                  <label class="c-label" for="IDPurchaseTaxDefinition">{{'Purchase Tax' | translate}}</label>
+                                  <ng-select
+                                    class="c-input"
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="changeGroup();  saveChange();"
+                                    #IDPurchaseTaxDefinition
+                                    labelForId="IDPurchaseTaxDefinition"
+                                    formControlName="IDPurchaseTaxDefinition"
+                                    [items]="inputTaxList"
+                                    [virtualScroll]="true"
+                                    bindLabel="Name"
+                                    bindValue="Id"
+                                    placeholder="{{'Search product group' | translate}}"
+                                  >
+                                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                      <div *ngIf="i">
+                                        <div>
+                                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                        </div>
+                                      </div>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                              </ion-col>
+                            </ion-row>
+
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Serial number' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="8" class="ion-no-padding">
+                                <ion-grid>
+                                  <ion-row>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                      <div class="c-control">
+                                        <label class="c-label" for="SerialNumberStart"
+                                          >{{'Start' | translate}}
+                                          <span
+                                            *ngIf="!formGroup.controls.SerialNumberStart.valid && !formGroup.controls.SerialNumberStart.pending && (formGroup.controls.SerialNumberStart.dirty || submitAttempt)"
+                                            ion-text
+                                            color="danger"
+                                            >(*)</span
+                                          >
+                                        </label>
+                                        <input
+                                          [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                          (change)="saveChange()"
+                                          class="c-input"
+                                          id="SerialNumberStart"
+                                          formControlName="SerialNumberStart"
+                                          type="text"
+                                        />
+                                      </div>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                      <div class="c-control">
+                                        <label class="c-label" for="SerialNumberEnd"
+                                          >{{'End' | translate}}
+                                          <span
+                                            *ngIf="!formGroup.controls.SerialNumberEnd.valid && !formGroup.controls.SerialNumberEnd.pending && (formGroup.controls.SerialNumberEnd.dirty || submitAttempt)"
+                                            ion-text
+                                            color="danger"
+                                            >(*)</span
+                                          >
+                                        </label>
+                                        <input
+                                          [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                          (change)="saveChange()"
+                                          class="c-input"
+                                          id="SerialNumberEnd"
+                                          formControlName="SerialNumberEnd"
+                                          type="text"
+                                        />
+                                      </div>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                      <div class="c-control">
+                                        <label class="c-label" for="SerialNumberNext"
+                                          >{{'Next' | translate}}
+                                          <span
+                                            *ngIf="!formGroup.controls.SerialNumberNext.valid && !formGroup.controls.SerialNumberNext.pending && (formGroup.controls.SerialNumberNext.dirty || submitAttempt)"
+                                            ion-text
+                                            color="danger"
+                                            >(*)</span
+                                          >
+                                        </label>
+                                        <input
+                                          [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                          (change)="saveChange()"
+                                          class="c-input"
+                                          id="SerialNumberNext"
+                                          formControlName="SerialNumberNext"
+                                          type="text"
+                                        />
+                                      </div>
+                                    </ion-col>
+                                  </ion-row>
+                                </ion-grid>
+                              </ion-col>
+                            </ion-row>
+
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Lottable' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable0"
+                                    >{{'Lottable0' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable0.valid && !formGroup.controls.Lottable0.pending && (formGroup.controls.Lottable0.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable0"
+                                    formControlName="Lottable0"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable1"
+                                    >{{'Lottable1' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable1.valid && !formGroup.controls.Lottable1.pending && (formGroup.controls.Lottable1.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable1"
+                                    formControlName="Lottable1"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable2"
+                                    >{{'Lottable2' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable2.valid && !formGroup.controls.Lottable2.pending && (formGroup.controls.Lottable2.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable2"
+                                    formControlName="Lottable2"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable3"
+                                    >{{'Lottable3' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable3.valid && !formGroup.controls.Lottable3.pending && (formGroup.controls.Lottable3.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable3"
+                                    formControlName="Lottable3"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable4"
+                                    >{{'Lottable4' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable4.valid && !formGroup.controls.Lottable4.pending && (formGroup.controls.Lottable4.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable4"
+                                    formControlName="Lottable4"
+                                    type="text"
+                                  />
+                                </div>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable5"
+                                    >{{'Lottable5' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable5.valid && !formGroup.controls.Lottable5.pending && (formGroup.controls.Lottable5.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable5"
+                                    formControlName="Lottable5"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable6"
+                                    >{{'Lottable6' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable6.valid && !formGroup.controls.Lottable6.pending && (formGroup.controls.Lottable6.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable6"
+                                    formControlName="Lottable6"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable7"
+                                    >{{'Lottable7' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable7.valid && !formGroup.controls.Lottable7.pending && (formGroup.controls.Lottable7.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable7"
+                                    formControlName="Lottable7"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable8"
+                                    >{{'Lottable8' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable8.valid && !formGroup.controls.Lottable8.pending && (formGroup.controls.Lottable8.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable8"
+                                    formControlName="Lottable8"
+                                    type="text"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="Lottable9"
+                                    >{{'Lottable9' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.Lottable9.valid && !formGroup.controls.Lottable9.pending && (formGroup.controls.Lottable9.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="Lottable9"
+                                    formControlName="Lottable9"
+                                    type="text"
+                                  />
+                                </div>
+                              </ion-col>
+                            </ion-row>
+                            <ion-row class="hr-group">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'TI-HI' | translate}}</ion-label>
+                                </ion-list-header>
+                                <ion-item class="ion-no-padding" lines="none">
+                                  <ion-label color="medium" class="ion-text-wrap">
+                                    <ul>
+                                      <!-- <li>Std Cost: Giá thành định mức</li> -->
+                                      <li>
+                                        {{'TI x HI = No. of boxes / pallet' | translate}}
+                                        <ul>
+                                          <li>{{'TI - Boxes /Tie' | translate}}</li>
+                                          <li>{{'HI: Number of stack (High)' | translate}}</li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </ion-label>
+                                </ion-item>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <div class="c-control">
+                                  <label class="c-label" for="TI"
+                                    >{{'TI - Boxes /Tie' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.TI.valid && !formGroup.controls.TI.pending && (formGroup.controls.TI.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="TI"
+                                    formControlName="TI"
+                                    type="number"
+                                  />
+                                </div>
+                                <div class="c-control">
+                                  <label class="c-label" for="HI"
+                                    >{{'HI - Number of stack' | translate}}
+                                    <span
+                                      *ngIf="!formGroup.controls.HI.valid && !formGroup.controls.HI.pending && (formGroup.controls.HI.dirty || submitAttempt)"
+                                      ion-text
+                                      color="danger"
+                                      >(*)</span
+                                    >
+                                  </label>
+                                  <input
+                                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    id="HI"
+                                    formControlName="HI"
+                                    type="number"
+                                  />
+                                </div>
+                              </ion-col>
+                            </ion-row>
+                            <!-- Other information -->
+                            <ion-row class="hr-group" *ngIf="item.Id">
+                              <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                  <ion-label color="primary">{{'Other information' | translate}}</ion-label>
+                                </ion-list-header>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <app-form-control
+                                  [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"
+                                ></app-form-control>
+                                <app-form-control
+                                  [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"
+                                ></app-form-control>
+                                <app-form-control
+                                  [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"
+                                ></app-form-control>
+                                <app-form-control
+                                  [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"
+                                ></app-form-control>
+                              </ion-col>
+                              <ion-col size="12" size-sm size-xl="4">
+                                <app-form-control
+                                  [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"
+                                ></app-form-control>
+                                <app-form-control
+                                  [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
+                                  (change)="saveChange()"
+                                ></app-form-control>
+                              </ion-col>
+                            </ion-row>
+                          </form>
+                        </ion-grid>
+                      </div>
+                    </div>
+                    <div id="uom" *ngIf="segmentView.Page == 'UnitSpecification'">
+                      <div class="table-contain">
+                        <section class="table" style="min-width: 1320px">
+                          <header class="bold" style="padding-right: 0">
+                            <div class="col-checkbox cell">{{'Original unit' | translate}}</div>
+                            <div class="col-checkbox cell">{{'Lẻ KT' | translate}}</div>
+                            <div class="col-checkbox cell">{{'Purchase' | translate}}</div>
+                            <div class="col-checkbox cell">{{'warehousing' | translate}}</div>
+                            <div class="col-checkbox cell">{{'Sales' | translate}}</div>
+                            <div class="col1 cell">{{'Cứ' | translate}}</div>
+                            <div class="col2 cell">{{'Unit' | translate}}</div>
+                            <div class="col3 cell">=</div>
+                            <div class="col4 cell">{{'Convert' | translate}}</div>
+                            <div class="col2 cell"></div>
+                            <div class="col5 cell">{{'Length (cm)' | translate}}</div>
+                            <div class="col6 cell">{{'Width' | translate}}</div>
+                            <div class="col7 cell">{{'High' | translate}}</div>
+                            <div class="col8 cell">{{'Weight (kg)' | translate}}</div>
+                            <div class="col2 cell">{{'Barcode' | translate}}</div>
+                            <div class="col3 cell"></div>
+                          </header>
+                          <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of UoMs; let j = index;">
+                            <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
+                              <ion-checkbox
+                                [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                                [(ngModel)]="i.IsBaseUoM"
+                              ></ion-checkbox>
+                            </div>
+                            <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
+                              <ion-checkbox
+                                [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                                [(ngModel)]="i.IsBaseUoM"
+                              ></ion-checkbox>
+                            </div>
+                            <div
+                              class="col-checkbox cell"
+                              (click)="item.PurchasingUoM = pageConfig.canEditUoM ? i.Id: item.PurchasingUoM; updateUoM()"
+                            >
+                              <ion-checkbox
+                                [disabled]="!pageConfig.canEditUoM "
+                                [checked]="item.PurchasingUoM == i.Id"
+                              ></ion-checkbox>
+                            </div>
+                            <div
+                              class="col-checkbox cell"
+                              (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; updateUoM()"
+                            >
+                              <ion-checkbox
+                                [disabled]="!pageConfig.canEditUoM "
+                                [checked]="item.InventoryUoM == i.Id"
+                              ></ion-checkbox>
+                            </div>
+                            <div
+                              class="col-checkbox cell"
+                              (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; updateUoM()"
+                            >
+                              <ion-checkbox [disabled]="!pageConfig.canEditUoM " [checked]="item.SalesUoM == i.Id"></ion-checkbox>
+                            </div>
+                            <div class="col1 cell">
+                              <input
+                                *ngIf="!i.IsBaseUoM"
+                                [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                                class="c-input"
+                                (change)="saveUoM(i)"
+                                [(ngModel)]="i.AlternativeQuantity"
+                                type="number"
+                                min="0"
+                                step="1"
+                                max="999999999999999999"
+                              />
+                            </div>
+                            <div class="col2 cell">
+                              <ng-select
+                                class="c-input"
+                                (change)="changedUoM($event, i)"
+                                [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                                [addTag]="createNewUoM.bind(this)"
+                                [(ngModel)]="i.Name"
+                                [items]="uomList"
+                                appendTo="#order-detail-page"
+                                [clearable]="false"
+                                bindLabel="Name"
+                                bindValue="Name"
+                                placeholder="{{'Unit' | translate}}"
+                              >
+                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                  <div *ngIf="i">
+                                    <div>
+                                      <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                      <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                    </div>
+                                  </div>
+                                </ng-template>
+                                <ng-template ng-tag-tmp let-search="searchTerm">
+                                  <ion-text color="primary"> <b>Thêm</b>: {{search}} </ion-text>
+                                </ng-template>
+                              </ng-select>
+                            </div>
+                            <div class="col3 cell">
+                              <span *ngIf="!i.IsBaseUoM">=</span>
+                            </div>
+                            <div class="col4 cell">
+                              <input
+                                *ngIf="!i.IsBaseUoM"
+                                [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                                (change)="saveUoM(i)"
+                                class="c-input"
+                                [(ngModel)]="i.BaseQuantity"
+                                type="number"
+                                min="0"
+                                step="1"
+                                max="999999999999999999"
+                              />
+                            </div>
+                            <div class="col2 cell">
+                              <span *ngIf="!i.IsBaseUoM">{{baseUomName}}</span>
+                            </div>
+                            <div class="col5 cell">
+                              <input
+                                [disabled]="!pageConfig.canEditUoM "
+                                (change)="saveUoM(i)"
+                                class="c-input"
+                                [(ngModel)]="i.Length"
+                                type="number"
+                                min="0"
+                              />
+                            </div>
+                            <div class="col6 cell">
+                              <input
+                                [disabled]="!pageConfig.canEditUoM "
+                                (change)="saveUoM(i)"
+                                class="c-input"
+                                [(ngModel)]="i.Width"
+                                type="number"
+                                min="0"
+                              />
+                            </div>
+                            <div class="col7 cell">
+                              <input
+                                [disabled]="!pageConfig.canEditUoM "
+                                (change)="saveUoM(i)"
+                                class="c-input"
+                                [(ngModel)]="i.Height"
+                                type="number"
+                                min="0"
+                              />
+                            </div>
+                            <div class="col8 cell">
+                              <input
+                                [disabled]="!pageConfig.canEditUoM "
+                                (change)="saveUoM(i)"
+                                class="c-input"
+                                [(ngModel)]="i.Weight"
+                                type="number"
+                                min="0"
+                              />
+                            </div>
+                            <div class="col2 cell">
+                              <input
+                                [disabled]="!pageConfig.canEditUoM "
+                                (change)="saveUoM(i)"
+                                class="c-input"
+                                [(ngModel)]="i.Barcode"
+                                type="text"
+                              />
+                            </div>
+                            <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM && pageConfig.canEditTrans">
+                              <ion-icon color="danger" (click)="deleteUoM(i)" class="min-btn" name="trash-outline"></ion-icon>
+                            </div>
+                          </div>
+                        </section>
+                        <div class="row" *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans ) && this.id">
+                          <div class="cell">
+                            <ion-button fill="clear" size="small" (click)="addUoM()">
+                              <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+                              {{'Add unit' | translate}}
+                            </ion-button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="price" *ngIf="segmentView.Page == 'UnitPrice'">
+                      <ion-grid fixed>
+                        <ion-row>
+                          <ion-col size="12">
+                            <div class="table-contain">
+                              <section class="table" style="min-width: 700px">
+                                <ng-container *ngFor="let i of priceList; let j = index;">
+                                  <header class="bold" style="padding: 0">
+                                    <div class="col-id cell">
+                                      <a [routerLink]="['/price-list/'+i.Id]">{{i.Id}}</a>
+                                    </div>
+                                    <div class="col-item cell">{{i.Name}}</div>
+                                    <div class="col-uom cell">Đơn vị</div>
+                                    <div class="col-price cell">{{i.PrimaryDefaultCurrency}}</div>
+                                    <div class="col-price cell">{{i.PrimaryDefaultCurrency1}}</div>
+                                    <div class="col-price cell">{{i.PrimaryDefaultCurrency2}}</div>
+                                    <div class="col-id cell" *ngIf="pageConfig.canEditPrice"></div>
+                                    <div class="col-id cell" *ngIf="pageConfig.canEditPrice"></div>
+                                  </header>
+                                  <div class="row" [ngClass]="{border_: k==0 }" *ngFor="let p of i.Prices; let k = index;">
+                                    <div class="col-id cell"></div>
+                                    <div class="col-item cell"></div>
+                                    <div class="col-uom cell">
+                                      <ion-text color="primary"><b>{{p._UoM.Name}}</b></ion-text>
+                                    </div>
+                                    <div class="col-price cell">
+                                      <span *ngIf="!p.Id">-</span
+                                      ><input
+                                        *ngIf="p.Id"
+                                        class="c-input"
+                                        [disabled]="!pageConfig.canEditPrice || !p.IsManual"
+                                        (change)="savePriceDetail(p)"
+                                        mask="separator.4"
+                                        thousandSeparator=","
+                                        [allowNegativeNumbers]="false"
+                                        type="tel"
+                                        [(ngModel)]="p.Price"
+                                      />
+                                    </div>
+                                    <div class="col-price cell">
+                                      <span *ngIf="!p.Id">-</span
+                                      ><input
+                                        *ngIf="p.Id"
+                                        class="c-input"
+                                        [disabled]="!pageConfig.canEditPrice || !p.IsManual"
+                                        (change)="savePriceDetail(p)"
+                                        mask="separator.4"
+                                        thousandSeparator=","
+                                        [allowNegativeNumbers]="false"
+                                        type="tel"
+                                        [(ngModel)]="p.Price1"
+                                      />
+                                    </div>
+                                    <div class="col-price cell">
+                                      <span *ngIf="!p.Id">-</span
+                                      ><input
+                                        *ngIf="p.Id"
+                                        class="c-input"
+                                        [disabled]="!pageConfig.canEditPrice || !p.IsManual"
+                                        (change)="savePriceDetail(p)"
+                                        mask="separator.4"
+                                        thousandSeparator=","
+                                        [allowNegativeNumbers]="false"
+                                        type="tel"
+                                        [(ngModel)]="p.Price2"
+                                      />
+                                    </div>
+                                    <div class="col-id cell" (click)="changeManualPrice(p)" *ngIf="pageConfig.canEditPrice">
+                                      <ion-icon
+                                        [color]="p.IsManual?'danger':'success'"
+                                        class="min-btn"
+                                        [name]="p.Id? (p.IsManual?'lock-open':'lock-closed') : 'pencil'"
+                                      ></ion-icon>
+                                    </div>
+                                    <div class="col-id cell" *ngIf="pageConfig.canEditPrice">
+                                      <ion-icon
+                                        color="danger"
+                                        class="min-btn"
+                                        name="trash-outline"
+                                        *ngIf="p.Id"
+                                        (click)="deletePriceDetail(p)"
+                                      ></ion-icon>
+                                    </div>
+                                  </div>
+                                  <div class="ion-padding"></div>
+                                </ng-container>
+                              </section>
+                            </div>
+                          </ion-col>
+                        </ion-row>
+                      </ion-grid>
+                    </div>
+                    <div id="pictures" *ngIf="segmentView.Page == 'Pictures'">
+                      <div class="ion-padding">
+                        <ion-grid fixed>
+                          <ion-row>
+                            <ion-col
+                              size="12"
+                              size-sm="6"
+                              size-md="6"
+                              size-lg="4"
+                              size-xl="3"
+                              *ngFor="let i of UoMs; let j = index;"
+                            >
+                              <div class="image-box">
+                                <img class="img" [src]="i.Image" (error)="img.src = 'assets/undraw_no_data_qbuo.svg'" #img />
+
+                                <div class="image-title">{{i.Name}}</div>
+                              </div>
+                            </ion-col>
+                          </ion-row>
+                        </ion-grid>
+                      </div>
+                    </div>
+                    <div id="goodsOwner" *ngIf="segmentView.Page == 'GoodsOwner'">
+                      <div class="ion-padding">
+                        <ion-grid fixed>
+                          <form [formGroup]="formGroup">
+                            <ng-container formArrayName="WMS_ItemInWarehouseConfig">
+                              <ion-row
+                                class="hr-group"
+                                *ngFor="let config of formGroup.get('WMS_ItemInWarehouseConfig')['controls']; let i=index"
+                              >
+                                <ng-container [formGroup]="config">
+                                  <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                    <ion-list-header class="ion-no-padding">
+                                      <ion-label color="primary">{{'Warehouse arrangement' | translate}} {{i+1}}</ion-label>
+                                    </ion-list-header>
+                                  </ion-col>
+                                  <ion-col size="12" size-sm size-xl="4">
+                                    <div class="c-control">
+                                      <label class="c-label" for="IDBranch"
+                                        >Kho
+                                        <span
+                                          *ngIf="!config.controls.IDBranch.valid && !config.controls.IDBranch.pending && (config.controls.IDBranch.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="IDBranch"
+                                        formControlName="IDBranch"
+                                        [items]="branchList"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+
+                                    <div class="c-control">
+                                      <label class="c-label" for="IDStorer"
+                                        >{{'Goods owner' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.IDStorer.valid && !config.controls.IDStorer.pending && (config.controls.IDStorer.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="IDStorer"
+                                        formControlName="IDStorer"
+                                        [items]="storerList"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="PutawayZone"
+                                        >{{'Putaway zone' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.PutawayZone.valid && !config.controls.PutawayZone.pending && (config.controls.PutawayZone.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange()"
+                                        labelForId="PutawayZone"
+                                        formControlName="PutawayZone"
+                                        [items]="zoneList"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="Rotation"
+                                        >{{'Rotation' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.Rotation.valid && !config.controls.Rotation.pending && (config.controls.Rotation.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="Rotation"
+                                        formControlName="Rotation"
+                                        [items]="RotationList"
+                                        bindLabel="Name"
+                                        bindValue="Code"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="RotateBy"
+                                        >{{'RotateBy' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.RotateBy.valid && !config.controls.RotateBy.pending && (config.controls.RotateBy.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="RotateBy"
+                                        formControlName="RotateBy"
+                                        [items]="RotateByList"
+                                        bindLabel="Name"
+                                        bindValue="Code"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                              <span *ngIf="i.Remark">({{i.Remark}})</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+
+                                    <div class="c-control">
+                                      <label class="c-label" for="MaxPalletsPerZone"
+                                        >{{'Max pallets/Zone' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.MaxPalletsPerZone.valid && !config.controls.MaxPalletsPerZone.pending && (config.controls.MaxPalletsPerZone.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <input
+                                        [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                        (change)="saveChange()"
+                                        class="c-input"
+                                        id="MaxPalletsPerZone"
+                                        formControlName="MaxPalletsPerZone"
+                                        type="text"
+                                      />
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="StackLimit"
+                                        >{{'StackLimit' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.StackLimit.valid && !config.controls.StackLimit.pending && (config.controls.StackLimit.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <input
+                                        [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                        (change)="saveChange()"
+                                        class="c-input"
+                                        id="StackLimit"
+                                        formControlName="StackLimit"
+                                        type="number"
+                                      />
+                                    </div>
+                                  </ion-col>
+                                  <ion-col size="12" size-sm size-xl="4">
+                                    <div class="c-control">
+                                      <label class="c-label" for="PutawayStrategy"
+                                        >{{'Arrange goods into warehouse' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.PutawayStrategy.valid && !config.controls.PutawayStrategy.pending && (config.controls.PutawayStrategy.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="PutawayStrategy"
+                                        formControlName="PutawayStrategy"
+                                        [items]="[]"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+
+                                    <div class="c-control">
+                                      <label class="c-label" for="AllocationStrategy"
+                                        >{{'Goods pick-up assignment' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.AllocationStrategy.valid && !config.controls.AllocationStrategy.pending && (config.controls.AllocationStrategy.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="AllocationStrategy"
+                                        formControlName="AllocationStrategy"
+                                        [items]="[]"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+
+                                    <div class="c-control">
+                                      <label class="c-label" for="PutawayLocation"
+                                        >{{'PutawayLocation' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.PutawayLocation.valid && !config.controls.PutawayLocation.pending && (config.controls.PutawayLocation.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="PutawayLocation"
+                                        formControlName="PutawayLocation"
+                                        [items]="locationList"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="InboundQCLocation"
+                                        >{{'Inbound QC location' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.InboundQCLocation.valid && !config.controls.InboundQCLocation.pending && (config.controls.InboundQCLocation.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="InboundQCLocation"
+                                        formControlName="InboundQCLocation"
+                                        [items]="locationList"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="ReturnLocation"
+                                        >{{'Return location' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.ReturnLocation.valid && !config.controls.ReturnLocation.pending && (config.controls.ReturnLocation.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                      <ng-select
+                                        class="c-input"
+                                        (change)="saveChange();"
+                                        labelForId="ReturnLocation"
+                                        formControlName="ReturnLocation"
+                                        [items]="locationList"
+                                        bindLabel="Name"
+                                        bindValue="Id"
+                                        placeholder="{{'Search' | translate}}"
+                                      >
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                          <div *ngIf="i">
+                                            <div>
+                                              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                              <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                                            </div>
+                                          </div>
+                                        </ng-template>
+                                      </ng-select>
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="MinimumInventoryLevel">{{'Min inventory' | translate}}</label>
+                                      <input
+                                        [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                        (change)="saveChange()"
+                                        class="c-input"
+                                        id="MinimumInventoryLevel"
+                                        formControlName="MinimumInventoryLevel"
+                                        type="number"
+                                      />
+                                    </div>
+                                    <div class="c-control">
+                                      <label class="c-label" for="MaximumInventoryLevel">{{'Max inventory' | translate}}</label>
+                                      <input
+                                        [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                        (change)="saveChange()"
+                                        class="c-input"
+                                        id="MaximumInventoryLevel"
+                                        formControlName="MaximumInventoryLevel"
+                                        type="number"
+                                      />
+                                    </div>
+                                    <div class="c-control">
+                                      <input
+                                        (change)="saveChange()"
+                                        class="c-checkbox"
+                                        id="IsAllowConsolidation"
+                                        formControlName="IsAllowConsolidation"
+                                        type="checkbox"
+                                      />
+                                      <label class="c-label checkbox" for="IsAllowConsolidation"
+                                        >{{'Allow to gather LCL goods' | translate}}
+                                        <span
+                                          *ngIf="!config.controls.IsAllowConsolidation.valid && !config.controls.IsAllowConsolidation.pending && (config.controls.IsAllowConsolidation.dirty || submitAttempt)"
+                                          ion-text
+                                          color="danger"
+                                          >(*)</span
+                                        >
+                                      </label>
+                                    </div>
+                                  </ion-col>
+                                </ng-container>
+                              </ion-row>
+                            </ng-container>
+                          </form>
+                          <ion-row class="hr-group" *ngIf="this.id">
+                            <ion-col size="12" size-sm size-xl="4" offset-xl="3">
+                              <ion-button (click)="addConfig({Id:0})"> {{'Add goods owner' | translate}} </ion-button>
+                            </ion-col>
+                          </ion-row>
+                        </ion-grid>
+                      </div>
+                    </div>
+                  </div>
+                </ion-grid>
+              </div>
+            </div>
+
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
