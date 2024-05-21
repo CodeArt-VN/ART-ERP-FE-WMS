@@ -19,7 +19,6 @@ export const WMSRoutes: Routes = [
     
     { path: 'item', loadChildren: () => import('./item/item.module').then(m => m.ItemPageModule), canActivate: [AuthGuard] },
     { path: 'item/:id', loadChildren: () => import('./item-detail/item-detail.module').then(m => m.ItemDetailPageModule), canActivate: [AuthGuard] },
-    { path: 'item-in-branch/:id', loadChildren: () => import('./item-detail-in-branch/item-detail-in-branch.module').then(m => m.ItemDetailInBranchPageModule), canActivate: [AuthGuard] },
     { path: 'item/uom/:id', loadChildren: () => import('./item-uom-detail/item-uom-detail.module').then(m => m.ItemUomDetailPageModule), canActivate: [AuthGuard] },
     
     { path: 'batch-picking', loadChildren: () => import('./batch-picking/batch-picking.module').then(m => m.BatchPickingPageModule), canActivate: [AuthGuard] },

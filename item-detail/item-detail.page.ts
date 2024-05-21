@@ -1,9 +1,16 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { LoadingController, AlertController, NavController } from '@ionic/angular';
-import { PageBase } from 'src/app/page-base';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AlertController, LoadingController, NavController } from '@ionic/angular';
+import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { NgSelectConfig } from '@ng-select/ng-select';
+import { concat, of, Subject } from 'rxjs';
+import { catchError, distinctUntilChanged, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { lib } from 'src/app/services/static/global-functions';
+import { ApiSetting } from 'src/app/services/static/api-setting';
 import {
+  BRA_BranchProvider,
   WMS_ItemProvider,
   WMS_ItemUoMProvider,
   WMS_PriceListDetailProvider,
@@ -13,35 +20,54 @@ import {
   WMS_ZoneProvider,
   WMS_CartonGroupProvider,
   WMS_ItemInWarehouseConfigProvider,
-  BRA_BranchProvider,
   CRM_ContactProvider,
   WMS_LocationProvider,
   FINANCE_TaxDefinitionProvider,
+  WMS_ItemInBranchProvider,
 } from 'src/app/services/static/services.service';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { NgSelectConfig } from '@ng-select/ng-select';
-import { concat, of, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, map, mergeMap, switchMap, tap } from 'rxjs/operators';
-import { lib } from 'src/app/services/static/global-functions';
-import { ApiSetting } from 'src/app/services/static/api-setting';
 
 @Component({
   selector: 'app-item-detail',
-  templateUrl: './item-detail.page.html',
-  styleUrls: ['./item-detail.page.scss'],
+  templateUrl: 'item-detail.page.html',
+  styleUrls: ['item-detail.page.scss'],
 })
 export class ItemDetailPage extends PageBase {
-  segmentView = {
-    Page: 's4',
-    ShowSpinner: true,
-  };
+  branchList = [];
+  branchInWarehouse = [];
+  selectedBranch = null;
+  optionGroup = [
+    {
+      Code: 'GeneralInformation',
+      Name: 'General information',
+    },
+    {
+      Code: 'UnitSpecification',
+      Name: 'Unit/Specification',
+    },
+    {
+      Code: 'UnitPrice',
+      Name: 'Unit price',
+    },
+    {
+      Code: 'GoodsOwner',
+      Name: 'Goods owner',
+    },
+    {
+      Code: 'Pictures',
+      Name: 'Pictures',
+    },
+    {
+      Code: 'PlanningData',
+      Name: 'Planning data',
+    },
+  ];
+
   uomList = [];
   zoneList = [];
   filterZoneList = [];
   locationList = [];
   filterLocationList = [];
   cartonGroupList = [];
-  branchList = [];
   storerList = [];
   inputTaxList = [];
   outputTaxList = [];
@@ -49,8 +75,16 @@ export class ItemDetailPage extends PageBase {
   baseUomName = '???';
   UoMs = []; //UoM grid
 
+  subOptions = null;
+  segmentView = {
+    Page: 'ProductInformation',
+    ShowSpinner: true,
+  };
+  loadedItemInBranch = false;
+
   constructor(
     public pageProvider: WMS_ItemProvider,
+    public itemInBranchProvider: WMS_ItemInBranchProvider,
     public itemGroupProvider: WMS_ItemGroupProvider,
     public itemUoMProvider: WMS_ItemUoMProvider,
     public branchProvider: BRA_BranchProvider,
@@ -67,7 +101,6 @@ export class ItemDetailPage extends PageBase {
     public env: EnvService,
     public route: ActivatedRoute,
 
-    // public navParams: NavParams,
     public alertCtrl: AlertController,
     public navCtrl: NavController,
     public formBuilder: FormBuilder,
@@ -78,7 +111,8 @@ export class ItemDetailPage extends PageBase {
     super();
     this.item = {};
     this.pageConfig.isDetailPage = true;
-
+    this.pageConfig.isShowFeature = true;
+    this.pageConfig.isFeatureAsMain = true;
     this.config.notFoundText = 'Không tìm thấy dữ liệu phù hợp...';
     this.config.clearAllText = 'Xóa';
 
@@ -95,56 +129,30 @@ export class ItemDetailPage extends PageBase {
       CreatedDate: new FormControl({ value: '', disabled: true }),
       ModifiedBy: new FormControl({ value: '', disabled: true }),
       ModifiedDate: new FormControl({ value: '', disabled: true }),
-
       Storers: [],
-
       IDItemGroup: ['', Validators.required],
-
       ForeignName: [''],
-
       ForeignRemark: [''],
-
       ItemType: ['Items', Validators.required],
       Industry: [''],
       Division: [''],
       IsInventoryItem: [true, Validators.required],
       IsSalesItem: [true, Validators.required],
       IsPurchaseItem: [true, Validators.required],
-
       BaseUoM: [''],
       AccountantUoM: [''],
       InventoryUoM: [''],
       PurchasingUoM: [''],
       SalesUoM: [''],
-
       MinimumInventoryLevel: [''],
       MaximumInventoryLevel: [''],
       IDSalesTaxDefinition: ['', Validators.required],
       IDPurchaseTaxDefinition: ['', Validators.required],
-
-      // IDTaxDefinition: [''],
-      // IDRevenueAccount: [''],
-      // IDExemptRevenueAccount: [''],
-      // IDDefaultWarehouse: [''],
       IDPreferredVendor: [''],
-
-      // MfrCatalogNo: [''],
-      // PrefQtyInPurchaseUnits: [''],
-      // ProductionDateInDays: [''],
-      // TaxRateForWholesaler: [''],
-      // SalesTaxInPercent: [''],
-      // IsTrackSales: [''],
-      // NoOfItemsPerSalesUnit: [''],
       IDCartonGroup: [''],
-
       SerialNumberStart: [''],
       SerialNumberEnd: [''],
       SerialNumberNext: [''],
-
-      // CostToReorderItem: [''],
-      // ReorderPoint: [''],
-      // QuantityToReorder: [''],
-      // CostToCarryingPerUnit: [''],
       Lottable0: ['#Lot'],
       Lottable1: ['#Batch'],
       Lottable2: ['None'],
@@ -161,9 +169,22 @@ export class ItemDetailPage extends PageBase {
 
       TI: [''],
       HI: [''],
-
+      InventoryLevelRequired: [''],
+      InventoryLevelMinimum: [''],
+      InventoryLevelMaximum: [''],
+      PlanningMeThod: [''],
+      ProcurementMethod: [''],
+      OrderInterval: [''],
+      OrderMultiple: [''],
+      MinimumOrderQty: [''],
+      CheckingRule: [''],
+      LeadTime: [''],
+      ToleranceDays: [''],
       WMS_ItemInWarehouseConfig: this.formBuilder.array([]),
       VendorIds: [],
+      IDItemInBranch: [],
+      IDItem: [],
+      TreeType: [],
     });
   }
 
@@ -171,12 +192,19 @@ export class ItemDetailPage extends PageBase {
   RotateByList = [];
   ItemTypeList = [];
   ExpiryUnitList = [];
+  PlanningMethodList = [];
+  ProcurementMethodList = [];
+  OrderIntervalList = [];
 
   IndustryList = [];
   DivisionList = [];
   vendorList = [];
 
-  preLoadData() {
+  preLoadData(event) {
+    this.branchList = this.env.branchList.filter(
+      (d) => d.Type != 'TitlePosition'
+    );
+
     this.uomProvider.read().then((resp) => {
       this.uomList = resp['data'];
     });
@@ -208,12 +236,12 @@ export class ItemDetailPage extends PageBase {
           })
           .toPromise(),
       ]).then((values: any) => {
-        if (values[0]['Value'] && this.item.Id == 0) {
+        if (values[0]['Value'] && this.item?.Id == 0) {
           let idTaxInput = JSON.parse(values[0]['Value']).Id;
           this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
           this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
         }
-        if (values[1]['Value'] && this.item.Id == 0) {
+        if (values[1]['Value'] && this.item?.Id == 0) {
           let idTaxOput = JSON.parse(values[1]['Value']).Id;
           this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
           this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
@@ -228,8 +256,6 @@ export class ItemDetailPage extends PageBase {
       this.RotateByList = result;
     });
     this.env.getType('ItemType', true).then((result: any) => {
-      console.log(result, this.pageConfig);
-
       if (this.pageConfig.canEditFixedAssetsOnly) {
       }
       this.ItemTypeList = result;
@@ -237,6 +263,15 @@ export class ItemDetailPage extends PageBase {
     this.env.getType('ExpiryUnit').then((result: any) => {
       this.ExpiryUnitList = result;
     });
+    // this.env.getType('PlanningMethod').then((result: any) => {
+    //   this.PlanningMethodList = result;
+    // });
+    // this.env.getType('ProcurementMethod').then((result: any) => {
+    //   this.ProcurementMethodList = result;
+    // });
+    // this.env.getType('OrderInterval').then((result: any) => {
+    //   this.OrderIntervalList = result;
+    // });
 
     this.branchProvider
       .read({
@@ -248,12 +283,12 @@ export class ItemDetailPage extends PageBase {
       })
       .then((resp) => {
         lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
-          this.branchList = result;
-          this.branchList.forEach((i) => {
+          this.branchInWarehouse = result;
+          this.branchInWarehouse.forEach((i) => {
             i.disabled = true;
           });
-          this.markNestedNode(this.branchList, this.env.selectedBranch);
-          super.preLoadData(event);
+
+          this.markNestedNode(this.branchInWarehouse, this.selectedBranch);
         });
       });
 
@@ -266,10 +301,13 @@ export class ItemDetailPage extends PageBase {
     });
 
     super.preLoadData();
+    setTimeout(() => {
+      this.loadNode();
+    }, 0);
   }
 
   loadedData() {
-    if (this.item.IDItemGroup) {
+    if (this.item?.IDItemGroup) {
       this.itemGroupProvider
         .getAnItem(this.item.IDItemGroup)
         .then((itemGroup: any) => {
@@ -278,27 +316,24 @@ export class ItemDetailPage extends PageBase {
             Name: itemGroup.Name,
           };
           if (itemGroup && this.itemGroupListSelected.findIndex((d) => d.Id == itemGroup.Id) == -1) {
-            this.itemGroupListSelected.push(this.itemGroupSelected);
+            this.itemGroupListDataSource.selected.push(this.itemGroupSelected);
           }
+          this.itemGroupListDataSource.initSearch();
         })
         .finally(() => {
-          this.itemGroupSearch();
           this.cdr.detectChanges();
         });
-    } else {
-      this.itemGroupSearch();
     }
-    if (this.item.Id) {
+    if (this.item?.Id) {
       Promise.all([this.itemUoMProvider.read({ IDItem: this.item.Id })]).then((values) => {
         this.UoMs = values[0]['data'];
         let baseUoM = this.UoMs.find((d) => d.IsBaseUoM);
         if (baseUoM) {
-          baseUoM._IsBaseUoM = baseUoM.IsBaseUoM; //Fix change call when navi tabs
+          baseUoM._IsBaseUoM = baseUoM.IsBaseUoM;
           this.baseUomName = baseUoM.Name;
         }
       });
     }
-
     super.loadedData(null);
     this.setItemConfigs();
 
@@ -321,18 +356,24 @@ export class ItemDetailPage extends PageBase {
       this.formGroup.controls.Lottable7.markAsDirty();
       this.formGroup.controls.Lottable8.markAsDirty();
       this.formGroup.controls.Lottable9.markAsDirty();
-
-      // this.env.getStorage('item.IDItemGroup').then(val => {
-      //     this.formGroup.controls.IDItemGroup.setValue(val);
-      //     this.formGroup.controls.IDItemGroup.markAsDirty();
-      //     this.item.IDItemGroup = val;
-
-      // })
     }
   }
-
   refresh() {
-    this.loadData();
+    this.loadData(null);
+  }
+
+  loadData(event) {
+    if (this.selectedBranch) {
+      this.query.Id = this.id;
+      this.query.IDBranch = this.selectedBranch;
+      this.env.showLoading('Please wait a moment!', this.pageProvider.read(this.query)).then((resp) => {
+        this.item = resp['data'];
+        this.loadedData();
+      });
+    } else {
+      console.log('The branch not found');
+    }
+    super.loadData();
   }
 
   markNestedNode(ls, Id) {
@@ -344,7 +385,7 @@ export class ItemDetailPage extends PageBase {
 
   setItemConfigs() {
     this.formGroup.controls.WMS_ItemInWarehouseConfig = new FormArray([]);
-    if (this.item.WMS_ItemInWarehouseConfig && this.item.WMS_ItemInWarehouseConfig.length) {
+    if (this.item?.WMS_ItemInWarehouseConfig && this.item?.WMS_ItemInWarehouseConfig.length) {
       this.item.WMS_ItemInWarehouseConfig.forEach((c) => {
         this.addConfig(c);
       });
@@ -417,40 +458,139 @@ export class ItemDetailPage extends PageBase {
       });
   }
 
-  itemGroupList$;
-  itemGroupListLoading = false;
-  itemGroupListInput$ = new Subject<string>();
+
   itemGroupListSelected = [];
   itemGroupSelected = null;
-  itemGroupSearch() {
-    this.itemGroupListLoading = false;
-    this.itemGroupList$ = concat(
-      of(this.itemGroupListSelected),
-      this.itemGroupListInput$.pipe(
-        distinctUntilChanged(),
-        tap(() => (this.itemGroupListLoading = true)),
-        switchMap((term) =>
-          this.itemGroupProvider.search({ Take: 5000, Skip: 0, Keyword: term }).pipe(
-            catchError(() => of([])), // empty list on error
-            tap(() => (this.itemGroupListLoading = false)),
-            mergeMap((e) => lib.buildFlatTree(e, e)),
+ 
+  itemGroupListDataSource = {
+    searchProvider: this.itemGroupProvider,
+    loading: false,
+    input$: new Subject<string>(),
+    selected: [],
+    items$: null,
+    initSearch() {
+      this.loading = false;
+      this.items$ = concat(
+        of(this.selected),
+        this.input$.pipe(
+          distinctUntilChanged(),
+          tap(() => (this.loading = true)),
+          switchMap((term) =>
+            this.searchProvider
+              .search({
+                SortBy: ['Id_desc'],
+                Take: 5000,
+                Skip: 0,
+                Keyword: term,
+                SkipMCP: true,
+                SkipAddress: true,
+              })
+              .pipe(
+                catchError(() => of([])), // empty list on error
+                tap(() => (this.loading = false)),
+                mergeMap((e) => lib.buildFlatTree(e, e)),
+              ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  };
 
   changeGroup() {
-    this.env.setStorage('item.IDItemGroup', this.item.IDItemGroup);
+    this.env.setStorage('item.IDItemGroup', this.item?.IDItemGroup);
   }
 
-  segmentChanged(ev: any) {
-    this.segmentView.Page = ev.detail.value;
-    if (this.segmentView.Page == 's3') {
-      this.loadPriceList();
+  selectBranch() {
+    this.loadItemInBranch();
+    this.loadNode();
+  }
+
+  loadItemInBranch() {
+    if (this.selectedBranch) {
+      this.query.Id = this.id;
+      this.query.IDBranch = this.selectedBranch.Id;
+      this.formGroup.controls.IDBranch.markAsDirty();
+      let apiPath = {
+        method: 'GET',
+        url: function (Id) {
+          return ApiSetting.apiDomain('WMS/ItemInBranch/GetItemInBranch/');
+        },
+      };
+
+      this.env
+        .showLoading(
+          'Please wait a moment!',
+          this.pageProvider.commonService
+            .connect(apiPath.method, apiPath.url(this.id), this.query)
+            .toPromise()
+            .then((data: any) => {
+              if (data) {
+                this.item = data;
+                this.formGroup?.patchValue(this.item);
+                this.formGroup?.markAsPristine();
+                this.cdr?.detectChanges();
+              } else {
+                this.item.IDItemInBranch = 0;
+                this.resetItemInBranch();
+              }
+            }),
+        )
+        .catch((error) => {
+          console.error(error);
+          this.segmentView.ShowSpinner = false;
+        });
+      this.loadedItemInBranch = true;
+    } else {
+      this.resetItemInBranch();
+      this.loadedItemInBranch = false;
+      //this.loadData(null);
+      console.log('The branch not found');
     }
   }
 
+  resetItemInBranch() {
+    this.formGroup.patchValue({
+      IDItemInBranch: 0,
+      InventoryLevelRequired: '',
+      InventoryLevelMinimum: '',
+      InventoryLevelMaximum: '',
+      PlanningMeThod: '',
+      ProcurementMethod: '',
+      OrderInterval: '',
+      OrderMultiple: '',
+      MinimumOrderQty: '',
+      CheckingRule: '',
+      LeadTime: '',
+      ToleranceDays: '',
+      IsInventoryItem: false,
+      IsSalesItem: false,
+      IsPurchaseItem: false
+    });
+  }
+
+  selectedOption = null;
+
+  loadNode(option = null) {
+    this.pageConfig.isSubActive = true;
+    if (!option && this.segmentView) {
+      option = this.optionGroup.find((d) => d.Code == this.segmentView.Page);
+    }
+
+    if (!option) {
+      option = this.optionGroup[0];
+    }
+
+    if (!option) {
+      return;
+    }
+
+    this.selectedOption = option;
+
+    this.segmentView.Page = option.Code;
+    if (this.segmentView.Page == 'UnitPrice') {
+      this.loadPriceList();
+    }
+  }
   changeBaseUoM(i) {
     if (!this.pageConfig.canEditUoM || this.item?.TransactionsExist) {
       return;
@@ -499,18 +639,18 @@ export class ItemDetailPage extends PageBase {
         i.Id = result['Id'];
       }
       this.env.showTranslateMessage('Unit saved', 'success');
-      this.preLoadData();
+      this.preLoadData(null);
     });
   }
 
   checkCreatedItem() {
     return new Promise((resolve, reject) => {
-      if (!this.item.Id) {
+      if (!this.item?.Id) {
         this.saveChange().then((result) => {
           resolve(this.item.Id);
         });
       } else {
-        resolve(this.item.Id);
+        resolve(this.item?.Id);
       }
     });
   }
@@ -519,7 +659,7 @@ export class ItemDetailPage extends PageBase {
     this.checkCreatedItem().then(() => {
       let newUoM = {
         Id: 0,
-        IDItem: this.item.Id,
+        IDItem: this.item?.Id,
         AlternativeQuantity: 1,
         BaseQuantity: 1,
         IsBaseUoM: this.UoMs.filter((d) => d.IsBaseUoM).length == 0,
@@ -609,34 +749,43 @@ export class ItemDetailPage extends PageBase {
         return ApiSetting.apiDomain('WMS/PriceList/PriceListByItem/' + Id);
       },
     };
-    this.pageProvider.commonService
-      .connect(apiPath.method, apiPath.url(this.id), this.priceListQuery)
-      .toPromise()
-      .then((data: any) => {
-        data.forEach((i) => {
-          if (!i.Prices) i.Prices = [];
-          this.UoMs.forEach((u) => {
-            let p = i.Prices.find((d) => d.IDItemUoM == u.Id);
-            if (!p) {
-              p = {
-                Id: 0,
-                IDItemUoM: u.Id,
-                _UoM: { Id: u.Id, Name: u.Name },
-                IDItem: this.id,
-                IsManual: false,
-                Price: 0,
-                Price1: 0,
-                Price2: 0,
-              };
-              i.Prices.push(p);
-            }
-            p.IDPriceList = i.Id;
-            p.Sort = u.BaseQuantity / u.AlternativeQuantity;
-          });
 
-          i.Prices.sort((a, b) => (a.Sort > b.Sort ? 1 : b.Sort > a.Sort ? -1 : 0));
-        });
-        this.priceList = data;
+    this.env
+      .showLoading(
+        'Please wait a moment!',
+        this.pageProvider.commonService
+          .connect(apiPath.method, apiPath.url(this.id), this.priceListQuery)
+          .toPromise()
+          .then((data: any) => {
+            data.forEach((i) => {
+              if (!i.Prices) i.Prices = [];
+              this.UoMs.forEach((u) => {
+                let p = i.Prices.find((d) => d.IDItemUoM == u.Id);
+                if (!p) {
+                  p = {
+                    Id: 0,
+                    IDItemUoM: u.Id,
+                    _UoM: { Id: u.Id, Name: u.Name },
+                    IDItem: this.id,
+                    IsManual: false,
+                    Price: 0,
+                    Price1: 0,
+                    Price2: 0,
+                  };
+                  i.Prices.push(p);
+                }
+                p.IDPriceList = i.Id;
+                p.Sort = u.BaseQuantity / u.AlternativeQuantity;
+              });
+
+              i.Prices.sort((a, b) => (a.Sort > b.Sort ? 1 : b.Sort > a.Sort ? -1 : 0));
+            });
+            this.priceList = data;
+            this.segmentView.ShowSpinner = false;
+          }),
+      )
+      .catch((error) => {
+        console.error(error);
         this.segmentView.ShowSpinner = false;
       });
   }
@@ -665,8 +814,54 @@ export class ItemDetailPage extends PageBase {
       });
   }
 
+  async saveItemInBranch() {
+    if (this.selectedBranch) {
+      console.log(this.item.IDItemInBranch);
+      const idItemInBranch = this.item.IDItemInBranch || 0;
+      const idItem = this.formGroup.get('Id').value;
+      this.formGroup.get('IDItem').setValue(idItem);
+      this.formGroup.get('Id').setValue(idItemInBranch);
+      this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
+      this.formGroup.controls.IDBranch.markAsDirty();
+      this.formGroup.controls.Id.markAsDirty();
+      this.formGroup.controls.IDItem.markAsDirty();
+      this.formGroup.controls.ItemType.markAsDirty();
+      this.formGroup.controls.TreeType.markAsDirty();
+
+      return new Promise((resolve, reject) => {
+        this.formGroup.updateValueAndValidity();
+        if (!this.formGroup.valid) {
+          this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+        } else if (this.submitAttempt == false) {
+          this.submitAttempt = true;
+          let submitItem = this.getDirtyValues(this.formGroup);
+
+          this.itemInBranchProvider
+            .save(submitItem, this.pageConfig.isForceCreate)
+            .then((savedItem: any) => {
+              resolve(savedItem);
+              console.log(savedItem);
+              if(savedItem) {
+                this.item.IDItemInBranch = savedItem.Id;
+              }
+              this.savedChange(savedItem, this.formGroup);
+              if (this.pageConfig.pageName) this.env.publishEvent({ Code: this.pageConfig.pageName });
+
+              this.formGroup.get('Id').setValue(idItem);
+            })
+            .catch((err) => {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.cdr.detectChanges();
+              this.submitAttempt = false;
+              reject(err);
+            });
+        }
+      });
+    }
+  }
+
   async saveChange() {
-    super.saveChange2();
+    this.saveChange2();
   }
 
   async deletePriceDetail(p) {
