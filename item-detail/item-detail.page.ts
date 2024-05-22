@@ -80,7 +80,7 @@ export class ItemDetailPage extends PageBase {
     Page: 'ProductInformation',
     ShowSpinner: true,
   };
-  loadedItemInBranch = false;
+  branchSelected = false;
 
   constructor(
     public pageProvider: WMS_ItemProvider,
@@ -201,9 +201,7 @@ export class ItemDetailPage extends PageBase {
   vendorList = [];
 
   preLoadData(event) {
-    this.branchList = this.env.branchList.filter(
-      (d) => d.Type != 'TitlePosition'
-    );
+    this.branchList = this.env.branchList.filter((d) => d.Type != 'TitlePosition');
 
     this.uomProvider.read().then((resp) => {
       this.uomList = resp['data'];
@@ -306,6 +304,7 @@ export class ItemDetailPage extends PageBase {
     }, 0);
   }
 
+  itemGroupSelected;
   loadedData() {
     if (this.item?.IDItemGroup) {
       this.itemGroupProvider
@@ -315,14 +314,15 @@ export class ItemDetailPage extends PageBase {
             Id: itemGroup.Id,
             Name: itemGroup.Name,
           };
-          if (itemGroup && this.itemGroupListSelected.findIndex((d) => d.Id == itemGroup.Id) == -1) {
+          if (itemGroup && this.item?.IDItemGroup) {
             this.itemGroupListDataSource.selected.push(this.itemGroupSelected);
           }
-          this.itemGroupListDataSource.initSearch();
         })
         .finally(() => {
-          this.cdr.detectChanges();
+          this.itemGroupListDataSource.initSearch();
         });
+    } else {
+      this.itemGroupListDataSource.initSearch();
     }
     if (this.item?.Id) {
       Promise.all([this.itemUoMProvider.read({ IDItem: this.item.Id })]).then((values) => {
@@ -336,6 +336,32 @@ export class ItemDetailPage extends PageBase {
     }
     super.loadedData(null);
     this.setItemConfigs();
+
+    if (this.selectedBranch) {
+      this.formGroup.get('InventoryLevelRequired').enable();
+      this.formGroup.get('InventoryLevelMinimum').enable();
+      this.formGroup.get('InventoryLevelMaximum').enable();
+      this.formGroup.get('PlanningMeThod').enable();
+      this.formGroup.get('ProcurementMethod').enable();
+      this.formGroup.get('OrderInterval').enable();
+      this.formGroup.get('OrderMultiple').enable();
+      this.formGroup.get('MinimumOrderQty').enable();
+      this.formGroup.get('CheckingRule').enable();
+      this.formGroup.get('LeadTime').enable();
+      this.formGroup.get('ToleranceDays').enable();
+    } else {
+      this.formGroup.get('InventoryLevelRequired').disable();
+      this.formGroup.get('InventoryLevelMinimum').disable();
+      this.formGroup.get('InventoryLevelMaximum').disable();
+      this.formGroup.get('PlanningMeThod').disable();
+      this.formGroup.get('ProcurementMethod').disable();
+      this.formGroup.get('OrderInterval').disable();
+      this.formGroup.get('OrderMultiple').disable();
+      this.formGroup.get('MinimumOrderQty').disable();
+      this.formGroup.get('CheckingRule').disable();
+      this.formGroup.get('LeadTime').disable();
+      this.formGroup.get('ToleranceDays').disable();
+    }
 
     if (this.id == 0) {
       this.formGroup.controls.ItemType.markAsDirty();
@@ -359,21 +385,7 @@ export class ItemDetailPage extends PageBase {
     }
   }
   refresh() {
-    this.loadData(null);
-  }
-
-  loadData(event) {
-    if (this.selectedBranch) {
-      this.query.Id = this.id;
-      this.query.IDBranch = this.selectedBranch;
-      this.env.showLoading('Please wait a moment!', this.pageProvider.read(this.query)).then((resp) => {
-        this.item = resp['data'];
-        this.loadedData();
-      });
-    } else {
-      console.log('The branch not found');
-    }
-    super.loadData();
+    this.loadItemInBranch();
   }
 
   markNestedNode(ls, Id) {
@@ -397,8 +409,8 @@ export class ItemDetailPage extends PageBase {
 
     let group = this.formBuilder.group({
       IDPartner: config.IDPartner,
-      IDBranch: config.IDBranch,
-      IDStorer: config.IDStorer,
+      IDBranch: [config.IDBranch, Validators.required],
+      IDStorer: [config.IDStorer, Validators.required],
       IDItem: config.IDItem,
       PutawayZone: config.PutawayZone,
       Rotation: [config.Rotation, Validators.required],
@@ -458,10 +470,6 @@ export class ItemDetailPage extends PageBase {
       });
   }
 
-
-  itemGroupListSelected = [];
-  itemGroupSelected = null;
- 
   itemGroupListDataSource = {
     searchProvider: this.itemGroupProvider,
     loading: false,
@@ -496,6 +504,7 @@ export class ItemDetailPage extends PageBase {
     },
   };
 
+  branchListDataSource = [this.env.branchList];
   changeGroup() {
     this.env.setStorage('item.IDItemGroup', this.item?.IDItemGroup);
   }
@@ -503,6 +512,31 @@ export class ItemDetailPage extends PageBase {
   selectBranch() {
     this.loadItemInBranch();
     this.loadNode();
+    if (this.selectedBranch) {
+      this.formGroup.get('InventoryLevelRequired').enable();
+      this.formGroup.get('InventoryLevelMinimum').enable();
+      this.formGroup.get('InventoryLevelMaximum').enable();
+      this.formGroup.get('PlanningMeThod').enable();
+      this.formGroup.get('ProcurementMethod').enable();
+      this.formGroup.get('OrderInterval').enable();
+      this.formGroup.get('OrderMultiple').enable();
+      this.formGroup.get('MinimumOrderQty').enable();
+      this.formGroup.get('CheckingRule').enable();
+      this.formGroup.get('LeadTime').enable();
+      this.formGroup.get('ToleranceDays').enable();
+    } else {
+      this.formGroup.get('InventoryLevelRequired').disable();
+      this.formGroup.get('InventoryLevelMinimum').disable();
+      this.formGroup.get('InventoryLevelMaximum').disable();
+      this.formGroup.get('PlanningMeThod').disable();
+      this.formGroup.get('ProcurementMethod').disable();
+      this.formGroup.get('OrderInterval').disable();
+      this.formGroup.get('OrderMultiple').disable();
+      this.formGroup.get('MinimumOrderQty').disable();
+      this.formGroup.get('CheckingRule').disable();
+      this.formGroup.get('LeadTime').disable();
+      this.formGroup.get('ToleranceDays').disable();
+    }
   }
 
   loadItemInBranch() {
@@ -510,25 +544,26 @@ export class ItemDetailPage extends PageBase {
       this.query.Id = this.id;
       this.query.IDBranch = this.selectedBranch.Id;
       this.formGroup.controls.IDBranch.markAsDirty();
-      let apiPath = {
-        method: 'GET',
-        url: function (Id) {
-          return ApiSetting.apiDomain('WMS/ItemInBranch/GetItemInBranch/');
-        },
-      };
-
       this.env
         .showLoading(
           'Please wait a moment!',
           this.pageProvider.commonService
-            .connect(apiPath.method, apiPath.url(this.id), this.query)
+            .connect('GET', 'WMS/ItemInBranch/GetItemInBranch/', this.query)
             .toPromise()
             .then((data: any) => {
               if (data) {
                 this.item = data;
                 this.formGroup?.patchValue(this.item);
                 this.formGroup?.markAsPristine();
-                this.cdr?.detectChanges();
+                this.cdr.detectChanges();
+                if (this.item?.IDItemGroup) {
+                  let itemGroupSelected = {
+                    Id: this.item.IDItemGroup,
+                    Name: this.item?.ItemGroupName,
+                  };
+                  this.itemGroupListDataSource.selected = [itemGroupSelected];
+                }
+                this.itemGroupListDataSource.initSearch();
               } else {
                 this.item.IDItemInBranch = 0;
                 this.resetItemInBranch();
@@ -539,12 +574,31 @@ export class ItemDetailPage extends PageBase {
           console.error(error);
           this.segmentView.ShowSpinner = false;
         });
-      this.loadedItemInBranch = true;
+      this.branchSelected = true;
     } else {
       this.resetItemInBranch();
-      this.loadedItemInBranch = false;
-      //this.loadData(null);
-      console.log('The branch not found');
+      this.branchSelected = false;
+      this.pageProvider
+        .getAnItem(this.id, null)
+        .then((ite) => {
+          this.item = ite;
+          this.formGroup?.patchValue(this.item);
+          this.formGroup?.markAsPristine();
+          this.cdr?.detectChanges();
+          if (this.item?.IDItemGroup) {
+            this.itemGroupListDataSource.selected = [this.itemGroupSelected];
+          }
+          this.itemGroupListDataSource.initSearch();
+        })
+        .catch((err) => {
+          console.log(err);
+
+          if ((err.status = 404)) {
+            this.nav('not-found', 'back');
+          } else {
+            this.item = null;
+          }
+        });
     }
   }
 
@@ -562,9 +616,6 @@ export class ItemDetailPage extends PageBase {
       CheckingRule: '',
       LeadTime: '',
       ToleranceDays: '',
-      IsInventoryItem: false,
-      IsSalesItem: false,
-      IsPurchaseItem: false
     });
   }
 
@@ -816,10 +867,8 @@ export class ItemDetailPage extends PageBase {
 
   async saveItemInBranch() {
     if (this.selectedBranch) {
-      console.log(this.item.IDItemInBranch);
       const idItemInBranch = this.item.IDItemInBranch || 0;
-      const idItem = this.formGroup.get('Id').value;
-      this.formGroup.get('IDItem').setValue(idItem);
+      this.formGroup.get('IDItem').setValue(this.id);
       this.formGroup.get('Id').setValue(idItemInBranch);
       this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
       this.formGroup.controls.IDBranch.markAsDirty();
@@ -840,14 +889,14 @@ export class ItemDetailPage extends PageBase {
             .save(submitItem, this.pageConfig.isForceCreate)
             .then((savedItem: any) => {
               resolve(savedItem);
-              console.log(savedItem);
-              if(savedItem) {
+
+              if (savedItem) {
                 this.item.IDItemInBranch = savedItem.Id;
               }
               this.savedChange(savedItem, this.formGroup);
               if (this.pageConfig.pageName) this.env.publishEvent({ Code: this.pageConfig.pageName });
 
-              this.formGroup.get('Id').setValue(idItem);
+              this.formGroup.get('Id').setValue(this.id);
             })
             .catch((err) => {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
@@ -861,6 +910,8 @@ export class ItemDetailPage extends PageBase {
   }
 
   async saveChange() {
+    this.formGroup.get('Id').setValue(this.id);
+    this.formGroup.controls.Id.markAsDirty();
     this.saveChange2();
   }
 

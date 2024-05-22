@@ -127,15 +127,15 @@
 
                               <app-form-control
                                 [field]="{id:'IsInventoryItem', label: 'Goods for storage', type : 'checkbox', form : formGroup }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange()">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()">
                               </app-form-control>
                               <app-form-control
                                 [field]="{id:'IsSalesItem', label: 'Goods for sale', type : 'checkbox', form : formGroup }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange()">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()">
                               </app-form-control>
                               <app-form-control
                                 [field]="{id:'IsPurchaseItem', label: 'Goods to order', type : 'checkbox', form : formGroup }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange()">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()">
                               </app-form-control>
                               <div class="c-control">
                                 <input [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="saveChange()"
@@ -176,27 +176,28 @@
 
                               <app-form-control
                                 [field]="{id:'IDItemGroup', label: 'Belonged to group', type : 'ng-select-bp', form : formGroup,  dataSource: itemGroupListDataSource,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
+                              
 
                               <app-form-control
                                 [field]="{id:'ItemType', label: 'Product type', type : 'ng-select', form : formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
 
                               <app-form-control
                                 [field]="{id:'IDCartonGroup', label: 'Carton group', type : 'ng-select', form : formGroup,  dataSource: cartonGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
 
                               <app-form-control
                                 [field]="{id:'Industry', label: 'Industry', type : 'ng-select', form : formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
 
                               <app-form-control
                                 [field]="{id:'Division', label: 'Division', type : 'ng-select', form : formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
                             </ion-col>
                           </ion-row>
@@ -210,12 +211,12 @@
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
                                 [field]="{id:'IDSalesTaxDefinition', label: 'Sales Tax', type : 'ng-select', form : formGroup,  dataSource: outputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
 
                               <app-form-control
                                 [field]="{id:'IDPurchaseTaxDefinition', label: 'Purchase Tax', type : 'ng-select', form : formGroup,  dataSource: inputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
                               </app-form-control>
 
                             </ion-col>
@@ -335,7 +336,7 @@
                             </ion-col>
                           </ion-row>
                           <!-- Other information -->
-                          <ion-row class="hr-group" *ngIf="item.Id">
+                          <ion-row class="hr-group" *ngIf="this.id">
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
                               <ion-list-header class="ion-no-padding">
                                 <ion-label color="primary">{{'Other information' | translate}}</ion-label>
@@ -355,7 +356,7 @@
                                 [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
                               <app-form-control
                                 [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
-                                (change)="loadedItemInBranch ? saveItemInBranch() : saveChange()"></app-form-control>
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()"></app-form-control>
                             </ion-col>
                           </ion-row>
                         </form>
@@ -394,17 +395,17 @@
                           </div>
                           <div class="col-checkbox cell"
                             (click)="item.PurchasingUoM = pageConfig.canEditUoM ? i.Id: item.PurchasingUoM; updateUoM()">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || !loadedItemInBranch"
+                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || !branchSelected"
                               [checked]="item.PurchasingUoM == i.Id"></ion-checkbox>
                           </div>
                           <div class="col-checkbox cell"
                             (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; updateUoM()">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || !loadedItemInBranch"
+                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || !branchSelected"
                               [checked]="item.InventoryUoM == i.Id"></ion-checkbox>
                           </div>
                           <div class="col-checkbox cell"
                             (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; updateUoM()">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || !loadedItemInBranch "
+                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || !branchSelected "
                               [checked]="item.SalesUoM == i.Id"></ion-checkbox>
                           </div>
                           <div class="col1 cell">
@@ -578,7 +579,7 @@
                                         *ngIf="!config.controls.IDBranch.valid && !config.controls.IDBranch.pending && (config.controls.IDBranch.dirty || submitAttempt)"
                                         ion-text color="danger">(*)</span>
                                     </label>
-                                    <ng-select class="c-input" (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();" labelForId="IDBranch"
+                                    <ng-select class="c-input" (change)="branchSelected ? saveItemInBranch() : saveChange();" labelForId="IDBranch"
                                       formControlName="IDBranch" [items]="branchList" bindLabel="Name" bindValue="Id"
                                       placeholder="{{'Search' | translate}}">
                                       <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
@@ -594,22 +595,22 @@
 
                                   <app-form-control
                                     [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select', form : config,  dataSource: storerList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                    (change)="branchSelected ? saveItemInBranch() : saveChange();">
                                   </app-form-control>
 
                                   <app-form-control
                                     [field]="{id:'PutawayZone', label: 'Putaway zone', type : 'ng-select', form : config,  dataSource: zoneList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                    (change)="branchSelected ? saveItemInBranch() : saveChange();">
                                   </app-form-control>
 
                                   <app-form-control
                                     [field]="{id:'Rotation', label: 'Rotation', type : 'ng-select', form : config,  dataSource: RotationList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                    (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                    (change)="branchSelected ? saveItemInBranch() : saveChange();">
                                   </app-form-control>
 
                                   <app-form-control
                                     [field]="{id:'RotateBy', label: 'RotateBy', type : 'ng-select', form : config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                    (change)="loadedItemInBranch ? saveItemInBranch() : saveChange();">
+                                    (change)="branchSelected ? saveItemInBranch() : saveChange();">
                                   </app-form-control>
 
                                   <app-form-control
@@ -714,7 +715,7 @@
                                 <label class="c-label" for="PlanningMethod">{{'Planning Method' | translate}}
                                 </label>
                                 <ng-select class="c-input" (change)="saveItemInBranch();"
-                                  [readonly]="!(loadedItemInBranch && (pageConfig.canEdit || pageConfig.canAdd))"
+                                  [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
                                   labelForId="PlanningMethod" formControlName="PlanningMeThod"
                                   [items]="PlanningMethodList" bindLabel="Name" bindValue="Code"
                                   placeholder="{{'Search' | translate}}">
@@ -732,7 +733,7 @@
                                 <label class="c-label" for="ProcurementMethod">{{'Procurement Method' | translate}}
                                 </label>
                                 <ng-select class="c-input" (change)="saveItemInBranch();"
-                                  [readonly]="!(loadedItemInBranch && (pageConfig.canEdit || pageConfig.canAdd))"
+                                  [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
                                   labelForId="ProcurementMethod" formControlName="ProcurementMethod"
                                   [items]="ProcurementMethodList" bindLabel="Name" bindValue="Code"
                                   placeholder="{{'Search' | translate}}">
@@ -750,7 +751,7 @@
                                 <label class="c-label" for="OrderInterval">{{'Order Interval' | translate}}
                                 </label>
                                 <ng-select class="c-input" (change)="saveItemInBranch();"
-                                  [readonly]="!(loadedItemInBranch && (pageConfig.canEdit || pageConfig.canAdd))"
+                                  [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
                                   labelForId="OrderInterval" formControlName="OrderInterval" [items]="OrderIntervalList"
                                   bindLabel="Name" bindValue="Code" placeholder="{{'Search' | translate}}">
                                   <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
