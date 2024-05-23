@@ -304,26 +304,15 @@ export class ItemDetailPage extends PageBase {
     }, 0);
   }
 
-  itemGroupSelected;
   loadedData() {
     if (this.item?.IDItemGroup) {
-      this.itemGroupProvider
-        .getAnItem(this.item.IDItemGroup)
-        .then((itemGroup: any) => {
-          this.itemGroupSelected = {
-            Id: itemGroup.Id,
-            Name: itemGroup.Name,
-          };
-          if (itemGroup && this.item?.IDItemGroup) {
-            this.itemGroupListDataSource.selected.push(this.itemGroupSelected);
-          }
-        })
-        .finally(() => {
-          this.itemGroupListDataSource.initSearch();
-        });
-    } else {
-      this.itemGroupListDataSource.initSearch();
+      let itemGroupSelected = {
+        Id: this.item.IDItemGroup,
+        Name: this.item?.ItemGroupName,
+      };
+      this.itemGroupListDataSource.selected = [itemGroupSelected];
     }
+    this.itemGroupListDataSource.initSearch();
     if (this.item?.Id) {
       Promise.all([this.itemUoMProvider.read({ IDItem: this.item.Id })]).then((values) => {
         this.UoMs = values[0]['data'];
@@ -433,6 +422,9 @@ export class ItemDetailPage extends PageBase {
       IsAllowConsolidation: config.IsAllowConsolidation,
     });
 
+    if (!config.Id) {
+      group.controls.IDStorer.markAsDirty();
+    }
     groups.push(group);
   }
 
@@ -541,14 +533,18 @@ export class ItemDetailPage extends PageBase {
 
   loadItemInBranch() {
     if (this.selectedBranch) {
-      this.query.Id = this.id;
+      let query = {
+        IdItem: this.id,
+        IDBranch: this.selectedBranch.Id,
+      };
+      this.query.IdItem = this.id;
       this.query.IDBranch = this.selectedBranch.Id;
       this.formGroup.controls.IDBranch.markAsDirty();
       this.env
         .showLoading(
           'Please wait a moment!',
           this.pageProvider.commonService
-            .connect('GET', 'WMS/ItemInBranch/GetItemInBranch/', this.query)
+            .connect('GET', 'WMS/ItemInBranch/', query)
             .toPromise()
             .then((data: any) => {
               if (data) {
@@ -571,7 +567,6 @@ export class ItemDetailPage extends PageBase {
             }),
         )
         .catch((error) => {
-          console.error(error);
           this.segmentView.ShowSpinner = false;
         });
       this.branchSelected = true;
@@ -586,7 +581,11 @@ export class ItemDetailPage extends PageBase {
           this.formGroup?.markAsPristine();
           this.cdr?.detectChanges();
           if (this.item?.IDItemGroup) {
-            this.itemGroupListDataSource.selected = [this.itemGroupSelected];
+            let itemGroupSelected = {
+              Id: this.item.IDItemGroup,
+              Name: this.item?.ItemGroupName,
+            };
+            this.itemGroupListDataSource.selected = [itemGroupSelected];
           }
           this.itemGroupListDataSource.initSearch();
         })
@@ -710,7 +709,7 @@ export class ItemDetailPage extends PageBase {
     this.checkCreatedItem().then(() => {
       let newUoM = {
         Id: 0,
-        IDItem: this.item?.Id,
+        IDItem: this.selectedBranch ? this.id : this.item?.Id,
         AlternativeQuantity: 1,
         BaseQuantity: 1,
         IsBaseUoM: this.UoMs.filter((d) => d.IsBaseUoM).length == 0,
@@ -784,6 +783,24 @@ export class ItemDetailPage extends PageBase {
   updateUoM() {
     if (this.pageConfig.canEditUoM) {
       this.pageProvider.save(this.item).then(() => {
+        this.env.showTranslateMessage('Changed unit saved');
+      });
+    }
+  }
+
+  updateUoMInBranch() {
+    if (this.pageConfig.canEditUoM) {
+      const idItemInBranch = this.item.IDItemInBranch || 0;
+      let item = {
+        Id: idItemInBranch,
+        IDBranch: this.selectedBranch.Id,
+        IDItem: this.id,
+        InventoryUoM: this.item.InventoryUoM,
+        PurchasingUoM: this.item.PurchasingUoM,
+        SalesUoM: this.item.SalesUoM,
+      };
+      this.itemInBranchProvider.save(item).then((result: any) => {
+        this.item.IDItemInBranch = result.Id;
         this.env.showTranslateMessage('Changed unit saved');
       });
     }
@@ -867,21 +884,20 @@ export class ItemDetailPage extends PageBase {
 
   async saveItemInBranch() {
     if (this.selectedBranch) {
-      const idItemInBranch = this.item.IDItemInBranch || 0;
-      this.formGroup.get('IDItem').setValue(this.id);
-      this.formGroup.get('Id').setValue(idItemInBranch);
-      this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
-      this.formGroup.controls.IDBranch.markAsDirty();
-      this.formGroup.controls.Id.markAsDirty();
-      this.formGroup.controls.IDItem.markAsDirty();
-      this.formGroup.controls.ItemType.markAsDirty();
-      this.formGroup.controls.TreeType.markAsDirty();
-
       return new Promise((resolve, reject) => {
         this.formGroup.updateValueAndValidity();
         if (!this.formGroup.valid) {
           this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
         } else if (this.submitAttempt == false) {
+          const idItemInBranch = this.item.IDItemInBranch || 0;
+          this.formGroup.get('IDItem').setValue(this.id);
+          this.formGroup.get('Id').setValue(idItemInBranch);
+          this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
+          this.formGroup.controls.IDBranch.markAsDirty();
+          this.formGroup.controls.Id.markAsDirty();
+          this.formGroup.controls.IDItem.markAsDirty();
+          this.formGroup.controls.ItemType.markAsDirty();
+          this.formGroup.controls.TreeType.markAsDirty();
           this.submitAttempt = true;
           let submitItem = this.getDirtyValues(this.formGroup);
 
@@ -913,6 +929,39 @@ export class ItemDetailPage extends PageBase {
     this.formGroup.get('Id').setValue(this.id);
     this.formGroup.controls.Id.markAsDirty();
     this.saveChange2();
+  }
+
+  saveChange2(form = this.formGroup, publishEventCode = this.pageConfig.pageName, provider = this.pageProvider) {
+    return new Promise((resolve, reject) => {
+      this.formGroup.updateValueAndValidity();
+      if (!form.valid) {
+        this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+      } else if (this.submitAttempt == false) {
+        this.submitAttempt = true;
+        let submitItem = this.getDirtyValues(form);
+
+        provider
+          .save(submitItem, this.pageConfig.isForceCreate)
+          .then((savedItem: any) => {
+            resolve(savedItem);
+            if (savedItem?.WMS_ItemInWarehouseConfig && savedItem?.WMS_ItemInWarehouseConfig.length) {
+              let formArray = this.formGroup.get('WMS_ItemInWarehouseConfig') as FormArray;
+              formArray.clear();
+              savedItem?.WMS_ItemInWarehouseConfig.forEach((c) => {
+                this.addConfig(c);
+              });
+            }
+            this.savedChange(savedItem, form);
+            if (publishEventCode) this.env.publishEvent({ Code: publishEventCode });
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.cdr.detectChanges();
+            this.submitAttempt = false;
+            reject(err);
+          });
+      }
+    });
   }
 
   async deletePriceDetail(p) {
