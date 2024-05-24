@@ -627,12 +627,12 @@
 
                                   <app-form-control
                                     [field]="{id:'PutawayStrategy', label: 'Arrange goods into warehouse', type : 'ng-select', form : config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                    (change)="saveChange();">
                                   </app-form-control>
 
                                   <app-form-control
                                     [field]="{id:'AllocationStrategy', label: 'Goods pick-up assignment', type : 'ng-select', form : config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                    (change)="saveChange();">
                                   </app-form-control>
 
                                   <app-form-control
@@ -672,7 +672,7 @@
                         </form>
                         <ion-row class="hr-group" *ngIf="this.id">
                           <ion-col size="12" size-md="12" size-lg="12" size-xl="4" offset-xl="4">
-                            <ion-button (click)="addConfig({Id:0})"> {{'Add goods owner' | translate}} </ion-button>
+                            <ion-button [disabled]="!(pageConfig.canEdit || pageConfig.canAdd)" (click)="addConfig({Id:0})"> {{'Add goods owner' | translate}} </ion-button>
                           </ion-col>
                         </ion-row>
                       </ion-grid>

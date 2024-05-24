@@ -325,8 +325,11 @@ export class ItemDetailPage extends PageBase {
     }
     super.loadedData(null);
     this.setItemConfigs();
+    if (!(this.pageConfig.canEdit || this.pageConfig.canAdd)) {
+      this.formGroup?.controls.WMS_ItemInWarehouseConfig.disable();
+    }
 
-    if (this.selectedBranch) {
+    if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
       this.formGroup.get('InventoryLevelMinimum').enable();
       this.formGroup.get('InventoryLevelMaximum').enable();
@@ -504,7 +507,7 @@ export class ItemDetailPage extends PageBase {
   selectBranch() {
     this.loadItemInBranch();
     this.loadNode();
-    if (this.selectedBranch) {
+    if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
       this.formGroup.get('InventoryLevelMinimum').enable();
       this.formGroup.get('InventoryLevelMaximum').enable();
@@ -783,7 +786,7 @@ export class ItemDetailPage extends PageBase {
   updateUoM() {
     if (this.pageConfig.canEditUoM) {
       this.pageProvider.save(this.item).then(() => {
-        this.env.showTranslateMessage('Changed unit saved');
+        this.env.showTranslateMessage('Changed unit saved', 'success');
       });
     }
   }
@@ -801,7 +804,7 @@ export class ItemDetailPage extends PageBase {
       };
       this.itemInBranchProvider.save(item).then((result: any) => {
         this.item.IDItemInBranch = result.Id;
-        this.env.showTranslateMessage('Changed unit saved');
+        this.env.showTranslateMessage('Changed unit saved', 'success');
       });
     }
   }
