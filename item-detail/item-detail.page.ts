@@ -896,11 +896,14 @@ export class ItemDetailPage extends PageBase {
           this.formGroup.get('IDItem').setValue(this.id);
           this.formGroup.get('Id').setValue(idItemInBranch);
           this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
+          if(idItemInBranch == 0) {
+            this.formGroup.get('TreeType').setValue(this.item?.TreeType);
+          }
           this.formGroup.controls.IDBranch.markAsDirty();
           this.formGroup.controls.Id.markAsDirty();
           this.formGroup.controls.IDItem.markAsDirty();
           this.formGroup.controls.ItemType.markAsDirty();
-          this.formGroup.controls.TreeType.markAsDirty();
+          this.formGroup.controls.TreeType.markAsDirty();     
           this.submitAttempt = true;
           let submitItem = this.getDirtyValues(this.formGroup);
 
