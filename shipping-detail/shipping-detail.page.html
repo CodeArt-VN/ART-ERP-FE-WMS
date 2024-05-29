@@ -107,12 +107,14 @@
 								</div>
 							
 							
-								<div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
+								<div class="col-qty cell" (click)="sortToggle('Quantity')">
 									{{'Quantity' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
+									<!-- <ion-icon class="min-btn" *ngIf="sortDetail.Quantity" [name]="sortDetail.Quantity == 'Quantity'?'arrow-down': 'arrow-up'"></ion-icon> -->
 								</div>
-						
-								<div class="col-qty cell" (click)="sortToggle('QuantityShipped')">
+								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllQty()">
+									<ion-icon *ngIf="item"[color]="item._IsShippedAll? 'danger': 'success'" [name]="item._IsShippedAll? 'remove-circle-outline': 'checkmark-done-circle-outline' "></ion-icon>
+								</div>
+								<div class="col-qty cell" (click)="sortToggle('GrossWeight')">
 									{{'Shipped quantity' | translate}}
 								</div>
 							
@@ -148,14 +150,16 @@
 										<div class="col-qty cell">
 											{{c.get('Quantity').value}}
 										</div>
-
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleQty(c)">
+											<ion-icon [color]="c.controls.QuantityShipped.value == c.controls.QuantityShipped.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityShipped.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+										</div>
 										<div class="col-qty cell">
-											<app-input-control [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="updateQuantity(c)"></app-input-control>
-											<!-- {{c.get('PickedQuantity')?.value}} -->
+											<app-input-control  [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="calcTotalPackedQuantity(c)"></app-input-control>
 										</div>
 										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 											<ion-icon color="danger" name="trash"></ion-icon>
 										</div> 
+										
 									</div>
 							</ng-container>
 							

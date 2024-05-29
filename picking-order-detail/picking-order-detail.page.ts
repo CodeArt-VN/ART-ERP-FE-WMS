@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, CRM_ContactProvider, HRM_StaffProvider, SYS_SchemaProvider, WMS_ItemProvider, WMS_PickingDetailProvider, WMS_PickingProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, CRM_ContactProvider, WMS_ItemProvider, WMS_OutboundOrderDetailProvider, WMS_PickingDetailProvider, WMS_PickingProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
 import { Schema } from 'src/app/models/options-interface';
@@ -29,12 +29,11 @@ export class PickingOrderDetailPage extends PageBase {
     storerList;
 
     isAllChecked = false; 
-    checkedPickingDetailOrders: any = new FormArray([]);
+    checkedPickingOrderDetails: any = new FormArray([]);
     constructor(
         public pageProvider: WMS_PickingProvider,
         public pickingOrderDetailService: WMS_PickingDetailProvider,
-        public staffService: HRM_StaffProvider,
-        public schemaService: SYS_SchemaProvider,
+        public outboundOrderDetailService: WMS_OutboundOrderDetailProvider,
         public itemService: WMS_ItemProvider,
         public commonService: CommonService,
         public contactProvider: CRM_ContactProvider,
@@ -55,7 +54,7 @@ export class PickingOrderDetailPage extends PageBase {
         this.formGroup = this.formBuilder.group({
             Id: new FormControl({ value: '', disabled: true }),
             IDOutboundOrder: [''],
-            PickingDetailOrders: this.formBuilder.array([]),
+            PickingOrderDetails: this.formBuilder.array([]),
 
             ExpectedDate: ['', Validators.required],
             PickedDate: [''],
@@ -105,17 +104,58 @@ export class PickingOrderDetailPage extends PageBase {
 
     loadedData(event?: any, ignoredFromGroup?: boolean): void {
         super.loadedData(event, ignoredFromGroup);
-        this.query.IDPicking = this.item.Id;
-        this.query.Id = undefined;
-        this.pickingOrderDetailService.read(this.query,false).then((listDetail:any) =>{
-            if(listDetail!= null && listDetail.data.length>0){
-                const outboundOrdertDetailsArray = this.formGroup.get('PickingDetailOrders') as FormArray;
-                outboundOrdertDetailsArray.clear();
-                this.item.PickingDetailOrders = listDetail.data;
-                this.patchFieldsValue();
+        let queryOutbound = {
+            IDOutboundOrder: this.item.IDOutboundOrder,
+            IDParent_ne_Null:true
+        }
+        this.outboundOrderDetailService.commonService.connect('GET', 'WMS/Picking/GetPickingDetailsGroupByItem/', queryOutbound).toPromise()
+       .then((listOutboundDetail:any) =>{
+          
+            if(listOutboundDetail!= null && listOutboundDetail.length>0){
+                this.query.IDPicking = this.item.Id;
+                this.query.Id = undefined;
+                
+                this.pickingOrderDetailService.read(this.query,false).then((listDetail:any) =>{
+                    const pickingOrdertDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
+                    pickingOrdertDetailsArray.clear();
+                    let outboundDetails = listOutboundDetail;//.filter(d=>d.IDParent != null);
+
+                    let pickingDetails = listDetail?.data;
+                    pickingDetails?.forEach(s=>{
+                        let parent =  outboundDetails.find(d=> d.IDItem == s.IDItem && d.IDUoM == s.IDUoM);
+                        if(parent){
+                            if(!parent.Id){
+                                parent.Id = Math.floor(Math.random() * (10000000 - 10000 + 1)) + 10000000000;
+                            }
+                            s.IDParent = parent.Id;
+                        } 
+                       
+                    });
+                    let list = [...outboundDetails, ...pickingDetails]
+                    this.buildFlatTree (list, this.item.PickingOrderDetails, false).then((resp: any) => {
+                        this.item.PickingOrderDetails = resp;
+                        this.patchFieldsValue();
+                    })
+                    // if(listDetail!= null && listDetail.data.length>0){
+                     
+                    // }
+                });
             }
-        })
-        if(this.item.Status =="Closed"){
+        });
+        // this.query.IDPicking = this.item.Id;
+        // this.query.Id = undefined;
+        // this.pickingOrderDetailService.read(this.query,false).then((listDetail:any) =>{
+          
+        //     if(listDetail!= null && listDetail.data.length>0){
+        //         const pickingOrdertDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
+        //         pickingOrdertDetailsArray.clear();
+        //         this.buildFlatTree (listDetail.data, this.item.PickingOrderDetails, false).then((resp: any) => {
+        //             this.item.PickingOrderDetails = resp;
+        //             this.patchFieldsValue();
+        //         })
+        //     }
+        // });
+        if(this.item.Status !="Allocated"){
             this.pageConfig.canEdit = false;
         }
         // this.query.Id = this.item.Id;
@@ -125,32 +165,38 @@ export class PickingOrderDetailPage extends PageBase {
     private patchFieldsValue() {
         this.pageConfig.showSpinner = true;
 
-        if (this.item.PickingDetailOrders?.length) {
-            this.item.PickingDetailOrders.forEach(i => {
+        if (this.item.PickingOrderDetails?.length) {
+            this.item.PickingOrderDetails.forEach(i => {
                 this.addField(i);
             })
         }
       
         if (!this.pageConfig.canEdit) {
-            this.formGroup.controls.PickingDetailOrders.disable();
+            this.formGroup.controls.PickingOrderDetails.disable();
         }
 
         this.pageConfig.showSpinner = false;
     }
 
     addField(field: any, markAsDirty = false) {
-        let groups = <FormArray>this.formGroup.controls.PickingDetailOrders;
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
         let group = this.formBuilder.group({
             IDPicking:[this.formGroup.get('Id').value, Validators.required],
             Id: new FormControl({ value: field.Id, disabled: true }),
             IDItem:[field.IDItem, Validators.required],
+            IDParent:[field.IDParent],
             Quantity : [field.Quantity],
             QuantityPicked : [field.QuantityPicked],
+            LPN :[field.LPN],
             FromLocationName :[field.FromLocationName],
             ToLocationName :[field.ToLocationName],
             LotName :[field.LotName],
             UoMName:[field.UoMName],
             ItemName: [ field.ItemName], //de hien thi
+            ShowDetail:[field.showdetail],
+            Showing:[field.show] ,
+            HasChild:[field.HasChild],
+            Levels:[field.levels],
             IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
             IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
             CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
@@ -172,12 +218,7 @@ export class PickingOrderDetailPage extends PageBase {
         this.query.Id = undefined;
     }
 
-    updateQuantity(fg){
-        let obj = {
-            Id : fg.get('Id').value,
-            QuantityPicked : fg.get('QuantityPicked').value
-
-        }
+    updateQuantity(obj){
         this.pageProvider.commonService.connect('PUT', 'WMS/Picking/UpdateQuantity/', obj).toPromise()
         .then((result: any) => {
             if(result){
@@ -191,43 +232,145 @@ export class PickingOrderDetailPage extends PageBase {
         // this.saveChange2(fg, null, this.pickingOrderDetailService)
     }
 
-    changeSelection(i, view, e = null) {
-        if (i.get('IsChecked').value) {
-            this.checkedPickingDetailOrders.push(i);
+    allocatePicking(){
+        this.query.Id = this.formGroup.get('Id').value
+        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Picking/AllocatePicking/', this.query).toPromise())
+        .then((result: any) => {
+            this.refresh();
+        })
+        this.query.Id = undefined;
+    }
+
+    toggleQty(group) {
+        if (group.controls.Quantity.value == group.controls.QuantityPicked.value) {
+            group.controls.QuantityPicked.setValue(0);
+            group.controls.QuantityPicked.markAsDirty();
         }
         else {
-            let index = this.checkedPickingDetailOrders.getRawValue().findIndex(d => d.Id == i.get('Id').value)
-            this.checkedPickingDetailOrders.removeAt(index);
+            group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
+            group.controls.QuantityPicked.markAsDirty();
+        }
+        this.calcTotalPickedQuantity(group);
+    }
+
+    toggleAllQty() {
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        groups.controls.forEach((group: FormGroup) => {
+            if (this.item._IsPickedAll) {
+                group.controls.QuantityPicked.setValue(0);
+                group.controls.QuantityPicked.markAsDirty();
+            }
+            else {
+                if(group.controls.FromLocationName.value){
+                    group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
+
+                }
+                // group.controls.QuantityPicked.markAsDirty();
+            }
+
+        });
+        this.item._IsPickedAll = !this.item._IsPickedAll;
+        this.calcAllTotalPickedQuantity();
+        
+    }
+
+    calcTotalPickedQuantity(childFG){
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        let totalPickedQty = 0;
+        let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
+        let obj ;
+        if(parentFG){
+            let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
+            subOrders.forEach(sub=>{
+                totalPickedQty += sub.get('QuantityPicked').value;
+            })
+            parentFG.get('QuantityPicked').setValue(totalPickedQty)
+            // parentFG.get('QuantityPicked').markAsDirty();
+            obj = [
+                // {Id:parentFG.get('Id').value, QuantityPicked:parentFG.get('QuantityPicked').value},
+                {Id:childFG.get('Id').value, QuantityPicked:childFG.get('QuantityPicked').value},
+            ]
+        }
+        else{
+            obj = [
+                {Id:childFG.get('Id').value, QuantityPicked:childFG.get('QuantityPicked').value},
+            ]
+        }
+        this.updateQuantity(obj);
+    }
+
+    calcAllTotalPickedQuantity(){
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        let obj = groups.controls.map((fg: FormGroup) => {
+            if(fg.get('FromLocationName').value){
+                return {
+                    Id: fg.get('Id').value,
+                    QuantityPicked: fg.get('QuantityPicked').value
+                  };
+            }
+        
+          });
+          this.updateQuantity(obj);
+
+    }
+
+    changeSelection(i, view, e = null) {
+        if (i.get('IsChecked').value) {
+            this.checkedPickingOrderDetails.push(i);
+            if(i.get('HasChild').value){
+                let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+                let subOrders = groups.controls.filter((d) => d.get('IDParent').value == i.get('Id').value);
+                subOrders.forEach(sub=>{
+                    sub.get('IsChecked').setValue(true);
+                    this.checkedPickingOrderDetails.push(sub);
+                })
+
+            }
+        }
+        else {
+            let index = this.checkedPickingOrderDetails.getRawValue().findIndex(d => d.Id == i.get('Id').value)
+            this.checkedPickingOrderDetails.removeAt(index);
+            if(i.get('HasChild').value){
+                let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+                let subOrders = groups.controls.filter((d) => d.get('IDParent').value == i.get('Id').value);
+                subOrders.forEach(sub=>{
+                    sub.get('IsChecked').setValue(false);
+                    let indexSub = this.checkedPickingOrderDetails.getRawValue().findIndex(d => d.Id == sub.get('Id').value)
+                    this.checkedPickingOrderDetails.removeAt(indexSub);
+                })
+
+            }
+         
         }
         
     }
 
     toggleSelectAll() {
         if(!this.pageConfig.canEdit) return;
-        let groups = <FormArray>this.formGroup.controls.PickingDetailOrders;
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
         if (!this.isAllChecked) {
-            this.checkedPickingDetailOrders = new FormArray([]);
+            this.checkedPickingOrderDetails = new FormArray([]);
         }
         groups.controls.forEach(i => {
           
             i.get('IsChecked').setValue(this.isAllChecked)
-            if (this.isAllChecked) this.checkedPickingDetailOrders.push(i)
+            if (this.isAllChecked) this.checkedPickingOrderDetails.push(i)
         });
     }
 
 
     removeSelectedItems() {
-        let groups = <FormArray>this.formGroup.controls.PickingDetailOrders;
-        this.checkedPickingDetailOrders.controls.forEach(fg => {
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        this.checkedPickingOrderDetails.controls.forEach(fg => {
             const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
             groups.removeAt(indexToRemove);
         })
 
-        this.checkedPickingDetailOrders = new FormArray([]);
+        this.checkedPickingOrderDetails = new FormArray([]);
     }
 
     removeField(fg, j) {
-        let groups = <FormArray>this.formGroup.controls.PickingDetailOrders;
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
         let itemToDelete = fg.getRawValue();
         this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then(_ => {
             this.pickingOrderDetailService.delete(itemToDelete).then(result => {
@@ -238,7 +381,7 @@ export class PickingOrderDetailPage extends PageBase {
 
     deleteItems() {
         if (this.pageConfig.canDelete) {
-            let itemsToDelete = this.checkedPickingDetailOrders.getRawValue();
+            let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
             this.env.showPrompt('Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?', null, 'Xóa ' + itemsToDelete.length + ' dòng').then(_ => {
                 this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.pickingOrderDetailService.delete(itemsToDelete))
                     .then(_ => {
@@ -275,13 +418,13 @@ export class PickingOrderDetailPage extends PageBase {
             this.refresh();
         }
         else{
-            this.reInitPickingDetailOrders();
+            this.reInitPickingOrderDetails();
         }
     }
 
-    reInitPickingDetailOrders() {
-        const outboundOrderDetailsArray = this.formGroup.get('PickingDetailOrders') as FormArray;
-        this.item.PickingDetailOrders = outboundOrderDetailsArray.getRawValue();
+    reInitPickingOrderDetails() {
+        const outboundOrderDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
+        this.item.PickingOrderDetails = outboundOrderDetailsArray.getRawValue();
         for (const key in this.sortDetail) {
             if (this.sortDetail.hasOwnProperty(key)) {
                 const value = this.sortDetail[key];
@@ -289,7 +432,7 @@ export class PickingOrderDetailPage extends PageBase {
             }
         }
         outboundOrderDetailsArray.clear();
-        this.item.PickingDetailOrders.forEach(s => this.addField(s));
+        this.item.PickingOrderDetails.forEach(s => this.addField(s));
     }
 
     sortByKey(key: string, desc: boolean = false) {
@@ -297,7 +440,7 @@ export class PickingOrderDetailPage extends PageBase {
             key = key.replace('_desc','');
             desc = true;
         }
-        this.item.PickingDetailOrders.sort((a, b) => {
+        this.item.PickingOrderDetails.sort((a, b) => {
             const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
             return desc ? -comparison : comparison;
         });
@@ -315,5 +458,42 @@ export class PickingOrderDetailPage extends PageBase {
     segmentView = 's1';
     segmentChanged(ev: any) {
         this.segmentView = ev.detail.value;
+    }
+
+    toggleRow(fg, event) {
+        if (!fg.get('HasChild').value) {
+          return;
+        }
+        event.stopPropagation();
+        fg.get('ShowDetail').setValue(!fg.get('ShowDetail').value);
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
+        if (fg.get('ShowDetail').value) {
+            subOrders.forEach((it) => {
+                it.get('Showing').setValue(true);
+            });
+        } 
+        else{
+            subOrders.forEach((it) => {
+                this.hideSubRows(it)
+            });
+        }
+      }
+    
+    hideSubRows(fg) {
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        if( fg.get('HasChild').value){
+            fg.get('ShowDetail').setValue(false);
+            let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
+            
+            subOrders.forEach((it) => {
+                this.hideSubRows(it);
+                it.get('Showing').setValue(false);
+            });
+        }
+        else{
+            fg.get('Showing').setValue(false);
+        }
+       
     }
 }

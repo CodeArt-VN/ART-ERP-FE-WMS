@@ -12,7 +12,6 @@ import { SortConfig } from 'src/app/models/options-interface';
     styleUrls: ['shipping.page.scss']
 })
 export class ShippingPage extends PageBase {
-    statusList = [];
    
     constructor(
         public pageProvider: WMS_ShippingProvider,
@@ -35,21 +34,10 @@ export class ShippingPage extends PageBase {
             { Dimension: 'Id', Order: 'DESC' }
         ];
         this.pageConfig.sort = sorted;
-        this.env.getStatus('ShipmentStatus').then((data) => {
-            this.statusList = data;
-            console.log(this.statusList);
-            // super.preLoadData(event);
-          });
        
         super.preLoadData(event);
     }
-    loadedData(event?: any): void {
-        this.items.forEach((i) => {
-            i.StatusText = this.statusList.find(d=> d.Code == i.Status)?.Name
-            i.StatusColor = this.statusList.find(d=> d.Code == i.Status)?.Color
-          });
-          super.loadedData();
-    }
+   
     approve(){
         if(this.selectedItems.some(d=>d.Status =="Done")){
             return;

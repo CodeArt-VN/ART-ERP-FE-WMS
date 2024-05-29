@@ -32,7 +32,7 @@ export class PackingOrderDetailPage extends PageBase {
     checkedPackingDetails: any = new FormArray([]);
     constructor(
         public pageProvider: WMS_PackingProvider,
-        public packingOrderDetailService: WMS_PackingDetailProvider,
+        public PackingDetailservice: WMS_PackingDetailProvider,
         public staffService: HRM_StaffProvider,
         public schemaService: SYS_SchemaProvider,
         public itemService: WMS_ItemProvider,
@@ -88,7 +88,7 @@ export class PackingOrderDetailPage extends PageBase {
         super.loadedData(event, ignoredFromGroup);
         this.query.IDPacking = this.item.Id; //temp
         this.query.Id = undefined;
-        this.packingOrderDetailService.read(this.query,false).then((listDetail:any) =>{
+        this.PackingDetailservice.read(this.query,false).then((listDetail:any) =>{
             if(listDetail!= null && listDetail.data.length>0){
                 const packingOrdertDetailsArray = this.formGroup.get('PackingDetails') as FormArray;
                 packingOrdertDetailsArray.clear();
@@ -161,12 +161,26 @@ export class PackingOrderDetailPage extends PageBase {
         this.query.Id = undefined;
     }
 
-    updateQuantity(fg){
-        let obj = {
-            Id : fg.get('Id').value,
-            QuantityPacked : fg.get('QuantityPacked').value
+    // updateQuantity(fg){
+    //     let obj = {
+    //         Id : fg.get('Id').value,
+    //         QuantityPacked : fg.get('QuantityPacked').value
 
-        }
+    //     }
+    //     this.pageProvider.commonService.connect('PUT', 'WMS/Packing/UpdateQuantity/', obj).toPromise()
+    //     .then((result: any) => {
+    //         if(result){
+    //             this.env.showTranslateMessage('Saved', 'success');
+
+    //         }
+    //         else{
+    //             this.env.showTranslateMessage('Cannot save, please try again','danger');
+    //         }
+    //     })
+    //     // this.saveChange2(fg, null, this.PackingDetailservice)
+    // }
+
+    updateQuantity(obj){
         this.pageProvider.commonService.connect('PUT', 'WMS/Packing/UpdateQuantity/', obj).toPromise()
         .then((result: any) => {
             if(result){
@@ -177,7 +191,73 @@ export class PackingOrderDetailPage extends PageBase {
                 this.env.showTranslateMessage('Cannot save, please try again','danger');
             }
         })
-        // this.saveChange2(fg, null, this.pickingOrderDetailService)
+        // this.saveChange2(fg, null, this.PackingDetailservice)
+    }
+    toggleQty(group) {
+        if (group.controls.Quantity.value == group.controls.QuantityPacked.value) {
+            group.controls.QuantityPacked.setValue(0);
+            group.controls.QuantityPacked.markAsDirty();
+        }
+        else {
+            group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
+            group.controls.QuantityPacked.markAsDirty();
+        }
+        this.calcTotalPickedQuantity(group);
+    }
+
+    toggleAllQty() {
+        let groups = <FormArray>this.formGroup.controls.PackingDetails;
+        groups.controls.forEach((group: FormGroup) => {
+            if (this.item._IsPackedAll) {
+                group.controls.QuantityPacked.setValue(0);
+                group.controls.QuantityPacked.markAsDirty();
+            }
+            else {
+                group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
+                group.controls.QuantityPacked.markAsDirty();
+            }
+
+        });
+        this.item._IsPackedAll = !this.item._IsPackedAll;
+        this.calcAllTotalPickedQuantity();
+        
+    }
+
+    calcTotalPickedQuantity(childFG){
+        let groups = <FormArray>this.formGroup.controls.PackingDetails;
+        let totalPickedQty = 0;
+        let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
+        let obj ;
+        if(parentFG){
+            let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
+            subOrders.forEach(sub=>{
+                totalPickedQty += sub.get('QuantityPacked').value;
+            })
+            parentFG.get('QuantityPacked').setValue(totalPickedQty)
+            parentFG.get('QuantityPacked').markAsDirty();
+            obj = [
+                {Id:parentFG.get('Id').value, QuantityPacked:parentFG.get('QuantityPacked').value},
+                {Id:childFG.get('Id').value, QuantityPacked:childFG.get('QuantityPacked').value},
+            ]
+        }
+        else{
+            obj = [
+                {Id:childFG.get('Id').value, QuantityPacked:childFG.get('QuantityPacked').value},
+            ]
+        }
+        this.updateQuantity(obj);
+    }
+
+    calcAllTotalPickedQuantity(){
+        let groups = <FormArray>this.formGroup.controls.PackingDetails;
+        let obj = groups.controls.map((fg: FormGroup) => {
+            return {
+              Id: fg.get('Id').value,
+              QuantityPacked: fg.get('QuantityPacked').value
+            };
+          });
+          this.updateQuantity(obj);
+
     }
 
     changeSelection(i, view, e = null) {
@@ -239,7 +319,7 @@ export class PackingOrderDetailPage extends PageBase {
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
         let itemToDelete = fg.getRawValue();
         this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then(_ => {
-            this.packingOrderDetailService.delete(itemToDelete).then(result => {
+            this.PackingDetailservice.delete(itemToDelete).then(result => {
                 groups.removeAt(j);
             })
         })
@@ -250,7 +330,7 @@ export class PackingOrderDetailPage extends PageBase {
             let itemsToDelete = this.checkedPackingDetails.getRawValue();
             
             this.env.showPrompt('Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?', null, 'Xóa ' + itemsToDelete.length + ' dòng').then(_ => {
-                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.packingOrderDetailService.delete(itemsToDelete))
+                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.PackingDetailservice.delete(itemsToDelete))
                     .then(_ => {
                         this.removeSelectedItems();
                         this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');

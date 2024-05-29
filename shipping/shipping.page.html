@@ -169,17 +169,8 @@
 							{{i.ShippedDate | date: 'dd/MM/yyyy'}}
 						</div>
 						<div class="col-status cell">
-							<span class="bar-holder">
-							  <ion-text class="bar-title" [color]="i.StatusColor">{{i.StatusText}}</ion-text>
-							  <span
-								class="bar"
-								[ngClass]="{active: s.Code==i.Status}"
-								[ngStyle]="{'background-color': 'var(--ion-color-'+s.Color+')'}"
-								*ngFor="let s of statusList"
-								[title]="s.Name"
-							  ></span>
-							</span>
-						  </div>
+							{{i.Status}}
+						</div>
 					</div>
 				
 		</section>

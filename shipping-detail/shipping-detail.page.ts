@@ -170,12 +170,7 @@ export class ShippingDetailPage extends PageBase {
         this.query.Id = undefined;
     }
 
-    updateQuantity(fg){
-        let obj = {
-            Id : fg.get('Id').value,
-            QuantityShipped : fg.get('QuantityShipped').value
-
-        }
+    updateQuantity(obj){
         this.pageProvider.commonService.connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj).toPromise()
         .then((result: any) => {
             if(result){
@@ -186,7 +181,51 @@ export class ShippingDetailPage extends PageBase {
                 this.env.showTranslateMessage('Cannot save, please try again','danger');
             }
         })
-        // this.saveChange2(fg, null, this.shippingDetailService)
+        // this.saveChange2(fg, null, this.ShippingDetailservice)
+    }
+    toggleQty(group) {
+        if (group.controls.Quantity.value == group.controls.QuantityShipped.value) {
+            group.controls.QuantityShipped.setValue(0);
+            group.controls.QuantityShipped.markAsDirty();
+        }
+        else {
+            group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
+            group.controls.QuantityShipped.markAsDirty();
+        }
+        let obj = [
+            {Id:group.get('Id').value, QuantityShipped:group.get('QuantityShipped').value},
+        ]
+        this.updateQuantity(obj);
+    }
+
+    toggleAllQty() {
+        let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+        groups.controls.forEach((group: FormGroup) => {
+            if (this.item._IsShippedAll) {
+                group.controls.QuantityShipped.setValue(0);
+                group.controls.QuantityShipped.markAsDirty();
+            }
+            else {
+                group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
+                group.controls.QuantityShipped.markAsDirty();
+            }
+
+        });
+        this.item._IsShippedAll = !this.item._IsShippedAll;
+        this.calcAllTotalShippedQuantity();
+        
+    }
+
+    calcAllTotalShippedQuantity(){
+        let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+        let obj = groups.controls.map((fg: FormGroup) => {
+            return {
+              Id: fg.get('Id').value,
+              QuantityShipped: fg.get('QuantityShipped').value
+            };
+          });
+          this.updateQuantity(obj);
+
     }
 
     changeSelection(i, view, e = null) {
