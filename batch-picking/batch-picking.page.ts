@@ -71,6 +71,7 @@ export class BatchPickingPage extends PageBase {
 
     let docQuery: any = {
       Id: JSON.stringify(selected),
+      CreateOutbound: true
     };
 
     let apiPath = {

@@ -95,6 +95,9 @@
 									{{'Lot' | translate}}
 								</div>
 								<div class="col-name cell">
+									{{'LPN' | translate}}
+								</div>
+								<div class="col-name cell">
 									{{'From location' | translate}}
 								</div>
 								<div class="col-name cell">
@@ -112,7 +115,7 @@
 								</div>
 							
 								<div class="col-icon cell">
-									<ion-icon  *ngIf="checkedPackingDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
+									<ion-icon  class="clickable" *ngIf="checkedPackingDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
 								</div>
 							</header>
 							<app-page-message [itemsLength]= "formGroup.get('PackingDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
@@ -147,6 +150,9 @@
 											{{c.get('LotName')?.value}}
 										</div>
 										<div class="col-name cell">
+											{{c.get('LPN')?.value}}
+										</div>
+										<div class="col-name cell">
 											{{c.get('FromLocationName')?.value}}
 										</div>
 										<div class="col-name cell">
@@ -157,11 +163,11 @@
 											{{c.get('Quantity').value}}
 										</div>
 										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleQty(c)">
-											<ion-icon *ngIf="!c.controls.HasChild.value"[color]="c.controls.QuantityPacked.value == c.controls.QuantityPacked.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityPacked.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+											<ion-icon *ngIf="c.controls.IDParent.value == null"[color]="c.controls.QuantityPacked.value == c.controls.QuantityPacked.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityPacked.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
 										</div>
 										<div class="col-qty cell">
-											<app-input-control *ngIf="!c.controls.HasChild.value" [field]="{id:'QuantityPacked', type : 'number', form : c, }" (inputChange)="calcTotalPackedQuantity(c)"></app-input-control>
-											<div *ngIf="c.controls.HasChild.value">{{c.get('QuantityPacked').value}}</div><!-- {{c.get('PickedQuantity')?.value}} -->
+											<app-input-control *ngIf="c.controls.IDParent.value == null" [field]="{id:'QuantityPacked', type : 'number', form : c, }" (inputChange)="calcTotalPackedQuantity(c)"></app-input-control>
+											<div *ngIf="c.controls.IDParent.value != null">{{c.get('QuantityPacked').value}}</div>
 										</div>
 										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 											<ion-icon color="danger" name="trash"></ion-icon>

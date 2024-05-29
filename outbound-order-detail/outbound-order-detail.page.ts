@@ -96,7 +96,7 @@ export class OutboundOrderDetailPage extends PageBase {
               i.disabled = true;
             });
             this.markNestedNode(this.branchList, this.env.selectedBranch);
-          
+            console.log(this.branchList);
           });
         });
         this.contactProvider.read({ IsStorer: true }).then((resp) => {

@@ -82,9 +82,9 @@ export class PackingOrderDetailPage extends PageBase {
     }
 
     loadedData(event?: any, ignoredFromGroup?: boolean): void {
-        if(this.item.Status !="Open"){
-            this.pageConfig.canEdit = false;
-        }
+        // if(this.item.Status !="Open"){
+        //     this.pageConfig.canEdit = false;
+        // }
         super.loadedData(event, ignoredFromGroup);
         this.query.IDPacking = this.item.Id; //temp
         this.query.Id = undefined;
@@ -137,6 +137,7 @@ export class PackingOrderDetailPage extends PageBase {
             Showing:[field.show] ,
             FromLocationName :[field.FromLocationName],
             ToLocationName :[field.ToLocationName],
+            LPN :[field.LPN],
             LotName :[field.LotName],
             UoMName:[field.UoMName],
             ItemName: [ field.ItemName], //de hien thi
@@ -202,7 +203,7 @@ export class PackingOrderDetailPage extends PageBase {
             group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
             group.controls.QuantityPacked.markAsDirty();
         }
-        this.calcTotalPickedQuantity(group);
+        this.calcTotalPackedQuantity(group);
     }
 
     toggleAllQty() {
@@ -219,21 +220,21 @@ export class PackingOrderDetailPage extends PageBase {
 
         });
         this.item._IsPackedAll = !this.item._IsPackedAll;
-        this.calcAllTotalPickedQuantity();
+        this.calcAllTotalPackedQuantity();
         
     }
 
-    calcTotalPickedQuantity(childFG){
+    calcTotalPackedQuantity(childFG){
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
-        let totalPickedQty = 0;
+        let totalPackedQty = 0;
         let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
         let obj ;
         if(parentFG){
             let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
             subOrders.forEach(sub=>{
-                totalPickedQty += sub.get('QuantityPacked').value;
+                totalPackedQty += sub.get('QuantityPacked').value;
             })
-            parentFG.get('QuantityPacked').setValue(totalPickedQty)
+            parentFG.get('QuantityPacked').setValue(totalPackedQty)
             parentFG.get('QuantityPacked').markAsDirty();
             obj = [
                 {Id:parentFG.get('Id').value, QuantityPacked:parentFG.get('QuantityPacked').value},
@@ -248,7 +249,7 @@ export class PackingOrderDetailPage extends PageBase {
         this.updateQuantity(obj);
     }
 
-    calcAllTotalPickedQuantity(){
+    calcAllTotalPackedQuantity(){
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
         let obj = groups.controls.map((fg: FormGroup) => {
             return {
