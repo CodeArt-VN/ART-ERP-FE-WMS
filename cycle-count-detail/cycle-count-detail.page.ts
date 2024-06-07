@@ -63,7 +63,7 @@ export class CycleCountDetailPage extends PageBase {
             Name: [''],
             Remark: [''],
             Sort: [''],
-            CountType: ['Simple'],
+            CountType: ['Simple',Validators.required],
             CountDate: [''],
             Status: ['Draft', Validators.required],
             Counters: [''],
@@ -173,6 +173,8 @@ export class CycleCountDetailPage extends PageBase {
                 console.log(c.get('IsShowInModal').value)
             })
         }
+        this.formGroup.get('CountType').markAsDirty();
+
         //  this.patchFormValue();
     }
 
