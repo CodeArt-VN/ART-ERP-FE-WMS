@@ -142,7 +142,7 @@ export class PickingOrderDetailPage extends PageBase {
                 });
             }
         });
-        // this.query.IDPicking = this.item.Id;
+       // this.query.IDPicking = this.item.Id;
         // this.query.Id = undefined;
         // this.pickingOrderDetailService.read(this.query,false).then((listDetail:any) =>{
           
@@ -187,7 +187,9 @@ export class PickingOrderDetailPage extends PageBase {
             IDParent:[field.IDParent],
             Quantity : [field.Quantity],
             QuantityPicked : [field.QuantityPicked],
-            LPN :[field.LPN],
+            LPN :[field.LPN>0?field.LPN : null],
+            FromLocation :[field.FromLocation],
+            //LotLPNLocations:[field.LotLPNLocations], chức năng chọn Location
             FromLocationName :[field.FromLocationName],
             ToLocationName :[field.ToLocationName],
             LotName :[field.LotName],
@@ -238,7 +240,6 @@ export class PickingOrderDetailPage extends PageBase {
         .then((result: any) => {
             this.refresh();
         })
-        this.query.Id = undefined;
     }
 
     toggleQty(group) {

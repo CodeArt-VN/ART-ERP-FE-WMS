@@ -137,7 +137,7 @@ export class PackingOrderDetailPage extends PageBase {
             Showing:[field.show] ,
             FromLocationName :[field.FromLocationName],
             ToLocationName :[field.ToLocationName],
-            LPN :[field.LPN],
+            LPN :[field.LPN>0?field.LPN : null],
             LotName :[field.LotName],
             UoMName:[field.UoMName],
             ItemName: [ field.ItemName], //de hien thi
