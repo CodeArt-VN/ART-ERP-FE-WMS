@@ -49,7 +49,7 @@ export class WarehouseTransactionComponent extends PageBase {
     this.items.forEach((i) => {
       i.CreatedTimeText = i.CreatedDate ? lib.dateFormat(i.CreatedDate, 'hh:MM') : '';
       i.CreatedDateText = i.CreatedDate ? lib.dateFormat(i.CreatedDate, 'dd/mm/yy') : '';
-      i.UoMQuantity = lib.formatMoney(i.UoMQuantity, 0);
+      // i.UoMQuantity = lib.formatMoney(i.UoMQuantity, 0);
       i.CubeText = lib.formatMoney(i.Cube / 1000000, 3);
       i.GrossWeightText = lib.formatMoney(i.GrossWeight / 1000, 3);
     });

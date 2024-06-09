@@ -1,0 +1,207 @@
+<ion-header>
+	<app-detail-toolbar [page]="this">
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Open'  && item?.PickingOrderDetails?.length >0" >
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="changeStatus()">
+				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</app-detail-toolbar>
+</ion-header>
+<!-- *ngIf="item && pageConfig.showSpinner==false" -->
+<ion-content appScrollbarTheme class="ion-padding">
+	<div class="main-view">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Picking order' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+				
+					<ion-col size="12" size-sm size-xl="4">
+						
+						<app-form-control [field]="{id:'ExpectedDate', label: 'Expected date', type : 'datetime-local', form : formGroup }" (change)="saveChange()"></app-form-control>
+
+						<div class="c-control">
+							<label class="c-label" for="IDBranch">{{'Status' | translate}}
+								<span >: {{item?.Status}}</span>
+							</label>
+							
+						</div>
+
+					</ion-col>
+					
+					<ion-col size="12" size-sm size-xl="4">
+						
+						
+						<app-form-control [field]="{id:'PickedDate', label: 'Picking date', type : 'datetime-local', form : formGroup }" (change)="saveChange()"></app-form-control>
+						
+			
+					</ion-col>
+
+					
+				</ion-row>
+			</form>
+		</ion-grid>
+	
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'List' | translate }}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				
+				</ion-segment>
+				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
+					<ion-button (click)="allocatePicking()">
+					  <ion-icon slot="start" name="color-filter-outline"></ion-icon>
+					  {{'Allocate' | translate}}
+					</ion-button>
+				  </ion-buttons>
+				
+			</ion-toolbar>
+		
+			<div class="table responsive" *ngIf="segmentView == 's1'">
+				<section class="table-contain">
+					
+							<header class="bold">
+								<div class="col-checkbox cell">
+									<input (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox">
+								</div>
+								<div class="col-id cell">#</div>
+								<div class="col-name cell" (click)="sortToggle('ItemName')">
+									{{'Item name' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-name cell" (click)="sortToggle('UoMName')">
+									{{'UoM' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+								<div class="col-name cell">
+									{{'Lot' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-name cell">
+									{{'LPN' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-name cell">
+									{{'From location' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+							
+								<div class="col-name cell">
+									{{'To location' | translate}}
+									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+										name="search" color="primary"></ion-icon> -->
+								</div>
+								<div class="col-qty cell" (click)="sortToggle('Quantity')">
+									{{'Quantity' | translate}}
+									<ion-icon class="min-btn" *ngIf="sortDetail.Quantity" [name]="sortDetail.Quantity == 'Quantity'?'arrow-down': 'arrow-up'"></ion-icon>
+								</div>
+								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllQty()">
+									<ion-icon *ngIf="item"[color]="item._IsPickedAll? 'danger': 'success'" [name]="item._IsPickedAll? 'remove-circle-outline': 'checkmark-done-circle-outline' "></ion-icon>
+								</div>
+								<div class="col-qty cell" (click)="sortToggle('Cube')">
+									{{'Picked quantity' | translate}}
+								</div>
+							
+								<div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
+									<ion-icon  *ngIf="checkedPickingOrderDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
+								</div>
+							</header>
+							<app-page-message [itemsLength]= "formGroup.get('PickingOrderDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+							<ng-container  *ngIf="!pageConfig.showSpinner">
+								<ng-container *ngFor="let c of formGroup.get('PickingOrderDetails')['controls'] ;let j = index">
+								<div class="row" [ngClass]="{odd: j % 2 != 0, bold:c.get('ShowDetail').value}" *ngIf="c.get('Showing').value" >
+										<div class="col-checkbox cell" style="text-align: center;">
+											<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
+										</div>
+										<div class="col-id cell">  
+											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
+											><span class="spacing" *ngIf="k>0"></span
+										  ></ng-container>
+											<ion-icon
+											(click)="toggleRow(c, $event);"
+											class="min-btn clickable"
+											[name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"
+										  ></ion-icon>
+											{{j+1}}</div>
+
+
+										<div class="col-name cell">
+											<div *ngIf="c.get('IDItem')?.value">
+												<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
+												<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
+
+											</div>
+										</div>
+										<div class="col-name cell">
+											{{c.get('UoMName')?.value}}
+										</div>
+										<div class="col-name cell">
+											{{c.get('LotName').value}}
+										</div>
+										<div class="col-name cell">
+											{{c.get('LPN').value}}
+										</div>
+										<div class="col-name cell">
+											{{c.get('FromLocationName').value}}
+										</div>
+									
+										<div class="col-name cell">
+											{{c.get('ToLocationName').value}}
+										</div>
+											
+										<div class="col-qty cell">
+											{{c.get('Quantity').value}}
+										</div>
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleQty(c)">
+											<ion-icon *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value"[color]="c.controls.QuantityPicked.value == c.controls.QuantityPicked.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityPicked.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+										</div>
+										<div class="col-qty cell">
+											<app-input-control *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value" [field]="{id:'QuantityPicked', type : 'number', form : c, }" (inputChange)="calcTotalPickedQuantity(c)"></app-input-control>
+											<div *ngIf="c.controls.HasChild.value">{{c.get('QuantityPicked').value}}</div><!-- {{c.get('PickedQuantity')?.value}} -->
+										</div>
+										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
+											<ion-icon color="danger" name="trash"></ion-icon>
+										</div> 
+									</div>
+								</ng-container>
+							</ng-container>
+							
+				</section>
+			</div>
+			<div *ngIf="segmentView == 's2'">
+				<ion-row class="hr-group" *ngIf="item.Id">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
+					</ion-col>
+				</ion-row>
+			</div>
+			<!-- Order information -->
+
+		</div>
+	</div>
+	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
+</ion-content>
