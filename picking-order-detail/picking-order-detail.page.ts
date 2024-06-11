@@ -136,29 +136,11 @@ export class PickingOrderDetailPage extends PageBase {
                         this.item.PickingOrderDetails = resp;
                         this.patchFieldsValue();
                     })
-                    // if(listDetail!= null && listDetail.data.length>0){
-                     
-                    // }
+             
                 });
             }
         });
-       // this.query.IDPicking = this.item.Id;
-        // this.query.Id = undefined;
-        // this.pickingOrderDetailService.read(this.query,false).then((listDetail:any) =>{
-          
-        //     if(listDetail!= null && listDetail.data.length>0){
-        //         const pickingOrdertDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
-        //         pickingOrdertDetailsArray.clear();
-        //         this.buildFlatTree (listDetail.data, this.item.PickingOrderDetails, false).then((resp: any) => {
-        //             this.item.PickingOrderDetails = resp;
-        //             this.patchFieldsValue();
-        //         })
-        //     }
-        // });
-        if(this.item.Status !="Allocated"){
-            this.pageConfig.canEdit = false;
-        }
-        // this.query.Id = this.item.Id;
+
         this.formGroup.get('Status').markAsDirty();
      
     }
@@ -262,7 +244,7 @@ export class PickingOrderDetailPage extends PageBase {
                 group.controls.QuantityPicked.markAsDirty();
             }
             else {
-                if(group.controls.FromLocationName.value){
+               if(group.controls.FromLocationName.value || group.controls.IDParent.value == null){
                     group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
 
                 }
@@ -283,7 +265,7 @@ export class PickingOrderDetailPage extends PageBase {
         if(parentFG){
             let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
             subOrders.forEach(sub=>{
-                totalPickedQty += sub.get('QuantityPicked').value;
+                totalPickedQty += parseFloat(sub.get('QuantityPicked').value|| 0);
             })
             parentFG.get('QuantityPicked').setValue(totalPickedQty)
             // parentFG.get('QuantityPicked').markAsDirty();
@@ -311,7 +293,7 @@ export class PickingOrderDetailPage extends PageBase {
             }
         
           });
-          this.updateQuantity(obj);
+          this.updateQuantity(obj.filter(o => o));
 
     }
 
@@ -483,6 +465,7 @@ export class PickingOrderDetailPage extends PageBase {
     
     hideSubRows(fg) {
         let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        fg.get('Showing').setValue(false);
         if( fg.get('HasChild').value){
             fg.get('ShowDetail').setValue(false);
             let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
@@ -492,9 +475,6 @@ export class PickingOrderDetailPage extends PageBase {
                 it.get('Showing').setValue(false);
             });
         }
-        else{
-            fg.get('Showing').setValue(false);
-        }
-       
+      
     }
 }

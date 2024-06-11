@@ -1,5 +1,10 @@
 <ion-header>
 	<app-detail-toolbar [page]="this">
+		<ion-buttons slot="end" *ngIf="item">
+			<ion-button title="{{'Allocate' | translate}}"(click)="allocatePicking()">
+			  <ion-icon slot="start" name="color-filter-outline"></ion-icon>
+			</ion-button>
+		  </ion-buttons>
 		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Open'  && item?.PickingOrderDetails?.length >0" >
 			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="changeStatus()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
@@ -56,13 +61,7 @@
 					</ion-segment-button>
 				
 				</ion-segment>
-				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
-					<ion-button (click)="allocatePicking()">
-					  <ion-icon slot="start" name="color-filter-outline"></ion-icon>
-					  {{'Allocate' | translate}}
-					</ion-button>
-				  </ion-buttons>
-				
+			
 			</ion-toolbar>
 		
 			<div class="table responsive" *ngIf="segmentView == 's1'">
@@ -128,9 +127,9 @@
 										</div>
 										<div class="col-id cell">  
 											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
-											><span class="spacing" *ngIf="k>0"></span
+											><span [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" class="spacing" *ngIf="k>0"></span
 										  ></ng-container>
-											<ion-icon
+											<ion-icon  
 											(click)="toggleRow(c, $event);"
 											class="min-btn clickable"
 											[name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"

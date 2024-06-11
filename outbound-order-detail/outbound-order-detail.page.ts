@@ -27,6 +27,7 @@ export class OutboundOrderDetailPage extends PageBase {
     countItem: number = 0;
     branchList;
     storerList;
+    packingTypeDatasource;
 
     isAllChecked = false; 
     checkedOutboundOrderDetails: any = new FormArray([]);
@@ -58,7 +59,7 @@ export class OutboundOrderDetailPage extends PageBase {
             IDStorer: [''],
             OutboundOrderDetails: this.formBuilder.array([]),
 
-            PackingTag: [''],
+            PackingTag: ['Customer'],
             OrderDate: ['', Validators.required],
             DeliveryDate: ['', Validators.required],
             ShippedDate: [''],
@@ -80,6 +81,11 @@ export class OutboundOrderDetailPage extends PageBase {
             { Name: 'Done', Code: 'Done' },
             { Name: 'Open', Code: 'Open' },
             { Name: 'Pending', Code: 'Pending' },
+        ];
+        this.packingTypeDatasource = [
+            { Name: 'Sale item', Code: 'Item' },
+            { Name: 'Sale order', Code: 'SaleOrder' },
+            { Name: 'Customer', Code: 'Customer' },
         ];
         this.branchProvider
         .read({
@@ -119,15 +125,16 @@ export class OutboundOrderDetailPage extends PageBase {
                 const outboundOrdertDetailsArray = this.formGroup.get('OutboundOrderDetails') as FormArray;
                 outboundOrdertDetailsArray.clear();
                 // this.item.OutboundOrderDetails = listDetail.data;
-                this.buildFlatTree (listDetail.data, this.item.OutboundOrderDetails, false).then((resp: any) => {
+                this.buildFlatTree (listDetail.data,null, false).then((resp: any) => {
                 this.item.OutboundOrderDetails = resp;
                 this.patchFieldsValue();
                 });
             }
         })
 
-        // this.query.Id = this.item.Id;
+        this.query.Id = this.item.Id;
         this.formGroup.get('Status').markAsDirty();
+        this.formGroup.get('PackingTag').markAsDirty();
         if(this.item.Status !="New"){
             this.pageConfig.canEdit = false;
         }
@@ -178,12 +185,11 @@ export class OutboundOrderDetailPage extends PageBase {
 
     changeStatus() {
         this.query.ToStatus = 'Open';
-        this.query.Id = this.formGroup.get('Id').value
         this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/ChangeStatus/', this.query).toPromise())
         .then((result: any) => {
             this.refresh();
         })
-        this.query.Id = undefined;
+     //   this.query.Id = undefined;
     }
 
     changeSelection(i, view, e = null) {
@@ -355,6 +361,7 @@ export class OutboundOrderDetailPage extends PageBase {
     
     hideSubRows(fg) {
         let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
+        fg.get('Showing').setValue(false);
         if( fg.get('HasChild').value){
             fg.get('ShowDetail').setValue(false);
             let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
@@ -363,9 +370,6 @@ export class OutboundOrderDetailPage extends PageBase {
                 this.hideSubRows(it);
                 it.get('Showing').setValue(false);
             });
-        }
-        else{
-            fg.get('Showing').setValue(false);
         }
        
     }

@@ -162,37 +162,23 @@ export class PackingOrderDetailPage extends PageBase {
         this.query.Id = undefined;
     }
 
-    // updateQuantity(fg){
-    //     let obj = {
-    //         Id : fg.get('Id').value,
-    //         QuantityPacked : fg.get('QuantityPacked').value
-
-    //     }
-    //     this.pageProvider.commonService.connect('PUT', 'WMS/Packing/UpdateQuantity/', obj).toPromise()
-    //     .then((result: any) => {
-    //         if(result){
-    //             this.env.showTranslateMessage('Saved', 'success');
-
-    //         }
-    //         else{
-    //             this.env.showTranslateMessage('Cannot save, please try again','danger');
-    //         }
-    //     })
-    //     // this.saveChange2(fg, null, this.PackingDetailservice)
-    // }
-
     updateQuantity(obj){
         this.pageProvider.commonService.connect('PUT', 'WMS/Packing/UpdateQuantity/', obj).toPromise()
         .then((result: any) => {
-            if(result){
+            if(result && result.length>0){
+                let groups = <FormArray>this.formGroup.controls.PackingDetails;
+                result.forEach(updatedPacking => {
+                    var packingDetail = groups.controls.find(d=> d.get('Id').value == updatedPacking.Id);
+                    if(packingDetail){
+                        packingDetail.get('QuantityPacked').setValue(updatedPacking.QuantityPacked);
+                    }
+                })
                 this.env.showTranslateMessage('Saved', 'success');
-
             }
             else{
                 this.env.showTranslateMessage('Cannot save, please try again','danger');
             }
         })
-        // this.saveChange2(fg, null, this.PackingDetailservice)
     }
     toggleQty(group) {
         if (group.controls.Quantity.value == group.controls.QuantityPacked.value) {
@@ -385,6 +371,7 @@ export class PackingOrderDetailPage extends PageBase {
     
     hideSubRows(fg) {
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
+        fg.get('Showing').setValue(false);
         if( fg.get('HasChild').value){
             fg.get('ShowDetail').setValue(false);
             let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
@@ -393,9 +380,6 @@ export class PackingOrderDetailPage extends PageBase {
                 this.hideSubRows(it);
                 it.get('Showing').setValue(false);
             });
-        }
-        else{
-            fg.get('Showing').setValue(false);
         }
        
     }

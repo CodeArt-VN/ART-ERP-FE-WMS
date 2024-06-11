@@ -64,9 +64,7 @@
 							</ng-select>
 						  </div>
 						<div class="c-control">
-							<label class="c-label" for="IDBranch">{{'Status' | translate}}
-								<span >: {{item?.Status}}</span>
-							</label>
+							<app-form-control [field]="{id:'PackingTag', label: 'Packing tag', type : 'ng-select', dataSource: packingTypeDatasource, bindValue:'Code', bindLabel:'Name', form : formGroup }" (change)="saveChange()"></app-form-control>
 							
 						</div>
 
@@ -161,7 +159,7 @@
 										</div>
 										<div class="col-id cell">  
 											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
-											><span class="spacing" *ngIf="k>0"></span
+											><span class="spacing" [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" *ngIf="k>0"></span
 										  ></ng-container>
 											<ion-icon
 											(click)="toggleRow(c, $event);"
