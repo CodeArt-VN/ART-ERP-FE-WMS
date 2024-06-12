@@ -13,8 +13,9 @@
         min-height: 31px;
     }
     .col-id {
-        max-width: 50px;
-        min-width: 50px;
+        justify-content: flex-start;
+        max-width: 65px;
+        min-width: 65px;
         font-weight: bold;
     }
     .col-name {

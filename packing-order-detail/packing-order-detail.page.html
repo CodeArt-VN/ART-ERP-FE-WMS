@@ -127,7 +127,7 @@
 										</div>
 										<div class="col-id cell">  
 											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
-											><span class="spacing" *ngIf="k>0"></span
+											><span class="spacing"  [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" *ngIf="k>0"></span
 										  ></ng-container>
 											<ion-icon
 											(click)="toggleRow(c, $event);"
