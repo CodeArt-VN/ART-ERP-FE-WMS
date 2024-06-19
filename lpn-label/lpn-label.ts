@@ -32,7 +32,6 @@ export class LPNLabelPage extends PageBase {
   fromIdLPN;
   toLPNSelected;
   toIdLPN;
-  IDASN;
   itemSelected;
   itemPalletsList = [];
   sheetList = [];
@@ -54,7 +53,6 @@ export class LPNLabelPage extends PageBase {
   ) {
     super();
     this.pageConfig.isShowFeature = true;
-    // this.pageConfig.isDetailPage = true;
     this.pageConfig.pageName = 'lpn-label';
     this.id = this.route.snapshot.paramMap.get('id');
   }
@@ -62,11 +60,7 @@ export class LPNLabelPage extends PageBase {
   isShowPackingUoM = true;
 
   preLoadData(event) {
-    // console.log('IDASN : '  + this.IDASN)
-    // this.IDASN = this.route.snapshot.paramMap.get('IDASN');
-    // if (this.route.snapshot.queryParams.IDASN) {
-    //   this.IDASN = parseInt(this.route.snapshot.queryParams.IDASN);
-    // }
+   
     if(this.id > 0){
       this.pageConfig.isDetailPage = true;
     }
