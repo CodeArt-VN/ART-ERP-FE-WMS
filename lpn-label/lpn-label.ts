@@ -32,7 +32,7 @@ export class LPNLabelPage extends PageBase {
   fromIdLPN;
   toLPNSelected;
   toIdLPN;
-
+  IDASN;
   itemSelected;
   itemPalletsList = [];
   sheetList = [];
@@ -62,6 +62,14 @@ export class LPNLabelPage extends PageBase {
   isShowPackingUoM = true;
 
   preLoadData(event) {
+    // console.log('IDASN : '  + this.IDASN)
+    // this.IDASN = this.route.snapshot.paramMap.get('IDASN');
+    // if (this.route.snapshot.queryParams.IDASN) {
+    //   this.IDASN = parseInt(this.route.snapshot.queryParams.IDASN);
+    // }
+    if(this.id > 0){
+      this.pageConfig.isDetailPage = true;
+    }
     Promise.all([this.env.getStatus('ReceiptStatus')]).then((values: any) => {
       this.statusList = values[0];
       this.asnSearch();
@@ -75,7 +83,7 @@ export class LPNLabelPage extends PageBase {
       this.isShowPackingUoM = false;
     }
 
-    if (this.item) {
+    if (this.id > 0 ){
       this.changedIDASN(this.item);
     }
   }
@@ -227,8 +235,8 @@ export class LPNLabelPage extends PageBase {
                       o.ItemCode = item.Code;
                       o.ItemQuantity = o.UoMQuantityExpected;
                       o.ItemUnit = item.UoMs.find((u) => u.Id == o.IDUoM).Name;
-                      o.PurchasingUoMName = item.UoMs.find((u) => u.Id == item.PurchasingUoM).Name;
-                      o.SalesUoMName = item.UoMs.find((u) => u.Id == item.SalesUoM).Name;
+                      o.PurchasingUoMName = item.UoMs.find((u) => u.Id == item.PurchasingUoM)?.Name;
+                      o.SalesUoMName = item.UoMs.find((u) => u.Id == item.SalesUoM)?.Name;
 
                       o.LocationID = o._Location.Id;
                       o.LocationName = o._Location.Name;

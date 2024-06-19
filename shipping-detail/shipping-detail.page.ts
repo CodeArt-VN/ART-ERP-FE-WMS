@@ -116,9 +116,9 @@ export class ShippingDetailPage extends PageBase {
                 this.patchFieldsValue();
             }
         })
-
-        // this.query.Id = this.item.Id;
-        this.formGroup.get('Status').markAsDirty();
+        if(this.item.Status == 'Closed'){
+            this.pageConfig.canEdit = false;
+        }
      
     }
     private patchFieldsValue() {
@@ -171,6 +171,7 @@ export class ShippingDetailPage extends PageBase {
     }
 
     updateQuantity(obj){
+        
         this.pageProvider.commonService.connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj).toPromise()
         .then((result: any) => {
             if(result){
@@ -186,11 +187,9 @@ export class ShippingDetailPage extends PageBase {
     toggleQty(group) {
         if (group.controls.Quantity.value == group.controls.QuantityShipped.value) {
             group.controls.QuantityShipped.setValue(0);
-            group.controls.QuantityShipped.markAsDirty();
         }
         else {
             group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
-            group.controls.QuantityShipped.markAsDirty();
         }
         let obj = [
             {Id:group.get('Id').value, QuantityShipped:group.get('QuantityShipped').value},
@@ -212,19 +211,16 @@ export class ShippingDetailPage extends PageBase {
 
         });
         this.item._IsShippedAll = !this.item._IsShippedAll;
-        this.calcAllTotalShippedQuantity();
-        
     }
-
-    calcAllTotalShippedQuantity(){
-        let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-        let obj = groups.controls.map((fg: FormGroup) => {
-            return {
-              Id: fg.get('Id').value,
-              QuantityShipped: fg.get('QuantityShipped').value
-            };
-          });
-          this.updateQuantity(obj);
+    
+    UpdateShippedQuantity(fg){
+        let obj = [
+            {
+                Id: fg.get('Id').value,
+                QuantityShipped: fg.get('QuantityShipped').value
+            }
+        ]
+        this.updateQuantity(obj);
 
     }
 

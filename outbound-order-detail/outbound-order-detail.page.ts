@@ -59,11 +59,11 @@ export class OutboundOrderDetailPage extends PageBase {
             IDStorer: [''],
             OutboundOrderDetails: this.formBuilder.array([]),
 
-            PackingTag: ['Customer'],
+            PackingTag: ['',Validators.required],
             OrderDate: ['', Validators.required],
             DeliveryDate: ['', Validators.required],
             ShippedDate: [''],
-            Status: ['Open', Validators.required],
+            Status: ['',Validators.required],
 
             Remark: [''],
             Sort: [''],
@@ -131,10 +131,8 @@ export class OutboundOrderDetailPage extends PageBase {
                 });
             }
         })
-
+        
         this.query.Id = this.item.Id;
-        this.formGroup.get('Status').markAsDirty();
-        this.formGroup.get('PackingTag').markAsDirty();
         if(this.item.Status !="New"){
             this.pageConfig.canEdit = false;
         }

@@ -1,11 +1,11 @@
 <ion-header>
 	<app-detail-toolbar [page]="this">
-		<ion-buttons slot="end" *ngIf="item">
+		<ion-buttons slot="end" *ngIf="item && formGroup.get('Status').value != 'Close'">
 			<ion-button title="{{'Allocate' | translate}}"(click)="allocatePicking()">
 			  <ion-icon slot="start" name="color-filter-outline"></ion-icon>
 			</ion-button>
 		  </ion-buttons>
-		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Open'  && item?.PickingOrderDetails?.length >0" >
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Close'  && item?.PickingOrderDetails?.length >0" >
 			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="changeStatus()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
 			</ion-button>
@@ -126,26 +126,26 @@
 											<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
 										</div>
 										<div class="col-id cell">  
-											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
-											><span [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" class="spacing" *ngIf="k>0"></span
-										  ></ng-container>
+											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;" >
+												<span  class="spacing" *ngIf="k>0"></span >
+											</ng-container>
 											<ion-icon  
 											(click)="toggleRow(c, $event);"
 											class="min-btn clickable"
 											[name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"
 										  ></ion-icon>
-											{{j+1}}</div>
-
-
-										<div class="col-name cell">
-											<div *ngIf="c.get('IDItem')?.value">
+											{{j+1}}
+										</div>
+	
+										<div class="col-name cell" >
+											<div *ngIf="c.get('IDItem')?.value && (c.get('HasChild').value ||!c.get('IDParent').value)">
 												<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
 												<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
 
 											</div>
 										</div>
-										<div class="col-name cell">
-											{{c.get('UoMName')?.value}}
+										<div class="col-name cell" >
+											<ng-container *ngIf="c.get('HasChild').value || !c.get('IDParent').value">{{c.get('UoMName')?.value}}</ng-container>
 										</div>
 										<div class="col-name cell">
 											{{c.get('LotName').value}}

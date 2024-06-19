@@ -32,9 +32,18 @@
 							<label class="c-label" for="IDBranch">{{'Status' | translate}}
 								<span >: {{item?.Status}}</span>
 							</label>
+						</div>
+						<div class="c-control">
+							<label class="c-label" for="IDBranch">{{'Vehicle' | translate}}
+								<span >: {{item?.Vehicle}}</span>
+							</label>
+						</div>
+						<div class="c-control">
+							<label class="c-label" for="IDBranch">{{'Shipper' | translate}}
+								<span >: {{item?.Shipper}}</span>
+							</label>
 							
 						</div>
-
 					</ion-col>
 					
 					<ion-col size="12" size-sm size-xl="4">
@@ -154,12 +163,11 @@
 											<ion-icon [color]="c.controls.QuantityShipped.value == c.controls.QuantityShipped.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityShipped.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
 										</div>
 										<div class="col-qty cell">
-											<app-input-control  [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="calcTotalPackedQuantity(c)"></app-input-control>
+											<app-input-control  [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="UpdateShippedQuantity(c)"></app-input-control>
 										</div>
 										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 											<ion-icon color="danger" name="trash"></ion-icon>
 										</div> 
-										
 									</div>
 							</ng-container>
 							

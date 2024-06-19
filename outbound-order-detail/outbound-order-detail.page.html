@@ -1,6 +1,6 @@
 <ion-header>
 	<app-detail-toolbar [page]="this">
-		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'New'  && item?.OutboundOrderDetails?.length >0" >
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'New'  && item?.OutboundOrderDetails?.length >0 && formGroup.get('PackingTag').value" >
 			<ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
 				<ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
 			</ion-button>
