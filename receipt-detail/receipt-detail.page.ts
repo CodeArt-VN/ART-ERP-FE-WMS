@@ -485,9 +485,6 @@ export class ReceiptDetailPage extends PageBase {
   }
 
   createLabel(){
-    // this.router.navigate(['/lpn-label'], {
-      //   queryParams: { IDASN: this.formGroup.get('Id').value },
-      // });
       this.nav('/lpn-label/'+this.formGroup.get('Id').value, "forward")
   }
 
