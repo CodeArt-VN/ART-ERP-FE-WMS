@@ -1,5 +1,9 @@
 <ion-header>
   <app-detail-toolbar [page]="this">
+    <ion-button title="In nhãn" (click)="createLabel()">
+      <ion-icon slot="icon-only" name="print"></ion-icon>
+    </ion-button>
+
     <ion-button title="Tạo hóa đơn" *ngIf="pageConfig.canCreateInvoice" (click)="createInvoice()">
       <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
     </ion-button>

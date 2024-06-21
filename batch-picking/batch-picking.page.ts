@@ -6,6 +6,7 @@ import {
   BRA_BranchProvider,
   SALE_OrderProvider,
   SHIP_ShipmentProvider,
+  WMS_OutboundOrderProvider,
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { ApiSetting } from 'src/app/services/static/api-setting';
@@ -23,6 +24,7 @@ export class BatchPickingPage extends PageBase {
 
   constructor(
     public pageProvider: SHIP_ShipmentProvider,
+    public outboundProvider: WMS_OutboundOrderProvider,
     public branchProvider: BRA_BranchProvider,
     public modalController: ModalController,
     public alertCtrl: AlertController,
@@ -49,7 +51,6 @@ export class BatchPickingPage extends PageBase {
 
   loadedData(event) {
     this.items.forEach((i) => {
-      i.isChecked = false;
       i.DeliveryDateText = lib.dateFormat(i.DeliveryDate, 'dd/mm/yy hh:MM');
       i.DeliveryTimeText = lib.dateFormat(i.DeliveryDate, 'hh:MM');
     });
@@ -63,7 +64,7 @@ export class BatchPickingPage extends PageBase {
       return;
     }
 
-    let selected = this.items.filter((d) => d.isChecked).map((m) => m.Id);
+    let selected = this.selectedItems.map((m) => m.Id);
     if (!selected.length) {
       this.env.showTranslateMessage('Please wait for creating lists', 'warning');
       return;
@@ -416,14 +417,29 @@ export class BatchPickingPage extends PageBase {
           });
       });
   }
+  createOutbound(){
+  
+    let ids = this.selectedItems.map((m) => m.Id);
 
+    if(!(ids.length >0)){
+      return;
+    }
+    let obj = {
+      IDs : ids 
+    }
+
+    this.env.showLoading('Vui lòng chờ load dữ liệu...', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
+    .then((result: any) => {
+        this.refresh();
+    })
+  }
   exportPicking() {
     if (this.submitAttempt) {
       this.env.showTranslateMessage('Please wait for creating lists');
       return;
     }
 
-    let selected = this.items.filter((d) => d.isChecked).map((m) => m.Id);
+    let selected =this.selectedItems.map((m) => m.Id);
     if (!selected.length) {
       this.env.showTranslateMessage('Please wait for creating lists', 'warning');
       return;

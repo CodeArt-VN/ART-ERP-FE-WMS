@@ -5,6 +5,8 @@ import { PageBase } from 'src/app/page-base';
 import {
   BRA_BranchProvider,
   CRM_ContactProvider,
+  WMS_ItemProvider,
+  WMS_LicencePlateNumberProvider,
   WMS_LocationProvider,
   WMS_ReceiptDetailProvider,
   WMS_ReceiptProvider,
@@ -23,23 +25,19 @@ import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators
 })
 export class LPNLabelPage extends PageBase {
   statusList = [];
-  branch;
-  storer;
-  vendor;
-  customer;
-
-  fromLPNSelected;
-  fromIdLPN;
-  toLPNSelected;
-  toIdLPN;
-
-  itemSelected;
+  forceCreate = false;
+  fromLPN;
+  toLPN;
   itemPalletsList = [];
   sheetList = [];
-  receiptLines = [];
-
+  fromLPNList = [];
+  toLPNList = [];
+  IDReceipt: number;
+  IDItem;
   constructor(
-    public pageProvider: WMS_ReceiptProvider,
+    public pageProvider: WMS_LicencePlateNumberProvider,
+    public receiptProvider: WMS_ReceiptProvider,
+    public itemProvider: WMS_ItemProvider,
     public receiptDetailProvider: WMS_ReceiptDetailProvider,
     public locationProvider: WMS_LocationProvider,
     public contactProvider: CRM_ContactProvider,
@@ -54,242 +52,305 @@ export class LPNLabelPage extends PageBase {
   ) {
     super();
     this.pageConfig.isShowFeature = true;
-    // this.pageConfig.isDetailPage = true;
     this.pageConfig.pageName = 'lpn-label';
+
     this.id = this.route.snapshot.paramMap.get('id');
   }
 
   isShowPackingUoM = true;
 
   preLoadData(event) {
-    Promise.all([this.env.getStatus('ReceiptStatus')]).then((values: any) => {
-      this.statusList = values[0];
-      this.asnSearch();
-      super.preLoadData(event);
-    });
+    this.query.Id = undefined;
+    // Promise.all([this.env.getStatus('ReceiptStatus')]).then((values: any) => {
+    //   this.statusList = values[0];
+       super.preLoadData(event);
+    // });
   }
 
+  loadData(event?: any): void {
+    this.loadedData(event);
+  }
   loadedData(event) {
     super.loadedData(event);
-    if (window.location.host.indexOf('artlogistics') > -1) {
-      this.isShowPackingUoM = false;
+    if (this.id > 0) {
+      this.forceCreate = true;
+      this.receiptProvider.getAnItem(this.id).then((data: any) => {
+        this.IDReceipt = this.id;
+        this.changedIDReceipt();
+        this.receiptSearch();
+      });
+    } else {
+      this.receiptSearch();
     }
-
-    if (this.item) {
-      this.changedIDASN(this.item);
-    }
+    this.itemSearch();
+    this.lpnFromSearch();
+    this.lpnToSearch();
   }
 
-  asnList$;
-  asnListLoading = false;
-  asnListInput$ = new Subject<string>();
-  asnListSelected = [];
-  asnSelected = null;
-  asnSearch() {
-    this.asnListLoading = false;
-    this.asnList$ = concat(
-      of(this.asnListSelected),
-      this.asnListInput$.pipe(
+  itemListLoading = false;
+  itemList$;
+  itemListInput$ = new Subject<string>();
+  itemListSelected = [];
+  itemSelected = null;
+  itemSearch() {
+    this.itemListLoading = false;
+    this.itemList$ = concat(
+      of(this.itemListSelected),
+      this.itemListInput$.pipe(
         distinctUntilChanged(),
-        tap(() => (this.asnListLoading = true)),
+        tap(() => (this.itemListLoading = true)),
         switchMap((term) =>
-          this.pageProvider.search({ Take: 20, Skip: 0, Id: term ? term : '' }).pipe(
+          this.itemProvider.search({ Take: 20, Skip: 0, Id: term ? term : '' }).pipe(
             catchError(() => of([])), // empty list on error
-            tap(() => (this.asnListLoading = false)),
+            tap(() => (this.itemListLoading = false)),
           ),
         ),
       ),
     );
   }
 
-  changedIDASN(i) {
-    if (i) {
-      this.pageProvider.getAnItem(i.Id).then((data: any) => {
-        this.item = data;
-        this.asnSelected = data.Id;
-        this.receiptLines = data.Lines;
-
-        if (data && this.asnListSelected.findIndex((d) => d.Id == data.Id) == -1) {
-          this.asnListSelected.push(this.item);
-          this.asnListSelected = [...this.asnListSelected];
-          this.asnSearch();
-        }
-
-        this.itemSelected = null;
-        this.itemPalletsList = [];
-        this.fromIdLPN = null;
-        this.toIdLPN = null;
-        this.fromLPNSelected = null;
-        this.toLPNSelected = null;
-        this.sheets = [];
-
-        if (this.receiptLines.length != 0) {
-          this.asnSelected = data.Id;
-          this.id = this.asnSelected;
-
-          let newURL = `#/${this.pageConfig.pageName}/${this.id}`; // '#'+this.pageConfig.pageName + '/' + this.id;
-          history.pushState({}, null, newURL);
-        }
-      });
-    } else {
-      this.id = null;
-      let newURL = `#/${this.pageConfig.pageName}`; // '#'+this.pageConfig.pageName + '/' + this.id;
-      history.pushState({}, null, newURL);
-    }
+  receiptList$;
+  receiptListLoading = false;
+  receiptListInput$ = new Subject<string>();
+  receiptListSelected = [];
+  receiptSearch() {
+    this.receiptListLoading = false;
+    this.receiptList$ = concat(
+      of(this.receiptListSelected),
+      this.receiptListInput$.pipe(
+        distinctUntilChanged(),
+        tap(() => (this.receiptListLoading = true)),
+        switchMap((term) =>
+          this.receiptProvider
+            .search({ IDBranch: this.env.selectedBranch, Take: 20, Skip: 0, Id: term ? term : '' })
+            .pipe(
+              catchError(() => of([])), // empty list on error
+              tap(() => (this.receiptListLoading = false)),
+            ),
+        ),
+      ),
+    );
   }
 
-  changedIDItem(i) {
-    if (i?.Pallets.length != 0) {
-      this.itemPalletsList = i.Pallets;
-    } else {
-      this.itemPalletsList = [];
-      this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+  lpnFromListLoading = false;
+  lpnFromList$;
+  lpnFromListInput$ = new Subject<string>();
+  lpnFromListSelected = [];
+  lpnFromSelected = null;
+  lpnFromSearch() {
+    this.lpnFromListLoading = false;
+    this.lpnFromList$ = concat(
+      of(this.lpnFromListSelected),
+      this.lpnFromListInput$.pipe(
+        distinctUntilChanged(),
+        tap(() => (this.lpnFromListLoading = true)),
+        switchMap((term) =>
+          this.pageProvider.search({ Take: 20, Skip: 0, Id: term ? term : '' }).pipe(
+            catchError(() => of([])), // empty list on error
+            tap(() => (this.lpnFromListLoading = false)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  lpnToListLoading = false;
+  lpnToList$;
+  lpnToListInput$ = new Subject<string>();
+  lpnToListSelected = [];
+  lpnToSelected = null;
+  lpnToSearch() {
+    this.lpnToListLoading = false;
+    this.lpnToList$ = concat(
+      of(this.lpnToListSelected),
+      this.lpnToListInput$.pipe(
+        distinctUntilChanged(),
+        tap(() => (this.lpnToListLoading = true)),
+        switchMap((term) =>
+          this.pageProvider.search({ Take: 20, Skip: 0, Id: term ? term : '' }).pipe(
+            catchError(() => of([])), // empty list on error
+            tap(() => (this.lpnToListLoading = false)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  changedIDReceipt() {
+    this.query.IDReceipt = this.IDReceipt;
+    this.query.FromLPN = undefined;
+    this.query.ToLPN = undefined;
+    this.query.IDItem = undefined;
+    this.fromLPN = null;
+    this.toLPN = null;
+    this.IDItem = null;
+    if (this.IDReceipt > 0) {
+      this.receiptProvider.getAnItem(this.IDReceipt).then((data: any) => {
+        this.itemListSelected = data.Lines.map((m) => m._Item);
+        this.itemSearch();
+      });
     }
+    this.GetLabel();
+  }
+
+  /* 
+    * Change ASN 
+    => load Item trong ASN bỏ vô Item List
+    =>Load LPN trong ASN bỏ vô LPN List
+    Reset Item, LPN
+
+ *   Change Item 
+    Load độc lập (KO có ID ASN): Gọi API GetLabel truyền IDItem => Load tất cả LPN của Item
+    Load theo ASN : Gọi API GetLabel truyền IDItem , IDASN=> Load tất cả LPN của Item trong ASN đó
+    Reset LPN
+     => Load tất cả LPN của Item
+
+  *  Change LPN 
+    Load độc lập (KO có ID ASN, IDItem): Gọi API GetLabel truyền From LPN , ToLPN => Load tất cả LPN của Item
+    Load theo ASN || ASN+Item : Gọi API GetLabel truyền IDItem , IDASN=> Load tất cả LPN của Item trong ASN đó
+
+ */
+
+  changedIDItem(i) {
+    this.query.IDItem = this.IDItem;
+    this.query.FromLPN = undefined;
+    this.query.ToLPN = undefined;
+    this.fromLPN = null;
+    this.toLPN = null;
+    this.GetLabel();
   }
 
   changedFromLPN(i) {
-    this.fromIdLPN;
-    this.fromLPNSelected = i;
+    this.query.FromLPN = this.fromLPN;
+    if (this.toLPN > 0) {
+      if (this.toLPN < this.fromLPN) {
+        this.env.showTranslateMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
+      } else {
+        this.GetLabel();
+      }
+    }
   }
 
   changedToLPN(i) {
-    this.toIdLPN;
-    this.toLPNSelected = i;
+    this.query.ToLPN = this.toLPN;
+    if (this.fromLPN > 0 && this.fromLPN <  this.toLPN) {
+      this.GetLabel();
+    }
+    else if(this.fromLPN > this.toLPN){
+      this.env.showTranslateMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
+    }
+  }
+
+  GetLabel() {
+    this.env
+      .showLoading(
+        'Vui lòng chờ load dữ liệu...',
+        this.pageProvider.commonService.connect('GET', 'WMS/LicencePlateNumber/GetLabel', this.query).toPromise(),
+      )
+      .then((data: any) => {
+        if (data) {
+          this.itemPalletsList = data;
+          if (this.itemPalletsList.length == 0) {
+            this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+          } else {
+            this.lpnFromListSelected = this.lpnToListSelected = this.itemPalletsList.map((s) => {
+              return {
+                Id: s.Id,
+                LocationName: s._Location.Name,
+              };
+            });
+            this.lpnFromSearch();
+            this.lpnToSearch();
+            if (this.forceCreate) {
+              this.createLPN();
+              this.forceCreate = false;
+            }
+          }
+        } else {
+          this.itemPalletsList = [];
+          this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+        }
+      })
+      .catch((err) => {
+        this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+      });
   }
 
   createLPN() {
     this.sheets = [];
-
-    if (this.fromLPNSelected && this.toLPNSelected) {
-      let indexFrom = this.itemPalletsList.indexOf(this.fromLPNSelected);
-      let indexTo = this.itemPalletsList.indexOf(this.toLPNSelected);
-
-      this.sheetList = this.itemPalletsList.slice(indexFrom, indexTo + 1);
-      console.log(this.sheetList);
-      this.sheetList.forEach((i) => {
-        this.loadASNLabel(this.item, i, this.itemSelected);
-      });
-    } else {
-      this.env.showTranslateMessage('Vui lòng chọn số LPN', 'warning');
-      return;
-    }
+    this.loadASNLabel();
   }
-
-  selectedASNID = 0;
   sheets: any[] = [];
-  loadASNLabel(asn, i, item) {
-    this.submitAttempt = true;
+  loadASNLabel() {
+    for (let si = 0; si < this.itemPalletsList.length; si++) {
+      const o = (this.sheets[si] = this.itemPalletsList[si]);
+      // CTy gửi
+      o.VendorName = o._Vendor?.Name;
+      o.VendorLogoURL = o._Vendor?.LogoURL;
+      o.VendorAddress = o._Vendor?.BillingAddress;
+      o.VendorWorkPhone = o._Vendor?.WorkPhone;
 
-    this.loadingController
-      .create({
-        cssClass: 'my-custom-class',
-        message: 'Đang tạo nhãn LPN...',
-      })
-      .then((loading) => {
-        loading.present();
+      // Chủ hàng
+      o.StorerName = o._Storer?.Name;
+      o.StorerLogoURL = o._Storer?.LogoURL;
+      o.StorerAddress = o._Storer?.BillingAddress;
+      o.StorerWorkPhone = o._Storer?.WorkPhone;
 
-        Promise.all([i])
-          .then((resp) => {
-            this.sheets.push(resp[0]);
-            if (this.sheets.length == this.sheetList.length) {
-              this.branchProvider.getAnItem(asn.IDBranch).then((branch: any) => {
-                this.branch = branch; // Thông tin nhận
+      // Cty nhận
+      o.BranchName = o._Branch?.Name;
+      o.BranchLogoURL = o._Branch?.LogoURL;
+      o.BranchAddress = o._Branch?.Address;
+      o.BranchWorkPhone = o._Branch?.Phone;
 
-                this.contactProvider.getAnItem(asn.IDStorer).then((storer: any) => {
-                  this.storer = storer; // Chủ hàng
+      //Item Detail
+      o.ItemName = o._Item.Name;
+      o.ItemCode = o._Item.Code;
+      o.ItemQuantity = o.UoMQuantityExpected;
+      o.ItemUnit = o._Item.UoMs.find((u) => u.Id == o.IDUoM)?.Name;
+      o.PurchasingUoMName = //item.UoMs.find((u) => u.Id == item.PurchasingUoM)?.Name;
+        o.SalesUoMName = //item.UoMs.find((u) => u.Id == item.SalesUoM)?.Name;
+        o.LocationID =
+          o._Location.Id;
+      o.LocationName = o._Location.Name;
 
-                  this.contactProvider.getAnItem(asn.IDVendor).then((vendor: any) => {
-                    this.vendor = vendor; // Thông tin gửi
+      o.LPNID = o.Id;
+      o.LPNCode = o.Code;
 
-                    for (let si = 0; si < this.sheets.length; si++) {
-                      const o = this.sheets[si];
+      o.Lot = o.Lot; //o.ToLot;
 
-                      // CTy gửi
-                      o.VendorName = this.vendor?.Name;
-                      o.VendorLogoURL = this.vendor?.LogoURL;
-                      o.VendorAddress = this.vendor?.BillingAddress;
-                      o.VendorWorkPhone = this.vendor?.WorkPhone;
+      o.IDPurchaseOrder = o.IDPurchaseOrder;
+      o.IDReceipt = o.IDReceipt;
 
-                      // Chủ hàng
-                      o.StorerName = this.storer?.Name;
-                      o.StorerLogoURL = this.storer?.LogoURL;
-                      o.StorerAddress = this.storer?.BillingAddress;
-                      o.StorerWorkPhone = this.storer?.WorkPhone;
+      // let itemLineInfo = receipt.Lines.find((l) => l.Id == i.ReceiptLine);
+      let UoM = o._Item.UoMs.find((u) => u.Id == o.IDUoM);
 
-                      // Cty nhận
-                      o.BranchName = this.branch?.Name;
-                      o.BranchLogoURL = this.branch?.LogoURL;
-                      o.BranchAddress = this.branch?.Address;
-                      o.BranchWorkPhone = this.branch?.Phone;
+      o.Cube = ((UoM.Cube * o.UoMQuantityExpected) / 10.0 ** 6).toFixed(3);
+      o.GrossWeight = ((UoM.Weight * o.UoMQuantityExpected) / 1000).toFixed(3);
+      o.NetWeight = ((UoM.Weight * o.UoMQuantityExpected) / 1000).toFixed(3);
 
-                      //Item Detail
-                      o.ItemName = item.Name;
-                      o.ItemCode = item.Code;
-                      o.ItemQuantity = o.UoMQuantityExpected;
-                      o.ItemUnit = item.UoMs.find((u) => u.Id == o.IDUoM).Name;
-                      o.PurchasingUoMName = item.UoMs.find((u) => u.Id == item.PurchasingUoM).Name;
-                      o.SalesUoMName = item.UoMs.find((u) => u.Id == item.SalesUoM).Name;
+      o.MalnufactureDate = lib.dateFormat(o.MalnufactureDate, 'dd/mm/yyyy');
+      o.ExpiredDate = lib.dateFormat(o.ExpiredDate, 'dd/mm/yyyy');
 
-                      o.LocationID = o._Location.Id;
-                      o.LocationName = o._Location.Name;
-
-                      o.LPNID = o._LPN.Id;
-                      o.LPNCode = o._LPN.Code;
-
-                      o.LOT = o.ToLot;
-
-                      o.IDPurchaseOrder = this.item.IDPurchaseOrder;
-                      o.ASNId = this.item.Id;
-
-                      let itemLineInfo = asn.Lines.find((l) => l.Id == i.ReceiptLine);
-                      let UoM = item.UoMs.find((u) => u.Id == o.IDUoM);
-
-                      o.Cube = ((UoM.Cube * o.UoMQuantityExpected) / 10.0 ** 6).toFixed(3);
-                      o.GrossWeight = ((UoM.Weight * o.UoMQuantityExpected) / 1000).toFixed(3);
-                      o.NetWeight = ((UoM.Weight * o.UoMQuantityExpected) / 1000).toFixed(3);
-
-                      o.MalnufactureDate = lib.dateFormat(itemLineInfo.Lottable5, 'dd/mm/yyyy');
-                      o.ExpiredDate = lib.dateFormat(itemLineInfo.Lottable6, 'dd/mm/yyyy');
-
-                      o.ArrivalDateText = lib.dateFormat(this.item.ArrivalDate, 'dd/mm/yy hh:MM');
-                      o.StatusText = o.Status;
-                      QRCode.toDataURL(
-                        'PO:' + o.IDPurchaseOrder,
-                        {
-                          errorCorrectionLevel: 'H',
-                          version: 2,
-                          width: 500,
-                          scale: 20,
-                          type: 'image/webp',
-                        },
-                        function (err, url) {
-                          o.QRC = url;
-                        },
-                      );
-                    }
-                  });
-                });
-              });
-            }
-            this.submitAttempt = false;
-            if (loading) loading.dismiss();
-            setTimeout(() => {
-              this.calcPageBreak();
-            }, 100);
-          })
-          .catch((err) => {
-            console.log(err);
-            if (err.message != null) {
-              this.env.showMessage(err.message, 'danger');
-            } else {
-              this.env.showTranslateMessage('Cannot create sale order. Please try again.', 'danger');
-            }
-            this.submitAttempt = false;
-            if (loading) loading.dismiss();
-          });
-      });
+      o.ArrivalDateText = lib.dateFormat(o.ArrivalDate, 'dd/mm/yy hh:MM');
+      o.StatusText = o.Status;
+      QRCode.toDataURL(
+        'PO:' + o.IDPurchaseOrder,
+        {
+          errorCorrectionLevel: 'H',
+          version: 2,
+          width: 500,
+          scale: 20,
+          type: 'image/webp',
+        },
+        function (err, url) {
+          o.QRC = url;
+        },
+      );
+    }
+    setTimeout(() => {
+      this.calcPageBreak();
+    }, 100);
   }
-
   printMode = 'A5';
   changePrintMode() {
     this.printMode = this.printMode == 'A4' ? 'A5' : 'A4';
@@ -470,11 +531,11 @@ export class LPNLabelPage extends PageBase {
   }
 
   refresh(event?) {
-    this.sheets = [];
-    this.fromIdLPN = null;
-    this.toIdLPN = null;
-    this.fromLPNSelected = null;
-    this.toLPNSelected = null;
-    super.refresh(event);
+     this.sheets = [];
+     this.fromLPN = null;
+     this.toLPN = null;
+     this.IDReceipt = null;
+     this.IDItem = null;
+     super.refresh(event);
   }
 }

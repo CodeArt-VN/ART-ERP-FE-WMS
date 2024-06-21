@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { NavController, LoadingController, AlertController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 import {
   BRA_BranchProvider,
@@ -43,6 +43,7 @@ export class ReceiptDetailPage extends PageBase {
     public env: EnvService,
     public navCtrl: NavController,
     public route: ActivatedRoute,
+    public router: Router,
     public alertCtrl: AlertController,
     public formBuilder: FormBuilder,
     public cdr: ChangeDetectorRef,
@@ -481,6 +482,10 @@ export class ReceiptDetailPage extends PageBase {
           group.markAsPristine();
         });
     }
+  }
+
+  createLabel(){
+      this.nav('/lpn-label/'+this.formGroup.get('Id').value, "forward")
   }
 
   importClick() {

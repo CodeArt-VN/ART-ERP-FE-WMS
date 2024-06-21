@@ -140,8 +140,9 @@ export class PickingOrderDetailPage extends PageBase {
                 });
             }
         });
-
-        this.formGroup.get('Status').markAsDirty();
+        if(this.item.Status == 'Closed'){
+            this.pageConfig.canEdit = false;
+        }
      
     }
     private patchFieldsValue() {

@@ -39,7 +39,7 @@
     horizontal="start"
     slot="fixed"
   >
-    <div id="asn-label-page" style="position: absolute"></div>
+    <div id="receipt-label-page" style="position: absolute"></div>
     <ion-list>
       <ion-list-header lines="full">
         <ion-label color="dark"> {{'LPN Label' | translate}} </ion-label>
@@ -54,20 +54,20 @@
       <div class="ion-padding" style="padding-bottom: 0">
         <div class="c-control">
           <label class="c-label" for="OrderDate">
-            <ion-text color="primary"> {{'ASN' | translate}} </ion-text>
+            <ion-text color="primary"> {{'Good receipt' | translate}} </ion-text>
           </label>
           <ng-select
-            appendTo="#asn-label-page"
+            appendTo="#receipt-label-page"
             style="text-align: left"
             class="c-input no-check-dirty"
-            (change)="changedIDASN($event)"
+            (change)="changedIDReceipt($event)"
             #IdASN
             labelForId="Id"
-            [(ngModel)]="asnSelected"
-            [items]="asnList$ | async"
+            [(ngModel)]="IDReceipt"
+            [items]="receiptList$ | async"
             [clearable]="true"
-            [typeahead]="asnListInput$"
-            [loading]="asnListLoading"
+            [typeahead]="receiptListInput$"
+            [loading]="receiptListLoading"
             [virtualScroll]="true"
             bindLabel="Id"
             bindValue="Id"
@@ -88,27 +88,51 @@
             <ion-text color="primary"> {{'Item' | translate}} </ion-text>
           </label>
           <ng-select
-            appendTo="#asn-label-page"
+            appendTo="#receipt-label-page"
             style="text-align: left"
             class="c-input no-check-dirty"
             (change)="changedIDItem($event)"
             #IdItem
             labelForId="Id"
-            [(ngModel)]="itemSelected"
-            [items]="receiptLines"
+            [(ngModel)]="IDItem"
+            [items]="itemList$ | async"
             [clearable]="true"
             [virtualScroll]="true"
-            bindLabel="_Item.Name"
-            bindValue="_Item"
+            [typeahead]="itemListInput$"
+            bindLabel="Name"
+            bindValue="Id"
             placeholder="{{'Find Item' | translate}}"
           >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div title="{{i._Item.Name}}">
-                  <span [ngOptionHighlight]="search">{{i._Item.Name}}</span>
-                </div>
+          <ng-template ng-label-tmp let-i="item">
+            <div *ngIf="i.Id">
+              <a
+                [ngClass]="{ 'no-check-dirty': noCheckDirty }"
+                class="clickable"
+                (click)="nav('/item/' + i.Id)"
+                (mousedown)="$event.stopPropagation()"
+                >#{{ i.Id }} <ion-icon name="open-outline"></ion-icon
+              ></a>
+              &nbsp;
+              <span [title]="i.Name">
+                <b *ngIf="i.Code" (mousedown)="$event.stopPropagation()">{{ i.Code }}</b>
+                {{ i.Name }}
+              </span>
+            </div>
+          </ng-template>
+          <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+            <div *ngIf="i">
+              <div>
+                <span [ngOptionHighlight]="search">{{ i.Name }}</span>
               </div>
-            </ng-template>
+              <small
+                >#<b
+                  ><span [ngClass]="{ 'no-check-dirty': noCheckDirty }" class="important" [ngOptionHighlight]="search"
+                    >{{ i.Id }} - {{ i.Code }}</span
+                  ></b
+                ></small
+              >
+            </div>
+          </ng-template>
           </ng-select>
         </div>
 
@@ -117,23 +141,31 @@
             <ion-text color="primary"> {{'From LPN' | translate}} </ion-text>
           </label>
           <ng-select
-            appendTo="#asn-label-page"
+            appendTo="#receipt-label-page"
             style="text-align: left"
             class="c-input no-check-dirty"
             (change)="changedFromLPN($event)"
             labelForId="Id"
-            [(ngModel)]="fromIdLPN"
-            [items]="itemPalletsList"
+            [(ngModel)]="fromLPN"
+            [items]="lpnFromList$ | async"
+            [typeahead]="lpnFromListInput$"
             [clearable]="true"
             [virtualScroll]="true"
-            bindLabel="_LPN.Id"
-            bindValue="_LPN.Id"
+            bindLabel="Id"
+            bindValue="Id"
             placeholder="{{'Find LPN' | translate}}"
           >
+          <ng-template ng-label-tmp let-i="item">
+            <div *ngIf="i.Id">
+              <span [title]="i.Id">
+                LPN: {{ i.Id }}
+              </span>
+            </div>
+          </ng-template>
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
-                <div title="{{i._LPN.Id}} - {{i._Location.Name}}">
-                  <span [ngOptionHighlight]="search">{{i._LPN.Id}} - {{i._Location.Name}}</span>
+                <div title="{{i.Id}} - {{i.LocationName}}">
+                  <span [ngOptionHighlight]="search">LPN: {{i.Id}}</span><span *ngIf="i.LocationName"> - {{i.LocationName}}</span>
                 </div>
               </div>
             </ng-template>
@@ -145,42 +177,37 @@
             <ion-text color="primary"> {{'To LPN' | translate}} </ion-text>
           </label>
           <ng-select
-            appendTo="#asn-label-page"
+            appendTo="#receipt-label-page"
             style="text-align: left"
             class="c-input no-check-dirty"
             (change)="changedToLPN($event)"
             labelForId="Id"
-            [(ngModel)]="toIdLPN"
-            [items]="itemPalletsList"
+            [(ngModel)]="toLPN"
+            [items]="lpnToList$ | async"
+            [typeahead]="lpnToListInput$"
             [clearable]="true"
             [virtualScroll]="true"
-            bindLabel="_LPN.Id"
-            bindValue="_LPN.Id"
+            bindLabel="Id"
+            bindValue="Id"
             placeholder="{{'Find LPN' | translate}}"
           >
+          <ng-template ng-label-tmp let-i="item">
+            <div *ngIf="i.Id">
+              <span [title]="i.Id">
+                LPN: {{ i.Id }}
+              </span>
+            </div>
+          </ng-template>
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
-                <div title="{{i._LPN.Id}} - {{i._Location.Name}}">
-                  <span [ngOptionHighlight]="search">{{i._LPN.Id}} - {{i._Location.Name}}</span>
+                <div title="{{i.Id}} - {{i.LocationName}}">
+                  <span [ngOptionHighlight]="search">LPN: {{i.Id}}</span><span *ngIf="i.LocationName"> - {{i.LocationName}}</span>
                 </div>
               </div>
             </ng-template>
           </ng-select>
         </div>
 
-        <!-- <ion-list>
-				<ion-item lines="full" *ngFor="let i of itemPalletsList">
-					<ion-checkbox slot="start" [(ngModel)]="i.isChecked"></ion-checkbox>
-	
-					<ion-label class="ion-text-wrap">
-						<ion-text>
-							<h3>{{i._LPN.Id}} - {{i._Location.Name}}</h3>
-						</ion-text>
-					</ion-label>
-	
-					
-				</ion-item>
-			</ion-list> -->
       </div>
     </ion-list>
 
@@ -273,7 +300,7 @@
                         <!-- <td class="head-c1 head-c2 bol" rowspan="4">{{'TO' | translate}}</td>s -->
                         <td class="head-c1">{{'Company' | translate}}:</td>
                         <td class="bol" colspan="3">{{o.BranchName}}</td>
-                        <td class="bol num">{{'#'+o.ASNId}}</td>
+                        <td class="bol num">{{'#'+o.IDReceipt}}</td>
                       </tr>
                       <tr style="vertical-align: top">
                         <td>{{'Address' | translate}}:</td>
@@ -404,7 +431,7 @@
                             <table>
                               <tr>
                                 <!-- <td class="cen barcode-height">BARCODE</td> -->
-                                <td class="cen bol info-size barcode-height">{{o.LOT}}</td>
+                                <td class="cen bol info-size barcode-height">{{o.Lot}}</td>
                               </tr>
                               <!-- <tr>
 																<td class="cen">{{o.LOT}}</td>

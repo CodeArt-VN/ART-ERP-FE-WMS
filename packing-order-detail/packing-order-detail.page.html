@@ -126,25 +126,26 @@
 											<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
 										</div>
 										<div class="col-id cell">  
-											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
-											><span class="spacing"  [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" *ngIf="k>0"></span
-										  ></ng-container>
-											<ion-icon
+											<ng-container *ngFor="let w of c.get('Levels').value; let k = index;" >
+												<span  class="spacing" *ngIf="k>0"></span>
+											</ng-container>
+											<ion-icon  
 											(click)="toggleRow(c, $event);"
 											class="min-btn clickable"
 											[name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"
-										  ></ion-icon>
-											{{j+1}}</div>
-
+											></ion-icon>
+											{{j+1}}
+										</div>
+		
 										<div class="col-name cell">
-											<div *ngIf="c.get('IDItem')?.value">
+											<div *ngIf="c.get('IDItem')?.value && (c.get('HasChild').value || !c.get('IDParent').value) ">
 												<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
 												<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
 
 											</div>
 										</div>
 										<div class="col-name cell">
-											{{c.get('UoMName')?.value}}
+											<ng-container *ngIf=" c.get('HasChild').value || !c.get('IDParent').value">{{c.get('UoMName')?.value}}</ng-container>
 										</div>
 										<div class="col-name cell">
 											{{c.get('LotName')?.value}}
