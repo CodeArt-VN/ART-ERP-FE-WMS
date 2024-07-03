@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
@@ -12,12 +12,10 @@ import {
   WMS_ShippingProvider,
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
-import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Schema } from 'src/app/models/options-interface';
-import { ApiSetting } from 'src/app/services/static/api-setting';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
-import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { lib } from 'src/app/services/static/global-functions';
 import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 

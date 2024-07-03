@@ -1,15 +1,11 @@
-import { Component, ChangeDetectorRef, Type } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { NavController, ModalController, NavParams, LoadingController, AlertController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { HRM_StaffProvider, PM_TaskLinkProvider, PM_TaskProvider, WMS_TransactionProvider } from 'src/app/services/static/services.service';
-import { Subject, concat, of, distinctUntilChanged, tap, switchMap, catchError, filter } from 'rxjs';
-import { lib } from 'src/app/services/static/global-functions';
-import { PM_Space, PM_Task } from 'src/app/models/model-list-interface';
-
+import { FormBuilder, FormControl } from '@angular/forms';
+import { WMS_TransactionProvider } from 'src/app/services/static/services.service';
 @Component({
   selector: 'app-transaction-modal',
   templateUrl: './transaction-modal.page.html',
