@@ -218,13 +218,15 @@ export class ShippingDetailPage extends PageBase {
   }
 
   UpdateShippedQuantity(fg) {
-    let obj = [
-      {
-        Id: fg.get('Id').value,
-        QuantityShipped: fg.get('QuantityShipped').value,
-      },
-    ];
-    this.updateQuantity(obj);
+    if(fg.get('QuantityShipped').value >= 0 && fg.get('QuantityShipped').value <= fg.get('Quantity').value){
+      let obj = [
+        {
+          Id: fg.get('Id').value,
+          QuantityShipped: fg.get('QuantityShipped').value,
+        },
+      ];
+      this.updateQuantity(obj);
+    }
   }
 
   changeSelection(i, view, e = null) {
@@ -358,7 +360,7 @@ export class ShippingDetailPage extends PageBase {
       component: TransactionModalPage,
       componentProps: {
         sourceLine: fg.controls.Id.value,
-        transactionType: 'ShippingFrom',
+        transactionType: 'Shipping',
         module: 'Ship'
       },
       cssClass: 'modal90',

@@ -37,14 +37,43 @@
         <a [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.Id}}</a>
       </ng-template>
     </datatable-column>
-    <datatable-column class="col-name" name="Type" property="TransactionType"> </datatable-column>
-    <datatable-column class="col-code bold" format="1.0-0" name="From LPN" property="FromLPN"> </datatable-column>
-    <datatable-column class="col-code bold" format="1.0-0" name="From Location" property="FromLocation">
+    <datatable-column class="col-name" name="Item" property="_Item">
+      <ng-template let-i="row" datatable-cell-template>
+        <div>
+          <span [title]="i._Item.Name">
+            <a [routerLink]="['/item/' + i._Item.Id]" class="clickable">#{{ i._Item.Id }}&nbsp;</a>
+            <b>{{ i._Item.Code }}</b> {{ i._Item.Name }}
+          </span>
+        </div>
+      </ng-template>
     </datatable-column>
-    <datatable-column class="col-code bold" format="1.0-0" name="To LPN" property="ToLPN"> </datatable-column>
-    <datatable-column class="col-code bold" format="1.0-0" name="To Location" property="ToLocation"> </datatable-column>
+    <datatable-column class="col-date" format="dd-MM-yyyy HH:mm" name="Transaction date" property="TransactionDate" filterControlType="date"></datatable-column>
     <datatable-column class="col-code bold" format="1.0-0" name="Quantity" property="UoMQuantity"> </datatable-column>
-    <datatable-column class="col-code" name="IsTransaction" property="IDTransaction"> </datatable-column>
+    <datatable-column class="col-code" format="1.0-0" name="From To Location" property="_FromLocation">
+      <ng-template let-i="row" datatable-cell-template>
+          <span *ngIf="i._FromLPN">{{ i._FromLocation.Id }}</span>
+          <ion-icon name="arrow-forward"></ion-icon>
+          <span *ngIf="i._ToLPN">{{ i._ToLocation.Id }}</span>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-status" format="1.0-0" name="Lot" property="Lot">
+    </datatable-column>
+    <datatable-column class="col-code" format="1.0-0" name="From To LPN" property="_FromLPN">
+      <ng-template let-i="row" datatable-cell-template>
+          <span *ngIf="i._FromLPN">{{ i._FromLPN.Id }}</span>
+          <ion-icon name="arrow-forward"></ion-icon>
+          <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-name" name="Type" property="TransactionType"> </datatable-column>
+    <datatable-column class="col-status" name="Status" property="Status"> 
+      <ng-template let-i="row" datatable-cell-template>
+        <div class="row-status">
+          <span>{{ i.Status}}</span>
+          <a *ngIf="i.IDTransaction" [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.IDTransaction}}</a>
+        </div>
+      </ng-template>
+    </datatable-column>
     <datatable-column class="col-status" name="" property="UoMQuantity">
       <ng-template let-i="row" datatable-cell-template>
         <ion-button *ngIf="i.Status != 'Reverted'" size="small" (click)="revertTransaction(i)">

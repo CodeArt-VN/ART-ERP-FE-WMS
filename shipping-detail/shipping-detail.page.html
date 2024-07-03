@@ -165,7 +165,10 @@
 											<ion-icon [color]="c.controls.QuantityShipped.value == c.controls.QuantityShipped.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityShipped.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
 										</div>
 										<div class="col-qty cell">
-											<app-input-control  [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="UpdateShippedQuantity(c)"></app-input-control>
+											<input [(ngModel)]="c.controls.QuantityShipped.value" 
+												   [min]="0"
+												   [max]="c.controls.Quantity.value" 
+												   (change)="UpdateShippedQuantity(c)" class="c-input" type="number">
 										</div>
 										<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit">
 											<ion-icon color="primary" name="search-circle-outline"></ion-icon>

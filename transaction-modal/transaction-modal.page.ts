@@ -80,7 +80,6 @@ export class TransactionModalPage extends PageBase {
       })
       .catch((err) => {
         this.submitAttempt = false;
-        //console.log(err);
       });
   }
 
