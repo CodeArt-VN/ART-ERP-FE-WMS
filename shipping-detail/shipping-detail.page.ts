@@ -359,7 +359,7 @@ export class ShippingDetailPage extends PageBase {
       componentProps: {
         sourceLine: fg.controls.Id.value,
         transactionType: 'Shipping',
-        module: 'Ship'
+        module: 'Shipping'
       },
       cssClass: 'modal90',
     });
