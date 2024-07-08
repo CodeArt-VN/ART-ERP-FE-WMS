@@ -13,8 +13,8 @@ import { WMS_TransactionProvider } from 'src/app/services/static/services.servic
 })
 export class TransactionModalPage extends PageBase {
   sourceLine: number;
+  statusLine: string;
   transactionType : string;
-  module : string;
   update = false;
 
   constructor(
@@ -66,7 +66,7 @@ export class TransactionModalPage extends PageBase {
   revertTransaction(fg) {
 
     this.pageProvider.commonService
-      .connect('POST', 'WMS/Transaction/RevertTransaction', {Id : fg.Id, Type: this.transactionType, Module: this.module})
+      .connect('POST', 'WMS/Transaction/RevertTransaction', {Id : fg.Id, Type: this.transactionType, Status: this.statusLine})
       .toPromise()
       .then(() => {
         this.update = true;

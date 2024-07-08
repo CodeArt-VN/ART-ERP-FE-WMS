@@ -49,7 +49,7 @@
     </datatable-column>
     <datatable-column class="col-date" format="dd-MM-yyyy HH:mm" name="Transaction date" property="TransactionDate" filterControlType="date"></datatable-column>
     <datatable-column class="col-number bold" format="1.0-0" name="Quantity" property="UoMQuantity"> </datatable-column>
-    <datatable-column class="col-code" format="1.0-0" name="From To Location" property="_FromLocation">
+    <datatable-column class="col-code" format="1.0-0" name="From to Location" property="_FromLocation">
       <ng-template let-i="row" datatable-cell-template>
           <span *ngIf="i._FromLPN">{{ i._FromLocation.Id }}</span>
           <ion-icon name="arrow-forward"></ion-icon>
@@ -58,7 +58,7 @@
     </datatable-column>
     <datatable-column class="col-status" format="1.0-0" name="Lot" property="Lot">
     </datatable-column>
-    <datatable-column class="col-code" format="1.0-0" name="From To LPN" property="_FromLPN">
+    <datatable-column class="col-code" format="1.0-0" name="From to LPN" property="_FromLPN">
       <ng-template let-i="row" datatable-cell-template>
           <span *ngIf="i._FromLPN">{{ i._FromLPN.Id }}</span>
           <ion-icon name="arrow-forward"></ion-icon>
@@ -76,7 +76,7 @@
     </datatable-column>
     <datatable-column class="col-status" name="" property="UoMQuantity">
       <ng-template let-i="row" datatable-cell-template>
-        <ion-button *ngIf="i.Status != 'Reverted'" size="small" (click)="revertTransaction(i)">
+        <ion-button *ngIf="i.Status != 'Reverted' && statusLine == 'Done'" size="small" (click)="revertTransaction(i)">
           {{'Revert' | translate}}
         </ion-button>
       </ng-template>

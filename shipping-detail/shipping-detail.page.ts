@@ -81,9 +81,9 @@ export class ShippingDetailPage extends PageBase {
 
   preLoadData(event) {
     this.statusDataSource = [
+      { Name: 'Active', Code: 'Active' },
       { Name: 'Done', Code: 'Done' },
-      { Name: 'Open', Code: 'Open' },
-      { Name: 'Pending', Code: 'Pending' },
+      { Name: 'Closed', Code: 'Closed' },
     ];
     this.branchProvider
       .read({
@@ -149,6 +149,7 @@ export class ShippingDetailPage extends PageBase {
       IDItem: [field.IDItem, Validators.required],
       Quantity: [field.Quantity],
       QuantityShipped: [field.QuantityShipped],
+      Status: [field.Status],
       FromLocationName: [field.FromLocationName],
       LotName: [field.LotName],
       UoMName: [field.UoMName],
@@ -172,24 +173,17 @@ export class ShippingDetailPage extends PageBase {
         'Vui lòng chờ load dữ liệu...',
         this.pageProvider.commonService.connect('GET', 'WMS/Shipping/ChangeStatus/', this.query).toPromise(),
       )
-      .then((result: any) => {
+      .then(async (result: any) => {
+        await this.toggleAllChangeStatusDetail('Closed');
         this.refresh();
       });
     this.query.Id = undefined;
   }
 
-  updateQuantity(obj) {
-    this.pageProvider.commonService
-      .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
-      .toPromise()
-      .then((result: any) => {
-        if (result) {
-          this.env.showTranslateMessage('Saved', 'success');
-        } else {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-        }
-      });
-    // this.saveChange2(fg, null, this.ShippingDetailservice)
+  updateQuantity(fg) {
+    fg.controls.Id.markAsDirty();
+    fg.controls.QuantityShipped.markAsDirty();
+    super.saveChange2(fg, this.pageConfig.pageName, this.shippingDetailService);
   }
   toggleQty(group) {
     if (group.controls.Quantity.value == group.controls.QuantityShipped.value) {
@@ -197,34 +191,153 @@ export class ShippingDetailPage extends PageBase {
     } else {
       group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
     }
-    let obj = [{ Id: group.get('Id').value, QuantityShipped: group.get('QuantityShipped').value }];
-    this.updateQuantity(obj);
+    this.updateQuantity(group);
   }
 
   toggleAllQty() {
     let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    let obj = [];
     groups.controls.forEach((group: FormGroup) => {
-      if (this.item._IsShippedAll) {
-        group.controls.QuantityShipped.setValue(0);
-        group.controls.QuantityShipped.markAsDirty();
-      } else {
-        group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
-        group.controls.QuantityShipped.markAsDirty();
+      const currentStatus = group.get('Status').value;
+      if (currentStatus == 'Active') {
+        if (this.item._IsShippedAll) {
+          group.controls.QuantityShipped.setValue(0);
+        } else {
+          group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
+        }
+        const id = group.get('Id').value;
+        const quantityShipped = group.controls.QuantityShipped.value;
+        obj.push({ Id: id, QuantityShipped: quantityShipped });
       }
     });
-    this.item._IsShippedAll = !this.item._IsShippedAll;
+
+    if (!this.submitAttempt && obj.length > 0) {
+      this.submitAttempt = true;
+      this.pageProvider.commonService
+        .connect('PUT', 'WMS/Shipping/UpdateQuantityForList/', obj)
+        .toPromise()
+        .then(() => {
+          this.env.showTranslateMessage('Saved', 'success');
+          this.item._IsShippedAll = !this.item._IsShippedAll;
+          this.submitAttempt = false;
+        })
+        .catch((err) => {
+          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          this.submitAttempt = false;
+        });
+    }
+    else {
+      this.env.showTranslateMessage('Cannot save, please try again', 'warning');
+    }
   }
 
   UpdateShippedQuantity(fg) {
-    if(fg.get('QuantityShipped').value >= 0 && fg.get('QuantityShipped').value <= fg.get('Quantity').value){
+    if (fg.get('QuantityShipped').value >= 0 && fg.get('QuantityShipped').value <= fg.get('Quantity').value) {
+      this.updateQuantity(fg);
+    }
+  }
+
+  changeStatusDetail(fg, status) {
+    //status Closed -> Done
+    if (fg.get('Status').value == 'Closed' && status == 'Done') {
+      if (this.submitAttempt == false) {
+        this.submitAttempt = true;
+        this.env
+          .showPrompt(
+            'Bạn không thể thay đổi trạng thái khi đã đóng!',
+            null,
+            '',
+          )
+          .then((_) => {
+            this.submitAttempt = false;
+          })
+          .catch((er) => {
+            this.submitAttempt = false;
+          });
+      }
+    }
+    //update status Done -> Closed
+    if (fg.get('Status').value == 'Done' && status == 'Closed') {
+      fg.controls.Id.markAsDirty();
+      fg.controls.Status.setValue(status);
+      fg.controls.Status.markAsDirty();
+      super.saveChange2(fg, this.pageConfig.pageName, this.shippingDetailService);
+    } else if (
+      (fg.get('Status').value == 'Active' && status == 'Done') ||
+      (fg.get('Status').value == 'Active' && status == 'Closed')
+    ) {
+      //update status Active -> Done || Active -> Closed
       let obj = [
         {
           Id: fg.get('Id').value,
+          Status: status,
           QuantityShipped: fg.get('QuantityShipped').value,
         },
       ];
-      this.updateQuantity(obj);
+      if (this.submitAttempt == false) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+          .toPromise()
+          .then((result: any) => {
+            if (result) {
+              this.env.showTranslateMessage('Saved', 'success');
+              fg.controls.Status.setValue(status);
+              this.submitAttempt = false;
+            } else {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.submitAttempt = false;
+            }
+          });
+      }
     }
+  }
+  toggleAllChangeStatusDetail(status) {
+    return new Promise((resolve, reject) => {
+    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    let obj = [];
+    //Done: update array active -> done
+    //Closed: update array active -> closed || done -> closed
+    let updateStatus = status == 'Done' ? ['Active'] : ['Active', 'Done'];
+
+    groups.controls.forEach((group: FormGroup) => {
+      const id = group.get('Id').value;
+      const quantityShipped = group.get('QuantityShipped').value;
+      const currentStatus = group.get('Status').value;
+
+      if (updateStatus.includes(currentStatus)) {
+        obj.push({ Id: id, Status: status, QuantityShipped: quantityShipped });
+      }
+    });
+
+    if (!this.submitAttempt && obj.length > 0) {
+      this.submitAttempt = true;
+      this.pageProvider.commonService
+        .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+        .toPromise()
+        .then((result: any) => {
+          if (result) {
+            this.env.showTranslateMessage('Saved', 'success');
+            groups.controls.forEach((group: FormGroup) => {
+              const currentStatus = group.get('Status').value;
+              if (updateStatus.includes(currentStatus)) {
+                group.controls.Status.setValue(status);
+              }
+            });
+          } else {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          }
+          this.submitAttempt = false;
+        })
+        .catch((err) => {
+          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          this.submitAttempt = false;
+        });
+    }
+    else {
+      this.env.showTranslateMessage('Cannot save, please try again', 'warning');
+    }
+    });
   }
 
   changeSelection(i, view, e = null) {
@@ -358,8 +471,8 @@ export class ShippingDetailPage extends PageBase {
       component: TransactionModalPage,
       componentProps: {
         sourceLine: fg.controls.Id.value,
+        statusLine: fg.controls.Status.value,
         transactionType: 'Shipping',
-        module: 'Shipping'
       },
       cssClass: 'modal90',
     });
@@ -370,6 +483,4 @@ export class ShippingDetailPage extends PageBase {
       this.refresh();
     }
   }
-
-
 }

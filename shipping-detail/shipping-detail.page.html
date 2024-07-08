@@ -126,6 +126,18 @@
 								<div class="col-qty cell" (click)="sortToggle('GrossWeight')">
 									{{'Shipped quantity' | translate}}
 								</div>
+								<div class="col-qty cell" (click)="sortToggle('Status')">
+									{{'Done' | translate}}
+								</div>
+								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllChangeStatusDetail('Done')">
+									<ion-icon *ngIf="item"[color]="'success'" [name]="'checkmark-done-circle-outline'"></ion-icon>
+								</div>
+								<div class="col-qty cell" (click)="sortToggle('Status')">
+									{{'Closed' | translate}}
+								</div>
+								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllChangeStatusDetail('Closed')">
+									<ion-icon *ngIf="item" [color]="'success'" [name]="'checkmark-done-circle-outline'"></ion-icon>
+								</div>
 								<div class="col-icon cell" *ngIf="pageConfig.canEdit">
 									
 								</div>
@@ -161,15 +173,29 @@
 										<div class="col-qty cell">
 											{{c.get('Quantity').value}}
 										</div>
-										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleQty(c)">
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value != 'Active'" >
+										</div>
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value == 'Active'" (click)="toggleQty(c)">
 											<ion-icon [color]="c.controls.QuantityShipped.value == c.controls.QuantityShipped.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityShipped.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
 										</div>
 										<div class="col-qty cell">
-											<input [(ngModel)]="c.controls.QuantityShipped.value" 
+											<app-input-control *ngIf="c.controls.Status.value != 'Active'" [field]="{id:'QuantityShipped', type : 'span-number', form : c, }"></app-input-control>
+											<input *ngIf="c.controls.Status.value == 'Active'" [(ngModel)]="c.controls.QuantityShipped.value" 
 												   [min]="0"
 												   [max]="c.controls.Quantity.value" 
 												   (change)="UpdateShippedQuantity(c)" class="c-input" type="number">
 										</div>
+										<div class="col-qty cell">
+										</div>
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="changeStatusDetail(c, 'Done')">
+											<ion-icon [color]="c.controls.Status.value == 'Done' ? 'success' : 'danger'" class="min-btn" [name]="c.controls.Status.value == 'Done'  ? 'checkmark-circle-outline' : 'remove-circle-outline'"></ion-icon>
+										</div>
+										<div class="col-qty cell">
+										</div>
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="changeStatusDetail(c, 'Closed')">
+											<ion-icon [color]="c.controls.Status.value == 'Closed' ? 'success' : 'danger'" class="min-btn" [name]="c.controls.Status.value == 'Closed'  ? 'checkmark-circle-outline' : 'remove-circle-outline'"></ion-icon>
+										</div>
+										
 										<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit">
 											<ion-icon color="primary" name="search-circle-outline"></ion-icon>
 										</div> 
