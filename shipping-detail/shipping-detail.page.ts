@@ -214,7 +214,7 @@ export class ShippingDetailPage extends PageBase {
     if (!this.submitAttempt && obj.length > 0) {
       this.submitAttempt = true;
       this.pageProvider.commonService
-        .connect('PUT', 'WMS/Shipping/UpdateQuantityForList/', obj)
+        .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
         .toPromise()
         .then(() => {
           this.env.showTranslateMessage('Saved', 'success');
@@ -260,7 +260,7 @@ export class ShippingDetailPage extends PageBase {
       if (this.submitAttempt == false) {
         this.submitAttempt = true;
         this.pageProvider.commonService
-          .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+          .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
           .toPromise()
           .then((result: any) => {
             if (result) {
@@ -296,7 +296,7 @@ export class ShippingDetailPage extends PageBase {
       if (!this.submitAttempt && obj.length > 0) {
         this.submitAttempt = true;
         this.pageProvider.commonService
-          .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+          .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
           .toPromise()
           .then((result: any) => {
             if (result) {
