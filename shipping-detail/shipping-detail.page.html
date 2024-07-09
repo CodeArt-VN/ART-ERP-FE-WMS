@@ -180,10 +180,7 @@
 										</div>
 										<div class="col-qty cell">
 											<app-input-control *ngIf="c.controls.Status.value != 'Active'" [field]="{id:'QuantityShipped', type : 'span-number', form : c, }"></app-input-control>
-											<input *ngIf="c.controls.Status.value == 'Active'" [(ngModel)]="c.controls.QuantityShipped.value" 
-												   [min]="0"
-												   [max]="c.controls.Quantity.value" 
-												   (change)="UpdateShippedQuantity(c)" class="c-input" type="number">
+											<app-input-control *ngIf="c.controls.Status.value == 'Active'" [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="UpdateShippedQuantity(c)"></app-input-control>
 										</div>
 										<div class="col-qty cell">
 										</div>
