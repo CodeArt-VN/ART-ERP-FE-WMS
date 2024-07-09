@@ -226,9 +226,6 @@ export class ShippingDetailPage extends PageBase {
           this.submitAttempt = false;
         });
     }
-    else {
-      this.env.showTranslateMessage('Cannot save, please try again', 'warning');
-    }
   }
 
   UpdateShippedQuantity(fg) {
@@ -240,21 +237,7 @@ export class ShippingDetailPage extends PageBase {
   changeStatusDetail(fg, status) {
     //status Closed -> Done
     if (fg.get('Status').value == 'Closed' && status == 'Done') {
-      if (this.submitAttempt == false) {
-        this.submitAttempt = true;
-        this.env
-          .showPrompt(
-            'Bạn không thể thay đổi trạng thái khi đã đóng!',
-            null,
-            '',
-          )
-          .then((_) => {
-            this.submitAttempt = false;
-          })
-          .catch((er) => {
-            this.submitAttempt = false;
-          });
-      }
+      this.env.showAlert('Bạn không thể thay đổi trạng thái khi đã đóng!', null, '');
     }
     //update status Done -> Closed
     if (fg.get('Status').value == 'Done' && status == 'Closed') {
@@ -294,49 +277,46 @@ export class ShippingDetailPage extends PageBase {
   }
   toggleAllChangeStatusDetail(status) {
     return new Promise((resolve, reject) => {
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    let obj = [];
-    //Done: update array active -> done
-    //Closed: update array active -> closed || done -> closed
-    let updateStatus = status == 'Done' ? ['Active'] : ['Active', 'Done'];
+      let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+      let obj = [];
+      //Done: update array active -> done
+      //Closed: update array active -> closed || done -> closed
+      let updateStatus = status == 'Done' ? ['Active'] : ['Active', 'Done'];
 
-    groups.controls.forEach((group: FormGroup) => {
-      const id = group.get('Id').value;
-      const quantityShipped = group.get('QuantityShipped').value;
-      const currentStatus = group.get('Status').value;
+      groups.controls.forEach((group: FormGroup) => {
+        const id = group.get('Id').value;
+        const quantityShipped = group.get('QuantityShipped').value;
+        const currentStatus = group.get('Status').value;
 
-      if (updateStatus.includes(currentStatus)) {
-        obj.push({ Id: id, Status: status, QuantityShipped: quantityShipped });
-      }
-    });
+        if (updateStatus.includes(currentStatus)) {
+          obj.push({ Id: id, Status: status, QuantityShipped: quantityShipped });
+        }
+      });
 
-    if (!this.submitAttempt && obj.length > 0) {
-      this.submitAttempt = true;
-      this.pageProvider.commonService
-        .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
-        .toPromise()
-        .then((result: any) => {
-          if (result) {
-            this.env.showTranslateMessage('Saved', 'success');
-            groups.controls.forEach((group: FormGroup) => {
-              const currentStatus = group.get('Status').value;
-              if (updateStatus.includes(currentStatus)) {
-                group.controls.Status.setValue(status);
-              }
-            });
-          } else {
+      if (!this.submitAttempt && obj.length > 0) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+          .toPromise()
+          .then((result: any) => {
+            if (result) {
+              this.env.showTranslateMessage('Saved', 'success');
+              groups.controls.forEach((group: FormGroup) => {
+                const currentStatus = group.get('Status').value;
+                if (updateStatus.includes(currentStatus)) {
+                  group.controls.Status.setValue(status);
+                }
+              });
+            } else {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            }
+            this.submitAttempt = false;
+          })
+          .catch((err) => {
             this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          }
-          this.submitAttempt = false;
-        })
-        .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          this.submitAttempt = false;
-        });
-    }
-    else {
-      this.env.showTranslateMessage('Cannot save, please try again', 'warning');
-    }
+            this.submitAttempt = false;
+          });
+      }
     });
   }
 
