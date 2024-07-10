@@ -1,0 +1,215 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme>
+	<!-- <ion-toolbar color="primary">
+		  <ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+			  <ion-segment-button value="s1">
+				  <ion-label>{{'General information' | translate}}</ion-label>
+			  </ion-segment-button>
+		  </ion-segment>
+	  </ion-toolbar> -->
+
+	<div class="main-view ion-padding" *ngIf="item && pageConfig.showSpinner==false">
+		<div class="row-full shadow full-screen">
+			<div>
+				<div *ngIf="segmentView == 's1'">
+					<div class="ion-padding">
+						<ion-grid fixed>
+							<form [formGroup]="formGroup">
+								<ion-row class="hr-group">
+									<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+										<ion-list-header class="ion-no-padding">
+											<ion-label color="primary">{{'General information' | translate}}</ion-label>
+										</ion-list-header>
+									</ion-col>
+									<ion-col size="12" size-sm="8" size-xl="8">
+
+										<app-form-control [field]="{id:'Name', label: 'Name', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+										<ion-col size="6">
+											<ion-card class="box">
+
+												<ion-card-content>
+													<div class="table-contain">
+														<section class="table">
+															<ion-reorder-group *ngIf="formGroup.get('Rules')['controls'].length>0" [disabled]="false" (ionItemReorder)="doReorder($event, formGroup.get('Rules').controls,i.Name)">
+																<ng-container *ngFor="let g of formGroup.get('Rules')['controls']; let idx = index;">
+																	<ng-container [formGroup]="g">
+																		<div class="row">
+																			<div class="col-id cell">
+																				{{idx+1}}
+																			</div>
+																			<div class="col-name cell">
+																				<app-input-control [field]="{id:'Code', label: 'Code', type :'ng-select', dataSource: arrangeDataSource, bindLabel:'Name', bindValue:'Code' , form : g}" (change)="changeRule()"></app-input-control>
+																			</div>
+
+																			<div class="col-reorder cell">
+																				<ion-reorder slot="end"></ion-reorder>
+																			</div>
+																		</div>
+																	</ng-container>
+																</ng-container>
+															</ion-reorder-group>
+														</section>
+
+														<ion-button fill="clear" size="small" (click)="addRule({})">
+															<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+															{{'Add rule' | translate}}
+														</ion-button>
+													</div>
+												</ion-card-content>
+
+											</ion-card>
+										</ion-col>
+
+									</ion-col>
+
+								</ion-row>
+								<ion-row class="hr-group">
+									<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+										<ion-list lines="none">
+											<ion-list-header class="ion-no-padding">
+												<ion-label color="primary">{{'Allocate strategy' | translate}}</ion-label>
+											</ion-list-header>
+										</ion-list>
+									</ion-col>
+									<ion-col size="12" size-sm size-xl="8">
+										<ion-list>
+											<ion-list-header lines="full">
+												<ion-label>{{'Rules' | translate }}</ion-label>
+												<ion-button fill="clear" size="small" (click)="addAllocateRuleDetail({})">
+													<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+													<!-- {{'Add rule' | translate}} -->
+												</ion-button>
+											</ion-list-header>
+
+											<ion-accordion-group [multiple]="true">
+												<ion-reorder-group (ionItemReorder)="doReorder($event, formGroup.get('AllocateRuleDetails')['controls'])" [disabled]="false">
+													<ng-container *ngFor="let g of formGroup.get('AllocateRuleDetails')['controls']; let idx = index;">
+														<!-- [value]="g.get('Id').value" -->
+														<ion-accordion >
+															<ion-item slot="header" [style.order]="g.get('Sort').value" lines="full">
+																<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
+																	{{g.get('Name').value}}
+																</ion-label>
+
+																<ion-button color="danger" (click)="removeField(g,dx)" fill="clear" slot="end">
+																	<ion-icon slot="icon-only" name="trash"></ion-icon>
+																</ion-button>
+																<ion-reorder slot="end"></ion-reorder>
+															</ion-item>
+															<div class="ion-padding" slot="content">
+																<ion-grid fixed>
+																	<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
+																		<ion-row>
+																			<ion-col size="12" size-xl="12">
+																				<app-form-control [field]="{id:'Name', label: 'Name', type : 'text', form : g }" (change)="saveChange()"></app-form-control>
+																				<app-form-control [field]="{id:'IDStorer', label: 'Storer', type :'ng-select-bp', dataSource:g.controls._storerDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+																				<app-form-control [field]="{id:'IDItem', label: 'Item', type :'ng-select-item', dataSource: g.controls._itemDataSource.value, bindLabel:'Name', bindValue:'Code' ,clearable:true,form : g}" (change)="saveChange()"></app-form-control>
+																				<app-form-control [field]="{id:'IDLocation', label: 'Location', type :'ng-select-async', dataSource: g.controls._locationDataSource.value, bindLabel:'Name', bindValue:'Code' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+
+																			</ion-col>
+																			<!-- <ion-col size="12" size-xl="6"> </ion-col> -->
+																		</ion-row>
+																		
+																		<ion-row class="hr-group">
+																			<ion-col size="12" size-xl="12">
+																				<div class="table-contain" style="overflow: auto">
+																					
+																					<section class="table">
+																						<header class="bold">
+																							<div class="col-id cell">{{'No.' | translate}}</div>
+																							<div class="col-name cell">Rules</div>
+																							<div class="col-icon cell clickable">
+																							  <ion-icon color="primary" slot="icon-only" size="large" (click)="addRule({},g,true)" *ngIf="pageConfig.canAdd" name="add" ></ion-icon>
+																							</div>
+																							<div class="col-icon cell clickable">
+																								<ion-icon (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start" ></ion-icon>
+																							  </div>
+																						  </header>
+																						  <ion-reorder-group *ngIf="g.get('Rules')['controls'].length>0" [disabled]="false" (ionItemReorder)="doReorder($event, g.get('Rules')['controls'],i.Name)">
+																							<ng-container *ngFor="let c of g.get('Rules')['controls']; let idx = index;">
+																								<ng-container [formGroup]="c">
+																									<div class="row">
+																									<div class="col-id cell">
+																										{{idx+1}}
+																									</div>
+																									<div class="col-name cell">
+																										<app-input-control [field]="{id:'Code', label: 'Code', type :'ng-select', dataSource:c.controls._ruleDataSource.value, bindLabel:'Name', bindValue:'Code' , form : c}" (change)="saveChange()"></app-input-control>
+																									</div>
+							
+																									<div class="col-icon cell clickable"></div>
+																									<div class="col-reorder cell">
+																										<ion-reorder slot="end"></ion-reorder>
+																									</div>
+																								</div>
+																								</ng-container>
+																							</ng-container>
+																						</ion-reorder-group>
+																						</section>
+
+																					</div>
+																		
+																			</ion-col>
+																		</ion-row>
+																		
+																	</form>
+																</ion-grid>
+															</div>
+
+														</ion-accordion>
+													</ng-container>
+												</ion-reorder-group>
+											</ion-accordion-group>
+										</ion-list>
+
+									</ion-col>
+
+								</ion-row>
+								<ion-row class="hr-group" *ngIf="item?.Id">
+									<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+										<ion-list lines="none">
+											<ion-list-header class="ion-no-padding">
+												<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+											</ion-list-header>
+										</ion-list>
+									</ion-col>
+
+									<ion-col size="12" size-sm size-xl="4">
+										<app-form-control [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"></app-form-control>
+										<app-form-control [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
+										<app-form-control [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"></app-form-control>
+										<app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
+									</ion-col>
+									<ion-col size="12" size-sm size-xl="4">
+										<app-form-control [field]="{id:'IDWarehouse', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
+										<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
+									</ion-col>
+
+								</ion-row>
+
+								<!-- <ion-row class="hr-group">
+									  <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+										  <ion-list-header class="ion-no-padding">
+											  <ion-label color="primary">{{'zone-removal' | translate}} </ion-label>
+										  </ion-list-header>
+									  </ion-col>
+									  <ion-col size="12" size-sm="6" size-xl="4">
+  
+									  </ion-col>
+									  <ion-col size="12" size-sm="6" size-xl="4">
+										  
+										  EquipmentProfile:[''],
+									  </ion-col>
+								  </ion-row> -->
+							</form>
+						</ion-grid>
+					</div>
+				</div>
+				<div *ngIf="segmentView == 's2'"></div>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

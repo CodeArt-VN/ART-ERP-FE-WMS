@@ -60,4 +60,9 @@ export const WMSRoutes: Routes = [
     
     { path: 'shipping', loadChildren: () => import('./shipping/shipping.module').then(m => m.ShippingPageModule), canActivate: [AuthGuard]},
     { path: 'shipping/:id', loadChildren: () => import('./shipping-detail/shipping-detail.module').then(m => m.ShippingDetailPageModule), canActivate: [AuthGuard]},
+
+    // { path: 'picking-rules', loadChildren: () => import('./picking-rules/picking-rules.module').then(m => m.PickingRulesPageModule), canActivate: [AuthGuard]},
+    { path: 'allocate-strategy', loadChildren: () => import('./allocate-strategy-detail/allocate-strategy-detail.module').then(m => m.AllocateStrategyDetailPageModule), canActivate: [AuthGuard]},
+    { path: 'allocate-strategy/:id', loadChildren: () => import('./allocate-strategy-detail/allocate-strategy-detail.module').then(m => m.AllocateStrategyDetailPageModule), canActivate: [AuthGuard]},
+
 ];
