@@ -37,6 +37,7 @@ export const WMSRoutes: Routes = [
     { path: 'lpn-label/:id', loadChildren: () => import('./lpn-label/lpn-label.module').then(m => m.LPNLabelPageModule), canActivate: [AuthGuard] },
     
     { path: 'serial-label', loadChildren: () => import('./serial-label/serial-label.module').then(m => m.SerialLabelPageModule), canActivate: [AuthGuard] },
+    { path: 'qr-code-label', loadChildren: () => import('./qr-code-label/qr-code-label.module').then(m => m.QRCodeLabelPageModule), canActivate: [AuthGuard] },
     { path: 'item-uom-label', loadChildren: () => import('./item-uom-label/item-uom-label.module').then(m => m.ItemUomLabelPageModule), canActivate: [AuthGuard] },
     
     { path: 'pos-table-label', loadChildren: () => import('./pos-table-label/pos-table-label.module').then(m => m.POSTableLabelPageModule), canActivate: [AuthGuard] },
