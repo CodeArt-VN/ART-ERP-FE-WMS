@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_StaffProvider, SYS_SchemaProvider, SYS_SyncJobProvider, WMS_AdjustmentDetailProvider, WMS_AdjustmentProvider, WMS_CycleCountProvider, WMS_ItemProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, CRM_ContactProvider, HRM_StaffProvider, SYS_SchemaProvider, SYS_SyncJobProvider, WMS_AdjustmentDetailProvider, WMS_AdjustmentProvider, WMS_CycleCountProvider, WMS_ItemProvider, WMS_LotLPNLocationProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
 import { Schema } from 'src/app/models/options-interface';
@@ -19,18 +19,14 @@ import { WMS_Adjustment } from 'src/app/models/model-list-interface';
     styleUrls: ['adjustment-detail.page.scss']
 })
 export class AdjustmentDetailPage extends PageBase {
-    countTypeDataSource: any;
     statusDataSource: any;
-    schema: Schema;
-    config: any = null;
-    itemList: any;
-    tempItemList: any;
-    countItem: number = 0;
+    reasonDataSource: any;
     branchList
     constructor(
         public pageProvider: WMS_AdjustmentProvider,
         public adjustmentDetailService: WMS_AdjustmentDetailProvider,
-        public staffService: HRM_StaffProvider,
+        public lotLPNLocationlService: WMS_LotLPNLocationProvider,
+        public contactService: CRM_ContactProvider,
         public schemaService: SYS_SchemaProvider,
         public itemService: WMS_ItemProvider,
         public commonService: CommonService,
@@ -50,17 +46,18 @@ export class AdjustmentDetailPage extends PageBase {
         this.pageConfig.isDetailPage = true;
         this.formGroup = this.formBuilder.group({
             Id: new FormControl({ value: '', disabled: true }),
-            IDBranch: ['', Validators.required],
+            IDBranch:[''],
+            IDStorer:[''],
+            Name:[''],
             IDCycleCount: new FormControl({ value: '', disabled: false }),
             AdjustmentDetails: this.formBuilder.array([]),
-          
           
             Reason : [''],
             Remark: [''],
             Sort: [''],
             CountType: [''],
             CountDate: [''],
-            Status: ['', Validators.required],
+            Status: ['Draft', Validators.required],
             
             IsDisabled: new FormControl({ value: '', disabled: true }),
             IsDeleted: new FormControl({ value: '', disabled: true }),
@@ -70,14 +67,42 @@ export class AdjustmentDetailPage extends PageBase {
             ModifiedDate: new FormControl({ value: '', disabled: true }),
         });
     }
-
+    storerDateSource = {
+        searchProvider: this.contactService,
+        loading: false,
+        input$: new Subject<string>(),
+        selected: [],
+        items$: null,
+        initSearch() {
+          this.loading = false;
+          this.items$ = concat(
+            of(this.selected),
+            this.input$.pipe(
+              distinctUntilChanged(),
+              tap(() => (this.loading = true)),
+              switchMap((term) =>
+                this.searchProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
+                  catchError(() => of([])), // empty list on error
+                  tap(() => (this.loading = false)),
+                ),
+              ),
+            ),
+          );
+        },
+    };
+    
     preLoadData(event) {
 
         this.statusDataSource = [
             { Name: 'Done', Code: 'Done' },
             { Name: 'Pending', Code: 'Pending' },
         ];
-
+        this.reasonDataSource = [
+            { Name: 'Fail goods', Code: 'FailGoods' },
+            { Name: 'Wrong input', Code: 'WrongInput' },
+            { Name: 'Cycle count difference', Code: 'CycleCount' },
+            { Name: 'Other...', Code: 'Other' },
+        ];
     
         super.preLoadData(event);
     }
@@ -94,9 +119,27 @@ export class AdjustmentDetailPage extends PageBase {
                 this.patchFieldsValue();
             }
         })
-
+       
+        this.formGroup.get('IDBranch').markAsDirty();
+        this.formGroup.get('Status').markAsDirty();
         this.query.Id = this.item.Id;
+        this.branchProvider.read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren }).then(resp => {
+            lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
+                this.branchList = result;
+                this.branchList.forEach(i => {
+                    i.disabled = true;
+                });
+                this.markNestedNode(this.branchList, this.env.selectedBranch);
+                super.preLoadData(event);
+            }).catch(err => {
+                this.env.showMessage(err);
+                console.log(err);
+            });
+        });
+        super.preLoadData(event);
+        this.storerDateSource.initSearch();
     }
+    
     private patchFieldsValue() {
         this.pageConfig.showSpinner = true;
 
@@ -112,39 +155,97 @@ export class AdjustmentDetailPage extends PageBase {
 
         this.pageConfig.showSpinner = false;
     }
-
     addField(field: any, markAsDirty = false) {
         let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
         let group = this.formBuilder.group({
+            _lotLPNLocationDataSource: {
+                searchProvider: this.lotLPNLocationlService,
+                loading: false,
+                input$: new Subject<string>(),
+                selected: [],
+                items$: null,
+                initSearch() {
+                  this.loading = false;
+                  this.items$ = concat(
+                    of(this.selected),
+                    this.input$.pipe(
+                      distinctUntilChanged(),
+                      tap(() => (this.loading = true)),
+                      switchMap((term) =>
+                        this.searchProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
+                          catchError(() => of([])), // empty list on error
+                          tap(() => (this.loading = false)),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              },
+            Id:[field?.Id],
             IDAdjustment:[this.formGroup.get('Id').value, Validators.required],
-            IDItem:[field.IDItem, Validators.required],
-            QuantityAdjusted : [field.QuantityAdjusted],
-            WarehouseQuantity:[field.WarehouseQuantity],
-            Cube:[field.Cube || 0],
-            GrossWeight:[field.GrossWeight || 0],
-            NetWeight:[field.NetWeight || 0],
+            IDItem:[field?.IDItem, Validators.required],
+            QuantityAdjusted : [field?.QuantityAdjusted || 0],
+            WarehouseQuantity:[field?.WarehouseQuantity],
+            Cube:[field?.Cube || 0],
+            GrossWeight:[field?.GrossWeight || 0],
+            NetWeight:[field?.NetWeight || 0],
 
-            ZoneName:[field.ZoneName],
-            Lot:[field.Lot],
-            LotName:[field.LotName],
-            Location:[field.Location],
-            LocationName:[field.LocationName],
-            LPN:[field.LPN],
+            ZoneName:[field?.ZoneName],
+            Lot:[field?.Lot],
+            LotName:[field?.LotName],
+            Location:[field?.Location],
+            LocationName:[field?.LocationName],
+            LPN:[field?.LPN],
 
-            Status:[field.Status || 'Pending'],
-            UoMName:[field.UoMName || 0],
-            ItemName: [ field.ItemName], //de hien thi
-            IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
-            IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
-            CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
-            CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
-            ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
-            ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
+            Status:[field?.Status || 'Pending'],
+            UoMName:[field?._Item?.UoMName],
+            ItemName: [field?._Item?.ItemName], //de hien thi
+          
             IsChecked: new FormControl({ value: false, disabled: false }),
         })
         groups.push(group);
+        if(field){
+           
+            group.controls._lotLPNLocationDataSource.value.selected.push(field);
+        }
+        if(markAsDirty){
+            group.get('IDAdjustment').markAsDirty();
+            group.get('Status').markAsDirty();
+            group.get('QuantityAdjusted').markAsDirty();
+            group.get('Cube').markAsDirty();
+            group.get('GrossWeight').markAsDirty();
+            group.get('NetWeight').markAsDirty();
+
+        }
+        group.controls._lotLPNLocationDataSource.value.initSearch();
     }
 
+    changeIDItem(e,fg){
+        console.log(e);
+        fg.get('IDItem').setValue(e.IDItem);
+        fg.get('Location').setValue(e._Location.Id);
+        fg.get('LocationName').setValue(e._Location.Name);
+        fg.get('ZoneName').setValue(e._Location.ZoneName);
+        fg.get('Lot').setValue(e._Lot.Id);
+        fg.get('LotName').setValue(e._Lot.Lottable0);
+        fg.get('LPN').setValue(e._LPN.Id);
+        let uom = e._Item.UoM.find(d=>d.IsBaseUoM);
+        fg.get('UoMName').setValue(uom.Name);
+        fg.get('WarehouseQuantity').setValue(e.QuantityOnHand);
+
+        fg.get('IDItem').markAsDirty();
+        fg.get('Location').markAsDirty();
+        fg.get('Lot').markAsDirty();
+        fg.get('LPN').markAsDirty();
+        fg.get('Location').markAsDirty();
+
+        this.saveChangeDetail(fg);
+    }
+
+    async saveChangeDetail(fg){
+        this.saveChange2(fg,null,this.adjustmentDetailService);
+
+    }
     async saveChange() {
         let submitItem = this.getDirtyValues(this.formGroup);
         super.saveChange2();
