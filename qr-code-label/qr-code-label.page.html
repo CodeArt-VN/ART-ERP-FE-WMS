@@ -14,10 +14,7 @@
       <ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
         <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
       </ion-button>
-      <ion-button
-        title="{{'Expanded function' | translate}}"
-        (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;"
-      >
+      <ion-button title="{{'Expanded function' | translate}}" (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;">
         <ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'"> </ion-icon>
       </ion-button>
     </ion-buttons>
@@ -25,14 +22,7 @@
 </ion-header>
 
 <ion-content appScrollbarTheme appPrintFix class="Ruy96 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
-  <ion-fab
-    *ngIf="pageConfig.isShowFeature"
-    [ngClass]="{withSearch: pageConfig.isShowSearch}"
-    class="feature no-print"
-    vertical="top"
-    horizontal="start"
-    slot="fixed"
-  >
+  <ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print" vertical="top" horizontal="start" slot="fixed">
 
     <div style="min-height: calc(100% - 75px)">
       <ion-list-header lines="full">
@@ -40,8 +30,12 @@
       </ion-list-header>
       <ion-list lines="full">
         <ion-item>
+          <ion-label> {{'In một cột' | transalte}}</ion-label>
+          <ion-toggle slot="end" [checked]=" lableConfig.IsOneColumn" [(ngModel)]="lableConfig.IsOneColumn" (ionChange)="changeIsOneColumn()"></ion-toggle>
+        </ion-item>
+        <ion-item>
           <ion-icon name="qr-code-outline" slot="start"></ion-icon>
-          <ion-range [(ngModel)]="lableConfig.QRCodeWidth" [pin]="true" [step]="2" [min]="100" [max]="250"></ion-range>
+          <ion-range [(ngModel)]="lableConfig.QRCodeWidth" [pin]="true" [step]="2" [min]="100" [max]="lableConfig.maxQRCodeWidth"></ion-range>
           <ion-note slot="end">{{ lableConfig.QRCodeWidth }}</ion-note>
         </ion-item>
         <ion-item>
@@ -55,19 +49,7 @@
           <ion-note slot="end">{{ lableConfig.NameFontSize }}</ion-note>
         </ion-item>
         <ion-item>
-          <ion-icon
-            [name]=" !lableConfig.NameColClamp? 'pause-outline':'pause' "
-            slot="start"
-          ></ion-icon>
-          <ion-toggle [checked]=" lableConfig.NameColClamp"  [(ngModel)]="lableConfig.NameColClamp"></ion-toggle>
-          <ion-note slot="end">{{ lableConfig.NameColClamp ? '2': '1' }}</ion-note>
-        </ion-item>
-
-        <ion-item>
-          <ion-icon
-            [name]=" lableConfig.NameLineClamp ==1 ? 'remove-outline' : (lableConfig.NameLineClamp == 2 ? 'reorder-two-outline' : 'reorder-three-outline') "
-            slot="start"
-          ></ion-icon>
+          <ion-icon [name]=" lableConfig.NameLineClamp ==1 ? 'remove-outline' : (lableConfig.NameLineClamp == 2 ? 'reorder-two-outline' : 'reorder-three-outline') " slot="start"></ion-icon>
           <ion-range [(ngModel)]="lableConfig.NameLineClamp" [pin]="true" [step]="1" [min]="1" [max]="3"></ion-range>
           <ion-note slot="end">{{ lableConfig.NameLineClamp}}</ion-note>
         </ion-item>
@@ -75,11 +57,7 @@
         <ion-grid fixed>
           <ion-row>
             <ion-col>
-              <ion-button
-                expand="block"
-                fill="outline"
-                (click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2, NameColClamp:true}"
-              >
+              <ion-button expand="block" fill="outline" (click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2, IsOneColumn: false}">
                 Reset về mặc định
               </ion-button>
             </ion-col>
@@ -87,17 +65,7 @@
         </ion-grid>
       </ion-list>
     </div>
-    <div class="functions-list">
-      <ion-grid fixed>
-        <ion-row>
-          <ion-col>
-            <ion-button expand="block" (click)="createPages()" [disabled]="!data?.length || submitAttempt">
-              Tạo nhãn in
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
+
   </ion-fab>
 
   <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
@@ -105,32 +73,24 @@
   <div style="overflow: auto" *ngIf="items.length && !pageConfig.showSpinner">
     <section class="sheet rpt">
       <table>
-        <!-- <thead>
-					<tr>
-						<td>
-							<div class="page-header-space"></div>
-						</td>
-					</tr>
-				</thead> -->
+
         <tbody>
           <tr>
             <td>
               <div class="top-zone">
-                <div class="label"  [ngStyle]="{'width': lableConfig.NameColClamp? 'calc(96mm / 2 - 2px)':'calc(97mm)'}"[ngClass]="{odd: j % 2 != 0}" *ngFor="let l of items; let j = index;">
+                <div class="label" [ngStyle]="{'width': !lableConfig.IsOneColumn? 'calc(96mm / 2 - 2px)':'calc(97mm)'}" [ngClass]="{odd: j % 2 != 0}" *ngFor="let l of items; let j = index;">
                   <div class="l-frame">
                     <div class="l-img-code">
-                      <img class="qrc" [src]="l.QRC" [ngStyle]="{width: ''+ lableConfig.QRCodeWidth + 'px' }" />
+                      <img *ngIf="l._qrCode" class="qrc" [src]="l._qrCode" [ngStyle]="{width: ''+ lableConfig.QRCodeWidth + 'px' }" />
+                      <div class="ion-padding ion-margin" *ngIf="!l._qrCode"> <ion-text color="danger">{{'QR code not found!' | translate}}</ion-text></div>
                     </div>
                     <div class="l-logo"></div>
                     <div class="l-title">
                       <div class="l-read-code" [ngStyle]="{'font-size': ''+ lableConfig.CodeFontSize + 'px' }">
-                        {{l.Value}} - {{l.data.Name}}
+                        {{l.line1}}
                       </div>
-                      <div
-                        class="l-item-name"
-                        [ngStyle]="{'font-size': ''+ lableConfig.NameFontSize + 'px' , '-webkit-line-clamp': ''+ lableConfig.NameLineClamp + '' }"
-                      >
-                        #{{l.data.Id}} - {{l.data.Name}}
+                      <div class="l-item-name" [ngStyle]="{'font-size': ''+ lableConfig.NameFontSize + 'px' , '-webkit-line-clamp': ''+ lableConfig.NameLineClamp + '' }">
+                        {{l.line2}}
                       </div>
                     </div>
                   </div>
@@ -139,13 +99,7 @@
             </td>
           </tr>
         </tbody>
-        <!-- <tfoot>
-					<tr>
-						<td>
-							<div class="page-footer-space"></div>
-						</td>
-					</tr>
-				</tfoot> -->
+
       </table>
     </section>
   </div>

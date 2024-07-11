@@ -19,9 +19,10 @@ export class QRCodeLabelPage extends PageBase {
     CodeFontSize: 15,
     NameFontSize: 9,
     NameLineClamp: 2,
-    NameColClamp: true, // true = 2 col
+    IsOneColumn: false, // false = 2 col
+    maxQRCodeWidth: 250,
   };
-  @Input() data;
+
   printMode = 'Ruy96';
   constructor(
     //public pageProvider: WMS_QRCodeLabelProvider,
@@ -34,76 +35,46 @@ export class QRCodeLabelPage extends PageBase {
     public navCtrl: NavController,
     public route: ActivatedRoute,
     public router: Router,
-    ) {
+  ) {
     super();
     this.pageConfig.isShowFeature = true;
   }
 
   preLoadData(event?: any): void {
-   
-    this.loadedData(event);
+    this.route.queryParams.subscribe((params) => {
+      this.items = this.router.getCurrentNavigation().extras.state;
+      this.loadedData(event);
+    });
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
     super.loadedData(event, ignoredFromGroup);
-    if(!this.data){
-      this.route.queryParams.subscribe((params) => {  
-        this.data = this.router.getCurrentNavigation().extras.state;
-      });
-    }
-    if(this.data){
-      this.createPages();
-    }
-  }
-
-  createPages() {
-    if (this.submitAttempt) {
-      this.env.showMessage('Xin vui lòng chờ xử lý.');
-      return;
-    }
-
-    this.pageConfig.showSpinner = true;
-    this.submitAttempt = true;
-    this.env
-      .showLoading('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.data))
-      .then((data) => {
-        this.items = data;
-        this.pageConfig.showSpinner = false;
-        this.submitAttempt = false;
-        this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
-  loadLabel(QRCodeLabels) {
-    return new Promise((resolve) => {
-      let result = [];
-      QRCodeLabels.forEach((i) => {
-        let label: any = {};
-        label.Value = '' + (i.Barcode ? i.Barcode : i.Id);
-        label.data = i;
+    if ( this.items?.length>0) {
+      this.items.forEach((i) => {
         QRCode.toDataURL(
-          label.Value,
+          i.qrCode+'',
           {
-            errorCorrectionLevel: 'H',
-            version: 2,
-            width: 500,
+            errorCorrectionLevel: 'M',
+            version: 6,
+            width: this.lableConfig.IsOneColumn ? 1000 : 500,
             scale: 20,
             type: 'image/webp',
           },
           function (err, url) {
-            label.QRC = url;
+            i._qrCode = url;
           },
         );
-
-        result.push(label);
       });
 
-      resolve(result);
-    });
+      this.pageConfig.showSpinner = false;
+    }
+    console.log(this.items);
   }
 
- 
+  changeIsOneColumn() {
+    this.lableConfig.maxQRCodeWidth = this.lableConfig.IsOneColumn ? 500 : 250;
+    if (this.lableConfig.QRCodeWidth > this.lableConfig.maxQRCodeWidth)
+      this.lableConfig.QRCodeWidth = this.lableConfig.maxQRCodeWidth;
+    this.loadedData();
+  }
 }
