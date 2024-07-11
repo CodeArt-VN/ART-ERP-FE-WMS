@@ -76,7 +76,7 @@
     </datatable-column>
     <datatable-column class="col-status" name="" property="UoMQuantity">
       <ng-template let-i="row" datatable-cell-template>
-        <ion-button *ngIf="i.Status != 'Reverted' && statusLine == 'Done'" size="small" (click)="revertTransaction(i)">
+        <ion-button *ngIf="i.Status != 'Reverted' && i._StatusLine == 'Done'" size="small" (click)="revertTransaction(i)">
           {{'Revert' | translate}}
         </ion-button>
       </ng-template>

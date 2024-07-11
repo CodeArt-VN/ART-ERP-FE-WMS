@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { lib } from 'src/app/services/static/global-functions';
+import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @Component({
     selector: 'app-picking-order-detail',
@@ -177,6 +178,7 @@ export class PickingOrderDetailPage extends PageBase {
             ToLocationName :[field.ToLocationName],
             LotName :[field.LotName],
             UoMName:[field.UoMName],
+            Status: [field.Status],
             ItemName: [ field.ItemName], //de hien thi
             ShowDetail:[field.showdetail],
             Showing:[field.show] ,
@@ -193,29 +195,43 @@ export class PickingOrderDetailPage extends PageBase {
         groups.push(group);
     }
 
-    changeStatus() {
-        this.query.ToStatus = 'Closed';
+    closePick() {
         this.query.Id = this.formGroup.get('Id').value
-        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Picking/ChangeStatus/', this.query).toPromise())
+        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Picking/ClosePicking/', this.query).toPromise())
         .then((result: any) => {
             this.refresh();
         })
         this.query.Id = undefined;
     }
 
-    updateQuantity(obj){
-        this.pageProvider.commonService.connect('PUT', 'WMS/Picking/UpdateQuantity/', obj).toPromise()
-        .then((result: any) => {
-            if(result){
-                this.env.showTranslateMessage('Saved', 'success');
-
-            }
-            else{
-                this.env.showTranslateMessage('Cannot save, please try again','danger');
-            }
-        })
-        // this.saveChange2(fg, null, this.pickingOrderDetailService)
-    }
+    changeStatusDetail(fg, status) {
+        if (fg.get('Status').value == 'Active' && status == 'Done') {
+           //update status Active -> Done
+           let obj = [
+             {
+               Id: fg.get('Id').value,
+               Status: status,
+               QuantityPicked: fg.get('QuantityPicked').value,
+             },
+           ];
+           if (this.submitAttempt == false) {
+             this.submitAttempt = true;
+             this.pageProvider.commonService
+               .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
+               .toPromise()
+               .then((result: any) => {
+                 if (result) {
+                   this.env.showTranslateMessage('Saved', 'success');
+                   fg.controls.Status.setValue(status);
+                   this.submitAttempt = false;
+                 } else {
+                   this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                   this.submitAttempt = false;
+                 }
+               });
+           }
+         }
+       }
 
     allocatePicking(){
         this.query.Id = this.formGroup.get('Id').value
@@ -239,24 +255,37 @@ export class PickingOrderDetailPage extends PageBase {
 
     toggleAllQty() {
         let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        let obj = [];
         groups.controls.forEach((group: FormGroup) => {
+          const currentStatus = group.get('Status').value;
+          if (currentStatus == 'Active') {
             if (this.item._IsPickedAll) {
-                group.controls.QuantityPicked.setValue(0);
-                group.controls.QuantityPicked.markAsDirty();
+              group.controls.QuantityPicked.setValue(0);
+            } else {
+              group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
             }
-            else {
-               if(group.controls.FromLocationName.value || group.controls.IDParent.value == null){
-                    group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
-
-                }
-                // group.controls.QuantityPicked.markAsDirty();
-            }
-
+            const id = group.get('Id').value;
+            const quantityPicked = group.controls.QuantityPicked.value;
+            obj.push({ Id: id, QuantityPicked: quantityPicked });
+          }
         });
-        this.item._IsPickedAll = !this.item._IsPickedAll;
-        this.calcAllTotalPickedQuantity();
-        
-    }
+    
+        if (!this.submitAttempt && obj.length > 0) {
+          this.submitAttempt = true;
+          this.pageProvider.commonService
+            .connect('PUT', 'WMS/Picking/UpdateQuantity/', obj)
+            .toPromise()
+            .then(() => {
+              this.env.showTranslateMessage('Saved', 'success');
+              this.item._IsPickedAll = !this.item._IsPickedAll;
+              this.submitAttempt = false;
+            })
+            .catch((err) => {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.submitAttempt = false;
+            });
+        }
+      }
 
     calcTotalPickedQuantity(childFG){
         let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
@@ -280,23 +309,11 @@ export class PickingOrderDetailPage extends PageBase {
                 {Id:childFG.get('Id').value, QuantityPicked:childFG.get('QuantityPicked').value},
             ]
         }
-        this.updateQuantity(obj);
+        childFG.get('Id').markAsDirty();
+        childFG.get('QuantityPicked').markAsDirty();
+        super.saveChange2(childFG, this.pageConfig.pageName, this.pickingOrderDetailService);
     }
 
-    calcAllTotalPickedQuantity(){
-        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-        let obj = groups.controls.map((fg: FormGroup) => {
-            if(fg.get('FromLocationName').value){
-                return {
-                    Id: fg.get('Id').value,
-                    QuantityPicked: fg.get('QuantityPicked').value
-                  };
-            }
-        
-          });
-          this.updateQuantity(obj.filter(o => o));
-
-    }
 
     changeSelection(i, view, e = null) {
         if (i.get('IsChecked').value) {
@@ -478,4 +495,20 @@ export class PickingOrderDetailPage extends PageBase {
         }
       
     }
+    
+    async openTransaction(fg) {
+        const modal = await this.modalController.create({
+          component: TransactionModalPage,
+          componentProps: {
+            sourceLine: fg.controls.Id.value,
+          },
+          cssClass: 'modal90',
+        });
+    
+        await modal.present();
+        const { data } = await modal.onWillDismiss();
+        if (data) {
+          this.refresh();
+        }
+      }
 }

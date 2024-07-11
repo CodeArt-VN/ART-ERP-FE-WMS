@@ -6,7 +6,7 @@
 			</ion-button>
 		  </ion-buttons>
 		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Close'  && item?.PickingOrderDetails?.length >0" >
-			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="changeStatus()">
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closePick()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
 			</ion-button>
 		</ion-buttons>
@@ -113,7 +113,10 @@
 								<div class="col-qty cell" (click)="sortToggle('Cube')">
 									{{'Picked quantity' | translate}}
 								</div>
-							
+								<div class="col-qty cell"  *ngIf="pageConfig.canEdit">	
+								</div>
+								<div class="col-icon cell" *ngIf="pageConfig.canEdit">
+								</div>
 								<div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 									<ion-icon  *ngIf="checkedPickingOrderDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
 								</div>
@@ -164,12 +167,23 @@
 										<div class="col-qty cell">
 											{{c.get('Quantity').value}}
 										</div>
-										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleQty(c)">
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value != 'Active'">
+										</div>
+										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value == 'Active'" (click)="toggleQty(c)">
 											<ion-icon *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value"[color]="c.controls.QuantityPicked.value == c.controls.QuantityPicked.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityPicked.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
 										</div>
 										<div class="col-qty cell">
-											<app-input-control *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value" [field]="{id:'QuantityPicked', type : 'number', form : c, }" (inputChange)="calcTotalPickedQuantity(c)"></app-input-control>
+											<app-input-control *ngIf="!c.controls.HasChild.value && c.controls.Status.value != 'Active' && c.get('FromLocationName').value" [field]="{id:'QuantityPicked', type : 'span-number', form : c, }" (inputChange)="calcTotalPickedQuantity(c)"></app-input-control>
+											<app-input-control *ngIf="!c.controls.HasChild.value && c.controls.Status.value == 'Active'&& c.get('FromLocationName').value" [field]="{id:'QuantityPicked', type : 'number', form : c, }" (inputChange)="calcTotalPickedQuantity(c)"></app-input-control>
 											<div *ngIf="c.controls.HasChild.value">{{c.get('QuantityPicked').value}}</div><!-- {{c.get('PickedQuantity')?.value}} -->
+										</div>
+										<div class="col-qty cell" *ngIf="pageConfig.canEdit">
+											<ion-button size="small"  *ngIf="!c.controls.HasChild.value && c.controls.Status.value == 'Active'" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
+										</div>
+										<div class="col-icon cell clickable"  *ngIf="pageConfig.canEdit && c.controls.HasChild.value">
+										</div>
+										<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit && !c.controls.HasChild.value">
+											<ion-icon color="primary" name="search-circle-outline"></ion-icon>
 										</div>
 										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 											<ion-icon color="danger" name="trash"></ion-icon>

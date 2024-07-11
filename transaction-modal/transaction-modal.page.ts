@@ -12,8 +12,9 @@ import { WMS_TransactionProvider } from 'src/app/services/static/services.servic
   styleUrls: ['./transaction-modal.page.scss'],
 })
 export class TransactionModalPage extends PageBase {
+  sourceKey: number;
   sourceLine: number;
-  statusLine: string;
+  //statusLine: string;// TODO: truyen outbound, status lay tu backend
   transactionType : string;
   update = false;
 
@@ -57,7 +58,12 @@ export class TransactionModalPage extends PageBase {
   }
 
   preLoadData(event?: any): void {
-    this.query.SourceLine = this.sourceLine;
+    if(this.sourceKey) {
+      this.query.SourceKey = this.sourceKey;
+    }
+    else {
+      this.query.SourceLine = this.sourceLine;
+    }
     this.sortToggle('Id_desc', true);
     super.preLoadData(event);
   }
@@ -66,7 +72,7 @@ export class TransactionModalPage extends PageBase {
   revertTransaction(fg) {
 
     this.pageProvider.commonService
-      .connect('POST', 'WMS/Transaction/RevertTransaction', {Id : fg.Id, Type: this.transactionType, Status: this.statusLine})
+      .connect('POST', 'WMS/Transaction/RevertTransaction', {Id : fg.Id})
       .toPromise()
       .then(() => {
         this.update = true;

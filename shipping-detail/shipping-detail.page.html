@@ -1,7 +1,7 @@
 <ion-header>
 	<app-detail-toolbar [page]="this">
 		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'New'  && item?.ShippingDetails?.length >0" >
-			<ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeShip()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
 			</ion-button>
 		</ion-buttons>
@@ -126,20 +126,9 @@
 								<div class="col-qty cell" (click)="sortToggle('GrossWeight')">
 									{{'Shipped quantity' | translate}}
 								</div>
-								<div class="col-qty cell" (click)="sortToggle('Status')">
-									{{'Done' | translate}}
-								</div>
-								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllChangeStatusDetail('Done')">
-									<ion-icon *ngIf="item"[color]="'success'" [name]="'checkmark-done-circle-outline'"></ion-icon>
-								</div>
-								<div class="col-qty cell" (click)="sortToggle('Status')">
-									{{'Closed' | translate}}
-								</div>
-								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllChangeStatusDetail('Closed')">
-									<ion-icon *ngIf="item" [color]="'success'" [name]="'checkmark-done-circle-outline'"></ion-icon>
+								<div class="col-qty cell"  *ngIf="pageConfig.canEdit">	
 								</div>
 								<div class="col-icon cell" *ngIf="pageConfig.canEdit">
-									
 								</div>
 								<div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 									<ion-icon  *ngIf="checkedShippingDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
@@ -182,17 +171,10 @@
 											<app-input-control *ngIf="c.controls.Status.value != 'Active'" [field]="{id:'QuantityShipped', type : 'span-number', form : c, }"></app-input-control>
 											<app-input-control *ngIf="c.controls.Status.value == 'Active'" [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="UpdateShippedQuantity(c)"></app-input-control>
 										</div>
-										<div class="col-qty cell">
+			
+										<div class="col-qty cell" *ngIf="pageConfig.canEdit">
+											<ion-button size="small"  *ngIf="c.controls.Status.value == 'Active'" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
 										</div>
-										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="changeStatusDetail(c, 'Done')">
-											<ion-icon [color]="c.controls.Status.value == 'Done' ? 'success' : 'danger'" class="min-btn" [name]="c.controls.Status.value == 'Done'  ? 'checkmark-circle-outline' : 'remove-circle-outline'"></ion-icon>
-										</div>
-										<div class="col-qty cell">
-										</div>
-										<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="changeStatusDetail(c, 'Closed')">
-											<ion-icon [color]="c.controls.Status.value == 'Closed' ? 'success' : 'danger'" class="min-btn" [name]="c.controls.Status.value == 'Closed'  ? 'checkmark-circle-outline' : 'remove-circle-outline'"></ion-icon>
-										</div>
-										
 										<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit">
 											<ion-icon color="primary" name="search-circle-outline"></ion-icon>
 										</div> 

@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { lib } from 'src/app/services/static/global-functions';
+import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @Component({
     selector: 'app-packing-order-detail',
@@ -32,7 +33,7 @@ export class PackingOrderDetailPage extends PageBase {
     checkedPackingDetails: any = new FormArray([]);
     constructor(
         public pageProvider: WMS_PackingProvider,
-        public PackingDetailservice: WMS_PackingDetailProvider,
+        public packingDetailservice: WMS_PackingDetailProvider,
         public staffService: HRM_StaffProvider,
         public schemaService: SYS_SchemaProvider,
         public itemService: WMS_ItemProvider,
@@ -88,7 +89,7 @@ export class PackingOrderDetailPage extends PageBase {
         super.loadedData(event, ignoredFromGroup);
         this.query.IDPacking = this.item.Id; //temp
         this.query.Id = undefined;
-        this.PackingDetailservice.read(this.query,false).then((listDetail:any) =>{
+        this.packingDetailservice.read(this.query,false).then((listDetail:any) =>{
             if(listDetail!= null && listDetail.data.length>0){
                 const packingOrdertDetailsArray = this.formGroup.get('PackingDetails') as FormArray;
                 packingOrdertDetailsArray.clear();
@@ -141,6 +142,7 @@ export class PackingOrderDetailPage extends PageBase {
             LotName :[field.LotName],
             UoMName:[field.UoMName],
             ItemName: [ field.ItemName], //de hien thi
+            Status: [ field.Status],
             IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
             IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
             CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
@@ -152,34 +154,44 @@ export class PackingOrderDetailPage extends PageBase {
         groups.push(group);
     }
 
-    changeStatus() {
-        this.query.ToStatus = 'Closed';
+    closePack() {
         this.query.Id = this.formGroup.get('Id').value
-        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ChangeStatus/', this.query).toPromise())
+        this.env.showLoading('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise())
         .then((result: any) => {
             this.refresh();
         })
         this.query.Id = undefined;
     }
+    changeStatusDetail(fg, status) {
+        if (fg.get('Status').value == 'Active' && status == 'Done') {
+           //update status Active -> Done
+           let obj = [
+             {
+               Id: fg.get('Id').value,
+               Status: status,
+               QuantityPacked: fg.get('QuantityPacked').value,
+             },
+           ];
+           if (this.submitAttempt == false) {
+             this.submitAttempt = true;
+             this.pageProvider.commonService
+               .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
+               .toPromise()
+               .then((result: any) => {
+                 if (result) {
+                   this.env.showTranslateMessage('Saved', 'success');
+                   fg.controls.Status.setValue(status);
+                   this.submitAttempt = false;
+                 } else {
+                   this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                   this.submitAttempt = false;
+                 }
+               });
+           }
+         }
+       }
 
-    updateQuantity(obj){
-        this.pageProvider.commonService.connect('PUT', 'WMS/Packing/UpdateQuantity/', obj).toPromise()
-        .then((result: any) => {
-            if(result && result.length>0){
-                let groups = <FormArray>this.formGroup.controls.PackingDetails;
-                result.forEach(updatedPacking => {
-                    var packingDetail = groups.controls.find(d=> d.get('Id').value == updatedPacking.Id);
-                    if(packingDetail){
-                        packingDetail.get('QuantityPacked').setValue(updatedPacking.QuantityPacked);
-                    }
-                })
-                this.env.showTranslateMessage('Saved', 'success');
-            }
-            else{
-                this.env.showTranslateMessage('Cannot save, please try again','danger');
-            }
-        })
-    }
+
     toggleQty(group) {
         if (group.controls.Quantity.value == group.controls.QuantityPacked.value) {
             group.controls.QuantityPacked.setValue(0);
@@ -194,21 +206,37 @@ export class PackingOrderDetailPage extends PageBase {
 
     toggleAllQty() {
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
+        let obj = [];
         groups.controls.forEach((group: FormGroup) => {
+          const currentStatus = group.get('Status').value;
+          if (currentStatus == 'Active') {
             if (this.item._IsPackedAll) {
-                group.controls.QuantityPacked.setValue(0);
-                group.controls.QuantityPacked.markAsDirty();
+              group.controls.QuantityPacked.setValue(0);
+            } else {
+              group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
             }
-            else {
-                group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
-                group.controls.QuantityPacked.markAsDirty();
-            }
-
+            const id = group.get('Id').value;
+            const quantityPacked = group.controls.QuantityPacked.value;
+            obj.push({ Id: id, Status: currentStatus, QuantityPacked: quantityPacked });
+          }
         });
-        this.item._IsPackedAll = !this.item._IsPackedAll;
-        this.calcAllTotalPackedQuantity();
-        
-    }
+    
+        if (!this.submitAttempt && obj.length > 0) {
+          this.submitAttempt = true;
+          this.pageProvider.commonService
+            .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
+            .toPromise()
+            .then(() => {
+              this.env.showTranslateMessage('Saved', 'success');
+              this.item._IsPackedAll = !this.item._IsPackedAll;
+              this.submitAttempt = false;
+            })
+            .catch((err) => {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.submitAttempt = false;
+            });
+        }
+      }
 
     calcTotalPackedQuantity(childFG){
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
@@ -223,29 +251,43 @@ export class PackingOrderDetailPage extends PageBase {
             parentFG.get('QuantityPacked').setValue(totalPackedQty)
             parentFG.get('QuantityPacked').markAsDirty();
             obj = [
-                {Id:parentFG.get('Id').value, QuantityPacked:parentFG.get('QuantityPacked').value},
-                {Id:childFG.get('Id').value, QuantityPacked:childFG.get('QuantityPacked').value},
+                {Id:parentFG.get('Id').value, Status: 'Active', QuantityPacked:parentFG.get('QuantityPacked').value},
+                {Id:childFG.get('Id').value, Status: 'Active', QuantityPacked:childFG.get('QuantityPacked').value},
             ]
         }
         else{
             obj = [
-                {Id:childFG.get('Id').value, QuantityPacked:childFG.get('QuantityPacked').value},
+                {Id:childFG.get('Id').value, Status: 'Active', QuantityPacked:childFG.get('QuantityPacked').value},
             ]
         }
-        this.updateQuantity(obj);
+        // childFG.get('Id').markAsDirty();
+        // childFG.get('QuantityPacked').markAsDirty();
+        // super.saveChange2(childFG, this.pageConfig.pageName, this.packingDetailservice);
+
+        if (this.submitAttempt == false) {
+            this.submitAttempt = true;
+            this.pageProvider.commonService
+              .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
+              .toPromise()
+              .then((result: any) => {
+                if(result && result.length>0){
+                    let groups = <FormArray>this.formGroup.controls.PackingDetails;
+                    result.forEach(updatedPacking => {
+                        var packingDetail = groups.controls.find(d=> d.get('Id').value == updatedPacking.Id);
+                        if(packingDetail){
+                            packingDetail.get('QuantityPacked').setValue(updatedPacking.QuantityPacked);
+                        }
+                    })
+                    this.env.showTranslateMessage('Saved', 'success');
+                }
+                else{
+                    this.env.showTranslateMessage('Cannot save, please try again','danger');
+                }
+                this.submitAttempt = false;
+              });
+          }
     }
 
-    calcAllTotalPackedQuantity(){
-        let groups = <FormArray>this.formGroup.controls.PackingDetails;
-        let obj = groups.controls.map((fg: FormGroup) => {
-            return {
-              Id: fg.get('Id').value,
-              QuantityPacked: fg.get('QuantityPacked').value
-            };
-          });
-          this.updateQuantity(obj);
-
-    }
 
     changeSelection(i, view, e = null) {
         if (i.get('IsChecked').value) {
@@ -306,7 +348,7 @@ export class PackingOrderDetailPage extends PageBase {
         let groups = <FormArray>this.formGroup.controls.PackingDetails;
         let itemToDelete = fg.getRawValue();
         this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then(_ => {
-            this.PackingDetailservice.delete(itemToDelete).then(result => {
+            this.packingDetailservice.delete(itemToDelete).then(result => {
                 groups.removeAt(j);
             })
         })
@@ -317,7 +359,7 @@ export class PackingOrderDetailPage extends PageBase {
             let itemsToDelete = this.checkedPackingDetails.getRawValue();
             
             this.env.showPrompt('Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?', null, 'Xóa ' + itemsToDelete.length + ' dòng').then(_ => {
-                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.PackingDetailservice.delete(itemsToDelete))
+                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.packingDetailservice.delete(itemsToDelete))
                     .then(_ => {
                         this.removeSelectedItems();
                         this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
@@ -383,4 +425,20 @@ export class PackingOrderDetailPage extends PageBase {
         }
        
     }
+
+    async openTransaction(fg) {
+        const modal = await this.modalController.create({
+          component: TransactionModalPage,
+          componentProps: {
+            sourceLine: fg.controls.Id.value,
+          },
+          cssClass: 'modal90',
+        });
+    
+        await modal.present();
+        const { data } = await modal.onWillDismiss();
+        if (data) {
+          this.refresh();
+        }
+      }
 }
