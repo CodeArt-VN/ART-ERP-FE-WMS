@@ -85,10 +85,10 @@
     slot="fixed"
   >
     <div class="ion-padding" *ngIf="pageConfig.canExport">
-      <ion-button (click)="loadBatchPicking()" [disabled]="submitAttempt" style="width: 135px">
+      <ion-button (click)="loadBatchPicking()" [disabled]="submitAttempt" >
         {{'Create list' | translate}}
       </ion-button>
-      <ion-button (click)="exportPicking()" [disabled]="submitAttempt" style="width: 135px">
+      <ion-button (click)="exportPicking()" [disabled]="submitAttempt" >
         {{'Export to Excel' | translate}}
       </ion-button>
     </div>
