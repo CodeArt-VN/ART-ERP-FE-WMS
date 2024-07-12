@@ -181,7 +181,7 @@ export class ShippingDetailPage extends PageBase {
       }
     });
 
-    if (shippingDetails.length > 0) {  
+    if (shippingDetails.length > 0) {
       this.env
         .showPrompt(
           'Bạn chắc muốn đóng ' + shippingDetails.length + ' đang chọn?',
@@ -190,20 +190,20 @@ export class ShippingDetailPage extends PageBase {
         )
         .then((_) => {
           this.env
-          .showLoading(
-            'Vui lòng chờ load dữ liệu...',
-            this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
-          )
-          .then(async (result: any) => {
-            this.refresh();
-          })
-          .catch((err) => {
-            this.env.showMessage('Cannot save, please try again.');
-            console.log(err);
-          });
+            .showLoading(
+              'Vui lòng chờ load dữ liệu...',
+              this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
+            )
+            .then(async (result: any) => {
+              this.refresh();
+            })
+            .catch((err) => {
+              this.env.showMessage('Cannot save, please try again.');
+              console.log(err);
+            });
         });
     }
-    
+
     this.query.Id = undefined;
   }
 
@@ -268,7 +268,6 @@ export class ShippingDetailPage extends PageBase {
         {
           Id: fg.get('Id').value,
           Status: status,
-          QuantityShipped: fg.get('QuantityShipped').value,
         },
       ];
       if (this.submitAttempt == false) {
@@ -285,6 +284,10 @@ export class ShippingDetailPage extends PageBase {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
               this.submitAttempt = false;
             }
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
           });
       }
     }
