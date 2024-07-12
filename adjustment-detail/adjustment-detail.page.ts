@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_StaffProvider, SYS_SchemaProvider, SYS_SyncJobProvider, WMS_AdjustmentDetailProvider, WMS_AdjustmentProvider, WMS_CycleCountProvider, WMS_ItemProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, CRM_ContactProvider, HRM_StaffProvider, SYS_SchemaProvider, SYS_SyncJobProvider, WMS_AdjustmentDetailProvider, WMS_AdjustmentProvider, WMS_CycleCountProvider, WMS_ItemProvider, WMS_LotLPNLocationProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
 import { Schema } from 'src/app/models/options-interface';
@@ -19,18 +19,14 @@ import { WMS_Adjustment } from 'src/app/models/model-list-interface';
     styleUrls: ['adjustment-detail.page.scss']
 })
 export class AdjustmentDetailPage extends PageBase {
-    countTypeDataSource: any;
     statusDataSource: any;
-    schema: Schema;
-    config: any = null;
-    itemList: any;
-    tempItemList: any;
-    countItem: number = 0;
+    reasonDataSource: any;
     branchList
     constructor(
         public pageProvider: WMS_AdjustmentProvider,
         public adjustmentDetailService: WMS_AdjustmentDetailProvider,
-        public staffService: HRM_StaffProvider,
+        public lotLPNLocationlService: WMS_LotLPNLocationProvider,
+        public contactService: CRM_ContactProvider,
         public schemaService: SYS_SchemaProvider,
         public itemService: WMS_ItemProvider,
         public commonService: CommonService,
@@ -50,17 +46,17 @@ export class AdjustmentDetailPage extends PageBase {
         this.pageConfig.isDetailPage = true;
         this.formGroup = this.formBuilder.group({
             Id: new FormControl({ value: '', disabled: true }),
-            IDBranch: ['', Validators.required],
+            IDBranch:['',Validators.required],
+            IDStorer:[''],
             IDCycleCount: new FormControl({ value: '', disabled: false }),
             AdjustmentDetails: this.formBuilder.array([]),
           
-          
-            Reason : [''],
+            Reason : ['',Validators.required],
             Remark: [''],
             Sort: [''],
             CountType: [''],
             CountDate: [''],
-            Status: ['', Validators.required],
+            Status: new FormControl({ value: 'New', disabled: true }, Validators.required),
             
             IsDisabled: new FormControl({ value: '', disabled: true }),
             IsDeleted: new FormControl({ value: '', disabled: true }),
@@ -70,14 +66,57 @@ export class AdjustmentDetailPage extends PageBase {
             ModifiedDate: new FormControl({ value: '', disabled: true }),
         });
     }
-
+    storerDataSource = {
+        searchProvider: this.contactService,
+        loading: false,
+        input$: new Subject<string>(),
+        selected: [],
+     
+        items$: null,
+        initSearch() {
+          this.loading = false;
+          this.items$ = concat(
+            of(this.selected),
+            this.input$.pipe(
+              distinctUntilChanged(),
+              tap(() => (this.loading = true)),
+              switchMap((term) =>
+                this.searchProvider.search({ Take: 20, Skip: 0, Term: term, IsStorer:true}).pipe(
+                  catchError(() => of([])), // empty list on error
+                  tap(() => (this.loading = false)),
+                ),
+              ),
+            ),
+          );
+        },
+    };
+    
     preLoadData(event) {
-
+        this.branchProvider.read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren }).then(resp => {
+            lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
+                this.branchList = result;
+                this.branchList.forEach(i => {
+                    i.disabled = true;
+                });
+                this.markNestedNode(this.branchList, this.env.selectedBranch);
+                super.preLoadData(event);
+            }).catch(err => {
+                this.env.showMessage(err);
+                console.log(err);
+            });
+        });
         this.statusDataSource = [
-            { Name: 'Done', Code: 'Done' },
+            { Name: 'New', Code: 'New' },
             { Name: 'Pending', Code: 'Pending' },
+            { Name: 'Approved', Code: 'Approved' },
+            { Name: 'Disapprove', Code: 'Disapprove' },
         ];
-
+        this.reasonDataSource = [
+            { Name: 'Fail goods', Code: 'FailGoods' },
+            { Name: 'Wrong input', Code: 'WrongInput' },
+            { Name: 'Cycle count difference', Code: 'CycleCount' },
+            { Name: 'Other...', Code: 'Other' },
+        ];
     
         super.preLoadData(event);
     }
@@ -94,9 +133,20 @@ export class AdjustmentDetailPage extends PageBase {
                 this.patchFieldsValue();
             }
         })
-
+        if(this.item.Id>0){
+            this.formGroup.get('Status').markAsPristine();
+        }
+        else{
+            this.formGroup.get('Status').markAsDirty();
+        }
         this.query.Id = this.item.Id;
+        if(this.item?._Storer){
+            this.storerDataSource.selected.push(this.item._Storer);
+        }
+        
+        this.storerDataSource.initSearch();
     }
+    
     private patchFieldsValue() {
         this.pageConfig.showSpinner = true;
 
@@ -112,43 +162,172 @@ export class AdjustmentDetailPage extends PageBase {
 
         this.pageConfig.showSpinner = false;
     }
-
     addField(field: any, markAsDirty = false) {
+        let that = this;
         let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
         let group = this.formBuilder.group({
+            _lotLPNLocationDataSource: {
+                searchProvider: this.lotLPNLocationlService,
+                loading: false,
+                input$: new Subject<string>(),
+                selected: [],
+                items$: null,
+                initSearch() {
+                  this.loading = false;
+                  this.items$ = concat(
+                    of(this.selected),
+                    this.input$.pipe(
+                      distinctUntilChanged(),
+                      tap(() => (this.loading = true)),
+                      switchMap((term) =>
+                        this.searchProvider.search({ Take: 20, Skip: 0, Term: term, 
+                          IDStorer: that.formGroup.get('IDStorer').value
+                         ,IDBranch:that.formGroup.get('IDBranch').value}).pipe(
+                          catchError(() => of([])), // empty list on error
+                          tap(() => (this.loading = false)),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              },
+            Id:[field?.Id],
             IDAdjustment:[this.formGroup.get('Id').value, Validators.required],
-            IDItem:[field.IDItem, Validators.required],
-            QuantityAdjusted : [field.QuantityAdjusted],
-            WarehouseQuantity:[field.WarehouseQuantity],
-            Cube:[field.Cube || 0],
-            GrossWeight:[field.GrossWeight || 0],
-            NetWeight:[field.NetWeight || 0],
+            IDItem:[field?.IDItem, Validators.required],
+            QuantityAdjusted : [field?.QuantityAdjusted || 0],
+            WarehouseQuantity:[field?.WarehouseQuantity],
+            Cube:[field?.Cube || 0],
+            GrossWeight:[field?.GrossWeight || 0],
+            NetWeight:[field?.NetWeight || 0],
 
-            ZoneName:[field.ZoneName],
-            Lot:[field.Lot],
-            LotName:[field.LotName],
-            Location:[field.Location],
-            LocationName:[field.LocationName],
-            LPN:[field.LPN],
+            ZoneName:[field?.ZoneName],
+            Lot:[field?.Lot],
+            LotName:[field?.LotName],
+            Location:[field?.Location],
+            LocationName:[field?.LocationName],
+            LPN:[field?.LPN],
 
-            Status:[field.Status || 'Pending'],
-            UoMName:[field.UoMName || 0],
-            ItemName: [ field.ItemName], //de hien thi
-            IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
-            IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
-            CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
-            CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
-            ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
-            ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
+            Status:[field?.Status || 'Pending'],
+            UoMName:[field?._Item?.UoMName],
+            ItemName: [field?._Item?.ItemName], //de hien thi
+          
             IsChecked: new FormControl({ value: false, disabled: false }),
         })
         groups.push(group);
+        if(field){
+           console.log(field)
+            group.controls._lotLPNLocationDataSource.value.selected.push(field);
+        }
+        if(markAsDirty){
+            group.get('IDAdjustment').markAsDirty();
+            group.get('Status').markAsDirty();
+            group.get('QuantityAdjusted').markAsDirty();
+            group.get('Cube').markAsDirty();
+            group.get('GrossWeight').markAsDirty();
+            group.get('NetWeight').markAsDirty();
+
+        }
+        group.controls._lotLPNLocationDataSource.value.initSearch();
     }
 
+    changeIDItem(e,fg){
+        console.log(e);
+        if(e){
+            fg.get('IDItem').setValue(e.IDItem);
+            fg.get('Location').setValue(e._Location.Id);
+            fg.get('LocationName').setValue(e._Location.Name);
+            fg.get('ZoneName').setValue(e._Location.ZoneName);
+            fg.get('Lot').setValue(e._Lot.Id);
+            fg.get('LotName').setValue(e._Lot.Lottable0);
+            fg.get('LPN').setValue(e._LPN.Id);
+            let uom = e._Item.UoM.find(d=>d.IsBaseUoM);
+            fg.get('UoMName').setValue(uom.Name);
+            fg.get('WarehouseQuantity').setValue(e.QuantityOnHand);
+    
+            fg.get('IDItem').markAsDirty();
+            fg.get('Location').markAsDirty();
+            fg.get('Lot').markAsDirty();
+            fg.get('LPN').markAsDirty();
+            fg.get('Location').markAsDirty();
+    
+            this.saveChangeDetail(fg);
+        }
+      
+    }
+    changeWarehouse(e){
+
+    }
+    async saveChangeDetail(fg){
+        this.saveChange2(fg,null,this.adjustmentDetailService);
+
+    }
     async saveChange() {
         let submitItem = this.getDirtyValues(this.formGroup);
         super.saveChange2();
     }
+
+
+    removeField(fg, j) {
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        let itemToDelete = fg.getRawValue();
+        this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then(_ => {
+            this.adjustmentDetailService.delete(itemToDelete).then(result => {
+                groups.removeAt(j);
+            })
+        })
+    }
+
+    checkAdjustmentDetails: any = new FormArray([]);
+    isAllChecked = false;
+    changeSelection(i, view, e = null) {
+        if (i.get('IsChecked').value) {
+            this.checkAdjustmentDetails.push(i);
+        }
+        else {
+            let index = this.checkAdjustmentDetails.getRawValue().findIndex(d => d.Id == i.get('Id').value)
+            this.checkAdjustmentDetails.removeAt(index);
+        }
+    }
+
+    toggleSelectAll() {
+        if(!this.pageConfig.canEdit) return;
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        if (!this.isAllChecked) {
+            this.checkAdjustmentDetails = new FormArray([]);
+        }
+        groups.controls.forEach(i => {
+          
+            i.get('IsChecked').setValue(this.isAllChecked)
+            if (this.isAllChecked) this.checkAdjustmentDetails.push(i)
+        });
+    }
+    deleteItems() {
+        if (this.pageConfig.canDelete) {
+            let itemsToDelete = this.checkAdjustmentDetails.getRawValue();
+            this.env.showPrompt('Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?', null, 'Xóa ' + itemsToDelete.length + ' dòng').then(_ => {
+                this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.adjustmentDetailService.delete(itemsToDelete))
+                    .then(_ => {
+                        this.removeSelectedItems();
+                        this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+                        this.isAllChecked = false;
+                    }).catch(err => {
+                        this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+                        console.log(err);
+                    });
+            });
+        }
+    }
+
+    removeSelectedItems() {
+        let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+        this.checkAdjustmentDetails.controls.forEach(fg => {
+            const indexToRemove = groups.controls.findIndex(control => control.get('Id').value === fg.get('Id').value);
+            groups.removeAt(indexToRemove);
+        })
+
+        this.checkAdjustmentDetails = new FormArray([]);
+    }
+
 
     sortDetail: any = {};
     sortToggle(field) {

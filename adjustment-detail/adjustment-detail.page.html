@@ -1,7 +1,5 @@
 <ion-header>
-	<app-detail-toolbar [page]="this">
-		
-	</app-detail-toolbar>
+	<app-detail-toolbar [page]="this"> </app-detail-toolbar>
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
 <ion-content appScrollbarTheme class="ion-padding">
@@ -14,20 +12,38 @@
 							<ion-label color="primary">{{'Warehouse adjustment' | translate}}</ion-label>
 						</ion-list-header>
 					</ion-col>
-				
+
 					<ion-col size="12" size-sm size-xl="4">
+						<!-- <app-form-control  [field]="{id:'Status', label: 'Status', type : 'ng-select', dataSource: statusDataSource, bindValue: 'Code',binLabel: 'Name',  form : formGroup ,clearable:true}" (change)="saveChange()"></app-form-control> -->
+						<app-form-control  [field]="{id:'Status', label: 'Status', type : 'text', form : formGroup ,clearable:true}" (change)="saveChange()"></app-form-control>
+						
 						<div class="c-control">
-							<label class="c-label">{{'Status' | translate}}: {{formGroup.get('Status').value}}</label>
+							<label class="c-label" for="IDBranch">{{'erp.app.pages.purchase.purchase-order.id-branch' | translate}}
+								<span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+							</label>
+							<ng-select class="c-input" (change)="changeWarehouse($event);" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}" (change)="saveChange()">
+								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+									<div *ngIf="i">
+										<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+									</div>
+								</ng-template>
+							</ng-select>
 						</div>
-						<app-form-control [field]="{id:'Reason', label: 'Reason', type : 'textarea', form : formGroup }" (change)="saveChange()"></app-form-control>
-			
+					
+						<app-form-control  [field]="{id:'IDStorer', label: 'IDStorer', type : 'ng-select-bp', dataSource: storerDataSource, bindValue: 'Id',  form : formGroup ,clearable:true}" (change)="saveChange()"></app-form-control>
+				
 					</ion-col>
 
-					
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'Reason', label: 'Reason', type : 'ng-select', dataSource: reasonDataSource, bindLabel:'Name',bindValue:'Code', form : formGroup }" (change)="saveChange()"></app-form-control>
+						
+						<app-form-control *ngIf="formGroup.get('Reason').value == 'Other' && segmentView !='s2'" [field]="{id:'Remark', label: 'Remark', type : 'textarea', form : formGroup }" (change)="saveChange()"></app-form-control>
+
+					</ion-col>
 				</ion-row>
 			</form>
 		</ion-grid>
-	
+
 		<div class="row-full shadow full-screen">
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
@@ -39,131 +55,132 @@
 					</ion-segment-button>
 				</ion-segment>
 				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
-                    <!-- <ion-button (click)="presentModal('addField')">
+					<!-- <ion-button (click)="presentModal('addField')">
                         <ion-icon slot="start" name="add"></ion-icon>
                         {{'Add' | translate}}
                     </ion-button>| -->
-					
+
 					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
 						<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
-					</ion-button> 
+					</ion-button>
 					<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport" (click)="onClickImport()" title="{{'Import' | translate}}">
 						<ion-icon slot="icon-only" name="cloud-upload-outline"></ion-icon>
 						<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="import($event)" />
 					</ion-button>
-				
+
 				</ion-buttons>
-				
+
 			</ion-toolbar>
-		
+
 			<div class="table-contain" *ngIf="segmentView == 's1'">
 				<section class="table responsive">
-					
-							<header class="bold">
-								<!-- <div class="col-checkbox cell">
+
+					<header class="bold">
+						<div class="col-checkbox cell">
 									<input (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox">
-								</div> -->
-								<div class="col-id cell">#</div>
-								<div class="col-name cell" (click)="sortToggle('ItemName')">
-									{{'Item name' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
-									<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+								</div>
+						<div class="col-id cell">#</div>
+						<div class="col-name cell" (click)="sortToggle('ItemName')">
+							{{'Item name' | translate}}
+							<ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
+							<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
 										name="search" color="primary"></ion-icon> -->
-								</div>
-								<div class="col-name cell" (click)="sortToggle('UoMName')">
-									{{'UoM' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
-									
-								</div>
-							
-								<div class="col-name cell" (click)="sortToggle('ZoneName')">
-									{{'ZoneName' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.ZoneName" [name]="sortDetail.ZoneName == 'ZoneName'?'arrow-down': 'arrow-up'"></ion-icon>
-								</div>
-								<div class="col-name cell" (click)="sortToggle('Location')">
-									{{'Location' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.Location" [name]="sortDetail.Location == 'Location'?'arrow-down': 'arrow-up'"></ion-icon>
-								</div>
-								<div class="col-code cell" (click)="sortToggle('Lot')">
-									{{'Lot' | translate}}
-								</div>
-								<div class="col-qty cell" (click)="sortToggle('LPN')">
-									{{'LPN' | translate}}
-								</div>
-							
-								<div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
-									{{'Quantity adjusted' | translate}}
-									<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
-								</div>
+						</div>
+						<div class="col-code cell" (click)="sortToggle('UoMName')">
+							{{'UoM' | translate}}
+							<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
+
+						</div>
+
+						<div class="col-name cell" (click)="sortToggle('ZoneName')">
+							{{'ZoneName' | translate}} - 	{{'LocationName' | translate}}
+							<ion-icon class="min-btn" *ngIf="sortDetail.ZoneName" [name]="sortDetail.ZoneName == 'ZoneName'?'arrow-down': 'arrow-up'"></ion-icon>
+						</div>
+					
+						<div class="col-code cell" (click)="sortToggle('Lot')">
+							{{'Lot' | translate}}
+						</div>
+						<div class="col-qty cell" (click)="sortToggle('LPN')">
+							{{'LPN' | translate}}
+						</div>
+						<div class="col-qty cell">	{{'Quantity' | translate}}</div>
+						<div class="col-qty cell" (click)="sortToggle('QuantityAdjusted')">
+							{{'Adjusted' | translate}}
+							<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
+						</div>
+
+						<div class="col-number cell" (click)="sortToggle('Cube')">
+							{{'Cube' | translate}}
+						</div>
+						<div class="col-number cell" (click)="sortToggle('GrossWeight')">
+							{{'GrossWeight' | translate}}
+						</div>
+						<div class="col-number cell" (click)="sortToggle('NetWeight')">
+							{{'NetWeight' | translate}}
+						</div>
+						<div class="col-icon cell">
+							<ion-icon  *ngIf="checkAdjustmentDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
+						</div>
+					</header>
+					<app-page-message [itemsLength]="formGroup.get('AdjustmentDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+					<ng-container *ngIf="!pageConfig.showSpinner">
+						<div *ngFor="let c of formGroup.get('AdjustmentDetails')['controls'] ;let j = index" class="row" [ngClass]="{odd: j % 2 != 0}">
+							<div class="col-checkbox cell" style="text-align: center;">
+								<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
+							</div>
+							<div class="col-id cell">{{j+1}}</div>
+							<div class="col-name cell">
+								<app-input-control [field]="{id:'IDItem', label: 'Item', type :'ng-select-lotLPNLocation', dataSource: c.controls._lotLPNLocationDataSource.value, bindValue:'IDItem' ,clearable:true,form :c}" (inputChange)="changeIDItem($event,c)"></app-input-control>
+							</div>
 						
-								<div class="col-number cell" (click)="sortToggle('Cube')">
-									{{'Cube' | translate}}
-								</div>
-								<div class="col-number cell" (click)="sortToggle('GrossWeight')">
-									{{'GrossWeight' | translate}}
-								</div>
-								<div class="col-number cell" (click)="sortToggle('NetWeight')">
-									{{'NetWeight' | translate}}
-								</div>
-								<!-- <div class="col-icon cell">
-									<ion-icon  *ngIf="checkedFields.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
-								</div> -->
-							</header>
-							<app-page-message [itemsLength]= "formGroup.get('AdjustmentDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-							<ng-container  *ngIf="!pageConfig.showSpinner">
-								<div *ngFor="let c of formGroup.get('AdjustmentDetails')['controls'] ;let j = index"class="row" [ngClass]="{odd: j % 2 != 0}" >
-										<!-- <div class="col-checkbox cell" style="text-align: center;">
-											<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
-										</div> -->
-										<div class="col-id cell">{{j+1}}</div>
+							<div class="col-code cell">
+								{{c.get('UoMName')?.value}}
+							</div>
+							<div class="col-name cell">
+								{{c.get('ZoneName')?.value}} - {{c.get('LocationName')?.value}}
+							</div>
+						
+							<div class="col-code cell">
+								{{c.get('LotName')?.value}}
+							</div>
 
-										<div class="col-name cell">
-											<div *ngIf="c.get('IDItem')?.value">
-												<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
-												<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
+							<div class="col-qty cell">
+								{{c.get('LPN')?.value}}
+							</div>
+							<div class="col-qty cell">
+								{{c.get('WarehouseQuantity')?.value}}
+							</div>
 
-											</div>
-										</div>
-										<div class="col-name cell">
-											{{c.get('UoMName')?.value}}
-										</div>
-										<div class="col-name cell">
-											{{c.get('ZoneName')?.value}}
-										</div>
-										<div class="col-name cell">
-											{{c.get('LocationName')?.value}}
-										</div>
+							<div class="col-qty cell">
+								<app-input-control [field]="{id:'QuantityAdjusted', label: 'Quantity adjusted', type :'number' ,clearable:true,form :c}" (change)="saveChangeDetail(c)"></app-input-control>
+							</div>
 
-										<div class="col-code cell">
-											{{c.get('LotName')?.value}}
-										</div>
+							<div class="col-number cell">
+								{{c.get('Cube')?.value}}
+							</div>
 
-										<div class="col-qty cell">
-											{{c.get('LPN')?.value}}
-										</div>
-										
-										<div class="col-qty cell">
-											{{c.get('QuantityAdjusted').value}}
-										</div>
+							<div class="col-number cell">
+								{{c.get('GrossWeight')?.value}}
+							</div>
 
-										<div class="col-number cell">
-											{{c.get('Cube')?.value}}
-										</div>
+							<div class="col-number cell">
+								{{c.get('NetWeight')?.value}}
+							</div>
+				
+							<div class="col-icon cell clickable" (click)="removeField(c,j)">
+								<ion-icon color="danger" name="trash"></ion-icon>
+							</div>
+						</div>
+						<div class="row">
+							<div class="cell">
+								<ion-button fill="clear" size="small" (click)="addField({},true)">
+									<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+									{{'Add product' | translate}}
+								</ion-button>
+							</div>
+						</div>
+					</ng-container>
 
-										<div class="col-number cell">
-											{{c.get('GrossWeight')?.value}}
-										</div>
-
-										<div class="col-number cell">
-											{{c.get('NetWeight')?.value}}
-										</div>
-<!-- 
-										<div class="col-icon cell clickable" (click)="removeField(c,j)">
-											<ion-icon color="danger" name="trash"></ion-icon>
-										</div> -->
-									</div>
-							</ng-container>
-							
 				</section>
 			</div>
 			<div *ngIf="segmentView == 's2'">
