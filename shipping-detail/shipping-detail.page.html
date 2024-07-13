@@ -1,6 +1,6 @@
 <ion-header>
 	<app-detail-toolbar [page]="this">
-		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'New'  && item?.ShippingDetails?.length >0" >
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Close'  && item?.ShippingDetails?.length >0" >
 			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeShip()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
 			</ion-button>
@@ -126,7 +126,8 @@
 								<div class="col-qty cell" (click)="sortToggle('GrossWeight')">
 									{{'Shipped quantity' | translate}}
 								</div>
-								<div class="col-qty cell"  *ngIf="pageConfig.canEdit">	
+								<div class="col-status cell">
+									{{'Status' | translate}}
 								</div>
 								<div class="col-icon cell" *ngIf="pageConfig.canEdit">
 								</div>
@@ -172,11 +173,12 @@
 											<app-input-control *ngIf="c.controls.Status.value == 'Active'" [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="UpdateShippedQuantity(c)"></app-input-control>
 										</div>
 			
-										<div class="col-qty cell" *ngIf="pageConfig.canEdit">
-											<ion-button size="small"  *ngIf="c.controls.Status.value == 'Active'" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
+										<div class="col-status cell">
+											<ion-button size="small"  *ngIf="pageConfig.canEdit && c.controls.Status.value == 'Active'" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
+											<ion-label   *ngIf="c.controls.Status.value != 'Active'">{{c.controls.Status.value}}</ion-label>
 										</div>
 										<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit">
-											<ion-icon color="primary" name="search-circle-outline"></ion-icon>
+											<ion-icon color="primary" name="timer-outline"></ion-icon>
 										</div> 
 										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 											<ion-icon color="danger" name="trash"></ion-icon>

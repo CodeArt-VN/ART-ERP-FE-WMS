@@ -167,42 +167,26 @@ export class ShippingDetailPage extends PageBase {
 
   closeShip() {
     this.query.Id = this.formGroup.get('Id').value;
-    let updateStatus = ['Active', 'Done'];
-
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    let shippingDetails = [];
-    groups.controls.forEach((group: FormGroup) => {
-      const id = group.get('Id').value;
-      const quantityShipped = group.get('QuantityShipped').value;
-      const currentStatus = group.get('Status').value;
-
-      if (updateStatus.includes(currentStatus)) {
-        shippingDetails.push({ Id: id, QuantityShipped: quantityShipped });
-      }
-    });
-
-    if (shippingDetails.length > 0) {  
+    this.env
+    .showPrompt(
+      'Bạn có chắc muốn đóng tất cả các sản phẩm giao hàng?',
+      null,
+      'Đóng giao hàng',
+    )
+    .then((_) => {
       this.env
-        .showPrompt(
-          'Bạn chắc muốn đóng ' + shippingDetails.length + ' đang chọn?',
-          null,
-          'Đóng ' + shippingDetails.length + ' dòng',
+        .showLoading(
+          'Vui lòng chờ load dữ liệu...',
+          this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
         )
-        .then((_) => {
-          this.env
-          .showLoading(
-            'Vui lòng chờ load dữ liệu...',
-            this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
-          )
-          .then(async (result: any) => {
-            this.refresh();
-          })
-          .catch((err) => {
-            this.env.showMessage('Cannot save, please try again.');
-            console.log(err);
-          });
+        .then(async (result: any) => {
+          this.refresh();
+        })
+        .catch((err) => {
+          this.env.showMessage('Cannot save, please try again.');
+          console.log(err);
         });
-    }
+    });
     
     this.query.Id = undefined;
   }
@@ -268,7 +252,6 @@ export class ShippingDetailPage extends PageBase {
         {
           Id: fg.get('Id').value,
           Status: status,
-          QuantityShipped: fg.get('QuantityShipped').value,
         },
       ];
       if (this.submitAttempt == false) {
@@ -285,6 +268,10 @@ export class ShippingDetailPage extends PageBase {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
               this.submitAttempt = false;
             }
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
           });
       }
     }
