@@ -167,43 +167,18 @@ export class ShippingDetailPage extends PageBase {
 
   closeShip() {
     this.query.Id = this.formGroup.get('Id').value;
-    let updateStatus = ['Active', 'Done'];
-
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    let shippingDetails = [];
-    groups.controls.forEach((group: FormGroup) => {
-      const id = group.get('Id').value;
-      const quantityShipped = group.get('QuantityShipped').value;
-      const currentStatus = group.get('Status').value;
-
-      if (updateStatus.includes(currentStatus)) {
-        shippingDetails.push({ Id: id, QuantityShipped: quantityShipped });
-      }
-    });
-
-    if (shippingDetails.length > 0) {
-      this.env
-        .showPrompt(
-          'Bạn chắc muốn đóng ' + shippingDetails.length + ' đang chọn?',
-          null,
-          'Đóng ' + shippingDetails.length + ' dòng',
-        )
-        .then((_) => {
-          this.env
-            .showLoading(
-              'Vui lòng chờ load dữ liệu...',
-              this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
-            )
-            .then(async (result: any) => {
-              this.refresh();
-            })
-            .catch((err) => {
-              this.env.showMessage('Cannot save, please try again.');
-              console.log(err);
-            });
-        });
-    }
-
+    this.env
+      .showLoading(
+        'Vui lòng chờ load dữ liệu...',
+        this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
+      )
+      .then((result: any) => {
+        this.refresh();
+      })
+      .catch((err) => {
+        this.env.showMessage('Cannot save, please try again.');
+        console.log(err);
+      });
     this.query.Id = undefined;
   }
 
