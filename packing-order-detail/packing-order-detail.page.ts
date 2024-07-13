@@ -164,13 +164,26 @@ export class PackingOrderDetailPage extends PageBase {
   closePack() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
-      .showLoading(
-        'Vui lòng chờ load dữ liệu...',
-        this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(),
-      )
-      .then((result: any) => {
-        this.refresh();
-      });
+    .showPrompt(
+      'Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?',
+      null,
+      'Đóng gói hàng',
+    )
+    .then((_) => {
+      this.env
+        .showLoading(
+          'Vui lòng chờ load dữ liệu...',
+          this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(),
+        )
+        .then(async (result: any) => {
+          this.refresh();
+        })
+        .catch((err) => {
+          this.env.showMessage('Cannot save, please try again.');
+          console.log(err);
+        });
+    });
+    
     this.query.Id = undefined;
   }
   changeStatusDetail(fg, status) {

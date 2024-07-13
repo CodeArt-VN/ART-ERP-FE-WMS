@@ -168,17 +168,26 @@ export class ShippingDetailPage extends PageBase {
   closeShip() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
-      .showLoading(
-        'Vui lòng chờ load dữ liệu...',
-        this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
-      )
-      .then((result: any) => {
-        this.refresh();
-      })
-      .catch((err) => {
-        this.env.showMessage('Cannot save, please try again.');
-        console.log(err);
-      });
+    .showPrompt(
+      'Bạn có chắc muốn đóng tất cả các sản phẩm giao hàng?',
+      null,
+      'Đóng giao hàng',
+    )
+    .then((_) => {
+      this.env
+        .showLoading(
+          'Vui lòng chờ load dữ liệu...',
+          this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
+        )
+        .then(async (result: any) => {
+          this.refresh();
+        })
+        .catch((err) => {
+          this.env.showMessage('Cannot save, please try again.');
+          console.log(err);
+        });
+    });
+    
     this.query.Id = undefined;
   }
 
