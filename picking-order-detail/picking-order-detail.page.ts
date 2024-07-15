@@ -102,8 +102,6 @@ export class PickingOrderDetailPage extends PageBase {
     this.contactProvider.read({ IsStorer: true }).then((resp) => {
       this.storerList = resp['data'];
     });
-    //this.pageConfig.canEdit = false;
-    //this.pageConfig.canDelete = false;
     super.preLoadData(event);
   }
 
@@ -165,7 +163,7 @@ export class PickingOrderDetailPage extends PageBase {
   }
 
   addField(field: any, markAsDirty = false) {
-    field.Status = "Active"
+
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
     let group = this.formBuilder.group({
       _LotLPNLocationsDataSource: [field.LotLPNLocations],
@@ -186,7 +184,7 @@ export class PickingOrderDetailPage extends PageBase {
       Lot: [field.Lot],
       LotName: [field.LotName],
       UoMName: [field.UoMName],
-      Status: "Active",
+      Status: [field.Status],
       ItemName: [field.ItemName], //de hien thi
       ShowDetail: [field.showdetail],
       Showing: [field.show],
