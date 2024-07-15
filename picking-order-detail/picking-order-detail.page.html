@@ -7,9 +7,9 @@
     </ion-buttons>
     <ion-buttons
       slot="primary"
-      *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Open'  && item?.PickingOrderDetails?.length >0"
+      *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Close'  && item?.PickingOrderDetails?.length >0"
     >
-      <ion-button title="{{'Close' | translate}}" color="secondary" (click)="changeStatus()">
+      <ion-button title="{{'Close' | translate}}" color="secondary" (click)="closePick()">
         <ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -107,7 +107,8 @@
               ></ion-icon>
             </div>
             <div class="col-qty cell" (click)="sortToggle('Cube')">{{'Picked quantity' | translate}}</div>
-
+            <div class="col-status cell">{{'Status' | translate}}</div>
+            <div class="col-icon cell" *ngIf="pageConfig.canEdit"></div>
             <div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
               <ion-icon
                 *ngIf="checkedPickingOrderDetails.controls.length>0"
@@ -119,6 +120,7 @@
                 slot="start"
               ></ion-icon>
             </div>
+            <div class="col-icon cell" *ngIf="pageConfig.canEdit"></div>
           </header>
           <app-page-message
             [itemsLength]="formGroup.get('PickingOrderDetails')['controls']"
@@ -151,14 +153,16 @@
                   </div>
 
                   <div class="col-name cell">
-                    <div *ngIf="c.get('IDItem')?.value">
+                    <div *ngIf="c.get('IDItem')?.value && (c.get('HasChild').value ||  !c.get('IDParent').value)">
                       <a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()"
                         >#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon
                       ></a>
                       <span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
                     </div>
                   </div>
-                  <div class="col-uom cell">{{c.get('UoMName')?.value}}</div>
+                  <div class="col-uom cell">
+                    <span *ngIf="c.get('HasChild').value ||  !c.get('IDParent').value" > {{c.get('UoMName').value}}</span>
+                  </div>
                   <div class="col-name cell">{{c.get('LotName').value}}</div>
                   <div class="col-name cell">{{c.get('LPN').value}}</div>
 
@@ -175,15 +179,13 @@
                       appendTo="#ng-select-holder"
                       (open)="openLotLPNLocations(c)"
                     >
-                      <!-- (change)="changedFromLocationID(c.get('LotLPNLocation').value,$event, c,j)" -->
-                      <!-- [(ngModel)]="c.get('LotLPNLocation').value" -->
                       <ng-template ng-label-tmp let-item="item">
                         <span *ngIf="item.LocationName">{{ item.LocationName }} - SL: {{ item.QuantityOnHand }}</span>
                       </ng-template>
                       <ng-template ng-option-tmp let-item="item" let-search="searchTerm" let-index="index">
                         <span *ngIf="item.LocationName">{{item.LocationName}} - SL: {{item.QuantityOnHand}}</span>
                       </ng-template>
-                    </ng-select>
+                    </ng-select>   
                   </div>
 
                   <div class="col-name cell">{{c.get('ToLocationName').value}}</div>
@@ -194,10 +196,11 @@
                       [field]="{id:'Quantity', type : 'number', form : c, }"
                       (inputChange)="changeQuantity(c)"
                     ></app-input-control>
-                    <div *ngIf="c.controls.HasChild.value">{{c.get('Quantity').value}}</div>
+                   
                   </div>
-
-                  <div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleQty(c)">
+                  <div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value != 'Active'">
+                  </div>
+                  <div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value == 'Active'" (click)="toggleQty(c)">
                     <ion-icon
                       *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value"
                       [color]="c.controls.QuantityPicked.value == c.controls.QuantityPicked.value ? 'danger' : 'primary'"
@@ -206,38 +209,80 @@
                     ></ion-icon>
                   </div>
                   <div class="col-qty cell">
-                    <!-- <input
-                    *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value"
-                    type="number"
-                    class="c-input"
-                     formControlName="Quantity"
-                    (change)="changeQuantity(c.get('Quantity').value,c)"
-                    min="0"
-                  /> -->
-
-                    <app-input-control
-                      *ngIf="!c.controls.HasChild.value && c.get('FromLocationName').value"
-                      [field]="{id:'QuantityPicked', type : 'number', form : c, }"
-                      (inputChange)="calcTotalPickedQuantity(c)"
-                    ></app-input-control>
+                    <app-input-control *ngIf="!c.controls.HasChild.value && c.controls.Status.value != 'Active' && c.get('FromLocationName').value" [field]="{id:'QuantityPicked', type : 'span-number', form : c, }"></app-input-control>
+                    <app-input-control *ngIf="!c.controls.HasChild.value && c.controls.Status.value == 'Active'&& c.get('FromLocationName').value" [field]="{id:'QuantityPicked', type : 'number', form : c, }" (inputChange)="calcTotalPickedQuantity(c)"></app-input-control>
                     <div *ngIf="c.controls.HasChild.value">{{c.get('QuantityPicked').value}}</div>
-                    <!-- {{c.get('PickedQuantity')?.value}} -->
                   </div>
+
+                  <div class="col-status cell" *ngIf="pageConfig.canEdit && !c.controls.HasChild.value && c.controls.IDParent.value != null">
+                    <ion-button size="small"  *ngIf="pageConfig.canEdit && !c.controls.HasChild.value && c.controls.Status.value == 'Active' && c.controls.IDParent.value != null" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
+                    <ion-label *ngIf="c.controls.Status.value != 'Active'">{{c.controls.Status.value}}</ion-label>
+                  </div>
+                  <div class="col-status cell" *ngIf="!c.controls.HasChild.value && c.controls.IDParent.value == null">
+                    <ion-label>{{c.controls.Status.value}}</ion-label>
+                  </div>
+                  <div class="col-status cell" *ngIf="!pageConfig.canEdit && !c.controls.HasChild.value && c.controls.IDParent.value != null">
+                    <ion-label>{{c.controls.Status.value}}</ion-label>
+                  </div>
+                  
+                  <div class="col-status cell" *ngIf="c.controls.HasChild.value && c.controls.IDParent.value == null">
+                    <ion-label>{{c.controls.Status.value}}</ion-label>
+                  </div>
+                  
+   
+                  <div class="col-icon cell clickable" (click)="openTransaction(c)" *ngIf="pageConfig.canEdit && !c.controls.HasChild.value && c.controls.IDParent.value != null">
+                    <ion-icon color="primary" name="timer-outline"></ion-icon>
+                  </div>
+                  <div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && !c.controls.HasChild.value && c.controls.IDParent.value == null">
+                  </div>
+                  <div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.HasChild.value && c.controls.IDParent.value == null">
+                  </div>
+
                   <div
                     class="col-icon cell clickable"
                     (click)="removeField(c,j)"
-                    *ngIf="pageConfig.canEdit && pageConfig.canDelete && !c.controls.HasChild.value"
+                    *ngIf="pageConfig.canEdit && pageConfig.canDelete && !c.controls.HasChild.value && c.controls.Status.value == 'Active' && c.controls.IDParent.value != null"
                   >
                     <ion-icon color="danger" name="trash"></ion-icon>
                   </div>
-
+                  <div
+                    class="col-icon cell clickable"
+                    *ngIf="pageConfig.canEdit && pageConfig.canDelete && !c.controls.HasChild.value && c.controls.Status.value != 'Active' && c.controls.IDParent.value != null"
+                  >
+                  </div>
+                  <div
+                    class="col-icon cell clickable"
+                    *ngIf="pageConfig.canEdit && pageConfig.canDelete && !c.controls.HasChild.value && c.controls.IDParent.value == null"
+                  >
+                  </div>
+                  <div
+                    class="col-icon cell clickable"
+                    *ngIf="pageConfig.canEdit && pageConfig.canDelete && c.controls.HasChild.value && c.controls.IDParent.value == null"
+                  >
+                  </div>
                   <div
                     class="col-icon cell clickable"
                     (click)="AddPickingOrderDetail(c)"
-                    *ngIf="c.controls.HasChild.value"
+                    *ngIf="pageConfig.canEdit && c.controls.HasChild.value && c.controls.Status.value == 'Active' && c.controls.IDParent.value == null"
                   >
                     <ion-icon color="success" name="add-outline"></ion-icon>
                   </div>
+                  <div
+                    class="col-icon cell clickable"
+                    *ngIf="pageConfig.canEdit && c.controls.HasChild.value && c.controls.Status.value != 'Active' && c.controls.IDParent.value == null"
+                  >
+                  </div>
+                  <div
+                    class="col-icon cell clickable"
+                    *ngIf="pageConfig.canEdit && !c.controls.HasChild.value && c.controls.IDParent.value == null"
+                  >
+                  </div>
+                  <div
+                    class="col-icon cell clickable"
+                    *ngIf="pageConfig.canEdit && !c.controls.HasChild.value && c.controls.IDParent.value != null"
+                  >
+                  </div>
+                  
                 </div>
               </ng-container>
             </ng-container>

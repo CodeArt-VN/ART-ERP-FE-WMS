@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start" class="ion-hide-sm-down_">
+      <ion-button color="dark" class="ion-hide-sm-down"> {{'Transaction' | translate}} </ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="primary">
+      <ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
+        <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button title="{{'Help' | translate}}" (click)="help()">
+        <ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content appScrollbarTheme class="header-table">
+  <app-data-table
+    class="box-shadow responsive"
+    [rows]="items"
+    [trackBy]="'Id'"
+    [(selectedRows)]="selectedItems"
+    [showSpinner]="pageConfig.showSpinner"
+    [showFilter]="pageConfig.isShowSearch"
+    [(query)]="query"
+    (dataInfinite)="loadData($event)"
+    (filter)="onDatatableFilter($event)"
+    (sort)="onSort($event)"
+  >
+    <datatable-column class="col-id" name="#" property="Id">
+      <ng-template let-i="row" datatable-cell-template>
+        <a [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.Id}}</a>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-name" name="Item" property="_Item">
+      <ng-template let-i="row" datatable-cell-template>
+        <div>
+          <span [title]="i._Item.Name">
+            <a [routerLink]="['/item/' + i._Item.Id]" class="clickable">#{{ i._Item.Id }}&nbsp;</a>
+            <b>{{ i._Item.Code }}</b> {{ i._Item.Name }}
+          </span>
+        </div>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-date" format="dd-MM-yyyy HH:mm" name="Transaction date" property="TransactionDate" filterControlType="date"></datatable-column>
+    <datatable-column class="col-number bold" format="1.0-0" name="Quantity" property="UoMQuantity"> </datatable-column>
+    <datatable-column class="col-code" format="1.0-0" name="From to Location" property="_FromLocation">
+      <ng-template let-i="row" datatable-cell-template>
+          <span *ngIf="i._FromLPN">{{ i._FromLocation.Id }}</span>
+          <ion-icon name="arrow-forward"></ion-icon>
+          <span *ngIf="i._ToLPN">{{ i._ToLocation.Id }}</span>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-status" format="1.0-0" name="Lot" property="Lot">
+    </datatable-column>
+    <datatable-column class="col-code" format="1.0-0" name="From to LPN" property="_FromLPN">
+      <ng-template let-i="row" datatable-cell-template>
+          <span *ngIf="i._FromLPN">{{ i._FromLPN.Id }}</span>
+          <ion-icon name="arrow-forward"></ion-icon>
+          <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-name" name="Type" property="TransactionType"> </datatable-column>
+    <datatable-column class="col-status" name="Status" property="Status"> 
+      <ng-template let-i="row" datatable-cell-template>
+        <div class="row-status">
+          <span>{{ i.Status}}</span>
+          <a *ngIf="i.IDTransaction" [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.IDTransaction}}</a>
+        </div>
+      </ng-template>
+    </datatable-column>
+    <datatable-column class="col-status" name="" property="UoMQuantity">
+      <ng-template let-i="row" datatable-cell-template>
+        <ion-button *ngIf="i.Status != 'Reverted' && i._StatusLine == 'Done'" size="small" (click)="revertTransaction(i)">
+          {{'Revert' | translate}}
+        </ion-button>
+      </ng-template>
+    </datatable-column>
+  </app-data-table>
+</ion-content>
