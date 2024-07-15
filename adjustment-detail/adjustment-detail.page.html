@@ -21,7 +21,7 @@
 							<label class="c-label" for="IDBranch">{{'erp.app.pages.purchase.purchase-order.id-branch' | translate}}
 								<span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
 							</label>
-							<ng-select class="c-input" (change)="changeWarehouse($event);" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}" (change)="saveChange()">
+							<ng-select class="c-input" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}" (change)="saveChange()">
 								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
 									<div *ngIf="i">
 										<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
@@ -103,7 +103,7 @@
 						<div class="col-qty cell" (click)="sortToggle('LPN')">
 							{{'LPN' | translate}}
 						</div>
-						<div class="col-qty cell">	{{'Quantity' | translate}}</div>
+					
 						<div class="col-qty cell" (click)="sortToggle('QuantityAdjusted')">
 							{{'Adjusted' | translate}}
 							<ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
@@ -117,6 +117,11 @@
 						</div>
 						<div class="col-number cell" (click)="sortToggle('NetWeight')">
 							{{'NetWeight' | translate}}
+						</div>
+						<div class="col-status cell" *ngIf="pageConfig.canEdit">
+							{{'Status' | translate}}						
+						</div>
+						<div class="col-icon cell" *ngIf="pageConfig.canEdit">
 						</div>
 						<div class="col-icon cell">
 							<ion-icon  *ngIf="checkAdjustmentDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
@@ -147,10 +152,7 @@
 							<div class="col-qty cell">
 								{{c.get('LPN')?.value}}
 							</div>
-							<div class="col-qty cell">
-								{{c.get('WarehouseQuantity')?.value}}
-							</div>
-
+						
 							<div class="col-qty cell">
 								<app-input-control [field]="{id:'QuantityAdjusted', label: 'Quantity adjusted', type :'number' ,clearable:true,form :c}" (change)="saveChangeDetail(c)"></app-input-control>
 							</div>
@@ -166,7 +168,13 @@
 							<div class="col-number cell">
 								{{c.get('NetWeight')?.value}}
 							</div>
-				
+							<div class="col-status cell" *ngIf="pageConfig.canEdit">
+								<ion-button size="small"  *ngIf="c.controls.Status.value == 'Active'" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
+								<span *ngIf="c.controls.Status.value != 'Active'">{{c.controls.Status.Value}}</span>
+							</div>
+							<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit">
+								<ion-icon color="primary" name="timer-outline"></ion-icon>
+							</div>
 							<div class="col-icon cell clickable" (click)="removeField(c,j)">
 								<ion-icon color="danger" name="trash"></ion-icon>
 							</div>
