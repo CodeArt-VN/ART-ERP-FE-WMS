@@ -16,6 +16,7 @@ import { Schema } from 'src/app/models/options-interface';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
+import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @Component({
   selector: 'app-picking-order-detail',
@@ -101,7 +102,8 @@ export class PickingOrderDetailPage extends PageBase {
     this.contactProvider.read({ IsStorer: true }).then((resp) => {
       this.storerList = resp['data'];
     });
-
+    //this.pageConfig.canEdit = false;
+    //this.pageConfig.canDelete = false;
     super.preLoadData(event);
   }
 
@@ -163,6 +165,7 @@ export class PickingOrderDetailPage extends PageBase {
   }
 
   addField(field: any, markAsDirty = false) {
+    field.Status = "Active"
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
     let group = this.formBuilder.group({
       _LotLPNLocationsDataSource: [field.LotLPNLocations],
@@ -172,17 +175,18 @@ export class PickingOrderDetailPage extends PageBase {
       IDItem: [field.IDItem, Validators.required],
       IDUoM: [field.IDUoM],
       IDParent: [field.IDParent],
-      Quantity: [field.Quantity],
-      QuantityPicked: [field.QuantityPicked],
+      Quantity: new FormControl({ value: field?.Quantity, disabled: field?.Status != 'Active' ? true : false }),
+      QuantityPicked: new FormControl({ value: field?.QuantityPicked, disabled: field?.Status != 'Active' ? true : false }),
       LPN: [field.LPN > 0 ? field.LPN : null],
       FromLocation: [field.FromLocation],
       FromLocationName: [field.FromLocationName],
-      LotLPNLocation: [field.Lot + '-' + field.LPN + '-' + field.FromLocation],
+      LotLPNLocation:  new FormControl({ value: field?.Lot + '-' + field?.LPN + '-' + field?.FromLocation, disabled: field?.Status != 'Active' ? true : false }),
       ToLocationName: [field.ToLocationName],
       ToLocation: [field.ToLocation],
       Lot: [field.Lot],
       LotName: [field.LotName],
       UoMName: [field.UoMName],
+      Status: "Active",
       ItemName: [field.ItemName], //de hien thi
       ShowDetail: [field.showdetail],
       Showing: [field.show],
@@ -209,31 +213,62 @@ export class PickingOrderDetailPage extends PageBase {
     }
   }
 
-  changeStatus() {
-    this.query.ToStatus = 'Closed';
+  closePick() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
-      .showLoading(
-        'Vui lòng chờ load dữ liệu...',
-        this.pageProvider.commonService.connect('GET', 'WMS/Picking/ChangeStatus/', this.query).toPromise(),
-      )
-      .then((result: any) => {
-        this.refresh();
-      });
+    .showPrompt(
+      'Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?',
+      null,
+      'Đóng lấy hàng',
+    )
+    .then((_) => {
+      this.env
+        .showLoading(
+          'Vui lòng chờ load dữ liệu...',
+          this.pageProvider.commonService.connect('GET', 'WMS/Picking/ClosePicking/', this.query).toPromise(),
+        )
+        .then(async (result: any) => {
+          this.refresh();
+        })
+        .catch((err) => {
+          this.env.showMessage('Cannot save, please try again.');
+          console.log(err);
+        });
+    });
+    
     this.query.Id = undefined;
   }
 
-  updateQuantity(obj) {
-    this.pageProvider.commonService
-      .connect('PUT', 'WMS/Picking/UpdateQuantity/', obj)
-      .toPromise()
-      .then((result: any) => {
-        if (result) {
-          this.env.showTranslateMessage('Saved', 'success');
-        } else {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-        }
-      });
+  changeStatusDetail(fg, status) {
+    if (fg.get('Status').value == 'Active' && status == 'Done') {
+      //update status Active -> Done
+      let obj = [
+        {
+          Id: fg.get('Id').value,
+          Status: status,
+        },
+      ];
+      if (this.submitAttempt == false) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
+          .toPromise()
+          .then((result: any) => {
+            if (result) {
+              this.env.showTranslateMessage('Saved', 'success');
+              fg.controls.Status.setValue(status);
+              this.submitAttempt = false;
+            } else {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.submitAttempt = false;
+            }
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
+          });
+      }
+    }
   }
 
   allocatePicking() {
@@ -261,19 +296,36 @@ export class PickingOrderDetailPage extends PageBase {
 
   toggleAllQty() {
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    let obj = [];
     groups.controls.forEach((group: FormGroup) => {
-      if (this.item._IsPickedAll) {
-        group.controls.QuantityPicked.setValue(0);
-        group.controls.QuantityPicked.markAsDirty();
-      } else {
-        if (group.controls.FromLocationName.value || group.controls.IDParent.value == null) {
+      const currentStatus = group.get('Status').value;
+      if (currentStatus == 'Active') {
+        if (this.item._IsPickedAll) {
+          group.controls.QuantityPicked.setValue(0);
+        } else {
           group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
         }
-        // group.controls.QuantityPicked.markAsDirty();
+        const id = group.get('Id').value;
+        const quantityPicked = group.controls.QuantityPicked.value;
+        obj.push({ Id: id, QuantityPicked: quantityPicked });
       }
     });
-    this.item._IsPickedAll = !this.item._IsPickedAll;
-    this.calcAllTotalPickedQuantity();
+
+    if (!this.submitAttempt && obj.length > 0) {
+      this.submitAttempt = true;
+      this.pageProvider.commonService
+        .connect('PUT', 'WMS/Picking/UpdateQuantity/', obj)
+        .toPromise()
+        .then(() => {
+          this.env.showTranslateMessage('Saved', 'success');
+          this.item._IsPickedAll = !this.item._IsPickedAll;
+          this.submitAttempt = false;
+        })
+        .catch((err) => {
+          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          this.submitAttempt = false;
+        });
+    }
   }
 
   calcTotalPickedQuantity(childFG) {
@@ -286,16 +338,6 @@ export class PickingOrderDetailPage extends PageBase {
       subOrders.forEach((sub) => {
         totalPickedQty += parseFloat(sub.get('QuantityPicked').value || 0);
       });
-
-      if (childFG.controls.QuantityPicked.value > childFG.controls.Quantity.value) {
-        this.env.showTranslateMessage('Số lượng Picked lớn hơn số lượng cần', 'warning');
-        return;
-      }
-      if (childFG.controls.QuantityPicked.value < 0) {
-        this.env.showTranslateMessage('Số lượng Picked lớn hơn 0', 'warning');
-        return;
-      }
-
       parentFG.get('QuantityPicked').setValue(totalPickedQty);
       // parentFG.get('QuantityPicked').markAsDirty();
       obj = [
@@ -305,20 +347,18 @@ export class PickingOrderDetailPage extends PageBase {
     } else {
       obj = [{ Id: childFG.get('Id').value, QuantityPicked: childFG.get('QuantityPicked').value }];
     }
-    this.updateQuantity(obj);
-  }
-
-  calcAllTotalPickedQuantity() {
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    let obj = groups.controls.map((fg: FormGroup) => {
-      if (fg.get('FromLocationName').value) {
-        return {
-          Id: fg.get('Id').value,
-          QuantityPicked: fg.get('QuantityPicked').value,
-        };
-      }
+    // Check if QuantityPicked is valid
+    const isValid = obj.every((item) => {
+      let group = groups.controls.find((d) => d.get('Id').value == item.Id);
+      return group && item.QuantityPicked <= group.get('Quantity').value && item.QuantityPicked >= 0;
     });
-    this.updateQuantity(obj.filter((o) => o));
+
+    if (!isValid) {
+      return;
+    }
+    childFG.get('Id').markAsDirty();
+    childFG.get('QuantityPicked').markAsDirty();
+    super.saveChange2(childFG, this.pageConfig.pageName, this.pickingOrderDetailService);
   }
 
   changeSelection(i, view, e = null) {
@@ -374,7 +414,6 @@ export class PickingOrderDetailPage extends PageBase {
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
     if (itemToDelete.Id) {
       this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
-        this.updateQuantity([{ Id: itemToDelete.Id, QuantityPicked: 0 }]);
         this.pickingOrderDetailService.delete(itemToDelete).then((result) => {
           groups.removeAt(j);
         });
@@ -597,15 +636,18 @@ export class PickingOrderDetailPage extends PageBase {
   }
 
   AddPickingOrderDetail(group) {
-    let indexAdd = this.formGroup.value.PickingOrderDetails.filter((f) => f.IDParent == group.controls.Id.value).length;
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    let indexAdd = groups.controls.filter((f) => f.get('IDParent').value == group.controls.Id.value).length;
+    let childGroup = groups.controls.filter((f) => f.get('IDParent').value  == group.controls.Id.value)[indexAdd-1];
+    indexAdd = groups.controls.indexOf(childGroup);
     let itemAdd = this.copyPickingOrderDetail(groups.controls[indexAdd]);
     itemAdd.LPN = null;
+    itemAdd.IDParent = group.controls.Id.value;
     itemAdd.FromLocation = null;
     itemAdd.Lot = null;
     itemAdd.LotLPNLocation = null;
     itemAdd.Quantity = 1;
-    itemAdd.QuantityPicked = null;
+    itemAdd.QuantityPicked = 0;
     this.addField(itemAdd, true);
     this.AddPickingOrderDetailToFormGroup(indexAdd + 1);
   }
@@ -632,6 +674,7 @@ export class PickingOrderDetailPage extends PageBase {
       showdetail: group.controls.ShowDetail.value,
       show: group.controls.Showing.value,
       HasChild: group.controls.HasChild.value,
+      Status: 'Active',
       LotLPNLocation:
         group.controls.Lot.value + '-' + group.controls.LPN.value + '-' + group.controls.FromLocation.value,
       levels: group.controls.Levels.value,
@@ -683,5 +726,20 @@ export class PickingOrderDetailPage extends PageBase {
           this.env.showTranslateMessage('Cannot save, please try again', 'danger');
         }
       });
+  }
+  async openTransaction(fg) {
+    const modal = await this.modalController.create({
+      component: TransactionModalPage,
+      componentProps: {
+        sourceLine: fg.controls.Id.value,
+      },
+      cssClass: 'modal90',
+    });
+
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.refresh();
+    }
   }
 }

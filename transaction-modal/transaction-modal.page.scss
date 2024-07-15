@@ -1,0 +1,13 @@
+::ng-deep app-data-table .row {
+  height: 52px;
+}
+.row-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep app-data-table .col-number {
+  padding-right: 20px !important;
+}
