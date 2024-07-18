@@ -24,6 +24,7 @@ import {
   WMS_LocationProvider,
   FINANCE_TaxDefinitionProvider,
   WMS_ItemInBranchProvider,
+  vw_WMS_LotLocLPNProvider,
 } from 'src/app/services/static/services.service';
 
 @Component({
@@ -60,6 +61,10 @@ export class ItemDetailPage extends PageBase {
       Code: 'PlanningData',
       Name: 'Planning data',
     },
+    {
+      Code: 'Inventory',
+      Name: 'Inventory',
+    },
   ];
 
   uomList = [];
@@ -74,6 +79,7 @@ export class ItemDetailPage extends PageBase {
 
   baseUomName = '???';
   UoMs = []; //UoM grid
+  Inventories = []; //Inventories grid
 
   subOptions = null;
   segmentView = {
@@ -81,12 +87,14 @@ export class ItemDetailPage extends PageBase {
     ShowSpinner: true,
   };
   branchSelected = false;
+  isAdjust = false;
 
   constructor(
     public pageProvider: WMS_ItemProvider,
     public itemInBranchProvider: WMS_ItemInBranchProvider,
     public itemGroupProvider: WMS_ItemGroupProvider,
     public itemUoMProvider: WMS_ItemUoMProvider,
+    public vwLotLocLPNProvider: vw_WMS_LotLocLPNProvider,
     public branchProvider: BRA_BranchProvider,
     public contactProvider: CRM_ContactProvider,
     public zoneProvider: WMS_ZoneProvider,
@@ -534,6 +542,58 @@ export class ItemDetailPage extends PageBase {
     }
   }
 
+  loadInventory() {
+    const branchList = this.env.branchList;
+    const selectedBranchId = this.selectedBranch?.Id;
+    let selectedBranch = [selectedBranchId];
+    const findChildren = (parentId: number) => {
+      const findChild = (parentId: any) => {
+        branchList.forEach((b) => {
+          const currentId = b.Id;
+          if (b.IDParent == parentId) {
+            selectedBranch.push(currentId);
+            findChild(currentId);
+          }
+        });
+      };
+      findChild(parentId);
+    };
+    if(selectedBranchId != undefined) {
+      findChildren(selectedBranchId);
+    }
+
+    let query = {
+      ItemId: this.id,
+      IDBranch: selectedBranch
+    }
+    this.segmentView.ShowSpinner = true;
+    this.env
+      .showLoading(
+        'Please wait a moment!',
+        this.vwLotLocLPNProvider.commonService
+          .connect('GET', 'vw/WMS/LotLocLPN/', query)
+          .toPromise()
+          .then((data: any) => {
+            data.forEach((d) => {
+              d.Adjust = 0;
+              d.TotalAdjust = d.QuantityOnHand;
+              this.calculateTotalAdjust(d);
+              let branch = this.env.branchList.find((b) => b.Id == d.IDBranch);
+              if (branch) {
+                d.Warehouse = branch.Name;
+              }
+            });
+          
+            this.Inventories = data;
+            this.segmentView.ShowSpinner = false;
+          }),
+      )
+      .catch((error) => {
+        console.error(error);
+        this.segmentView.ShowSpinner = false;
+      });
+  }
+
   loadItemInBranch() {
     if (this.selectedBranch) {
       let query = {
@@ -642,6 +702,9 @@ export class ItemDetailPage extends PageBase {
     this.segmentView.Page = option.Code;
     if (this.segmentView.Page == 'UnitPrice') {
       this.loadPriceList();
+    }
+    if (this.segmentView.Page == 'Inventory') {
+      this.loadInventory();
     }
   }
   changeBaseUoM(i) {
@@ -1000,4 +1063,74 @@ export class ItemDetailPage extends PageBase {
         });
     }
   }
+
+  createAdjust(){
+    let filteredInventories = this.Inventories.filter((inventory: any) => inventory.Adjust != 0 && inventory.TotalAdjust >= 0);
+    // Group by IDBranch and StorerId
+    let groupedInventories = filteredInventories.reduce((groups, inventory) => {
+      let key = `${inventory.IDBranch}-${inventory.StorerId}`;
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(inventory);
+      return groups;
+    }, {});
+    let result = Object.keys(groupedInventories).map(key => ({
+      IDBranch: parseInt(key.split('-')[0]),
+      AdjustLotLPNLocations: groupedInventories[key]
+    }));
+    if(result.length > 0){
+      this.env
+      .showPrompt(
+        'Bạn có chắc muốn tạo phiếu điều chỉnh không?',
+        null,
+        'Tạo phiếu điều chỉnh',
+      )
+      .then((_) => {
+        this.env
+        .showLoading(
+          'Please wait a moment!',
+          this.pageProvider.commonService
+            .connect('POST', 'WMS/Item/PostAdjustments/', result)
+            .toPromise()
+            .then((res) => {
+              if(res) {
+                this.env.showTranslateMessage('Create adjustment success', 'success');
+                this.isAdjust = false;
+                this.Inventories.forEach((d) => {
+                  d.Adjust = 0;
+                  d.TotalAdjust = d.QuantityOnHand;
+                  this.calculateTotalAdjust(d);
+                });
+              }else {
+                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              }
+              this.submitAttempt = false;
+            })
+            .catch((err) => {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.submitAttempt = false;
+            })
+        )
+        .catch((error) => {
+          this.segmentView.ShowSpinner = false;
+        });
+      });
+    }
+   
+  }
+
+  calculateAdjust(i) {
+     if (!i.Adjust && !i.TotalAdjust) {
+      return;
+    }
+    i.TotalAdjust = i.QuantityOnHand + i.Adjust;
+  }
+
+  calculateTotalAdjust(i) {
+    if (!i.Adjust && !i.TotalAdjust) {
+     return;
+   }
+   i.Adjust = i.TotalAdjust - i.QuantityOnHand;
+ }
 }

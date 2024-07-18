@@ -1,6 +1,15 @@
 <ion-header>
   <app-toolbar [page]="this" pageTitle="{{'Item detail in branch' | translate}}" [pageConfig]="pageConfig"
     [selectedItems]="selectedItems" [ShowArchive]="false" (refresh)="refresh()" (help)="help()">
+    <ion-buttons rightScreen>
+      <ion-button (click)="isAdjust = !isAdjust">
+        <label> {{ 'Điều chỉnh' | translate }}</label>
+      </ion-button>
+      <ion-button (click)="createAdjust()">
+        <label> {{ 'Tạo điều chỉnh' | translate }}</label>
+      </ion-button>
+    </ion-buttons>
+    
   </app-toolbar>
   <div class="withFeature left" [ngClass]="{withFeature: pageConfig.isShowFeature}" *ngIf="pageConfig.isShowSearch">
     <section class="table">
@@ -59,12 +68,15 @@
           <ion-label color="dark">{{'Information' | translate}}</ion-label>
         </ion-list-header>
         <ion-list>
-          <ion-item *ngFor="let i of optionGroup" [color]="segmentView.Page == i.Code? 'primary': '' " button
-            detail="true" lines="full" class="clickable" (click)="loadNode(i)">
-            <ion-label class="ion-text-wrap">
-              <h3>{{i.Name}}</h3>
-            </ion-label>
-          </ion-item>
+          <ng-container *ngFor="let i of optionGroup">
+            <ion-item *ngIf="(formGroup.get('IsInventoryItem').value && i.Code =='Inventory') || i.Code !='Inventory' " [color]="segmentView.Page == i.Code? 'primary': '' " button
+              detail="true" lines="full" class="clickable" (click)="loadNode(i)">
+              <ion-label class="ion-text-wrap">
+                <h3>{{i.Name}}</h3>
+              </ion-label>
+            </ion-item>
+          </ng-container>
+          
         </ion-list>
       </div>
       <div class="ion-padding" style="padding-bottom: 0"></div>
@@ -796,6 +808,62 @@
                           </ion-row>
                         </form>
                       </ion-grid>
+                    </div>
+                  </div>
+                  <div id="inventory" *ngIf="segmentView.Page == 'Inventory'">
+                    <div class="table-contain" id="unit-specification">
+                      <section class="table" style="min-width: 1320px">
+                        <header class="bold" style="padding-right: 0">
+                          <div class="col-code cell">{{'Warehouse' | translate}}</div>
+                          <div class="col-code cell">{{'Storer' | translate}}</div>
+    
+                          <div class="col-name cell">{{'Zone - Location' | translate}}</div>
+                          <div class="col-number cell">{{'Lot' | translate}}</div>
+                          <div class="col-number cell">{{'LPN' | translate}}</div>
+                         
+                          <div class="col-number cell">{{'OnHand' | translate}}</div>
+                          <div class="col-number cell">{{'Expected' | translate}}</div>
+                          <div class="col-number cell">{{'Allocated' | translate}}</div>
+                          <div class="col-number cell" *ngIf="isAdjust">{{'Qty Adjust' | translate}}</div>
+                          <div class="col-number cell" *ngIf="isAdjust">{{'Qty Target' | translate}}</div>
+                        </header>
+                        <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of Inventories; let j = index;">
+                          <div class="col-code cell">
+                            {{i.Warehouse}}
+                          </div>
+                          <div class="col-code cell">
+                            {{i.StorerName}}
+                          </div>
+                          <div class="col-name cell">
+                            {{i.ZoneName}} -  {{i.LocationName}}
+                          </div>
+                          <div class="col-number cell">
+                            {{i.LotId}}
+                          </div>
+                          <div class="col-number cell">
+                            {{i.LPNId}}
+                          </div>
+                          <div class="col-number cell">
+                            {{i.QuantityOnHand}}
+                          </div>
+                          <div class="col-number cell">
+                            {{i.QuantityExpected}}
+                          </div>
+                          <div class="col-number cell">
+                            {{i.QuantityAllocated}}
+                          </div>
+                          <div class="col-number cell" *ngIf="isAdjust">
+                            <input [disabled]="!pageConfig.canEdit"
+                              (change)="calculateAdjust(i)" [(ngModel)]="i.Adjust"class="c-input"type="number" min="0"
+                              step="1" max="999999999999999999" />
+                          </div>
+                          <div class="col-number cell" *ngIf="isAdjust">
+                            <input [disabled]="!pageConfig.canEdit"
+                              (change)="calculateTotalAdjust(i)" [(ngModel)]="i.TotalAdjust"class="c-input" type="number" min="0"
+                              step="1" max="999999999999999999" />
+                          </div>
+                        </div>
+                      </section>
                     </div>
                   </div>
                 </div>
