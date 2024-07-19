@@ -575,9 +575,9 @@ export class ItemDetailPage extends PageBase {
           .toPromise()
           .then((data: any) => {
             data.forEach((d) => {
-              d.Adjust = 0;
-              d.TotalAdjust = d.QuantityOnHand;
-              this.calculateTotalAdjust(d);
+              d.QtyAdjust = 0;
+              d.QtyTarget = d.QuantityOnHand;
+              this.calculateQtyTarget(d);
               let branch = this.env.branchList.find((b) => b.Id == d.IDBranch);
               if (branch) {
                 d.Warehouse = branch.Name;
@@ -1064,8 +1064,8 @@ export class ItemDetailPage extends PageBase {
     }
   }
 
-  createAdjust(){
-    let filteredInventories = this.Inventories.filter((inventory: any) => inventory.Adjust != 0 && inventory.TotalAdjust >= 0);
+  createAdjust(){  
+    let filteredInventories = this.Inventories.filter((inventory: any) => inventory.QtyAdjust != 0 && inventory.QtyTarget >= 0);
     // Group by IDBranch and StorerId
     let groupedInventories = filteredInventories.reduce((groups, inventory) => {
       let key = `${inventory.IDBranch}-${inventory.StorerId}`;
@@ -1095,12 +1095,11 @@ export class ItemDetailPage extends PageBase {
             .toPromise()
             .then((res) => {
               if(res) {
-                this.env.showTranslateMessage('Create adjustment success', 'success');
+                this.env.showAlert('Tạo phiếu điều chỉnh thành công!');
                 this.isAdjust = false;
                 this.Inventories.forEach((d) => {
-                  d.Adjust = 0;
-                  d.TotalAdjust = d.QuantityOnHand;
-                  this.calculateTotalAdjust(d);
+                  d.QtyAdjust = 0;
+                  d.QtyTarget = d.QuantityOnHand;
                 });
               }else {
                 this.env.showTranslateMessage('Cannot save, please try again', 'danger');
@@ -1120,17 +1119,17 @@ export class ItemDetailPage extends PageBase {
    
   }
 
-  calculateAdjust(i) {
-     if (!i.Adjust && !i.TotalAdjust) {
+  calculateQtyAdjust(i) {
+     if (!i.QtyAdjust && !i.QtyTarget) {
       return;
     }
-    i.TotalAdjust = i.QuantityOnHand + i.Adjust;
+    i.QtyTarget = i.QuantityOnHand + i.QtyAdjust;
   }
 
-  calculateTotalAdjust(i) {
-    if (!i.Adjust && !i.TotalAdjust) {
+  calculateQtyTarget(i) {
+    if (!i.QtyAdjust && !i.QtyTarget) {
      return;
    }
-   i.Adjust = i.TotalAdjust - i.QuantityOnHand;
+   i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
  }
 }

@@ -1,7 +1,7 @@
 <ion-header>
   <app-toolbar [page]="this" pageTitle="{{'Item detail in branch' | translate}}" [pageConfig]="pageConfig"
     [selectedItems]="selectedItems" [ShowArchive]="false" (refresh)="refresh()" (help)="help()">
-    <ion-buttons rightScreen>
+    <ion-buttons rightScreen *ngIf="segmentView.Page == 'Inventory'">
       <ion-button (click)="isAdjust = !isAdjust">
         <label> {{ 'Điều chỉnh' | translate }}</label>
       </ion-button>
@@ -854,12 +854,12 @@
                           </div>
                           <div class="col-number cell" *ngIf="isAdjust">
                             <input [disabled]="!pageConfig.canEdit"
-                              (change)="calculateAdjust(i)" [(ngModel)]="i.Adjust"class="c-input"type="number" min="0"
+                              (change)="calculateQtyAdjust(i)" [(ngModel)]="i.QtyAdjust"class="c-input"type="number" 
                               step="1" max="999999999999999999" />
                           </div>
                           <div class="col-number cell" *ngIf="isAdjust">
                             <input [disabled]="!pageConfig.canEdit"
-                              (change)="calculateTotalAdjust(i)" [(ngModel)]="i.TotalAdjust"class="c-input" type="number" min="0"
+                              (change)="calculateQtyTarget(i)" [(ngModel)]="i.QtyTarget"class="c-input" type="number" 
                               step="1" max="999999999999999999" />
                           </div>
                         </div>
