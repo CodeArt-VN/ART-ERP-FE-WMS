@@ -99,7 +99,7 @@
           <div class="col-checkbox cell">
             <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
           </div>
-          <div (click)="showItemGroup(i)" class="col-id cell">{{i.Id}}</div>
+          <div class="col-id cell"><a [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.Id}}</a></div>
           <div [ngClass]="i.HasChild? ('bold ') : ('')" class="col-name cell">
             <ng-container *ngFor="let w of i.levels; let k = index;"
               ><span class="spacing" *ngIf="k>0"></span
@@ -109,7 +109,7 @@
               class="min-btn clickable"
               [name]="i.HasChild? (!i.showdetail? 'chevron-forward-outline':'chevron-down-outline') : ''"
             ></ion-icon>
-            <span class="clickable" (click)="showItemGroup(i)"> {{i.Name }}</span>
+            <span class="clickable"> {{i.Name }}</span>
           </div>
           <div class="col-code cell">{{i.Code}}</div>
         </div>

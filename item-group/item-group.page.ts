@@ -3,7 +3,6 @@ import { NavController, ModalController, AlertController, LoadingController, Pop
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { WMS_ItemGroupProvider } from 'src/app/services/static/services.service';
-import { ItemGroupDetailPage } from '../item-group-detail/item-group-detail.page';
 
 @Component({
   selector: 'app-item-group',
@@ -44,28 +43,4 @@ export class ItemGroupPage extends PageBase {
     });
   }
 
-  showItemGroup_back(i) {
-    this.navCtrl.navigateForward('/item-group/' + i.Id);
-  }
-
-  async showItemGroup(i) {
-    const modal = await this.modalController.create({
-      component: ItemGroupDetailPage,
-      componentProps: {
-        items: this.dataItemGroup,
-        item: i,
-        id: i.Id,
-      },
-      cssClass: 'my-custom-class',
-    });
-    return await modal.present();
-  }
-
-  add() {
-    let newItem = {
-      Id: 0,
-      IsDisabled: false,
-    };
-    this.showItemGroup(newItem);
-  }
 }
