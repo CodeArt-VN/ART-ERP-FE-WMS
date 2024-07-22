@@ -65,8 +65,7 @@ export class AdjustmentDetailPage extends PageBase {
       Reason: ['', Validators.required],
       Remark: [''],
       Sort: [''],
-      CountType: [''],
-      CountDate: [''],
+   
       Status: new FormControl({ value: 'New', disabled: true }, Validators.required),
 
       IsDisabled: new FormControl({ value: '', disabled: true }),
@@ -125,7 +124,7 @@ export class AdjustmentDetailPage extends PageBase {
       { Name: 'New', Code: 'New' },
       { Name: 'Pending', Code: 'Pending' },
       { Name: 'Approved', Code: 'Approved' },
-      { Name: 'Disapprove', Code: 'Disapprove' },
+      { Name: 'Unapproved', Code: 'Unapproved' },
     ];
     this.reasonDataSource = [
       { Name: 'Fail goods', Code: 'FailGoods' },
@@ -158,8 +157,9 @@ export class AdjustmentDetailPage extends PageBase {
     if (this.item?._Storer) {
       this.storerDataSource.selected.push(this.item._Storer);
     }
-    if(this.item.Status == "Disapproved" || this.item.Status =="Approved" ){
+    if(this.item.Status == "Unapproved" || this.item.Status =="Approved" ){
        this.pageConfig.canEdit = false;
+       this.pageConfig.canDelete = false;
     }
     this.storerDataSource.initSearch();
   }

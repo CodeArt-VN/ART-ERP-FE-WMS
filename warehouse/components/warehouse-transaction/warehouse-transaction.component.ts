@@ -39,9 +39,12 @@ export class WarehouseTransactionComponent extends PageBase {
     super();
   }
 
-  preLoadData(event) {}
+  preLoadData(event) {
+  }
 
   loadData(event) {
+    this.query.SortBy = 'Id_desc';
+
     super.loadData(event);
   }
 
@@ -57,17 +60,21 @@ export class WarehouseTransactionComponent extends PageBase {
   }
 
   myHeaderFn(record, recordIndex, records) {
-    let a: any = recordIndex == 0 ? new Date('2000-01-01') : new Date(records[recordIndex - 1].CreatedDate);
-    let b: any = new Date(record.CreatedDate);
+    if(recordIndex == 0){
+      return lib.dateFormatFriendly(record.CreatedDate);
+    }
+    let b: any = recordIndex == 0 ? new Date() : new Date(records[recordIndex - 1].CreatedDate);//'2000-01-01'
+    let a: any = new Date(record.CreatedDate);
     let mins = Math.floor((b - a) / 1000 / 60);
-
-    if (mins < 30) {
+    
+    
+    if (mins < 30 ) {
       return null;
     }
-    return lib.dateFormatFriendly(record.CreatedDate);
-    // return {
-    //   CreatedTimeText: record.CreatedDate ? lib.dateFormat(record.CreatedDate, 'hh:MM') : '',
-    //   CreatedDateText: record.CreatedDate ? lib.dateFormat(record.CreatedDate, 'dd/mm/yy') : ''
-    // }
+    let lastRenderedDate =  lib.dateFormatFriendly(records[recordIndex - 1]?.CreatedDate)
+
+    if(lastRenderedDate != lib.dateFormatFriendly(record.CreatedDate)) return lib.dateFormatFriendly(record.CreatedDate);
+    return null;
+
   }
 }

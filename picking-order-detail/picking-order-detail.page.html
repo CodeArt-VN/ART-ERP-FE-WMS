@@ -196,6 +196,7 @@
                       [field]="{id:'Quantity', type : 'number', form : c, }"
                       (inputChange)="changeQuantity(c)"
                     ></app-input-control>
+                    <div *ngIf="(c.controls.HasChild.value || !c.controls.IDParent.value) &&  !c.get('FromLocationName').value">{{c.get('Quantity').value}}</div>
                    
                   </div>
                   <div class="col-icon cell clickable" *ngIf="pageConfig.canEdit && c.controls.Status.value != 'Active'">

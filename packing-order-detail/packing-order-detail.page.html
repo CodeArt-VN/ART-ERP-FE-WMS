@@ -142,7 +142,7 @@
 										</div>
 		
 										<div class="col-name cell">
-											<div *ngIf="c.get('IDItem')?.value && (c.get('HasChild').value || !c.get('IDParent').value) ">
+											<div *ngIf="c.get('IDItem')?.value && (c.get('HasChild').value || !c.get('FromLocationName').value) ">
 												<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()">#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon></a>
 												<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
 

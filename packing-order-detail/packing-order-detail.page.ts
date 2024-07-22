@@ -95,21 +95,18 @@ export class PackingOrderDetailPage extends PageBase {
     //     this.pageConfig.canEdit = false;
     // }
     super.loadedData(event, ignoredFromGroup);
-    this.query.IDPacking = this.item.Id; //temp
-    this.query.Id = undefined;
-    this.packingDetailservice.read(this.query, false).then((listDetail: any) => {
-      if (listDetail != null && listDetail.data.length > 0) {
-        const packingOrdertDetailsArray = this.formGroup.get('PackingDetails') as FormArray;
-        packingOrdertDetailsArray.clear();
-        // this.item.PackingDetails = listDetail.data;
-        this.buildFlatTree(listDetail.data, this.item.PackingDetails, false).then((resp: any) => {
-          this.item.PackingDetails = resp;
-          this.patchFieldsValue();
-        });
-      }
-    });
+    if(this.item?.PackingDetails){
+      const packingOrdertDetailsArray = this.formGroup.get('PackingDetails') as FormArray;
+      packingOrdertDetailsArray.clear();
+      this.buildFlatTree(this.item.PackingDetails, null, false).then((resp: any) => {
+        this.item.PackingDetails = resp;
+        this.patchFieldsValue();
+      });
+    }
+    
     if (this.item.Status == 'Closed') {
       this.pageConfig.canEdit = false;
+      this.formGroup.disable();
     }
     // this.query.Id = this.item.Id;
     this.formGroup.get('Status').markAsDirty();
@@ -183,8 +180,6 @@ export class PackingOrderDetailPage extends PageBase {
           console.log(err);
         });
     });
-    
-    this.query.Id = undefined;
   }
   changeStatusDetail(fg, status) {
     if (fg.get('Status').value == 'Active' && status == 'Done') {
@@ -230,87 +225,101 @@ export class PackingOrderDetailPage extends PageBase {
   }
 
   toggleAllQty() {
-    let groups = <FormArray>this.formGroup.controls.PackingDetails;
-    let obj = [];
-    groups.controls.forEach((group: FormGroup) => {
-      const currentStatus = group.get('Status').value;
-      if (currentStatus == 'Active') {
-        if (this.item._IsPackedAll) {
-          group.controls.QuantityPacked.setValue(0);
-        } else {
-          group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
+    if(this.submitAttempt){
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      return;
+    } 
+    else{
+      let groups = <FormArray>this.formGroup.controls.PackingDetails;
+      let obj = [];
+      groups.controls.forEach((group: FormGroup) => {
+        const currentStatus = group.get('Status').value;
+        if (currentStatus == 'Active') {
+          if (this.item._IsPackedAll) {
+            group.controls.QuantityPacked.setValue(0);
+          } else {
+            group.controls.QuantityPacked.setValue(group.controls.Quantity.value);
+          }
+          const id = group.get('Id').value;
+          const quantityPacked = group.controls.QuantityPacked.value;
+          obj.push({ Id: id, Status: currentStatus, QuantityPacked: quantityPacked });
         }
-        const id = group.get('Id').value;
-        const quantityPacked = group.controls.QuantityPacked.value;
-        obj.push({ Id: id, Status: currentStatus, QuantityPacked: quantityPacked });
+      });
+  
+      if (!this.submitAttempt && obj.length > 0) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
+          .toPromise()
+          .then(() => {
+            this.env.showTranslateMessage('Saved', 'success');
+            this.item._IsPackedAll = !this.item._IsPackedAll;
+            this.submitAttempt = false;
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
+          });
       }
-    });
-
-    if (!this.submitAttempt && obj.length > 0) {
-      this.submitAttempt = true;
-      this.pageProvider.commonService
-        .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
-        .toPromise()
-        .then(() => {
-          this.env.showTranslateMessage('Saved', 'success');
-          this.item._IsPackedAll = !this.item._IsPackedAll;
-          this.submitAttempt = false;
-        })
-        .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          this.submitAttempt = false;
-        });
     }
   }
 
   calcTotalPackedQuantity(childFG) {
-    let groups = <FormArray>this.formGroup.controls.PackingDetails;
-    let totalPackedQty = 0;
-    let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
-    let obj;
-    if (parentFG) {
-      let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
-      subOrders.forEach((sub) => {
-        totalPackedQty += sub.get('QuantityPacked').value;
-      });
-      parentFG.get('QuantityPacked').setValue(totalPackedQty);
-      parentFG.get('QuantityPacked').markAsDirty();
-      obj = [
-        { Id: parentFG.get('Id').value, Status: 'Active', QuantityPacked: parentFG.get('QuantityPacked').value },
-        { Id: childFG.get('Id').value, Status: 'Active', QuantityPacked: childFG.get('QuantityPacked').value },
-      ];
-    } else {
-      obj = [{ Id: childFG.get('Id').value, Status: 'Active', QuantityPacked: childFG.get('QuantityPacked').value }];
-    }
-    // Check if QuantityPacked is valid
-    const isValid = obj.every((item) => {
-      let group = groups.controls.find((d) => d.get('Id').value == item.Id);
-      return group && item.QuantityPacked <= group.get('Quantity').value && item.QuantityPacked >= 0;
-    });
-
-    if (!isValid) {
+    if(this.submitAttempt){
+      childFG.get('QuantityPacked').setErrors({valid:false});
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
       return;
     }
-    if (this.submitAttempt == false) {
-      this.submitAttempt = true;
-      this.pageProvider.commonService
-        .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
-        .toPromise()
-        .then((result: any) => {
-          if (result && result.length > 0) {
-            let groups = <FormArray>this.formGroup.controls.PackingDetails;
-            result.forEach((updatedPacking) => {
-              var packingDetail = groups.controls.find((d) => d.get('Id').value == updatedPacking.Id);
-              if (packingDetail) {
-                packingDetail.get('QuantityPacked').setValue(updatedPacking.QuantityPacked);
-              }
-            });
-            this.env.showTranslateMessage('Saved', 'success');
-          } else {
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          }
-          this.submitAttempt = false;
+    else{
+      let groups = <FormArray>this.formGroup.controls.PackingDetails;
+      let totalPackedQty = 0;
+      let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
+      let obj;
+      if (parentFG) {
+        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
+        subOrders.forEach((sub) => {
+          totalPackedQty += sub.get('QuantityPacked').value;
         });
+        parentFG.get('QuantityPacked').setValue(totalPackedQty);
+        parentFG.get('QuantityPacked').markAsDirty();
+        obj = [
+          { Id: parentFG.get('Id').value, Status: 'Active', QuantityPacked: parentFG.get('QuantityPacked').value },
+          { Id: childFG.get('Id').value, Status: 'Active', QuantityPacked: childFG.get('QuantityPacked').value },
+        ];
+      } else {
+        obj = [{ Id: childFG.get('Id').value, Status: 'Active', QuantityPacked: childFG.get('QuantityPacked').value }];
+      }
+      // Check if QuantityPacked is valid
+      const isValid = obj.every((item) => {
+        let group = groups.controls.find((d) => d.get('Id').value == item.Id);
+        return group && item.QuantityPacked <= group.get('Quantity').value && item.QuantityPacked >= 0;
+      });
+  
+      if (!isValid) {
+        this.env.showTranslateMessage('Quantity packed is more than quantity', 'danger');
+        return; 
+      }
+      if (this.submitAttempt == false) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
+          .toPromise()
+          .then((result: any) => {
+            if (result && result.length > 0) {
+              let groups = <FormArray>this.formGroup.controls.PackingDetails;
+              result.forEach((updatedPacking) => {
+                var packingDetail = groups.controls.find((d) => d.get('Id').value == updatedPacking.Id);
+                if (packingDetail) {
+                  packingDetail.get('QuantityPacked').setValue(updatedPacking.QuantityPacked);
+                }
+              });
+              this.env.showTranslateMessage('Saved', 'success');
+            } else {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            }
+            this.submitAttempt = false;
+          });
+      }
     }
   }
 

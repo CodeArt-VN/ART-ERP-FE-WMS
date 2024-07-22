@@ -116,29 +116,23 @@ export class PickingOrderDetailPage extends PageBase {
       .toPromise()
       .then((listOutboundDetail: any) => {
         if (listOutboundDetail != null && listOutboundDetail.length > 0) {
-          this.query.IDPicking = this.item.Id;
-          this.query.Id = undefined;
-
-          this.pickingOrderDetailService.read(this.query, false).then((listDetail: any) => {
-            const pickingOrdertDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
-            pickingOrdertDetailsArray.clear();
-            let outboundDetails = listOutboundDetail;
-
-            let pickingDetails = listDetail?.data;
-            pickingDetails?.forEach((s) => {
-              let parent = outboundDetails.find((d) => d.IDItem == s.IDItem && d.IDUoM == s.IDUoM);
-              if (parent) {
-                if (!parent.Id) {
-                  parent.Id = Math.floor(Math.random() * (10000000 - 10000 + 1)) + 10000000000;
-                }
-                s.IDParent = parent.Id;
+          const pickingOrdertDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
+          pickingOrdertDetailsArray.clear();
+          let outboundDetails = listOutboundDetail;
+          let pickingDetails = this.item.PickingDetails;
+          pickingDetails?.forEach((s) => {
+            let parent = outboundDetails.find((d) => d.IDItem == s.IDItem && d.IDUoM == s.IDUoM);
+            if (parent) {
+              if (!parent.Id) {
+                parent.Id = Math.floor(Math.random() * (10000000 - 10000 + 1)) + 10000000000;
               }
-            });
-            let list = [...outboundDetails, ...pickingDetails];
-            this.buildFlatTree(list, this.item.PickingOrderDetails, false).then((resp: any) => {
-              this.item.PickingOrderDetails = resp;
-              this.patchFieldsValue();
-            });
+              s.IDParent = parent.Id;
+            }
+          });
+          let list = [...outboundDetails, ...pickingDetails];
+          this.buildFlatTree(list, this.item.PickingOrderDetails, false).then((resp: any) => {
+            this.item.PickingOrderDetails = resp;
+            this.patchFieldsValue();
           });
         }
       });
@@ -212,13 +206,8 @@ export class PickingOrderDetailPage extends PageBase {
   }
 
   closePick() {
-    this.query.Id = this.formGroup.get('Id').value;
-    this.env
-    .showPrompt(
-      'Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?',
-      null,
-      'Đóng lấy hàng',
-    )
+    this.query.Id = this.item.Id;
+    this.env .showPrompt( 'Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng', )
     .then((_) => {
       this.env
         .showLoading(
@@ -226,6 +215,7 @@ export class PickingOrderDetailPage extends PageBase {
           this.pageProvider.commonService.connect('GET', 'WMS/Picking/ClosePicking/', this.query).toPromise(),
         )
         .then(async (result: any) => {
+         
           this.refresh();
         })
         .catch((err) => {
@@ -233,20 +223,22 @@ export class PickingOrderDetailPage extends PageBase {
           console.log(err);
         });
     });
-    
-    this.query.Id = undefined;
   }
 
   changeStatusDetail(fg, status) {
-    if (fg.get('Status').value == 'Active' && status == 'Done') {
-      //update status Active -> Done
-      let obj = [
-        {
-          Id: fg.get('Id').value,
-          Status: status,
-        },
-      ];
-      if (this.submitAttempt == false) {
+    if(this.submitAttempt){
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'warning');
+      return;
+    }
+      else {
+        if (fg.get('Status').value == 'Active' && status == 'Done') {
+          //update status Active -> Done
+          let obj = [
+            {
+              Id: fg.get('Id').value,
+              Status: status,
+            },
+          ];
         this.submitAttempt = true;
         this.pageProvider.commonService
           .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
@@ -255,11 +247,11 @@ export class PickingOrderDetailPage extends PageBase {
             if (result) {
               this.env.showTranslateMessage('Saved', 'success');
               fg.controls.Status.setValue(status);
-              this.submitAttempt = false;
+              fg.disable();
             } else {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-              this.submitAttempt = false;
-            }
+            } 
+            this.submitAttempt = false;
           })
           .catch((err) => {
             this.env.showTranslateMessage('Cannot save, please try again', 'danger');
@@ -293,70 +285,87 @@ export class PickingOrderDetailPage extends PageBase {
   }
 
   toggleAllQty() {
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    let obj = [];
-    groups.controls.forEach((group: FormGroup) => {
-      const currentStatus = group.get('Status').value;
-      if (currentStatus == 'Active') {
-        if (this.item._IsPickedAll) {
-          group.controls.QuantityPicked.setValue(0);
-        } else {
-          group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
+    if(this.submitAttempt){
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      return;
+    } 
+    else{
+      let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+      let obj = [];
+      groups.controls.forEach((group: FormGroup) => {
+        const currentStatus = group.get('Status').value;
+        if (currentStatus == 'Active') {
+          if (this.item._IsPickedAll) {
+            group.controls.QuantityPicked.setValue(0);
+          } else {
+            group.controls.QuantityPicked.setValue(group.controls.Quantity.value);
+          }
+          const id = group.get('Id').value;
+          const quantityPicked = group.controls.QuantityPicked.value;
+          obj.push({ Id: id, QuantityPicked: quantityPicked });
         }
-        const id = group.get('Id').value;
-        const quantityPicked = group.controls.QuantityPicked.value;
-        obj.push({ Id: id, QuantityPicked: quantityPicked });
+      });
+  
+      if (!this.submitAttempt && obj.length > 0) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Picking/UpdateQuantity/', obj)
+          .toPromise()
+          .then(() => {
+            this.env.showTranslateMessage('Saved', 'success');
+            this.item._IsPickedAll = !this.item._IsPickedAll;
+            this.submitAttempt = false;
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
+          });
       }
-    });
-
-    if (!this.submitAttempt && obj.length > 0) {
-      this.submitAttempt = true;
-      this.pageProvider.commonService
-        .connect('PUT', 'WMS/Picking/UpdateQuantity/', obj)
-        .toPromise()
-        .then(() => {
-          this.env.showTranslateMessage('Saved', 'success');
-          this.item._IsPickedAll = !this.item._IsPickedAll;
-          this.submitAttempt = false;
-        })
-        .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          this.submitAttempt = false;
-        });
     }
   }
 
   calcTotalPickedQuantity(childFG) {
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    let totalPickedQty = 0;
-    let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
-    let obj;
-    if (parentFG) {
-      let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
-      subOrders.forEach((sub) => {
-        totalPickedQty += parseFloat(sub.get('QuantityPicked').value || 0);
-      });
-      parentFG.get('QuantityPicked').setValue(totalPickedQty);
-      // parentFG.get('QuantityPicked').markAsDirty();
-      obj = [
-        // {Id:parentFG.get('Id').value, QuantityPicked:parentFG.get('QuantityPicked').value},
-        { Id: childFG.get('Id').value, QuantityPicked: childFG.get('QuantityPicked').value },
-      ];
-    } else {
-      obj = [{ Id: childFG.get('Id').value, QuantityPicked: childFG.get('QuantityPicked').value }];
-    }
-    // Check if QuantityPicked is valid
-    const isValid = obj.every((item) => {
-      let group = groups.controls.find((d) => d.get('Id').value == item.Id);
-      return group && item.QuantityPicked <= group.get('Quantity').value && item.QuantityPicked >= 0;
-    });
-
-    if (!isValid) {
+    if(this.submitAttempt){
+      childFG.get('QuantityPicked').setErrors({valid:false});
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
       return;
     }
-    childFG.get('Id').markAsDirty();
-    childFG.get('QuantityPicked').markAsDirty();
-    super.saveChange2(childFG, this.pageConfig.pageName, this.pickingOrderDetailService);
+    else{
+      let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+      let totalPickedQty = 0;
+      let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
+      let obj;
+      if (parentFG) {
+        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
+        subOrders.forEach((sub) => {
+          totalPickedQty += parseFloat(sub.get('QuantityPicked').value || 0);
+        });
+        parentFG.get('QuantityPicked').setValue(totalPickedQty);
+        // parentFG.get('QuantityPicked').markAsDirty();
+        obj = [
+          // {Id:parentFG.get('Id').value, QuantityPicked:parentFG.get('QuantityPicked').value},
+          { Id: childFG.get('Id').value, QuantityPicked: childFG.get('QuantityPicked').value },
+        ];
+      } else {
+        obj = [{ Id: childFG.get('Id').value, QuantityPicked: childFG.get('QuantityPicked').value }];
+      }
+      // Check if QuantityPicked is valid
+      const isValid = obj.every((item) => {
+        let group = groups.controls.find((d) => d.get('Id').value == item.Id);
+        return group && item.QuantityPicked <= group.get('Quantity').value && item.QuantityPicked >= 0;
+      });
+  
+      if (!isValid) {
+        this.env.showTranslateMessage('Quantity picked is more than quantity', 'danger');
+
+        return;
+      }
+      this.submitAttempt = false;
+      childFG.get('Id').markAsDirty();
+      childFG.get('QuantityPicked').markAsDirty();
+      super.saveChange2(childFG, this.pageConfig.pageName, this.pickingOrderDetailService);
+    }
+
   }
 
   changeSelection(i, view, e = null) {
