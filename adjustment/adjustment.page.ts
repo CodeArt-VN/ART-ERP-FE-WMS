@@ -77,7 +77,9 @@ export class AdjustmentPage extends PageBase {
     super.changeSelection(i, e);
     if (this.pageConfig.canApprove) {
       this.pageConfig.ShowApprove = true;
+      this.pageConfig.ShowDisapprove = true;
     }
+   
     this.selectedItems?.forEach((i) => {
       let notShowApprove = ['Unapproved', 'Approved'];
       if (notShowApprove.indexOf(i.Status) > -1 || !i.Reason) {
