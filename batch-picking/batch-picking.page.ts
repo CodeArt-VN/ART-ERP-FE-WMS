@@ -430,7 +430,16 @@ export class BatchPickingPage extends PageBase {
 
     this.env.showLoading('Vui lòng chờ load dữ liệu...', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
     .then((result: any) => {
+      if(result){
+        this.env.showTranslateMessage('saved!','success');
         this.refresh();
+      }
+      else{
+        this.env.showTranslateMessage('cannot save!','danger');
+      }
+    }).catch((err) =>{
+      this.env.showTranslateMessage(err.message, 'danger');
+
     })
   }
   exportPicking() {

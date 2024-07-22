@@ -122,6 +122,7 @@ export class ShippingDetailPage extends PageBase {
       }
     });
     if (this.item.Status == 'Closed') {
+      this.formGroup.disable();
       this.pageConfig.canEdit = false;
     }
   }
@@ -187,8 +188,6 @@ export class ShippingDetailPage extends PageBase {
           console.log(err);
         });
     });
-    
-    this.query.Id = undefined;
   }
 
   updateQuantity(fg) {
@@ -206,37 +205,44 @@ export class ShippingDetailPage extends PageBase {
   }
 
   toggleAllQty() {
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    let obj = [];
-    groups.controls.forEach((group: FormGroup) => {
-      const currentStatus = group.get('Status').value;
-      if (currentStatus == 'Active') {
-        if (this.item._IsShippedAll) {
-          group.controls.QuantityShipped.setValue(0);
-        } else {
-          group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
+    if(this.submitAttempt){
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      return;
+    } 
+    else{
+      let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+      let obj = [];
+      groups.controls.forEach((group: FormGroup) => {
+        const currentStatus = group.get('Status').value;
+        if (currentStatus == 'Active') {
+          if (this.item._IsShippedAll) {
+            group.controls.QuantityShipped.setValue(0);
+          } else {
+            group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
+          }
+          const id = group.get('Id').value;
+          const quantityShipped = group.controls.QuantityShipped.value;
+          obj.push({ Id: id, QuantityShipped: quantityShipped });
         }
-        const id = group.get('Id').value;
-        const quantityShipped = group.controls.QuantityShipped.value;
-        obj.push({ Id: id, QuantityShipped: quantityShipped });
+      });
+  
+      if (!this.submitAttempt && obj.length > 0) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+          .toPromise()
+          .then(() => {
+            this.env.showTranslateMessage('Saved', 'success');
+            this.item._IsShippedAll = !this.item._IsShippedAll;
+            this.submitAttempt = false;
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
+          });
       }
-    });
-
-    if (!this.submitAttempt && obj.length > 0) {
-      this.submitAttempt = true;
-      this.pageProvider.commonService
-        .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
-        .toPromise()
-        .then(() => {
-          this.env.showTranslateMessage('Saved', 'success');
-          this.item._IsShippedAll = !this.item._IsShippedAll;
-          this.submitAttempt = false;
-        })
-        .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          this.submitAttempt = false;
-        });
     }
+   
   }
 
   UpdateShippedQuantity(fg) {
@@ -246,6 +252,12 @@ export class ShippingDetailPage extends PageBase {
   }
 
   changeStatusDetail(fg, status) {
+    if(this.submitAttempt){
+      fg.get('QuantityShipped').setErrors({valid:false});
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      return;
+    }
+    else{
     if (fg.get('Status').value == 'Active' && status == 'Done') {
       //update status Active -> Done
       let obj = [
@@ -275,6 +287,7 @@ export class ShippingDetailPage extends PageBase {
           });
       }
     }
+  }
   }
 
   changeSelection(i, view, e = null) {
