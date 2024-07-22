@@ -10,6 +10,7 @@ import {
   FINANCE_GeneralLedgerProvider,
   WMS_ItemGroupAccountInBranchProvider,
 } from 'src/app/services/static/services.service';
+import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
   selector: 'app-item-group-detail',
@@ -36,7 +37,7 @@ export class ItemGroupDetailPage extends PageBase {
   };
   branchSelected = false;
   selectedOption = null;
-  
+
   constructor(
     public pageProvider: WMS_ItemGroupProvider,
     public itemGroupAccountInBranchProvider: WMS_ItemGroupAccountInBranchProvider,
@@ -92,13 +93,33 @@ export class ItemGroupDetailPage extends PageBase {
         this.branchList = values[0];
       }
       if (values[1]) {
-        this.ChartOfAccount = values[1];
+        lib.buildFlatTree(values[1], []).then((result: any) => {
+          this.ChartOfAccount = result;
+         
+        });
       }
       super.preLoadData();
     });
     setTimeout(() => {
       this.loadNode();
     }, 0);
+  }
+
+  loadedData() {
+    this.pageConfig.canEdit = true;
+    this.pageConfig.canAdd = true
+    super.loadedData(null);
+    if (this.pageConfig.canEdit || this.pageConfig.canAdd) {
+      this.formGroup.get('Account').enable();
+      this.formGroup.get('AccountInventory').enable();
+      this.formGroup.get('AccountCostOfGoodsSold').enable();
+      this.formGroup.get('AccountPriceDifference').enable();
+    } else {
+      this.formGroup.get('Account').disable();
+      this.formGroup.get('AccountInventory').disable();
+      this.formGroup.get('AccountCostOfGoodsSold').disable();
+      this.formGroup.get('AccountPriceDifference').disable();
+    }
   }
 
   refresh() {
@@ -108,6 +129,17 @@ export class ItemGroupDetailPage extends PageBase {
   selectBranch() {
     this.loadItemGroupAccountInBranch();
     this.loadNode();
+    if (this.pageConfig.canEdit || this.pageConfig.canAdd) {
+      this.formGroup.get('Account').enable();
+      this.formGroup.get('AccountInventory').enable();
+      this.formGroup.get('AccountCostOfGoodsSold').enable();
+      this.formGroup.get('AccountPriceDifference').enable();
+    } else {
+      this.formGroup.get('Account').disable();
+      this.formGroup.get('AccountInventory').disable();
+      this.formGroup.get('AccountCostOfGoodsSold').disable();
+      this.formGroup.get('AccountPriceDifference').disable();
+    }
   }
 
   loadItemGroupAccountInBranch() {
@@ -126,7 +158,15 @@ export class ItemGroupDetailPage extends PageBase {
             .then((data: any) => {
               if (data.length > 0) {
                 const originalId = this.item.Id;
-                this.item = { ...data[0], Id: originalId };
+                const originalCode = this.item.Code;
+                const originalName = this.item.Name;
+                const originalSort = this.item.Sort;
+                this.item = { ...data[0], 
+                  Id: originalId,
+                  Code: originalCode,
+                  Name: originalName,
+                  Sort: originalSort,
+                };
                 this.item.IDItemGroupAccountInBranch = data[0].Id;
                 this.item.Id = data[0].IDItemGroup;
                 this.formGroup?.patchValue(this.item);
