@@ -110,14 +110,8 @@
         </ion-list-header>
         <ion-list>
           <ng-container *ngFor="let i of optionGroup">
-            <ion-item
-              [color]="segmentView.Page == i.Code? 'primary': '' "
-              button
-              detail="true"
-              lines="full"
-              class="clickable"
-              (click)="loadNode(i)"
-            >
+            <ion-item *ngIf="(this.selectedBranch && i.Code =='Accounts') || i.Code !='Accounts' " [color]="segmentView.Page == i.Code? 'primary': '' " button
+              detail="true" lines="full" class="clickable" (click)="loadNode(i)">
               <ion-label class="ion-text-wrap">
                 <h3>{{i.Name}}</h3>
               </ion-label>

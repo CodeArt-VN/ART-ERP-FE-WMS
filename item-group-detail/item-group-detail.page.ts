@@ -106,8 +106,6 @@ export class ItemGroupDetailPage extends PageBase {
   }
 
   loadedData() {
-    this.pageConfig.canEdit = true;
-    this.pageConfig.canAdd = true
     super.loadedData(null);
     if (this.pageConfig.canEdit || this.pageConfig.canAdd) {
       this.formGroup.get('Account').enable();
@@ -128,6 +126,11 @@ export class ItemGroupDetailPage extends PageBase {
 
   selectBranch() {
     this.loadItemGroupAccountInBranch();
+    if (!this.selectedBranch) {
+      this.loadNode(this.optionGroup[0]);
+    }else {
+      this.loadNode();
+    }
     this.loadNode();
     if (this.pageConfig.canEdit || this.pageConfig.canAdd) {
       this.formGroup.get('Account').enable();
