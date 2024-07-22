@@ -1,5 +1,5 @@
 <ion-header>
-	<app-toolbar [page]="this" > </app-toolbar>
+	<app-toolbar [page]="this" [ShowApprove]="pageConfig.ShowApprove" [ShowDisapprove]="pageConfig.ShowDisapprove"> </app-toolbar>
 	<section class="table">
 		<header class="bold">
 			<div class="col-checkbox cell"></div>
@@ -17,6 +17,11 @@
 				{{'Code' | translate}}
 				<ion-icon class="min-btn" *ngIf="sort.WarehouseCode" [name]="sort.WarehouseCode == 'WarehouseCode'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.WarehouseCode" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-code cell" (click)="sortToggle('Reason')">
+				{{'Reason' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Reason" [name]="sort.Reason == 'Reason'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Reason" name="search" color="primary"></ion-icon>
 			</div>
 			<div class="col-status cell" (click)="sortToggle('Status')">
 				{{'Status' | translate}}
@@ -44,8 +49,13 @@
 						<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-name cell">
 							{{i.WarehouseCode}}
 						</div>
+						<div  class="col-code cell">
+							{{i.Reason}}
+						</div>
 						<div  class="col-status cell">
-							{{i.Status}}
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+								{{i._Status?.Name}}
+							  </ion-badge>
 						</div>
 					</div>
 				
