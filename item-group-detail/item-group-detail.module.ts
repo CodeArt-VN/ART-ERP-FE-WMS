@@ -1,26 +1,20 @@
+import { IonicModule } from '@ionic/angular';
+import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
-import { ShareModule } from 'src/app/share.module';
 import { ItemGroupDetailPage } from './item-group-detail.page';
+import { ShareModule } from 'src/app/share.module';
 
-const routes: Routes = [
-  {
-    path: '',
-    component: ItemGroupDetailPage,
-  },
-];
+const routes: Routes = [{ path: '', component: ItemGroupDetailPage }];
 
 @NgModule({
   imports: [
+    IonicModule,
     CommonModule,
     FormsModule,
     ShareModule,
-    IonicModule,
     ReactiveFormsModule,
-    ShareModule,
     RouterModule.forChild(routes),
   ],
   declarations: [ItemGroupDetailPage],
