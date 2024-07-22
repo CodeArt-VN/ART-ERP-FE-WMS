@@ -131,7 +131,6 @@ export class ItemGroupDetailPage extends PageBase {
     }else {
       this.loadNode();
     }
-    this.loadNode();
     if (this.pageConfig.canEdit || this.pageConfig.canAdd) {
       this.formGroup.get('Account').enable();
       this.formGroup.get('AccountInventory').enable();
