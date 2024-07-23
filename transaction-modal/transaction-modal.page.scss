@@ -1,5 +1,5 @@
 ::ng-deep app-data-table .row {
-  height: 52px;
+  min-height: 52px;
 }
 .row-status {
   display: flex;
@@ -14,4 +14,17 @@
 
 app-data-table{
   height:100%;
+}
+
+:host ::ng-deep {
+  @media screen and (max-width: 1164px) {
+    .row-status {
+      align-items: unset;
+      text-align: right;
+    }
+
+    app-data-table.responsive .row .col-status {
+      top: 4px;
+    }
+  }
 }
