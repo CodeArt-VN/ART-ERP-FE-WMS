@@ -110,8 +110,15 @@
         </ion-list-header>
         <ion-list>
           <ng-container *ngFor="let i of optionGroup">
-            <ion-item *ngIf="(this.selectedBranch && i.Code =='Accounts') || i.Code !='Accounts' " [color]="segmentView.Page == i.Code? 'primary': '' " button
-              detail="true" lines="full" class="clickable" (click)="loadNode(i)">
+            <ion-item
+              *ngIf="(this.selectedBranch && i.Code =='Accounts') || i.Code !='Accounts' "
+              [color]="segmentView.Page == i.Code? 'primary': '' "
+              button
+              detail="true"
+              lines="full"
+              class="clickable"
+              (click)="loadNode(i)"
+            >
               <ion-label class="ion-text-wrap">
                 <h3>{{i.Name}}</h3>
               </ion-label>
@@ -203,13 +210,28 @@
                                 placeholder="{{ 'Search account' | translate }}"
                               >
                                 <ng-template ng-label-tmp let-i="item">
-                                  <ion-text [color]="i.Color">{{ i.Name ?? 'Search account' | translate }}</ion-text>
+                                  <ion-text>
+                                    <ion-text
+                                      *ngIf="i.Code"
+                                      [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                      ><b>{{i.Code}} -</b></ion-text
+                                    >
+                                    {{i.Name ?? 'Search account' | translate }}</ion-text
+                                  >
                                 </ng-template>
                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                   <div *ngIf="i">
                                     <div>
                                       <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                      <span [ngOptionHighlight]="search">{{ i.Name }}</span>
+                                      <span [ngOptionHighlight]="search">
+                                        <ion-text
+                                          *ngIf="i.Code"
+                                          [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                          ><b>{{i.Code}}</b></ion-text
+                                        >
+                                        - {{i.Name}}
+                                        <span *ngIf="i.ForeignName"> - {{i.ForeignName}}</span>
+                                      </span>
                                     </div>
                                   </div>
                                 </ng-template>
@@ -234,13 +256,28 @@
                                 placeholder="{{ 'Search account' | translate }}"
                               >
                                 <ng-template ng-label-tmp let-i="item">
-                                  <ion-text [color]="i.Color">{{ i.Name ?? 'Search account' | translate }}</ion-text>
+                                  <ion-text>
+                                    <ion-text
+                                      *ngIf="i.Code"
+                                      [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                      ><b>{{i.Code}} -</b></ion-text
+                                    >
+                                    {{i.Name ?? 'Search account' | translate }}</ion-text
+                                  >
                                 </ng-template>
                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                   <div *ngIf="i">
                                     <div>
                                       <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                      <span [ngOptionHighlight]="search">{{ i.Name }}</span>
+                                      <span [ngOptionHighlight]="search">
+                                        <ion-text
+                                          *ngIf="i.Code"
+                                          [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                          ><b>{{i.Code}}</b></ion-text
+                                        >
+                                        - {{i.Name}}
+                                        <span *ngIf="i.ForeignName"> - {{i.ForeignName}}</span>
+                                      </span>
                                     </div>
                                   </div>
                                 </ng-template>
@@ -265,13 +302,28 @@
                                 placeholder="{{ 'Search account' | translate }}"
                               >
                                 <ng-template ng-label-tmp let-i="item">
-                                  <ion-text [color]="i.Color">{{ i.Name ?? 'Search account' | translate }}</ion-text>
+                                  <ion-text>
+                                    <ion-text
+                                      *ngIf="i.Code"
+                                      [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                      ><b>{{i.Code}} -</b></ion-text
+                                    >
+                                    {{i.Name ?? 'Search account' | translate }}</ion-text
+                                  >
                                 </ng-template>
                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                   <div *ngIf="i">
                                     <div>
                                       <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                      <span [ngOptionHighlight]="search">{{ i.Name }}</span>
+                                      <span [ngOptionHighlight]="search">
+                                        <ion-text
+                                          *ngIf="i.Code"
+                                          [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                          ><b>{{i.Code}}</b></ion-text
+                                        >
+                                        - {{i.Name}}
+                                        <span *ngIf="i.ForeignName"> - {{i.ForeignName}}</span>
+                                      </span>
                                     </div>
                                   </div>
                                 </ng-template>
@@ -296,13 +348,28 @@
                                 placeholder="{{ 'Search account' | translate }}"
                               >
                                 <ng-template ng-label-tmp let-i="item">
-                                  <ion-text [color]="i.Color">{{ i.Name ?? 'Search account' | translate }}</ion-text>
+                                  <ion-text>
+                                    <ion-text
+                                      *ngIf="i.Code"
+                                      [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                      ><b>{{i.Code}} -</b></ion-text
+                                    >
+                                    {{i.Name ?? 'Search account' | translate }}</ion-text
+                                  >
                                 </ng-template>
                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                   <div *ngIf="i">
                                     <div>
                                       <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                      <span [ngOptionHighlight]="search">{{ i.Name }}</span>
+                                      <span [ngOptionHighlight]="search">
+                                        <ion-text
+                                          *ngIf="i.Code"
+                                          [color]="!i.IsActiveAccount ? 'primary' : (i.IsControlAccount? 'success': 'dark') "
+                                          ><b>{{i.Code}}</b></ion-text
+                                        >
+                                        - {{i.Name}}
+                                        <span *ngIf="i.ForeignName"> - {{i.ForeignName}}</span>
+                                      </span>
                                     </div>
                                   </div>
                                 </ng-template>
