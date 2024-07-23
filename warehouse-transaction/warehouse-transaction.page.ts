@@ -1,26 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
-import { EnvService } from 'src/app/services/core/env.service';
+import { AlertController, LoadingController, ModalController, NavController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { PageBase } from 'src/app/page-base';
+import { EnvService } from 'src/app/services/core/env.service';
+import { lib } from 'src/app/services/static/global-functions';
 import {
   BRA_BranchProvider,
   CRM_ContactProvider,
   WMS_ItemProvider,
   WMS_LocationProvider,
+  WMS_TransactionProvider,
   WMS_ZoneProvider,
 } from 'src/app/services/static/services.service';
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
-import { lib } from 'src/app/services/static/global-functions';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-warehouse',
-  templateUrl: 'warehouse.page.html',
-  styleUrls: ['warehouse.page.scss'],
+  selector: 'app-warehouse-transaction',
+  templateUrl: './warehouse-transaction.page.html',
+  styleUrls: ['./warehouse-transaction.page.scss'],
 })
-export class WarehousePage extends PageBase {
+export class WarehouseTransactionPage extends PageBase {
   branchList = [];
   zoneList = [];
   storerList = [];
@@ -32,44 +34,28 @@ export class WarehousePage extends PageBase {
   selectedItem = null;
   fromDate = '';
   toDate = '';
-
-  setQuery;
-
-  segmentView = '';
-  optionGroup = [
-    { Code: 'warehouse-item-lot', Name: 'Lot', Remark: '' },
-    {
-      Code: 'warehouse-item-location-lot-lpn',
-      Name: 'Lot & LPN',
-      Remark: '',
-    },
-    { Code: 'warehouse-item-location', Name: 'Vị trí hàng', Remark: '' },
-  ];
-
-  slideOpts = {
-    freeMode: true,
-    zoom: true,
-  };
-
+  isFristLoaded = true;
   constructor(
-    public pageProvider: WMS_ZoneProvider,
+    public pageProvider: WMS_TransactionProvider,
+    public env: EnvService,
+    public route: ActivatedRoute,
+    public alertCtrl: AlertController,
+    public navCtrl: NavController,
+    public formBuilder: FormBuilder,
+    public cdr: ChangeDetectorRef,
+    public loadingController: LoadingController,
+
     public branchProvider: BRA_BranchProvider,
     public contactProvider: CRM_ContactProvider,
     public zoneProvider: WMS_ZoneProvider,
     public locationProvider: WMS_LocationProvider,
     public itemProvider: WMS_ItemProvider,
     public modalController: ModalController,
-    public popoverCtrl: PopoverController,
-    public alertCtrl: AlertController,
-    public loadingController: LoadingController,
-    public env: EnvService,
-    public route: ActivatedRoute,
-    public navCtrl: NavController,
+
     public translate: TranslateService,
   ) {
     super();
     this.pageConfig.isShowFeature = true;
-    this.segmentView = this.route.snapshot?.paramMap?.get('segment');
   }
 
   preLoadData(event) {
@@ -97,17 +83,21 @@ export class WarehousePage extends PageBase {
   }
 
   loadData(event) {
-    this.loadedData(event);
+    super.loadData(event);
   }
 
   loadedData(event) {
+    this.items.forEach((i) => {
+      i.CreatedTimeText = i.CreatedDate ? lib.dateFormat(i.CreatedDate, 'hh:MM') : '';
+      i.CreatedDateText = i.CreatedDate ? lib.dateFormat(i.CreatedDate, 'dd/mm/yy') : '';
+      i.CubeText = lib.formatMoney(i.Cube / 1000000, 3);
+      i.GrossWeightText = lib.formatMoney(i.GrossWeight / 1000, 3);
+    });
     super.loadedData(event);
-    this.selectedBranch = this.branchList.find((d) => d.Id == this.id);
-    if (!this.selectedBranch || this.selectedBranch.disabled) {
-      this.selectedBranch = this.branchList.find((d) => d.disabled == false);
+    if (this.isFristLoaded) {
+      this.isFristLoaded = false;
+      this.itemSearch();
     }
-    this.selectBranch();
-    this.itemSearch();
   }
 
   itemList$;
@@ -132,44 +122,24 @@ export class WarehousePage extends PageBase {
     );
   }
 
-  loadNode(option = null) {
-    if (!option && this.segmentView) {
-      option = this.optionGroup.find((d) => d.Code == this.segmentView);
-    }
-
-    if (!option) {
-      option = this.optionGroup[0];
-    }
-
-    if (!option) {
-      return;
-    }
-
-    this.segmentView = option.Code;
-
-    let newURL = '#/warehouse/';
+  changeFilter() {
+    this.items = [];
     if (this.selectedBranch) {
-      newURL += option.Code + '/' + this.selectedBranch.Id;
+      this.query.IDBranch = this.selectedBranch?.Id;
+      this.query.IDStorer = this.selectedStorer?.Id;
+      this.query.IDZone = this.selectedZone?.Id;
+      this.query.IDLocation = this.selectedLocation?.Id;
+      this.query.IDItem = this.selectedItem?.Id;
+      if (this.fromDate) this.query.CreatedDateFrom = this.fromDate;
+      if (this.toDate) this.query.CreatedDateTo = this.toDate;
+      this.pageConfig.isEndOfData = false;
+      this.loadData(null);
     }
-    history.pushState({}, null, newURL);
-
-    console.log('set');
-
-    this.setQuery = {
-      IDBranch: this.selectedBranch?.Id,
-      IDStorer: this.selectedStorer?.Id,
-      IDZone: this.selectedZone?.Id,
-      IDLocation: this.selectedLocation?.Id,
-      IDItem: this.selectedItem?.Id,
-      CreatedDateFrom: this.fromDate,
-      CreatedDateTo: this.toDate,
-    };
-    Object.assign(this.setQuery, this.query);
   }
 
   selectBranch() {
     if (!this.selectedBranch) {
-      this.loadNode();
+      this.changeFilter();
     } else {
       this.zoneProvider.read({ IDBranch: this.selectedBranch.Id }).then((resp) => {
         this.zoneList = resp['data'];
@@ -177,9 +147,6 @@ export class WarehousePage extends PageBase {
         this.translate.get('all').subscribe((message: string) => {
           translateResult = message;
         });
-        let all = { Id: 'all', Name: translateResult };
-        this.zoneList.unshift(all);
-        this.selectedZone = all;
         this.selectZone();
       });
     }
@@ -187,7 +154,7 @@ export class WarehousePage extends PageBase {
 
   selectZone() {
     if (!this.selectedZone) {
-      this.loadNode();
+      this.changeFilter();
     } else {
       this.locationProvider
         .read({
@@ -200,10 +167,7 @@ export class WarehousePage extends PageBase {
           this.translate.get('all').subscribe((message: string) => {
             translateResult = message;
           });
-          let all = { Id: 'all', Name: translateResult };
-          this.locationList.unshift(all);
-          this.selectedLocation = all;
-          this.loadNode();
+          this.changeFilter();
         });
     }
   }
@@ -217,5 +181,16 @@ export class WarehousePage extends PageBase {
         this.markNestedNode(ls, i.Id);
       });
     }
+  }
+
+  myHeaderFn(record, recordIndex, records) {
+    let a: any = recordIndex == 0 ? new Date('2000-01-01') : new Date(records[recordIndex - 1].CreatedDate);
+    let b: any = new Date(record.CreatedDate);
+    let mins = Math.floor((b - a) / 1000 / 60);
+
+    if (mins < 30) {
+      return null;
+    }
+    return lib.dateFormatFriendly(record.CreatedDate);
   }
 }

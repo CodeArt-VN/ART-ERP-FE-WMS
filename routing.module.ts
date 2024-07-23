@@ -61,4 +61,8 @@ export const WMSRoutes: Routes = [
     
     { path: 'shipping', loadChildren: () => import('./shipping/shipping.module').then(m => m.ShippingPageModule), canActivate: [AuthGuard]},
     { path: 'shipping/:id', loadChildren: () => import('./shipping-detail/shipping-detail.module').then(m => m.ShippingDetailPageModule), canActivate: [AuthGuard]},
+
+     { path: 'warehouse-input-output-inventory', loadChildren: () => import('./warehouse-input-output-inventory/warehouse-input-output-inventory.module').then(m => m.WarehouseInputOutputInventoryPageModule), canActivate: [AuthGuard] },
+
+     { path: 'warehouse-transaction', loadChildren: () => import('./warehouse-transaction/warehouse-transaction.module').then(m => m.WarehouseTransactionPageModule), canActivate: [AuthGuard] },
 ];
