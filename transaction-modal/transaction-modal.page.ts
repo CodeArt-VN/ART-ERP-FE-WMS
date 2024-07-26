@@ -81,6 +81,7 @@ export class TransactionModalPage extends PageBase {
         this.submitAttempt = false;
       })
       .catch((err) => {
+        this.env.showTranslateMessage(err.error.Message, 'danger');
         this.submitAttempt = false;
       });
   }

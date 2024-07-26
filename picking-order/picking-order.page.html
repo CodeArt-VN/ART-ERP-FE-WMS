@@ -149,7 +149,9 @@
 							{{i.PickedDate | date: 'dd/MM/yyyy'}}
 						</div>
 						<div  class="col-status cell">
-							{{i.Status}}
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+								{{i._Status?.Name}}
+							  </ion-badge>
 						</div>
 					</div>
 				

@@ -28,20 +28,27 @@
           </ion-col>
 
           <ion-col size="12" size-sm size-xl="4">
-            <app-form-control
-              [field]="{id:'ExpectedDate', label: 'Expected date', type : 'datetime-local', form : formGroup }"
-              (change)="saveChange()"
-            ></app-form-control>
+            <!-- <div class="c-control" *ngIf="formGroup.get('IDOutboundOrder').value">
+              <app-form-control  [field]="{id:'IDOutboundOrder', label:'Outbound', type : 'span-text', form : formGroup }">
+                   <small label *ngIf="item?.Id">Id: {{item.Id}}</small>
+              </app-form-control>
 
+            </div> -->
             <div class="c-control">
-              <label class="c-label" for="IDBranch"
-                >{{'Status' | translate}}
-                <span>: {{item?.Status}}</span>
-              </label>
+              <app-form-control  [field]="{id:'Status',label:'Status',  type : 'span-text', form : formGroup }">
+               <small label *ngIf="item?.IDOutboundOrder"> <a [routerLink]="['/outbound-order/'+formGroup.get('IDOutboundOrder').value]" (mousedown)="$event.stopPropagation()" >
+                | Outbound: {{item.IDOutboundOrder}} </a></small>
+              </app-form-control>
+             
             </div>
           </ion-col>
 
           <ion-col size="12" size-sm size-xl="4">
+            <app-form-control
+            [field]="{id:'ExpectedDate', label: 'Expected date', type : 'datetime-local', form : formGroup }"
+            (change)="saveChange()"
+          ></app-form-control>
+
             <app-form-control
               [field]="{id:'PickedDate', label: 'Picking date', type : 'datetime-local', form : formGroup }"
               (change)="saveChange()"
@@ -83,7 +90,7 @@
               <ion-icon
                 class="min-btn"
                 *ngIf="sortDetail.UoMName"
-                [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"
+                [name]="sortDetail.UoMName == 'UoMName'?'arrow-down': 'arrow-up'"
               ></ion-icon>
             </div>
             <div class="col-name cell">{{'Lot' | translate}}</div>
@@ -106,7 +113,13 @@
                 [name]="item._IsPickedAll? 'remove-circle-outline': 'checkmark-done-circle-outline' "
               ></ion-icon>
             </div>
-            <div class="col-qty cell" (click)="sortToggle('Cube')">{{'Picked quantity' | translate}}</div>
+            <div class="col-qty cell" (click)="sortToggle('QuantityPicked')">{{'Picked quantity' | translate}}
+              <ion-icon
+              class="min-btn"
+              *ngIf="sortDetail.QuantityPicked"
+              [name]="sortDetail.QuantityPicked == 'QuantityPicked'?'arrow-down': 'arrow-up'"
+            ></ion-icon>
+            </div>
             <div class="col-status cell">{{'Status' | translate}}</div>
             <div class="col-icon cell" *ngIf="pageConfig.canEdit"></div>
             <div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
@@ -129,34 +142,19 @@
           <ng-container *ngIf="!pageConfig.showSpinner">
             <ng-container *ngFor="let c of formGroup.get('PickingOrderDetails')['controls'] ;let j = index">
               <ng-container [formGroup]="c">
-                <div
-                  class="row"
-                  [ngClass]="{odd: j % 2 != 0, bold:c.get('ShowDetail').value}"
-                  *ngIf="c.get('Showing').value"
-                >
+                <div class="row" [ngClass]="{odd: j % 2 != 0, bold:c.get('ShowDetail').value}" *ngIf="c.get('Showing').value" >
                   <div class="col-checkbox cell" style="text-align: center">
-                    <app-input-control
-                      [field]="{id:'IsChecked', type : 'checkbox', form : c, }"
-                      (inputChange)="changeSelection(c, $event)"
-                    ></app-input-control>
+                    <app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)" ></app-input-control>
                   </div>
                   <div class="col-id cell">
-                    <ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
-                      ><span [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" class="spacing" *ngIf="k>0"></span
-                    ></ng-container>
-                    <ion-icon
-                      (click)="toggleRow(c, $event);"
-                      class="min-btn clickable"
-                      [name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"
-                    ></ion-icon>
+                    <ng-container *ngFor="let w of c.get('Levels').value; let k = index;" ><span [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" class="spacing" *ngIf="k>0"></span ></ng-container>
+                    <ion-icon (click)="toggleRow(c, $event);" class="min-btn clickable" [name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''" ></ion-icon>
                     {{j+1}}
                   </div>
 
                   <div class="col-name cell">
                     <div *ngIf="c.get('IDItem')?.value && (c.get('HasChild').value ||  !c.get('IDParent').value)">
-                      <a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()"
-                        >#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon
-                      ></a>
+                      <a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()" >#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon ></a>
                       <span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
                     </div>
                   </div>

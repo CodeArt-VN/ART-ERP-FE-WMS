@@ -12,7 +12,7 @@ import { SortConfig } from 'src/app/models/options-interface';
     styleUrls: ['shipping.page.scss']
 })
 export class ShippingPage extends PageBase {
-   
+    statusList = [];
     constructor(
         public pageProvider: WMS_ShippingProvider,
         public branchProvider: BRA_BranchProvider,
@@ -30,6 +30,12 @@ export class ShippingPage extends PageBase {
     }
  
     preLoadData(event?: any): void {
+    
+        this.statusList = [
+            { Code: 'Open', Name: 'Mở', Color: 'warning' },
+            { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
+          ];
+
         let sorted: SortConfig[] = [
             { Dimension: 'Id', Order: 'DESC' }
         ];
@@ -37,7 +43,13 @@ export class ShippingPage extends PageBase {
        
         super.preLoadData(event);
     }
-   
+    loadedData(event?: any) {
+        super.loadedData(event);
+        console.log(this.statusList);
+        this.items.forEach((i) => {
+          i._Status = this.statusList.find((d) => d.Code == i.Status);
+        });
+      }
     approve(){
         if(this.selectedItems.some(d=>d.Status =="Done")){
             return;

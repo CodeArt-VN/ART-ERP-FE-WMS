@@ -34,9 +34,18 @@ export class PackingOrderPage extends PageBase {
             { Dimension: 'Id', Order: 'DESC' }
         ];
         this.pageConfig.sort = sorted;
-        this.statusList = [{Code :'Open', Name:'Đang mở'},{Code :'Closed', Name:'Đã đóng'} ]//temp
+        this.statusList = [
+            { Code: 'Open', Name: 'Mở', Color: 'warning' },
+            { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
+          ];
 
         super.preLoadData(event);
         console.log(this.pageConfig.pageName)
+    }
+    loadedData(event?: any, ignoredFromGroup?: boolean): void {
+        super.loadedData(event);
+        this.items.forEach((i) => {
+            i._Status = this.statusList.find((d) => d.Code == i.Status);
+          });
     }
 }

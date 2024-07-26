@@ -168,8 +168,10 @@
 						<div class="col-date cell">
 							{{i.ShippedDate | date: 'dd/MM/yyyy'}}
 						</div>
-						<div class="col-status cell">
-							{{i.Status}}
+						<div  class="col-status cell">
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+								{{i._Status?.Name}}
+							  </ion-badge>
 						</div>
 					</div>
 				
