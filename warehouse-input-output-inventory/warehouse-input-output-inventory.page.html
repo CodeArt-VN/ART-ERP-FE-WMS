@@ -1,21 +1,4 @@
-<ion-header>
-  <app-list-toolbar
-    pageTitle="{{'Warehouse information' | translate}}"
-    [pageConfig]="pageConfig"
-    [ShowSearch]="true"
-    [selectedItems]="selectedItems"
-    [query]="query"
-    (add)="add()"
-    (refresh)="refresh()"
-    (export)="export()"
-    (import)="import($event)"
-    (help)="help()"
-    (unselect)="unselect()"
-    (archiveItems)="archiveItems()"
-    (deleteItems)="deleteItems()"
-    (changeBranch)="changeBranch($event)"
-  ></app-list-toolbar>
-</ion-header>
+<app-toolbar [page]="this"></app-toolbar>
 
 <ion-content
   appScrollbarTheme
@@ -33,7 +16,7 @@
           </label>
           <ng-select
             class="c-input no-check-dirty"
-            (change)="selectBranch();"
+            (change)="changeFiler()"
             appendTo=""
             [(ngModel)]="selectedBranch"
             labelForId="IDBranch"
@@ -59,7 +42,7 @@
           </label>
           <ng-select
             class="c-input no-check-dirty"
-            (change)="loadNode();"
+            (change)="changeFiler();"
             appendTo=""
             [(ngModel)]="selectedStorer"
             labelForId="Storer"
@@ -80,52 +63,30 @@
         </div>
 
         <div class="c-control">
-          <label class="c-label" for="Zone">
-            <ion-text color="primary"> {{'Zone' | translate}} </ion-text>
+          <label class="c-label" for="Location">
+            <ion-text color="primary"> {{'Period' | translate}} </ion-text>
           </label>
+
           <ng-select
             class="c-input no-check-dirty"
-            (change)="selectZone();"
+            (change)="changeFiler();"
             appendTo=""
-            [(ngModel)]="selectedZone"
-            labelForId="Zone"
-            [items]="zoneList"
+            [(ngModel)]="selectedPeriod"
+            labelForId="Period"
+            [items]="periodList"
             bindLabel="Name"
             bindValue=""
-            placeholder="{{'Select unit' | translate}}"
+            placeholder="{{'Select Period' | translate}}"
           >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+            <ng-template ng-label-tmp let-i="item">
               <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
+                <span><ion-text color="primary">#{{i.Id}} - {{i.Code}} </ion-text></span>
               </div>
             </ng-template>
-          </ng-select>
-        </div>
 
-        <div class="c-control">
-          <label class="c-label" for="Location">
-            <ion-text color="primary"> {{'Location' | translate}} </ion-text>
-          </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            (change)="loadNode();"
-            appendTo=""
-            [(ngModel)]="selectedLocation"
-            labelForId="Location"
-            [items]="locationList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select unit' | translate}}"
-          >
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
+                <span [ngOptionHighlight]="search">{{i.Code}}</span>
               </div>
             </ng-template>
           </ng-select>
@@ -137,7 +98,7 @@
           </label>
           <ng-select
             class="c-input no-check-dirty"
-            (change)="loadNode();"
+            (change)="changeFiler()"
             appendTo=""
             [(ngModel)]="selectedItem"
             labelForId="IDItem"
@@ -163,55 +124,110 @@
 
         <div class="c-control">
           <label class="c-label" for="ValidFrom">{{'From date' | translate}}</label>
-          <input (change)="loadNode()" [(ngModel)]="fromDate" class="c-input no-check-dirty" type="date" />
+          <input
+            (change)="changeFiler()"
+            [(ngModel)]="fromDate"
+            class="c-input no-check-dirty"
+            type="date"
+            [disabled]="selectedPeriod && selectedPeriod.Id != 0"
+          />
         </div>
 
         <div class="c-control">
           <label class="c-label" for="ValidTo">{{'To date' | translate}}</label>
           <input
-            (change)="loadNode()"
+            (change)="changeFiler()"
             [(ngModel)]="toDate"
             class="c-input no-check-dirty"
             [min]="fromDate"
             type="date"
+            [disabled]="selectedPeriod && selectedPeriod.Id != 0"
           />
         </div>
-      </div>
-
-      <div *ngIf="selectedBranch">
-        <ion-list-header lines="full">
-          <ion-label color="dark">{{'Detail listing' | translate}}</ion-label>
-        </ion-list-header>
-        <ion-list>
-          <ion-item
-            *ngFor="let i of optionGroup"
-            [color]="segmentView == i.Code? 'primary': '' "
-            button
-            detail="true"
-            lines="full"
-            class="clickable"
-            (click)="loadNode(i)"
-          >
-            <ion-label class="ion-text-wrap">
-              <h3>{{'erp.app.pages.wms.warehouse.' + i.Code | translate}}</h3>
-              <p *ngIf="i.Remark">{{i.Remark}}</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
       </div>
       <div class="ion-padding" style="padding-bottom: 0"></div>
     </div>
   </ion-fab>
 
-  <div *ngIf="selectedBranch && setQuery" style="min-width: 300px; height: calc(100vh - 65px)">
-    <app-warehouse-item-location
-      [setQuery]="setQuery"
-      *ngIf="segmentView=='warehouse-item-location'"
-    ></app-warehouse-item-location>
-    <app-warehouse-item-lot [setQuery]="setQuery" *ngIf="segmentView=='warehouse-item-lot'"></app-warehouse-item-lot>
-    <app-warehouse-item-location-lot-lpn
-      [setQuery]="setQuery"
-      *ngIf="segmentView=='warehouse-item-location-lot-lpn'"
-    ></app-warehouse-item-location-lot-lpn>
+  <div style="min-width: 300px; height: calc(100vh - 65px)">
+    <section class="table">
+      <header class="bold">
+        <div class="col-checkbox cell"></div>
+        <div class="col-name cell">Item</div>
+
+        <div class="col-number cell">Đầu kỳ</div>
+        <div class="col-number cell">Số tấn</div>
+        <div class="col-number cell">Số khối</div>
+
+        <div class="col-number cell">Nhập</div>
+        <div class="col-number cell">Số tấn</div>
+        <div class="col-number cell">Số khối</div>
+
+        <div class="col-number cell">Xuất</div>
+        <div class="col-number cell">Số tấn</div>
+        <div class="col-number cell">Số khối</div>
+
+        <div class="col-number cell">Tồn cuối</div>
+        <div class="col-number cell">Số tấn</div>
+        <div class="col-number cell">Số khối</div>
+      </header>
+      <form (submit)="refresh()" action="#">
+        <header class="filter" *ngIf="pageConfig.isShowSearch">
+          <div class="col-checkbox cell"></div>
+          <div class="col-name cell"></div>
+
+          <div class="col-number cell"></div>
+          <div class="col-number cell"></div>
+          <div class="col-number cell"></div>
+          <button mat-raised-button type="submit" style="display: none">Search</button>
+        </header>
+      </form>
+
+      <div
+        *ngFor="let i of items; let j = index"
+        class="row"
+        [ngClass]="{ odd: j % 2 != 0 }"
+        [ngClass]="{ selected: i.checked }"
+      >
+        <div class="col-checkbox cell">
+          <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
+        </div>
+        <div class="col-name cell">
+          <span><b>{{ i.ItemCode }}</b> - {{ i.ItemName }}</span>
+        </div>
+
+        <div class="col-number cell">
+          <b>{{ i.OpenQuantity }}</b>
+        </div>
+        <div class="col-number cell">{{ i.OpenCube }}</div>
+        <div class="col-number cell">{{ i.OpenGrossWeight }}</div>
+
+        <div class="col-number cell">
+          <b>{{ i.InputQuantity }}</b>
+        </div>
+        <div class="col-number cell">{{ i.InputCube }}</div>
+        <div class="col-number cell">{{ i.InputGrossWeight }}</div>
+
+        <div class="col-number cell">
+          <b>{{ i.OutputQuantity }}</b>
+        </div>
+        <div class="col-number cell">{{ i.OutputCube }}</div>
+        <div class="col-number cell">{{ i.OutputGrossWeight }}</div>
+
+        <div class="col-number cell">
+          <b>{{ i.CloseQuantity }}</b>
+        </div>
+        <div class="col-number cell">{{ i.CloseCube }}</div>
+        <div class="col-number cell">{{ i.CloseGrossWeight }}</div>
+      </div>
+    </section>
   </div>
+  <ion-infinite-scroll
+    color="primary"
+    threshold="20%"
+    (ionInfinite)="loadData($event)"
+    [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData"
+  >
+    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
