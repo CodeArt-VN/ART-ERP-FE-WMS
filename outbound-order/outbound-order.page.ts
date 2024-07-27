@@ -32,16 +32,27 @@ export class OutboundOrderPage extends PageBase {
     }
  
     preLoadData(event?: any): void {
+        this.statusList = [
+            { Code: 'Open', Name: 'Mở', Color: 'warning' },
+            { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
+            {Code :'Merged', Name:'Đã gộp', Color: 'primary'}
+          ];
+
         let sorted: SortConfig[] = [
             { Dimension: 'Id', Order: 'DESC' }
         ];
         this.pageConfig.sort = sorted;
-        this.statusList = [{Code :'New', Name:'Mới'},{Code :'Merged', Name:'Đã gộp'},{Code :'Open', Name:'Đang mở'},{Code :'Closed', Name:'Đã đóng'} ]//temp
         super.preLoadData(event);
         console.log(this.pageConfig.pageName)
     }
     
-
+    loadedData(event?: any) {
+        super.loadedData(event);
+        console.log(this.statusList);
+        this.items.forEach((i) => {
+          i._Status = this.statusList.find((d) => d.Code == i.Status);
+        });
+      }
     mergeOrders(){
         if(this.selectedItems.every(i => !(i.IDWarehouse === (this.selectedItems[0].IDWarehouse))
         || !(i.IDStorer === (this.selectedItems[0].IDStorer)) 
@@ -81,7 +92,6 @@ export class OutboundOrderPage extends PageBase {
         });
     }
 
-
     approve(){
         if(this.selectedItems.some(d=>d.Status =="Done")){
             return;
@@ -102,7 +112,6 @@ export class OutboundOrderPage extends PageBase {
        
     }
 
-    
     disapprove(){
         if(this.selectedItems.some(d=>d.Status =="Pending")){
             return;

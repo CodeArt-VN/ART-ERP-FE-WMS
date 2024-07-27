@@ -95,6 +95,9 @@ export class PackingOrderDetailPage extends PageBase {
     //     this.pageConfig.canEdit = false;
     // }
     super.loadedData(event, ignoredFromGroup);
+    if(this.item._Tag){
+      this.formGroup.get('Tag').setValue(this.item._Tag.Code);
+    }
     if(this.item?.PackingDetails){
       const packingOrdertDetailsArray = this.formGroup.get('PackingDetails') as FormArray;
       packingOrdertDetailsArray.clear();
@@ -136,10 +139,7 @@ export class PackingOrderDetailPage extends PageBase {
       IDParent: [field.IDParent],
       Quantity: [field.Quantity],
       QuantityPacked: [field.QuantityPacked],
-      HasChild: [field.HasChild],
-      Levels: [field.levels],
-      ShowDetail: [field.showdetail],
-      Showing: [field.show],
+      TrackingQuantityPacked :  [field.QuantityPacked],
       FromLocationName: [field.FromLocationName],
       ToLocationName: [field.ToLocationName],
       LPN: [field.LPN > 0 ? field.LPN : null],
@@ -147,6 +147,12 @@ export class PackingOrderDetailPage extends PageBase {
       UoMName: [field.UoMName],
       ItemName: [field.ItemName], //de hien thi
       Status: [field.Status],
+
+      HasChild: [field.HasChild],
+      Levels: [field.levels],
+      ShowDetail: [field.showdetail],
+      Showing: [field.show],
+
       IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
       IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
       CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
@@ -160,18 +166,9 @@ export class PackingOrderDetailPage extends PageBase {
 
   closePack() {
     this.query.Id = this.formGroup.get('Id').value;
-    this.env
-    .showPrompt(
-      'Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?',
-      null,
-      'Đóng gói hàng',
-    )
-    .then((_) => {
-      this.env
-        .showLoading(
-          'Vui lòng chờ load dữ liệu...',
-          this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(),
-        )
+    this.env .showPrompt( 'Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng', )
+    .then((_) => { 
+      this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(), )
         .then(async (result: any) => {
           this.refresh();
         })
@@ -264,7 +261,8 @@ export class PackingOrderDetailPage extends PageBase {
     }
   }
 
-  calcTotalPackedQuantity(childFG) {
+  calcTotalPackedQuantity(childFG,e = null) {
+    console.log(e);
     if(this.submitAttempt){
       childFG.get('QuantityPacked').setErrors({valid:false});
       this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
@@ -311,13 +309,22 @@ export class PackingOrderDetailPage extends PageBase {
                 var packingDetail = groups.controls.find((d) => d.get('Id').value == updatedPacking.Id);
                 if (packingDetail) {
                   packingDetail.get('QuantityPacked').setValue(updatedPacking.QuantityPacked);
+                  packingDetail.get('TrackingQuantityPacked').setValue(updatedPacking.QuantityPacked);
+
                 }
               });
               this.env.showTranslateMessage('Saved', 'success');
             } else {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              childFG.get('QuantityPacked').setValue(childFG.get('TrackingQuantityPacked').value);
             }
             this.submitAttempt = false;
+          })
+          .catch(err => {
+            this.submitAttempt = false;
+            childFG.get('QuantityPacked').setValue(childFG.get('TrackingQuantityPacked').value);
+            childFG.get('QuantityPacked').setErrors({valid:false});
+            this.env.showTranslateMessage(err.error.Message, 'danger');
           });
       }
     }
@@ -406,6 +413,64 @@ export class PackingOrderDetailPage extends PageBase {
         });
     }
   }
+
+
+  sortDetail: any = {};
+  sortToggle(field) {
+    if (!this.sortDetail[field]) {
+      this.sortDetail[field] = field;
+    } else if (this.sortDetail[field] == field) {
+      this.sortDetail[field] = field + '_desc';
+    } else {
+      delete this.sortDetail[field];
+    }
+    // let s = Object.keys(sortTerms).reduce(function (res, v) {
+    //     return res.concat(sortTerms[v]);
+    // }, []);
+    if (Object.keys(this.sortDetail).length === 0) {
+      const packingOrderDetailArray = this.formGroup.get('PackingDetails') as FormArray;
+      this.item.PackingDetails = packingOrderDetailArray.getRawValue();
+      packingOrderDetailArray.clear();
+      this.item.PackingDetails.sort((a, b) => {
+        const comparison = a['Id'] < b['Id'] ? -1 : a['Id'] > b['Id'] ? 1 : 0;
+        return comparison;
+      });
+      this.buildFlatTree(this.item.PackingDetails, null, false).then((resp: any) => {
+        this.item.PackingDetails = resp;
+        this.patchFieldsValue();
+      });
+    } else {
+      this.reInitPackingDetails();
+    }
+  }
+
+  reInitPackingDetails() {
+    const packingOrderDetailArray = this.formGroup.get('PackingDetails') as FormArray;
+    this.item.PackingDetails = packingOrderDetailArray.getRawValue();
+    for (const key in this.sortDetail) {
+      if (this.sortDetail.hasOwnProperty(key)) {
+        const value = this.sortDetail[key];
+        this.sortByKey(value);
+      }
+    }
+    packingOrderDetailArray.clear();
+    this.buildFlatTree(this.item.PackingDetails, null, false).then((resp: any) => {
+      this.item.PackingDetails = resp;
+      this.patchFieldsValue();
+    });
+  }
+
+  sortByKey(key: string, desc: boolean = false) {
+    if (key.includes('_desc')) {
+      key = key.replace('_desc', '');
+      desc = true;
+    }
+    this.item.PackingDetails.sort((a, b) => {
+      const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+      return desc ? -comparison : comparison;
+    });
+  }
+
 
   async saveChange() {
     let submitItem = this.getDirtyValues(this.formGroup);

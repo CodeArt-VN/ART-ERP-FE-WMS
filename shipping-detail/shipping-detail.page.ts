@@ -27,11 +27,8 @@ import { TransactionModalPage } from '../transaction-modal/transaction-modal.pag
 export class ShippingDetailPage extends PageBase {
   countTypeDataSource: any;
   statusDataSource: any;
-  schema: Schema;
   config: any = null;
   itemList: any;
-  tempItemList: any;
-  countItem: number = 0;
   branchList;
   storerList;
 
@@ -40,11 +37,8 @@ export class ShippingDetailPage extends PageBase {
   constructor(
     public pageProvider: WMS_ShippingProvider,
     public shippingDetailService: WMS_ShippingDetailProvider,
-    public staffService: HRM_StaffProvider,
-    public schemaService: SYS_SchemaProvider,
     public itemService: WMS_ItemProvider,
     public commonService: CommonService,
-    public contactProvider: CRM_ContactProvider,
     public branchProvider: BRA_BranchProvider,
     public route: ActivatedRoute,
     public modalController: ModalController,
@@ -55,13 +49,15 @@ export class ShippingDetailPage extends PageBase {
     public loadingController: LoadingController,
     public env: EnvService,
     public navCtrl: NavController,
-    public location: Location,
   ) {
     super();
     this.pageConfig.isDetailPage = true;
     this.formGroup = this.formBuilder.group({
       Id: new FormControl({ value: '', disabled: true }),
       IDOutboundOrder: [''],
+      IDWarehouse: new FormControl({ value: '', disabled: true }),
+      Vehicle: new FormControl({ value: '', disabled: true }),
+      Shipper: new FormControl({ value: '', disabled: true }),
       ShippingDetails: this.formBuilder.array([]),
 
       ExpectedDate: ['', Validators.required],
@@ -102,28 +98,34 @@ export class ShippingDetailPage extends PageBase {
           this.markNestedNode(this.branchList, this.env.selectedBranch);
         });
       });
-    this.contactProvider.read({ IsStorer: true }).then((resp) => {
-      this.storerList = resp['data'];
-    });
-
     super.preLoadData(event);
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
+    if (this.item.Status == 'Closed') {
+      this.pageConfig.canEdit = false;
+    }
     super.loadedData(event, ignoredFromGroup);
     this.query.IDShipping = this.item.Id;
     this.query.Id = undefined;
-    this.shippingDetailService.read(this.query, false).then((listDetail: any) => {
-      if (listDetail != null && listDetail.data.length > 0) {
-        const ShippingDetailsArray = this.formGroup.get('ShippingDetails') as FormArray;
-        ShippingDetailsArray.clear();
-        this.item.ShippingDetails = listDetail.data;
-        this.patchFieldsValue();
-      }
-    });
-    if (this.item.Status == 'Closed') {
-      this.formGroup.disable();
-      this.pageConfig.canEdit = false;
+    if ( this.item.ShippingDetails.length > 0) {
+      let flatTreeList = [];
+      //this.item.PickingOrderDetails.sort((a,b)=>{return a.IDItem - b.IDItem});
+      let parentList = [...this.item.ShippingDetails.filter(d=> !d.Lot && !d.LPN)];
+      flatTreeList =flatTreeList.concat(parentList);
+      parentList.forEach(p =>{
+        let childList = this.item.ShippingDetails.filter(i => i.IDUoM == p.IDUoM && i.IDItem == p.IDItem && i.Lot && i.LPN);
+        childList.forEach(c=> c.IDParent = p.Id);
+        flatTreeList =flatTreeList.concat(childList);
+      })
+        this.buildFlatTree(flatTreeList, null, false).then((resp: any) => {
+          this.item.ShippingDetails = resp;
+          const ShippingDetailsArray = this.formGroup.get('ShippingDetails') as FormArray;
+          ShippingDetailsArray.clear();
+          this.patchFieldsValue();
+        });
+   
+      // this.patchFieldsValue();
     }
   }
   private patchFieldsValue() {
@@ -149,12 +151,20 @@ export class ShippingDetailPage extends PageBase {
       Id: new FormControl({ value: field.Id, disabled: true }),
       IDItem: [field.IDItem, Validators.required],
       Quantity: [field.Quantity],
-      QuantityShipped: [field.QuantityShipped],
+      QuantityShipped: new FormControl({ value: field.QuantityShipped, disabled: !field.IDParent? true: false }),
       Status: [field.Status],
       FromLocationName: [field.FromLocationName],
+      LPN: [field.LPN],
       LotName: [field.LotName],
       UoMName: [field.UoMName],
-      ItemName: [field.ItemName], //de hien thi
+      ItemName: [field.ItemName], 
+
+      IDParent:[field.IDParent],
+      ShowDetail: [field.showdetail],
+      Showing: [field.show],
+      HasChild: [field.HasChild],
+      Levels: [field.levels],
+
       IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
       IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
       CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
@@ -213,6 +223,7 @@ export class ShippingDetailPage extends PageBase {
       let groups = <FormArray>this.formGroup.controls.ShippingDetails;
       let obj = [];
       groups.controls.forEach((group: FormGroup) => {
+        if(!group.get('LPN').value || group.get('Status').value != 'Active') return;
         const currentStatus = group.get('Status').value;
         if (currentStatus == 'Active') {
           if (this.item._IsShippedAll) {
@@ -228,18 +239,27 @@ export class ShippingDetailPage extends PageBase {
   
       if (!this.submitAttempt && obj.length > 0) {
         this.submitAttempt = true;
-        this.pageProvider.commonService
-          .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
-          .toPromise()
-          .then(() => {
-            this.env.showTranslateMessage('Saved', 'success');
-            this.item._IsShippedAll = !this.item._IsShippedAll;
-            this.submitAttempt = false;
-          })
-          .catch((err) => {
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-            this.submitAttempt = false;
-          });
+        this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.pageProvider.commonService
+        .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj) .toPromise()) .then((_) => {
+          this.env.showTranslateMessage('Saved', 'success');
+          this.item._IsShippedAll = !this.item._IsShippedAll;
+          this.submitAttempt = false;
+        }).catch((err) => {
+          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          this.submitAttempt = false;
+        });
+        // this.pageProvider.commonService
+        //   .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
+        //   .toPromise()
+        //   .then(() => {
+        //     this.env.showTranslateMessage('Saved', 'success');
+        //     this.item._IsShippedAll = !this.item._IsShippedAll;
+        //     this.submitAttempt = false;
+        //   })
+        //   .catch((err) => {
+        //     this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+        //     this.submitAttempt = false;
+        //   });
       }
     }
    
@@ -274,7 +294,10 @@ export class ShippingDetailPage extends PageBase {
           .then((result: any) => {
             if (result) {
               this.env.showTranslateMessage('Saved', 'success');
+              let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+              let parent = groups.controls.find(d=> d.get('Id').value == fg.get('IDParent').value);
               fg.controls.Status.setValue(status);
+              if(parent) parent.get('QuantityShipped').setValue(parseFloat(parent.get('QuantityShipped').value || 0) + parseFloat( fg.get('QuantityShipped').value|| 0 ));
               this.submitAttempt = false;
             } else {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
@@ -341,9 +364,7 @@ export class ShippingDetailPage extends PageBase {
           'Xóa ' + itemsToDelete.length + ' dòng',
         )
         .then((_) => {
-          this.env
-            .showLoading('Xin vui lòng chờ trong giây lát...', this.shippingDetailService.delete(itemsToDelete))
-            .then((_) => {
+          this.env .showLoading('Xin vui lòng chờ trong giây lát...', this.shippingDetailService.delete(itemsToDelete)) .then((_) => {
               this.removeSelectedItems();
               this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
@@ -411,9 +432,37 @@ export class ShippingDetailPage extends PageBase {
     });
   }
 
-  segmentView = 's1';
-  segmentChanged(ev: any) {
-    this.segmentView = ev.detail.value;
+  toggleRow(fg, event) {
+    if (!fg.get('HasChild').value) {
+      return;
+    }
+    event.stopPropagation();
+    fg.get('ShowDetail').setValue(!fg.get('ShowDetail').value);
+    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
+    if (fg.get('ShowDetail').value) {
+      subOrders.forEach((it) => {
+        it.get('Showing').setValue(true);
+      });
+    } else {
+      subOrders.forEach((it) => {
+        this.hideSubRows(it);
+      });
+    }
+  }
+
+  hideSubRows(fg) {
+    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    fg.get('Showing').setValue(false);
+    if (fg.get('HasChild').value) {
+      fg.get('ShowDetail').setValue(false);
+      let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
+
+      subOrders.forEach((it) => {
+        this.hideSubRows(it);
+        it.get('Showing').setValue(false);
+      });
+    }
   }
 
   async openTransaction(fg) {
@@ -430,5 +479,11 @@ export class ShippingDetailPage extends PageBase {
     if (data) {
       this.refresh();
     }
+  }
+
+  
+  segmentView = 's1';
+  segmentChanged(ev: any) {
+    this.segmentView = ev.detail.value;
   }
 }

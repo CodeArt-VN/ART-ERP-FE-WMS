@@ -35,7 +35,7 @@ export class OutboundOrderDetailPage extends PageBase {
   branchList;
   storerList;
   packingTypeDatasource;
-
+  statusList = [];
   isAllChecked = false;
   checkedOutboundOrderDetails: any = new FormArray([]);
   constructor(
@@ -63,7 +63,7 @@ export class OutboundOrderDetailPage extends PageBase {
     this.formGroup = this.formBuilder.group({
       Id: new FormControl({ value: '', disabled: true }),
       IDWarehouse: ['', Validators.required],
-      IDStorer: [''],
+      IDStorer: ['',Validators.required],
       OutboundOrderDetails: this.formBuilder.array([]),
 
       PackingTag: ['', Validators.required],
@@ -82,17 +82,54 @@ export class OutboundOrderDetailPage extends PageBase {
       ModifiedDate: new FormControl({ value: '', disabled: true }),
     });
   }
-
+  _contactDataSource = {
+    searchProvider: this.contactProvider,
+    loading: false,
+    input$: new Subject<string>(),
+    selected: [],
+    items$: null,
+    initSearch() {
+      this.loading = false;
+      this.items$ = concat(
+        of(this.selected),
+        this.input$.pipe(
+          distinctUntilChanged(),
+          tap(() => (this.loading = true)),
+          switchMap((term) =>
+            this.searchProvider
+              .search({
+                SortBy: ['Id_desc'],
+                Take: 20,
+                Skip: 0,
+                SkipMCP: true,
+                SkipAddress: true,
+                IsStorer : true,
+                Term: term,
+              })
+              .pipe(
+                catchError(() => of([])), // empty list on error
+                tap(() => (this.loading = false)),
+              ),
+          ),
+        ),
+      );
+    },
+  };
   preLoadData(event) {
+    this.statusList = [
+      { Code: 'Open', Name: 'Mở', Color: 'warning' },
+      { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
+    ];
     this.statusDataSource = [
       { Name: 'Done', Code: 'Done' },
       { Name: 'Open', Code: 'Open' },
       { Name: 'Pending', Code: 'Pending' },
     ];
     this.packingTypeDatasource = [
-      { Name: 'Sale item', Code: 'Item' },
-      { Name: 'Sale order', Code: 'SaleOrder' },
-      { Name: 'Customer', Code: 'Customer' },
+      {Name :'Vehicle', Code:'Vehicle'},
+      { Name: 'Vehicle\\Customer', Code: 'Customer' },
+      { Name: 'Vehicle\\Customer\\SO', Code: 'SaleOrder' },
+      { Name: 'Vehicle\\Customer\\SO\Item', Code: 'Item' },
     ];
     this.branchProvider
       .read({
@@ -112,18 +149,21 @@ export class OutboundOrderDetailPage extends PageBase {
           console.log(this.branchList);
         });
       });
-    this.contactProvider.read({ IsStorer: true }).then((resp) => {
-      this.storerList = resp['data'];
-    });
+    // this.contactProvider.read({ IsStorer: true }).then((resp) => {
+    //   this.storerList = resp['data'];
+    // });
 
     super.preLoadData(event);
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
-    if (this.item.Status != 'New') {
+    if (this.item .Status != 'New') {
       this.pageConfig.canEdit = false;
     }
     super.loadedData(event, ignoredFromGroup);
+    if(!(this.item.Id > 0)){
+      this.formGroup.get('Status').markAsDirty();
+    }
     this.query.IDOutboundOrder = this.item.Id;
     this.query.Id = undefined;
     this.outboundOrderDetailService.read(this.query, false).then((listDetail: any) => {
@@ -137,12 +177,13 @@ export class OutboundOrderDetailPage extends PageBase {
         });
       }
     });
+    if(this.item?._Storer){
+      this._contactDataSource.selected.push(this.item?._Storer);
 
-    this.query.Id = this.item.Id;
-    this.formGroup.get('Status').markAsDirty();
-    if (this.item.Status != 'New') {
-      this.pageConfig.canEdit = false;
     }
+    this._contactDataSource.initSearch();
+    this.query.Id = this.item.Id;
+  
   }
   private patchFieldsValue() {
     this.pageConfig.showSpinner = true;
@@ -175,7 +216,7 @@ export class OutboundOrderDetailPage extends PageBase {
           searchProvider: this.itemService,
           loading: false,
           input$: new Subject<string>(),
-          existedItems: groups.controls.map((d) => d.get('IDItem').value),
+          that : this,
           selected: preLoadItems,
           items$: null,
           initSearch() {
@@ -191,8 +232,9 @@ export class OutboundOrderDetailPage extends PageBase {
                       SortBy: ['Id_desc'],
                       Take: 20,
                       Skip: 0,
+                      AllUoM:true,
                       Term: term,
-                      Id_ne: this.existedItems.length > 0 ? this.existedItems : '',
+                      Id_ne: this.that.getExistedItem().length > 0 ?  this.that.getExistedItem() : '',
                     })
                     .pipe(
                       catchError(() => of([])), // empty list on error
@@ -212,6 +254,7 @@ export class OutboundOrderDetailPage extends PageBase {
       QuantityPicked: [field?.QuantityPicked],
       QuantityPacked: [field?.QuantityPacked],
       QuantityShipped: [field?.QuantityShipped],
+      Status: [field?.Status || 'Active'],
       HasChild: [field?.HasChild],
       Levels: [field?.levels],
       ShowDetail: [field?.showdetail],
@@ -229,12 +272,14 @@ export class OutboundOrderDetailPage extends PageBase {
     });
     groups.push(group);
     group.get('_IDItemDataSource').value?.initSearch();
+    if(markAsDirty){
+      group.get('Status').markAsDirty();
+    }
   }
 
   IDItemChange(e, group) {
     if (e) {
-      const salesUoM = e.SalesUoM;
-      const uom = e.UoMs.find((d) => d.Id === salesUoM);
+      const uom = e.UoMs.find((d) => d.IsBaseUoM);
       if(uom) {
         group.controls.UoMName.setValue(uom.Name);
         group.controls.IDUoM.setValue(uom.Id);
@@ -244,6 +289,13 @@ export class OutboundOrderDetailPage extends PageBase {
         group.controls.IDOutboundOrder.setValue(this.id);
         group.controls.IDOutboundOrder.markAsDirty();
         super.saveChange2(group, this.pageConfig.pageName, this.outboundOrderDetailService);
+      }
+      else{
+        group.controls.UoMName.setValue('');
+        group.controls.IDUoM.setValue('');
+        group.controls.IDItem.setValue(e.Id);
+        
+        this.env.showTranslateMessage('Sale UoM not found!', 'warning');
       }
     }
   }
@@ -255,6 +307,7 @@ export class OutboundOrderDetailPage extends PageBase {
   }
 
   changeStatus() {
+    this.query.Id = this.formGroup.get('Id').value;
     this.query.ToStatus = 'Open';
     this.env
       .showLoading(
@@ -262,7 +315,11 @@ export class OutboundOrderDetailPage extends PageBase {
         this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/ChangeStatus/', this.query).toPromise(),
       )
       .then((result: any) => {
+        this.env.showTranslateMessage('saved', 'success');
         this.refresh();
+      }).catch(err => {
+        this.env.showTranslateMessage(err.error?.Message?? err.message, 'danger');
+
       });
     //   this.query.Id = undefined;
   }
@@ -317,12 +374,22 @@ export class OutboundOrderDetailPage extends PageBase {
 
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
-    let itemToDelete = fg.getRawValue();
-    this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
-      this.outboundOrderDetailService.delete(itemToDelete).then((result) => {
-        groups.removeAt(j);
+    if(fg.get('Id').value){
+      let itemToDelete = fg.getRawValue();
+      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+        this.outboundOrderDetailService.delete(itemToDelete).then((result) => {
+          groups.removeAt(j);
+          this.env.showTranslateMessage('saved', 'success');
+        })
+        .catch(err =>{
+          this.env.showTranslateMessage(err.error?.Message?? err.message, 'danger');
+        });
       });
-    });
+    }
+    else{
+      groups.removeAt(j);
+    }
+  
   }
 
   deleteItems() {
@@ -350,7 +417,11 @@ export class OutboundOrderDetailPage extends PageBase {
         });
     }
   }
-
+ 
+  getExistedItem(){
+    let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
+    return groups.controls.map(g=> g.get('IDItem').value);
+  }
   async saveChange() {
     let submitItem = this.getDirtyValues(this.formGroup);
     super.saveChange2();
@@ -369,7 +440,17 @@ export class OutboundOrderDetailPage extends PageBase {
     //     return res.concat(sortTerms[v]);
     // }, []);
     if (Object.keys(this.sortDetail).length === 0) {
-      this.refresh();
+      const outboundOrderDetailsArray = this.formGroup.get('OutboundOrderDetails') as FormArray;
+      this.item.OutboundOrderDetails = outboundOrderDetailsArray.getRawValue();
+      outboundOrderDetailsArray.clear();
+      this.item.OutboundOrderDetails.sort((a, b) => {
+        const comparison = a['Id'] < b['Id'] ? -1 : a['Id'] > b['Id'] ? 1 : 0;
+        return comparison;
+      });
+      this.buildFlatTree(this.item.OutboundOrderDetails, null, false).then((resp: any) => {
+        this.item.OutboundOrderDetails = resp;
+        this.patchFieldsValue();
+      });
     } else {
       this.reInitOutboundOrderDetails();
     }
@@ -385,7 +466,10 @@ export class OutboundOrderDetailPage extends PageBase {
       }
     }
     outboundOrderDetailsArray.clear();
-    this.item.OutboundOrderDetails.forEach((s) => this.addField(s));
+    this.buildFlatTree(this.item.OutboundOrderDetails, null, false).then((resp: any) => {
+      this.item.OutboundOrderDetails = resp;
+      this.patchFieldsValue();
+    });
   }
 
   sortByKey(key: string, desc: boolean = false) {
@@ -409,6 +493,51 @@ export class OutboundOrderDetailPage extends PageBase {
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
+    if(this.item.Id >0){
+      let queryOutbound = {
+        IDOutboundOrder : this.item.Id
+      }
+      if(this.segmentView  == 's2'){
+        this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Picking/', queryOutbound).toPromise(), )
+        .then(async (result: any) => {
+          this.item.PickingList = result;
+            this.item.PickingList.forEach((i) => {
+                i._Status = this.statusList.find((d) => d.Code == i.Status);
+              });
+        })
+        .catch((err) => {
+          this.env.showMessage('load error, please try again.');
+          console.log(err);
+        });
+      }
+      if(this.segmentView  == 's3'){
+        this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/', queryOutbound).toPromise(), )
+        .then(async (result: any) => {
+          this.item.PackingList = result
+          this.item.PackingList.forEach((i) => {
+            i._Status = this.statusList.find((d) => d.Code == i.Status);
+          });
+        })
+        .catch((err) => {
+          this.env.showMessage('load error, please try again.');
+          console.log(err);
+        });
+      }
+      if(this.segmentView  == 's4'){
+        this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Shipping/', queryOutbound).toPromise(), )
+        .then(async (result: any) => {
+          this.item.ShippingList = result;
+          this.item.ShippingList.forEach((i) => {
+            i._Status = this.statusList.find((d) => d.Code == i.Status);
+          });
+        })
+        .catch((err) => {
+          this.env.showMessage('load error, please try again.');
+          console.log(err);
+        });
+      }
+    }
+   
   }
 
   toggleRow(fg, event) {

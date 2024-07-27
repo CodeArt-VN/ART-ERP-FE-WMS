@@ -1,6 +1,6 @@
 <ion-header>
 	<app-detail-toolbar [page]="this">
-		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Close'  && item?.PackingDetails?.length >0" >
+		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Closed'  && item?.PackingDetails?.length >0" >
 			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closePack()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
 			</ion-button>
@@ -20,18 +20,11 @@
 					</ion-col>
 				
 					<ion-col size="12" size-sm size-xl="4">
-						<div class="c-control">
-							<label class="c-label" for="IDBranch">{{'Tag' | translate}}
-								<span >: {{item?.Tag}}</span>
-							</label>
-							
-						</div>
-						<div class="c-control">
-							<label class="c-label" for="IDBranch">{{'Status' | translate}}
-								<span >: {{item?.Status}}</span>
-							</label>
-							
-						</div>
+						<app-form-control  [field]="{id:'Status',label:'Status',  type : 'span-text', form : formGroup }">
+							<small label *ngIf="item?.IDOutboundOrder"> <a [routerLink]="['/outbound-order/'+item.IDOutboundOrder]" (mousedown)="$event.stopPropagation()" >
+							 | Outbound: {{item.IDOutboundOrder}} </a></small>
+						</app-form-control>
+						<app-form-control [field]="{id:'Tag', label: 'Tag', type : 'span-text', form : formGroup }"></app-form-control>
 
 					</ion-col>
 					
@@ -87,9 +80,19 @@
 								<div class="col-id cell">#</div>
 								<div class="col-name cell" (click)="sortToggle('ItemName')">
 									{{'Item name' | translate}}
+									<ion-icon
+									class="min-btn"
+									*ngIf="sortDetail.ItemName"
+									[name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"
+								  ></ion-icon>
 								</div>
 								<div class="col-name cell" (click)="sortToggle('UoMName')">
 									{{'UoM' | translate}}
+									<ion-icon
+									class="min-btn"
+									*ngIf="sortDetail.UoMName"
+									[name]="sortDetail.UoMName == 'UoMName'?'arrow-down': 'arrow-up'"
+								  ></ion-icon>
 								</div>
 								<div class="col-name cell">
 									{{'Lot' | translate}}
@@ -105,19 +108,34 @@
 								</div>
 								<div class="col-qty cell" (click)="sortToggle('Quantity')">
 									{{'Quantity' | translate}}
+									<ion-icon
+									class="min-btn"
+									*ngIf="sortDetail.Quantity"
+									[name]="sortDetail.Quantity == 'Quantity'?'arrow-down': 'arrow-up'"
+								  ></ion-icon>
 									<!-- <ion-icon class="min-btn" *ngIf="sortDetail.Quantity" [name]="sortDetail.Quantity == 'Quantity'?'arrow-down': 'arrow-up'"></ion-icon> -->
 								</div>
 								<div class="col-icon cell clickable" *ngIf="pageConfig.canEdit" (click)="toggleAllQty()">
 									<ion-icon *ngIf="item"[color]="item._IsPackedAll? 'danger': 'success'" [name]="item._IsPackedAll? 'remove-circle-outline': 'checkmark-done-circle-outline' "></ion-icon>
 								</div>
-								<div class="col-qty cell" (click)="sortToggle('GrossWeight')">
+								<div class="col-qty cell" (click)="sortToggle('QuantityPacked')">
 									{{'Packed quantity' | translate}}
+									<ion-icon
+									class="min-btn"
+									*ngIf="sortDetail.QuantityPacked"
+									[name]="sortDetail.QuantityPacked == 'QuantityPacked'?'arrow-down': 'arrow-up'"
+								  ></ion-icon>
 								</div>
 								<div class="col-status cell">
 									{{'Status' | translate}}
+									<ion-icon
+									class="min-btn"
+									*ngIf="sortDetail.Status"
+									[name]="sortDetail.Status == 'Status'?'arrow-down': 'arrow-up'"
+								  ></ion-icon>
 								</div>
-								<div class="col-icon cell" *ngIf="pageConfig.canEdit">
-								</div>
+								<!-- <div class="col-icon cell" *ngIf="pageConfig.canEdit">
+								</div> -->
 								<div class="col-icon cell">
 									<ion-icon  class="clickable" *ngIf="checkedPackingDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
 								</div>
@@ -174,18 +192,18 @@
 										</div>
 										<div class="col-qty cell">
 											<app-input-control *ngIf="c.controls.IDParent.value == null && c.controls.Status.value != 'Active'" [field]="{id:'QuantityPacked', type : 'span-number', form : c, }"></app-input-control>
-											<app-input-control *ngIf="c.controls.IDParent.value == null && c.controls.Status.value == 'Active'" [field]="{id:'QuantityPacked', type : 'number', form : c, }" (inputChange)="calcTotalPackedQuantity(c)"></app-input-control>
+											<app-input-control *ngIf="c.controls.IDParent.value == null && c.controls.Status.value == 'Active'" [field]="{id:'QuantityPacked', type : 'number', form : c, }" (inputChange)="calcTotalPackedQuantity(c, $event)"></app-input-control>
 											<div *ngIf="c.controls.IDParent.value != null">{{c.get('QuantityPacked').value}}</div>
 										</div>
 										<div class="col-status cell">
 											<ion-button size="small" *ngIf="pageConfig.canEdit && c.controls.IDParent.value == null && c.controls.Status.value == 'Active'" (click)="changeStatusDetail(c, 'Done')">Done</ion-button>
 											<ion-label *ngIf="c.controls.IDParent.value == null && c.controls.Status.value != 'Active'">{{c.controls.Status.value}}</ion-label>
 										</div>
-										<div class="col-icon cell clickable"  *ngIf="pageConfig.canEdit && c.controls.IDParent.value != null">
-										</div>
-										<div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit && c.controls.IDParent.value == null">
+										<!-- <div class="col-icon cell clickable"  *ngIf="pageConfig.canEdit && c.controls.IDParent.value != null">
+										</div> -->
+										<!-- <div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit && c.controls.IDParent.value == null">
 											<ion-icon color="primary" name="timer-outline"></ion-icon>
-										</div>
+										</div> -->
 										 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
 											<ion-icon color="danger" name="trash"></ion-icon>
 										</div> 

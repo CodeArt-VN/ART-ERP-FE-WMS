@@ -18,7 +18,7 @@
 				<ion-icon class="min-btn" *ngIf="sort.WarehouseName" [name]="sort.WarehouseName == 'WarehouseName'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.WarehouseName" name="search" color="primary"></ion-icon>
 			</div>
-			<div class="col-code cell" (click)="sortToggle('Tag')">
+			<div class="col-name cell" (click)="sortToggle('Tag')">
 				{{'Tag' | translate}}
 				<ion-icon class="min-btn" *ngIf="sort.Tag" [name]="sort.Tag == 'Tag'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Tag" name="search" color="primary"></ion-icon>
@@ -161,8 +161,8 @@
 							  </small>
 						</div>
 						
-						<div  class="col-code cell">
-							{{i.Tag}}
+						<div  class="col-name cell">
+							{{i._Tag?.Code}}
 						</div>
 						<div class="col-date cell">
 							{{i.ExpectedDate | date: 'dd/MM/yyyy'}}
@@ -171,7 +171,9 @@
 							{{i.PackagedDate | date: 'dd/MM/yyyy'}}
 						</div>
 						<div  class="col-status cell">
-							{{i.Status}}
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+								{{i._Status?.Name}}
+							  </ion-badge>
 						</div>
 					</div>
 				
