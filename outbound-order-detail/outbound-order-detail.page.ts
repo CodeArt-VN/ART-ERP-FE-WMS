@@ -63,7 +63,7 @@ export class OutboundOrderDetailPage extends PageBase {
     this.formGroup = this.formBuilder.group({
       Id: new FormControl({ value: '', disabled: true }),
       IDWarehouse: ['', Validators.required],
-      IDStorer: ['',Validators.required],
+      IDStorer: ['', Validators.required],
       OutboundOrderDetails: this.formBuilder.array([]),
 
       PackingTag: ['', Validators.required],
@@ -103,7 +103,7 @@ export class OutboundOrderDetailPage extends PageBase {
                 Skip: 0,
                 SkipMCP: true,
                 SkipAddress: true,
-                IsStorer : true,
+                IsStorer: true,
                 Term: term,
               })
               .pipe(
@@ -126,10 +126,10 @@ export class OutboundOrderDetailPage extends PageBase {
       { Name: 'Pending', Code: 'Pending' },
     ];
     this.packingTypeDatasource = [
-      {Name :'Vehicle', Code:'Vehicle'},
+      { Name: 'Vehicle', Code: 'Vehicle' },
       { Name: 'Vehicle\\Customer', Code: 'Customer' },
       { Name: 'Vehicle\\Customer\\SO', Code: 'SaleOrder' },
-      { Name: 'Vehicle\\Customer\\SO\Item', Code: 'Item' },
+      { Name: 'Vehicle\\Customer\\SOItem', Code: 'Item' },
     ];
     this.branchProvider
       .read({
@@ -157,11 +157,11 @@ export class OutboundOrderDetailPage extends PageBase {
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
-    if (this.item .Status != 'New') {
+    if (this.item.Status != 'New') {
       this.pageConfig.canEdit = false;
     }
     super.loadedData(event, ignoredFromGroup);
-    if(!(this.item.Id > 0)){
+    if (!(this.item.Id > 0)) {
       this.formGroup.get('Status').markAsDirty();
     }
     this.query.IDOutboundOrder = this.item.Id;
@@ -177,13 +177,11 @@ export class OutboundOrderDetailPage extends PageBase {
         });
       }
     });
-    if(this.item?._Storer){
+    if (this.item?._Storer) {
       this._contactDataSource.selected.push(this.item?._Storer);
-
     }
     this._contactDataSource.initSearch();
     this.query.Id = this.item.Id;
-  
   }
   private patchFieldsValue() {
     this.pageConfig.showSpinner = true;
@@ -216,7 +214,7 @@ export class OutboundOrderDetailPage extends PageBase {
           searchProvider: this.itemService,
           loading: false,
           input$: new Subject<string>(),
-          that : this,
+          that: this,
           selected: preLoadItems,
           items$: null,
           initSearch() {
@@ -232,9 +230,9 @@ export class OutboundOrderDetailPage extends PageBase {
                       SortBy: ['Id_desc'],
                       Take: 20,
                       Skip: 0,
-                      AllUoM:true,
+                      AllUoM: true,
                       Term: term,
-                      Id_ne: this.that.getExistedItem().length > 0 ?  this.that.getExistedItem() : '',
+                      Id_ne: this.that.getExistedItem().length > 0 ? this.that.getExistedItem() : '',
                     })
                     .pipe(
                       catchError(() => of([])), // empty list on error
@@ -272,7 +270,7 @@ export class OutboundOrderDetailPage extends PageBase {
     });
     groups.push(group);
     group.get('_IDItemDataSource').value?.initSearch();
-    if(markAsDirty){
+    if (markAsDirty) {
       group.get('Status').markAsDirty();
     }
   }
@@ -280,7 +278,7 @@ export class OutboundOrderDetailPage extends PageBase {
   IDItemChange(e, group) {
     if (e) {
       const uom = e.UoMs.find((d) => d.IsBaseUoM);
-      if(uom) {
+      if (uom) {
         group.controls.UoMName.setValue(uom.Name);
         group.controls.IDUoM.setValue(uom.Id);
         group.controls.IDUoM.markAsDirty();
@@ -289,12 +287,11 @@ export class OutboundOrderDetailPage extends PageBase {
         group.controls.IDOutboundOrder.setValue(this.id);
         group.controls.IDOutboundOrder.markAsDirty();
         super.saveChange2(group, this.pageConfig.pageName, this.outboundOrderDetailService);
-      }
-      else{
+      } else {
         group.controls.UoMName.setValue('');
         group.controls.IDUoM.setValue('');
         group.controls.IDItem.setValue(e.Id);
-        
+
         this.env.showTranslateMessage('Sale UoM not found!', 'warning');
       }
     }
@@ -317,9 +314,9 @@ export class OutboundOrderDetailPage extends PageBase {
       .then((result: any) => {
         this.env.showTranslateMessage('saved', 'success');
         this.refresh();
-      }).catch(err => {
-        this.env.showTranslateMessage(err.error?.Message?? err.message, 'danger');
-
+      })
+      .catch((err) => {
+        this.env.showTranslateMessage(err.error?.Message ?? err.message, 'danger');
       });
     //   this.query.Id = undefined;
   }
@@ -374,22 +371,22 @@ export class OutboundOrderDetailPage extends PageBase {
 
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
-    if(fg.get('Id').value){
+    if (fg.get('Id').value) {
       let itemToDelete = fg.getRawValue();
       this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
-        this.outboundOrderDetailService.delete(itemToDelete).then((result) => {
-          groups.removeAt(j);
-          this.env.showTranslateMessage('saved', 'success');
-        })
-        .catch(err =>{
-          this.env.showTranslateMessage(err.error?.Message?? err.message, 'danger');
-        });
+        this.outboundOrderDetailService
+          .delete(itemToDelete)
+          .then((result) => {
+            groups.removeAt(j);
+            this.env.showTranslateMessage('saved', 'success');
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage(err.error?.Message ?? err.message, 'danger');
+          });
       });
-    }
-    else{
+    } else {
       groups.removeAt(j);
     }
-  
   }
 
   deleteItems() {
@@ -417,10 +414,10 @@ export class OutboundOrderDetailPage extends PageBase {
         });
     }
   }
- 
-  getExistedItem(){
+
+  getExistedItem() {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
-    return groups.controls.map(g=> g.get('IDItem').value);
+    return groups.controls.map((g) => g.get('IDItem').value);
   }
   async saveChange() {
     let submitItem = this.getDirtyValues(this.formGroup);
@@ -493,51 +490,62 @@ export class OutboundOrderDetailPage extends PageBase {
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
-    if(this.item.Id >0){
+    if (this.item.Id > 0) {
       let queryOutbound = {
-        IDOutboundOrder : this.item.Id
-      }
-      if(this.segmentView  == 's2'){
-        this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Picking/', queryOutbound).toPromise(), )
-        .then(async (result: any) => {
-          this.item.PickingList = result;
+        IDOutboundOrder: this.item.Id,
+      };
+      if (this.segmentView == 's2') {
+        this.env
+          .showLoading(
+            'Vui lòng chờ load dữ liệu...',
+            this.pageProvider.commonService.connect('GET', 'WMS/Picking/', queryOutbound).toPromise(),
+          )
+          .then(async (result: any) => {
+            this.item.PickingList = result;
             this.item.PickingList.forEach((i) => {
-                i._Status = this.statusList.find((d) => d.Code == i.Status);
-              });
-        })
-        .catch((err) => {
-          this.env.showMessage('load error, please try again.');
-          console.log(err);
-        });
-      }
-      if(this.segmentView  == 's3'){
-        this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/', queryOutbound).toPromise(), )
-        .then(async (result: any) => {
-          this.item.PackingList = result
-          this.item.PackingList.forEach((i) => {
-            i._Status = this.statusList.find((d) => d.Code == i.Status);
+              i._Status = this.statusList.find((d) => d.Code == i.Status);
+            });
+          })
+          .catch((err) => {
+            this.env.showMessage('load error, please try again.');
+            console.log(err);
           });
-        })
-        .catch((err) => {
-          this.env.showMessage('load error, please try again.');
-          console.log(err);
-        });
       }
-      if(this.segmentView  == 's4'){
-        this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Shipping/', queryOutbound).toPromise(), )
-        .then(async (result: any) => {
-          this.item.ShippingList = result;
-          this.item.ShippingList.forEach((i) => {
-            i._Status = this.statusList.find((d) => d.Code == i.Status);
+      if (this.segmentView == 's3') {
+        this.env
+          .showLoading(
+            'Vui lòng chờ load dữ liệu...',
+            this.pageProvider.commonService.connect('GET', 'WMS/Packing/', queryOutbound).toPromise(),
+          )
+          .then(async (result: any) => {
+            this.item.PackingList = result;
+            this.item.PackingList.forEach((i) => {
+              i._Status = this.statusList.find((d) => d.Code == i.Status);
+            });
+          })
+          .catch((err) => {
+            this.env.showMessage('load error, please try again.');
+            console.log(err);
           });
-        })
-        .catch((err) => {
-          this.env.showMessage('load error, please try again.');
-          console.log(err);
-        });
+      }
+      if (this.segmentView == 's4') {
+        this.env
+          .showLoading(
+            'Vui lòng chờ load dữ liệu...',
+            this.pageProvider.commonService.connect('GET', 'WMS/Shipping/', queryOutbound).toPromise(),
+          )
+          .then(async (result: any) => {
+            this.item.ShippingList = result;
+            this.item.ShippingList.forEach((i) => {
+              i._Status = this.statusList.find((d) => d.Code == i.Status);
+            });
+          })
+          .catch((err) => {
+            this.env.showMessage('load error, please try again.');
+            console.log(err);
+          });
       }
     }
-   
   }
 
   toggleRow(fg, event) {
