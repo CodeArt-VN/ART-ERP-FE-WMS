@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { WarehouseInputOutputInventoryComponent } from './warehouse-input-output-inventory.component';
+import { WarehouseInputOutputInventoryPage } from './warehouse-input-output-inventory.page';
 
 describe('WarehouseInputOutputInventoryComponent', () => {
-  let component: WarehouseInputOutputInventoryComponent;
-  let fixture: ComponentFixture<WarehouseInputOutputInventoryComponent>;
+  let component: WarehouseInputOutputInventoryPage;
+  let fixture: ComponentFixture<WarehouseInputOutputInventoryPage>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [WarehouseInputOutputInventoryComponent],
+      declarations: [WarehouseInputOutputInventoryPage],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(WarehouseInputOutputInventoryComponent);
+    fixture = TestBed.createComponent(WarehouseInputOutputInventoryPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

@@ -32,7 +32,6 @@
 <ion-content appScrollbarTheme appPrintFix class="A4 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
   <ion-fab
     *ngIf="pageConfig.isShowFeature"
-    style="height: calc(100% - 93px)"
     [ngClass]="{withSearch: pageConfig.isShowSearch}"
     class="feature no-print"
     vertical="top"
@@ -75,29 +74,41 @@
         </ion-label>
       </ion-item>
     </ion-list>
-  </ion-fab>
-  <ion-fab
-    style="height: 93px; top: auto; box-shadow: 0 0px 3px 2px #efefef"
-    *ngIf="pageConfig.isShowFeature"
-    class="feature no-print"
-    vertical="bottom"
-    horizontal="start"
-    slot="fixed"
-  >
-    <div class="ion-padding" *ngIf="pageConfig.canExport">
-      <ion-button (click)="loadBatchPicking()" [disabled]="submitAttempt" >
-        {{'Create list' | translate}}
-      </ion-button>
-      <ion-button (click)="exportPicking()" [disabled]="submitAttempt" >
-        {{'Export to Excel' | translate}}
-      </ion-button>
+
+    <div class="action-buttons sticky-bottom">
+      <ion-grid>
+        <ion-row>
+            <ion-col size="6" *ngIf="pageConfig.canExport">
+     
+
+              <ion-button (click)="loadBatchPicking()" expand="block" [disabled]="submitAttempt">
+                {{'Create list' | translate}}
+              </ion-button>
+
+            </ion-col>
+            <ion-col size="6" *ngIf="pageConfig.canExport">
+              
+
+              <ion-button (click)="exportPicking()" [disabled]="submitAttempt"  color="primary" expand="block">
+                {{'Export' | translate}}
+              </ion-button>
+
+            </ion-col>
+            <ion-col size="12" *ngIf="!pageConfig.canExport"> 
+              
+
+              <ion-button (click)="loadBatchPicking()" expand="block" shape="round" [disabled]="submitAttempt">
+                {{'Create list' | translate}}
+              </ion-button>
+
+
+            </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
-    <div class="ion-padding" *ngIf="!pageConfig.canExport">
-      <ion-button (click)="loadBatchPicking()" expand="block" shape="round" [disabled]="submitAttempt">
-        {{'Create list' | translate}}
-      </ion-button>
-    </div>
+
   </ion-fab>
+  
   <div style="overflow: auto">
     <ng-container *ngFor="let s of warehouses">
       <section class="sheet rpt" *ngIf="s.count > 1">

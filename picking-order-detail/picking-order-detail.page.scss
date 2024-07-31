@@ -2,6 +2,10 @@
     min-height: calc(100vh - 385px);
 }
 
+.table.responsive {
+    min-width: fit-content !important;
+}
+
 .table-contain {
     max-width: auto; //1440px;
 
@@ -138,14 +142,8 @@ ion-icon {
 
     .table.responsive header {
         display: flex;
-        padding: 16px 100px 16px 0;
-        position: relative;
-
-        .col-icon {
-            position: absolute;
-            right: 3px;
-            top: 8px;
-        }
+        padding: 0;
+        
     }
 
     .table.responsive {
@@ -154,6 +152,7 @@ ion-icon {
         }
 
         .row {
+            padding: 0;
             margin: unset !important;
             width: fit-content;
             flex-wrap: nowrap;
@@ -162,6 +161,19 @@ ion-icon {
                 position: unset;
                 max-width: 100px;
                 min-width: 100px;
+            }
+            .col-status{
+                position: unset;
+                max-width: 125px;
+                min-width: 125px;
+                justify-content: center;
+            }
+            .col-icon{
+                position: unset;
+                
+            }
+            .col-checkbox {
+                margin-left: 0px;
             }
         }
 

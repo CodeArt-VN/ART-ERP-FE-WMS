@@ -19,7 +19,7 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="header-table">
+<ion-content appScrollbarTheme class="scrollx">
   <app-data-table
     class="box-shadow responsive"
     [rows]="items"
@@ -56,7 +56,7 @@
           <span *ngIf="i._ToLPN">{{ i._ToLocation.Id }}</span>
       </ng-template>
     </datatable-column>
-    <datatable-column class="col-status" format="1.0-0" name="Lot" property="Lot">
+    <datatable-column class="col-code" format="1.0-0" name="Lot" property="Lot">
     </datatable-column>
     <datatable-column class="col-code" format="1.0-0" name="From to LPN" property="_FromLPN">
       <ng-template let-i="row" datatable-cell-template>
@@ -65,7 +65,7 @@
           <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
       </ng-template>
     </datatable-column>
-    <datatable-column class="col-name" name="Type" property="TransactionType"> </datatable-column>
+    <datatable-column class="col-remark" name="Type" property="TransactionType"> </datatable-column>
     <datatable-column class="col-status" name="Status" property="Status"> 
       <ng-template let-i="row" datatable-cell-template>
         <div class="row-status">
