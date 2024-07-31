@@ -1,10 +1,8 @@
 <ion-header>
   <app-detail-toolbar [page]="this">
-    <ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'New'  && formGroup.controls.OutboundOrderDetails['controls']?.length >0 && formGroup.get('PackingTag').value">
       <ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
         <ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
       </ion-button>
-    </ion-buttons>
   </app-detail-toolbar>
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
@@ -21,10 +19,10 @@
 
           <ion-col size="12" size-sm size-xl="4">
             <div class="c-control">
-              <label class="c-label" for="IDWarehouse">{{'erp.app.pages.purchase.purchase-order.id-branch' | translate}}
+              <label class="c-label" for="IDWarehouse">{{'Warehouse' | translate}}
                 <span *ngIf="!formGroup.controls.IDWarehouse.valid && !formGroup.controls.IDWarehouse.pending && (formGroup.controls.IDWarehouse.dirty || submitAttempt)" ion-text color="danger">(*)</span>
               </label>
-              <ng-select class="c-input" (change)="saveChange();" labelForId="IDWarehouse" formControlName="IDWarehouse" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}">
+              <ng-select class="c-input" (change)="saveChange();" labelForId="IDWarehouse" formControlName="IDWarehouse" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}">
                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                   <div *ngIf="i">
                     <div>
