@@ -26,7 +26,6 @@ import { lib } from 'src/app/services/static/global-functions';
 })
 export class OutboundOrderDetailPage extends PageBase {
   countTypeDataSource: any;
-  statusDataSource: any;
   schema: Schema;
   config: any = null;
   itemList: any;
@@ -117,14 +116,13 @@ export class OutboundOrderDetailPage extends PageBase {
   };
   preLoadData(event) {
     this.statusList = [
-      { Code: 'Open', Name: 'Mở', Color: 'warning' },
+      { Code: 'New', Name: 'Mới', Color: 'warning' },
+      { Code: 'Open', Name: 'Mở', Color: 'primary' },
+      { Code: 'Allocated', Name: 'Đã chỉ định', Color: 'secondary' },
+      { Code: 'ShippedAllocated', Name: 'Đã phân tài', Color: 'secondary' },
       { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
     ];
-    this.statusDataSource = [
-      { Name: 'Done', Code: 'Done' },
-      { Name: 'Open', Code: 'Open' },
-      { Name: 'Pending', Code: 'Pending' },
-    ];
+ 
     this.packingTypeDatasource = [
       {Name :'Vehicle', Code:'Vehicle'},
       { Name: 'Vehicle\\Customer', Code: 'Customer' },
@@ -149,10 +147,6 @@ export class OutboundOrderDetailPage extends PageBase {
           console.log(this.branchList);
         });
       });
-    // this.contactProvider.read({ IsStorer: true }).then((resp) => {
-    //   this.storerList = resp['data'];
-    // });
-
     super.preLoadData(event);
   }
 
@@ -164,19 +158,16 @@ export class OutboundOrderDetailPage extends PageBase {
     if(!(this.item.Id > 0)){
       this.formGroup.get('Status').markAsDirty();
     }
-    this.query.IDOutboundOrder = this.item.Id;
-    this.query.Id = undefined;
-    this.outboundOrderDetailService.read(this.query, false).then((listDetail: any) => {
-      if (listDetail != null && listDetail.data.length > 0) {
-        const outboundOrdertDetailsArray = this.formGroup.get('OutboundOrderDetails') as FormArray;
-        outboundOrdertDetailsArray.clear();
-        // this.item.OutboundOrderDetails = listDetail.data;
-        this.buildFlatTree(listDetail.data, null, false).then((resp: any) => {
-          this.item.OutboundOrderDetails = resp;
-          this.patchFieldsValue();
-        });
-      }
-    });
+    if(this.item.OutboundOrderDetails?.length >0){
+      const outboundOrdertDetailsArray = this.formGroup.get('OutboundOrderDetails') as FormArray;
+      outboundOrdertDetailsArray.clear();
+      // this.item.OutboundOrderDetails = listDetail.data;
+      this.buildFlatTree(this.item.OutboundOrderDetails, null, false).then((resp: any) => {
+        this.item.OutboundOrderDetails = resp;
+        this.patchFieldsValue();
+      });
+    }
+   
     if(this.item?._Storer){
       this._contactDataSource.selected.push(this.item?._Storer);
 
@@ -201,13 +192,13 @@ export class OutboundOrderDetailPage extends PageBase {
     this.pageConfig.showSpinner = false;
   }
 
-  addField(field: any, markAsDirty = false) {
+  addField(field: any, markAsDirty = false, index=0) {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
     let preLoadItems = [
       {
-        Id: field?._Item?.Id,
-        Code: field?._Item?.Code,
-        Name: field?._Item?.Name,
+        Id: field?._Item?.Id || field?.IDItem,
+        Code: field?._Item?.Code || field?.ItemCode,
+        Name: field?._Item?.Name || field?.ItemName,
       },
     ];
     let group = this.formBuilder.group({
@@ -249,61 +240,127 @@ export class OutboundOrderDetailPage extends PageBase {
       IDOutboundOrder: [this.formGroup.get('Id').value, Validators.required],
       Id: new FormControl({ value: field?.Id, disabled: true }),
       IDItem: [field?.IDItem, Validators.required],
-      IDParent: [field?.IDParent],
-      Quantity: [field?.Quantity],
+      IDUoM: [field?.IDUoM, Validators.required],
+      UoMName: [field?.UoMName],
+      ItemName: [field?.ItemName],
+      ItemCode: [field?.ItemCode || field?._Item?.Code], // for showing ItemCode after saveChangeDetail
+      Status: [field?.Status || 'Active'],
+
+      UoMs :[field?._Item?.ItemUoMList || field?.UoMs],
+      Quantity: [field?.Quantity, Validators.required],
       QuantityPicked: [field?.QuantityPicked],
       QuantityPacked: [field?.QuantityPacked],
       QuantityShipped: [field?.QuantityShipped],
-      Status: [field?.Status || 'Active'],
+      
+      IDParent: [field?.IDParent],
       HasChild: [field?.HasChild],
       Levels: [field?.levels],
       ShowDetail: [field?.showdetail],
       Showing: [field?.show],
-      UoMName: [field?.UoMName],
-      IDUoM: [field?.IDUoM],
-      ItemName: [field?.ItemName],
-      IsDisabled: new FormControl({ value: field?.IsDisabled, disabled: true }),
-      IsDeleted: new FormControl({ value: field?.IsDeleted, disabled: true }),
-      CreatedBy: new FormControl({ value: field?.CreatedBy, disabled: true }),
-      CreatedDate: new FormControl({ value: field?.CreatedDate, disabled: true }),
-      ModifiedBy: new FormControl({ value: field?.ModifiedBy, disabled: true }),
-      ModifiedDate: new FormControl({ value: field?.ModifiedDate, disabled: true }),
+    
       IsChecked: new FormControl({ value: false, disabled: false }),
     });
+
     groups.push(group);
     group.get('_IDItemDataSource').value?.initSearch();
+  
+    if(group.get('IDParent').value) group.disable();
+
     if(markAsDirty){
       group.get('Status').markAsDirty();
     }
   }
 
   IDItemChange(e, group) {
-    if (e) {
-      const uom = e.UoMs.find((d) => d.IsBaseUoM);
-      if(uom) {
-        group.controls.UoMName.setValue(uom.Name);
-        group.controls.IDUoM.setValue(uom.Id);
-        group.controls.IDUoM.markAsDirty();
-        group.controls.IDItem.setValue(e.Id);
-        group.controls.IDItem.markAsDirty();
-        group.controls.IDOutboundOrder.setValue(this.id);
-        group.controls.IDOutboundOrder.markAsDirty();
-        super.saveChange2(group, this.pageConfig.pageName, this.outboundOrderDetailService);
-      }
-      else{
-        group.controls.UoMName.setValue('');
-        group.controls.IDUoM.setValue('');
-        group.controls.IDItem.setValue(e.Id);
-        
-        this.env.showTranslateMessage('Sale UoM not found!', 'warning');
-      }
-    }
+    group.controls.UoMName.setValue('');
+    group.controls.UoMs.setValue(e.UoMs);
+    group.controls.IDUoM.setValue('');
+    group.controls.IDItem.setValue(e.Id);
+    group.controls.ItemName.setValue(e.Name);
+    group.controls.ShowDetail.setValue(false);
+    let childs = this.getAllNested(group);
+    if(childs.length >0){
+    let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
+    childs.forEach(s=>{
+    let indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === s.get('Id').value);
+    groups.removeAt(indexToRemove);
+    });
+  }
+}
+
+  saveChangeDetail(fg,index) {
+    fg.get('IDOutboundOrder').markAsDirty();
+    fg.get('IDItem').markAsDirty();
+    fg.get('IDUoM').markAsDirty();
+    fg.get('Quantity').markAsDirty();
+    fg.get('Id').markAsDirty();
+    fg.updateValueAndValidity();
+        if (!fg.valid) {
+            this.env.showTranslateMessage('Please recheck information highlighted in red above','warning');
+        }
+        else if (this.submitAttempt == false) {
+            this.submitAttempt = true;
+            let submitItem = this.getDirtyValues(fg);
+
+            this.outboundOrderDetailService.save(submitItem, this.pageConfig.isForceCreate).then((savedItem: any) => {
+              fg.markAsPristine();
+              this.cdr.detectChanges();
+              this.submitAttempt = false;
+              this.item.OutboundOrderDetails = this.formGroup.controls.OutboundOrderDetails.getRawValue();
+              let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
+              let itemAdjust = this.item.OutboundOrderDetails.find(d=>d.Id == fg.get('Id').value);
+              let showingItems = groups.controls.filter(d=>d.get('Showing').value).map(s=> s.get('Id').value);
+              let showDetailItems = groups.controls.filter(d=>d.get('ShowDetail').value).map(s=> s.get('Id').value);
+         
+              // this.loadedData(null);
+              let indexAdjust = 0;
+              if(itemAdjust){
+                indexAdjust = this.item.OutboundOrderDetails.indexOf(itemAdjust);
+                this.removeItemAndChildren(itemAdjust);
+              }
+              if(savedItem.length>0){
+                for(let i = 0; i<savedItem.length; i++){
+                  savedItem[i].showdetail = true;
+                  savedItem[i].show = true;
+                  if(itemAdjust){
+                    this.item.OutboundOrderDetails.splice(i+indexAdjust,0,savedItem[i]);
+                  }
+                  else  this.item.OutboundOrderDetails.push(savedItem[i]);
+                
+                }
+              this.buildFlatTree( this.item.OutboundOrderDetails, null, false).then((resp: any) => {
+                      groups.clear();
+                      this.item.OutboundOrderDetails = resp;
+                      showingItems.forEach(s=> {
+                        let i = this.item.OutboundOrderDetails.find(d=>d.Id == s);
+                        if(i) i.show = true;
+                      });
+                      showDetailItems.forEach(s=> {
+                        let i = this.item.OutboundOrderDetails.find(d=>d.Id == s);
+                        if(i) i.showdetail = true;
+                      });
+                      this.patchFieldsValue();
+                    });
+              }
+              
+              this.env.showTranslateMessage('Saving completed!','success');
+            }).catch(err => {
+                this.env.showTranslateMessage('Cannot save, please try again','danger');
+                this.cdr.detectChanges();
+                this.submitAttempt = false;
+            });
+        }
+    this.saveChange2(fg, null, this.outboundOrderDetailService);
   }
 
-  changeQuantity(group) {
-    group.controls.Quantity.markAsDirty();
-    group.controls.Id.markAsDirty();
-    super.saveChange2(group, this.pageConfig.pageName, this.outboundOrderDetailService);
+   removeItemAndChildren(item) {
+    this.item.OutboundOrderDetails.splice(this.item.OutboundOrderDetails.indexOf(item), 1);
+    if(item.Id){
+      let itemNesteds = this.item.OutboundOrderDetails.filter(d=>d.IDParent == item.Id);
+      itemNesteds.forEach(iNested => {
+        this.removeItemAndChildren(iNested)
+      });
+    }
   }
 
   changeStatus() {
@@ -324,6 +381,7 @@ export class OutboundOrderDetailPage extends PageBase {
     //   this.query.Id = undefined;
   }
 
+
   changeSelection(i, view, e = null) {
     if (i.get('IsChecked').value) {
       this.checkedOutboundOrderDetails.push(i);
@@ -333,6 +391,7 @@ export class OutboundOrderDetailPage extends PageBase {
         subOrders.forEach((sub) => {
           sub.get('IsChecked').setValue(true);
           this.checkedOutboundOrderDetails.push(sub);
+          if(sub.get('HasChild').value) this.changeSelection(sub,view);
         });
       }
     } else {
@@ -345,11 +404,12 @@ export class OutboundOrderDetailPage extends PageBase {
           sub.get('IsChecked').setValue(false);
           let indexSub = this.checkedOutboundOrderDetails.getRawValue().findIndex((d) => d.Id == sub.get('Id').value);
           this.checkedOutboundOrderDetails.removeAt(indexSub);
+          if(sub.get('HasChild').value) this.changeSelection(sub,view);
         });
       }
     }
   }
-
+  
   toggleSelectAll() {
     if (!this.pageConfig.canEdit) return;
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
@@ -372,13 +432,39 @@ export class OutboundOrderDetailPage extends PageBase {
     this.checkedOutboundOrderDetails = new FormArray([]);
   }
 
+  private getAllNested(fg){
+    let result = [];
+    let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
+    if(fg.get('Id').value){
+      groups.controls.filter(d=> d.get('IDParent').value == fg.get('Id').value).forEach(i=>{
+        result.push(i);
+        result=[...result ,...this.getAllNested(i)];
+      })
+    }
+    return result;
+  }
+
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
     if(fg.get('Id').value){
-      let itemToDelete = fg.getRawValue();
-      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+      let itemToDelete = []//allNest.getRawValue;
+      let allNest = this.getAllNested(fg)
+      allNest.forEach(i =>{
+        itemToDelete.push(i.getRawValue());
+      })
+      itemToDelete.push(fg.getRawValue());
+      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + itemToDelete.length + ' dòng').then((_) => {
         this.outboundOrderDetailService.delete(itemToDelete).then((result) => {
           groups.removeAt(j);
+          let indexToRemove = this.checkedOutboundOrderDetails.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
+          this.checkedOutboundOrderDetails.removeAt(indexToRemove);
+          allNest.forEach(i =>{
+            let index = groups.controls.indexOf(i);
+            groups.removeAt(index);
+            let indexToRemove = this.checkedOutboundOrderDetails.controls.findIndex((control) => control.get('Id').value === i.get('Id').value);
+            this.checkedOutboundOrderDetails.removeAt(indexToRemove);
+          })
+        
           this.env.showTranslateMessage('saved', 'success');
         })
         .catch(err =>{
@@ -418,6 +504,39 @@ export class OutboundOrderDetailPage extends PageBase {
     }
   }
  
+  isShowCreateShipping = false;
+  changeSelectionPacking(i,e){
+    super.changeSelection(i,e)
+    if(this.selectedItems.length >0){
+      this.isShowCreateShipping = true;
+    }
+    else{
+      this.isShowCreateShipping = false;
+    }
+    this.selectedItems.forEach(s=>{
+      if(s.Status == "ShippedAllocated")this.isShowCreateShipping = false;
+    })
+    
+    console.log(this.selectedItems);
+  }
+
+  CreateShippingFromPacking(){
+    let packingQuery= {
+      Id : this.selectedItems.map(i=> i.Id)
+    }
+    this.env
+            .showLoading('Xin vui lòng chờ trong giây lát...',  this.commonService.connect("GET","WMS/Packing/CreateShippingFromPacking",packingQuery).toPromise())
+   .then(rs=>{
+  
+    this.env.showTranslateMessage('saved', 'success');
+    console.log(rs);
+    }).catch(err =>{
+      this.env.showTranslateMessage('Cannot save', 'danger');
+
+
+    });
+  }
+
   getExistedItem(){
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
     return groups.controls.map(g=> g.get('IDItem').value);
