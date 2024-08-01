@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, LoadingController, NavController } from '@ionic/angular';
+import { AlertController, LoadingController, NavController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
@@ -109,6 +109,7 @@ export class ItemDetailPage extends PageBase {
     public env: EnvService,
     public route: ActivatedRoute,
 
+    public popoverCtrl: PopoverController,
     public alertCtrl: AlertController,
     public navCtrl: NavController,
     public formBuilder: FormBuilder,
