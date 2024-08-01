@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, LoadingController, NavController } from '@ionic/angular';
+import { AlertController, LoadingController, NavController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
@@ -42,6 +42,7 @@ export class ItemGroupDetailPage extends PageBase {
     public pageProvider: WMS_ItemGroupProvider,
     public itemGroupAccountInBranchProvider: WMS_ItemGroupAccountInBranchProvider,
     public chartOfAccountProvider: FINANCE_GeneralLedgerProvider,
+    public popoverCtrl: PopoverController,
     public env: EnvService,
     public route: ActivatedRoute,
     public alertCtrl: AlertController,
