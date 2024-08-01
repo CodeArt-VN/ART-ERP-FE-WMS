@@ -72,11 +72,15 @@
           </ion-segment-button>
         </ion-segment>
 
-        <ion-buttons slot="end" *ngIf="segmentView=='s3'">
-          <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping" title="{{'Create shipping' | translate}}">
+        <ion-buttons slot="end">
+          <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'" title="{{'Create shipping' | translate}}">
             <ion-icon slot="icon-only" name="truck"></ion-icon>
           </ion-button>
+          <ion-button title="{{ 'Refresh' | translate }}" *ngIf="segmentView != 's1'"  (click)="refreshSegmentView()" > 
+            <ion-icon slot="icon-only" name="reload-outline"></ion-icon> 
+          </ion-button>
         </ion-buttons>
+        
       </ion-toolbar>
 
       <div class="table table-contain responsive" *ngIf="segmentView == 's1'">
@@ -163,124 +167,130 @@
       </div>
       <!-- Picking List -->
       <div class="table responsive" *ngIf="segmentView == 's2'">
-        <section class="table">
-          <header class="bold">
-            <div class="col-checkbox cell"></div>
-            <div class="col-id cell" (click)="sortToggle('Id')">
-              {{'Id' | translate}}
-            </div>
-            <div class="col-name unset-maxWidth cell" (click)="sortToggle('WarehouseName')">
-              {{'Warehouse' | translate}}
-            </div>
-
-            <div class="col-date cell" (click)="sortToggle('ExpectedDate')">
-              {{'Expected date' | translate}}
-            </div>
-            <div class="col-date cell" (click)="sortToggle('PickedDate')">
-              {{'Picked date' | translate}}
-            </div>
-            <div class="col-status cell" (click)="sortToggle('Status')">
-              {{'Status' | translate}}
-            </div>
-          </header>
-          <div *ngFor="let i of item.PickingList; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-            <div class="col-checkbox cell">
-              <!-- <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox"> -->
-            </div>
-            <div (click)="nav('picking-order/'+i.Id,'forward')" class="col-id cell">
-              {{i.Id}}
-            </div>
-            <div class="col-name unset-maxWidth cell">
+        <app-data-table class="box-shadow responsive" *ngIf ="item?.PickingList" [rows]="item?.PickingList" [(selectedRows)]="selectedItems" [showSpinner]="pageConfig.showSpinner" >
+          <!-- <datatable-column [checkbox]="true"></datatable-column> -->
+          <datatable-column class="col-id" name="Id" property="Id">
+            <ng-template let-i="row" datatable-cell-template>
+              <a [routerLink]="['/picking-order/'+i.Id]">{{i.Id}}</a>
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-name" name="Warehouse" property="WarehouseName">
+            <ng-template let-i="row" datatable-cell-template>
               {{i.WarehouseName}}
               <small class="address" *ngIf="i.WarehouseCode">
                 <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
               </small>
-            </div>
-
-            <div class="col-date cell">
-              {{i.ExpectedDate | date: 'dd/MM/yyyy'}}
-            </div>
-            <div class="col-date cell">
-              {{i.PickedDate | date: 'dd/MM/yyyy'}}
-            </div>
-            <div class="col-status cell">
-              <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-                {{i._Status?.Name}}
-              </ion-badge>
-            </div>
-          </div>
-        </section>
+            </ng-template>
+          </datatable-column>
+         
+          <datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
+              </ng-template>
+          </datatable-column>
+          <datatable-column class="col-date" filterControlType="date" name="Picked date" property="PickedDate">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.PickedDate | date:'dd/MM/yyyy HH:mm'}}
+              </ng-template>
+          </datatable-column>
+         
+          <datatable-column class="col-status" name="Status" property="Status">
+            <ng-template let-i="row" datatable-cell-template>
+            <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+              {{i._Status?.Name}}
+            </ion-badge>
+            </ng-template>
+          </datatable-column>
+        </app-data-table>
       </div>
       <!-- Packing List -->
       <div class="table responsive" *ngIf="segmentView == 's3'">
-        <section class="table">
-          <header class="bold">
-            <div class="col-checkbox cell"></div>
-            <div class="col-id cell" (click)="sortToggle('Id')">
-              {{'Id' | translate}}
-            </div>
-
-            <div class="col-name unset-maxWidth cell" (click)="sortToggle('WarehouseName')">
-              {{'Warehouse' | translate}}
-            </div>
-            <div class="col-name cell" (click)="sortToggle('Tag')">
-              {{'Tag' | translate}}
-            </div>
-            <div class="col-date cell" (click)="sortToggle('ExpectedDate')">
-              {{'Expected date' | translate}}
-            </div>
-            <div class="col-date cell" (click)="sortToggle('PackagedDate')">
-              {{'Packaged date' | translate}}
-            </div>
-            <div class="col-status cell" (click)="sortToggle('Status')">
-              {{'Status' | translate}}
-            </div>
-          </header>
-          <div *ngFor="let i of item.PackingList; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-            <div class="col-checkbox cell">
-              <input (click)="changeSelectionPacking(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-            </div>
-            <div (click)="nav('packing-order/'+i.Id,'forward')" class="col-id cell">
-              {{i.Id}}
-            </div>
-
-            <div class="col-name unset-maxWidth cell">
+        <app-data-table class="box-shadow responsive" *ngIf ="item?.PackingList" [rows]="item?.PackingList" [(selectedRows)]="selectedItems" (activate) ="changeSelectionPacking($event)"  (onSelectedRowsChange)="changeSelectionPacking($event)" [showSpinner]="pageConfig.showSpinner" >
+          <datatable-column [checkbox]="true"></datatable-column>
+          <datatable-column class="col-id" name="Id" property="Id">
+            <ng-template let-i="row" datatable-cell-template>
+              <a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-name" name="Warehouse" property="WarehouseName">
+            <ng-template let-i="row" datatable-cell-template>
               {{i.WarehouseName}}
               <small class="address" *ngIf="i.WarehouseCode">
                 <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
               </small>
-            </div>
-
-            <div class="col-name cell">
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-name" name="Tag" property="_Tag">
+            <ng-template let-i="row" datatable-cell-template>
               {{i._Tag?.Code}}
-            </div>
-            <div class="col-date cell">
-              {{i.ExpectedDate | date: 'dd/MM/yyyy'}}
-            </div>
-            <div class="col-date cell">
-              {{i.PackagedDate | date: 'dd/MM/yyyy'}}
-            </div>
-            <div class="col-status cell">
-              <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-                {{i._Status?.Name}}
-              </ion-badge>
-            </div>
-          </div>
-
-        </section>
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
+              </ng-template>
+          </datatable-column>
+          <datatable-column class="col-date" filterControlType="date" name="Packaged date" property="PackagedDate">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.PackagedDate | date:'dd/MM/yyyy HH:mm'}}
+              </ng-template>
+          </datatable-column>
+         
+          <datatable-column class="col-status" name="Status" property="Status">
+            <ng-template let-i="row" datatable-cell-template>
+            <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+              {{i._Status?.Name}}
+            </ion-badge>
+            </ng-template>
+          </datatable-column>
+        </app-data-table>
       </div>
 
       <div class="table responsive" *ngIf="segmentView == 's4'">
-        <section class="table">
+
+        <app-data-table class="box-shadow responsive" *ngIf ="item?.ShippingList" [rows]="item?.ShippingList" [(selectedRows)]="selectedItems" [showSpinner]="pageConfig.showSpinner" >
+          <!-- <datatable-column [checkbox]="true"></datatable-column> -->
+          <datatable-column class="col-id" name="Id" property="Id">
+            <ng-template let-i="row" datatable-cell-template>
+              <a [routerLink]="['/shipping/'+i.Id]">{{i.Id}}</a>
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-name" name="Warehouse" property="WarehouseName">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.WarehouseName}}
+              <small class="address" *ngIf="i.WarehouseCode">
+                <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+              </small>
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-name" name="Truck" property="Vehicle">
+            <ng-template let-i="row" datatable-cell-template>
+              <span>{{i.Vehicle}}</span>
+              <small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')">{{i.Shipper}}</small>
+            </ng-template>
+          </datatable-column>
+          <datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
+              </ng-template>
+          </datatable-column>
+          <datatable-column class="col-date" filterControlType="date" name="Shipped date" property="ShippedDate">
+            <ng-template let-i="row" datatable-cell-template>
+              {{i.ShippedDate | date:'dd/MM/yyyy HH:mm'}}
+              </ng-template>
+          </datatable-column>
+         
+          <datatable-column class="col-status" name="Status" property="Status">
+            <ng-template let-i="row" datatable-cell-template>
+            <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
+              {{i._Status?.Name}}
+            </ion-badge>
+            </ng-template>
+          </datatable-column>
+        </app-data-table>
+        <!-- <section class="table">
           <header class="bold">
-            <div class="col-checkbox cell"></div>
-            <div class="col-id cell" (click)="sortToggle('Id')">
-              {{'Id' | translate}}
-            </div>
-          
-            <div class="col-name cell" (click)="sortToggle('WarehouseName')">
-              {{'Warehouse' | translate}}
-            </div>
+           
             <div class="col-name cell" (click)="sortToggle('WarehouseCode')">
               {{'Code' | translate}}
             </div>
@@ -288,12 +298,7 @@
               {{'Truck' | translate}}
               <small>{{'shipper' | translate}}</small>
               </div>
-            <div class="col-date cell" (click)="sortToggle('ExpectedDate')">
-              {{'Expected date' | translate}}
-            </div>
-            <div class="col-date cell" (click)="sortToggle('ShippedDate')">
-              {{'Shipped date' | translate}}
-            </div>
+            
             <div class="col-status cell" (click)="sortToggle('Status')">
               {{'Status' | translate}}
             </div>
@@ -329,7 +334,7 @@
             </div>
           </div>
 
-        </section>
+        </section> -->
       </div>
       <div *ngIf="segmentView == 's5'">
         <ion-row class="hr-group" *ngIf="item.Id">

@@ -24,6 +24,7 @@ import { TransactionModalPage } from '../transaction-modal/transaction-modal.pag
   styleUrls: ['picking-order-detail.page.scss'],
 })
 export class PickingOrderDetailPage extends PageBase {
+  //#region Variables
   countTypeDataSource: any;
   statusDataSource: any;
   schema: Schema;
@@ -36,6 +37,9 @@ export class PickingOrderDetailPage extends PageBase {
 
   isAllChecked = false;
   checkedPickingOrderDetails: any = new FormArray([]);
+  //#endregion
+
+  //#region  Init
   constructor(
     public pageProvider: WMS_PickingProvider,
     public pickingOrderDetailService: WMS_PickingDetailProvider,
@@ -75,7 +79,9 @@ export class PickingOrderDetailPage extends PageBase {
       DeletedPickingOrderDetails: [[]],
     });
   }
+  //#endregion
 
+  //#region Load
   preLoadData(event) {
     this.statusDataSource = [
       { Name: 'Done', Code: 'Done' },
@@ -189,12 +195,6 @@ export class PickingOrderDetailPage extends PageBase {
       Showing: [field.show],
       HasChild: [field.HasChild],
       Levels: [field.levels],
-      IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
-      IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
-      CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
-      CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
-      ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
-      ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
       IsChecked: new FormControl({ value: false, disabled: false }),
     });
     groups.push(group);
@@ -209,7 +209,9 @@ export class PickingOrderDetailPage extends PageBase {
       group.controls.Lot.markAsDirty();
     }
   }
+ //#endregion
 
+ //#region Business logic
   closePick() {
     this.query.Id = this.item.Id;
     this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
@@ -228,66 +230,7 @@ export class PickingOrderDetailPage extends PageBase {
     });
   }
 
-  changeStatusDetail(fg, status) {
-    if (this.submitAttempt) {
-      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'warning');
-      return;
-    } else {
-      let obj = [
-        {
-          Id: fg.get('Id').value,
-          Status: status,
-        },
-      ];
-      if (fg.get('Status').value == 'Active' && status == 'Done') {
-        this.submitAttempt = true;
-        if (fg.get('Quantity').value > fg.get('QuantityPicked').value) {
-          this.env.showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất ?').then((_) => {
-            this.pageProvider.commonService
-              .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
-              .toPromise()
-              .then((result: any) => {
-                if (result) {
-                  this.env.showTranslateMessage('Saved', 'success');
-                  fg.controls.Status.setValue(status);
-                  fg.disable();
-                } else {
-                  this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-                }
-                this.submitAttempt = false;
-              })
-              .catch((err) => {
-                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-                this.submitAttempt = false;
-              });
-          }).catch(err=> {
-            this.submitAttempt = false;
-          });
-        } 
-        else {
-          this.pageProvider.commonService
-            .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
-            .toPromise()
-            .then((result: any) => {
-              if (result) {
-                this.env.showTranslateMessage('Saved', 'success');
-                fg.controls.Status.setValue(status);
-                fg.disable();
-              } else {
-                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-              }
-              this.submitAttempt = false;
-            })
-            .catch((err) => {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-              this.submitAttempt = false;
-            });
-        }
-        //update status Active -> Done
-      }
-    }
-  }
-
+  
   allocatePicking() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
@@ -404,190 +347,7 @@ export class PickingOrderDetailPage extends PageBase {
     }
   }
 
-  changeSelection(i, view, e = null) {
-    if (i.get('IsChecked').value) {
-      this.checkedPickingOrderDetails.push(i);
-      if (i.get('HasChild').value) {
-        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == i.get('Id').value);
-        subOrders.forEach((sub) => {
-          sub.get('IsChecked').setValue(true);
-          this.checkedPickingOrderDetails.push(sub);
-        });
-      }
-    } else {
-      let index = this.checkedPickingOrderDetails.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
-      this.checkedPickingOrderDetails.removeAt(index);
-      if (i.get('HasChild').value) {
-        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == i.get('Id').value);
-        subOrders.forEach((sub) => {
-          sub.get('IsChecked').setValue(false);
-          let indexSub = this.checkedPickingOrderDetails.getRawValue().findIndex((d) => d.Id == sub.get('Id').value);
-          this.checkedPickingOrderDetails.removeAt(indexSub);
-        });
-      }
-    }
-  }
-
-  toggleSelectAll() {
-    if (!this.pageConfig.canEdit) return;
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    if (!this.isAllChecked) {
-      this.checkedPickingOrderDetails = new FormArray([]);
-    }
-    groups.controls.forEach((i) => {
-      i.get('IsChecked').setValue(this.isAllChecked);
-      if (this.isAllChecked) this.checkedPickingOrderDetails.push(i);
-    });
-  }
-
-  removeSelectedItems() {
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    this.checkedPickingOrderDetails.controls.forEach((fg) => {
-      const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
-      groups.removeAt(indexToRemove);
-    });
-
-    this.checkedPickingOrderDetails = new FormArray([]);
-  }
-
-  removeField(fg, j) {
-    let itemToDelete = fg.getRawValue();
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    if (itemToDelete.Id) {
-      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
-        this.pickingOrderDetailService.delete(itemToDelete).then((result) => {
-          groups.removeAt(j);
-        });
-      });
-    } else {
-      groups.removeAt(j);
-    }
-  }
-
-  deleteItems() {
-    if (this.pageConfig.canDelete) {
-      let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
-      this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
-          null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
-        )
-        .then((_) => {
-          this.env
-            .showLoading('Xin vui lòng chờ trong giây lát...', this.pickingOrderDetailService.delete(itemsToDelete))
-            .then((_) => {
-              this.removeSelectedItems();
-              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
-              this.isAllChecked = false;
-            })
-            .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-              console.log(err);
-            });
-        });
-    }
-  }
-
-  async saveChange() {
-    let submitItem = this.getDirtyValues(this.formGroup);
-    super.saveChange2();
-  }
-
-  sortDetail: any = {};
-  sortToggle(field) {
-    if (!this.sortDetail[field]) {
-      this.sortDetail[field] = field;
-    } else if (this.sortDetail[field] == field) {
-      this.sortDetail[field] = field + '_desc';
-    } else {
-      delete this.sortDetail[field];
-    }
-    // let s = Object.keys(sortTerms).reduce(function (res, v) {
-    //     return res.concat(sortTerms[v]);
-    // }, []);
-    if (Object.keys(this.sortDetail).length === 0) {
-      this.refresh();
-    } else {
-      this.reInitPickingOrderDetails();
-    }
-  }
-
-  reInitPickingOrderDetails() {
-    const PickingOrderDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
-    this.item.PickingOrderDetails = PickingOrderDetailsArray.getRawValue();
-    for (const key in this.sortDetail) {
-      if (this.sortDetail.hasOwnProperty(key)) {
-        const value = this.sortDetail[key];
-        this.sortByKey(value);
-      }
-    }
-    PickingOrderDetailsArray.clear();
-    this.buildFlatTree(this.item.PickingOrderDetails, null, false).then((resp: any) => {
-      this.item.PickingOrderDetails = resp;
-      this.patchFieldsValue();
-    });
-    // this.item.PickingOrderDetails.forEach((s) => this.addField(s));
-  }
-
-  sortByKey(key: string, desc: boolean = false) {
-    if (key.includes('_desc')) {
-      key = key.replace('_desc', '');
-      desc = true;
-    }
-    this.item.PickingOrderDetails.sort((a, b) => {
-      const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
-      return desc ? -comparison : comparison;
-    });
-  }
-
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
-    });
-  }
-
-  segmentView = 's1';
-  segmentChanged(ev: any) {
-    this.segmentView = ev.detail.value;
-  }
-
-  toggleRow(fg, event) {
-    if (!fg.get('HasChild').value) {
-      return;
-    }
-    event.stopPropagation();
-    fg.get('ShowDetail').setValue(!fg.get('ShowDetail').value);
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
-    if (fg.get('ShowDetail').value) {
-      subOrders.forEach((it) => {
-        it.get('Showing').setValue(true);
-      });
-    } else {
-      subOrders.forEach((it) => {
-        this.hideSubRows(it);
-      });
-    }
-  }
-
-  hideSubRows(fg) {
-    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
-    fg.get('Showing').setValue(false);
-    if (fg.get('HasChild').value) {
-      fg.get('ShowDetail').setValue(false);
-      let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
-
-      subOrders.forEach((it) => {
-        this.hideSubRows(it);
-        it.get('Showing').setValue(false);
-      });
-    }
-  }
-
+  
   changedFromLocationID(valueNew, group, index) {
     let itemUpdate = [];
     if (valueNew) {
@@ -774,6 +534,7 @@ export class PickingOrderDetailPage extends PageBase {
         }
       });
   }
+
   async openTransaction(fg) {
     const modal = await this.modalController.create({
       component: TransactionModalPage,
@@ -789,4 +550,265 @@ export class PickingOrderDetailPage extends PageBase {
       this.refresh();
     }
   }
+  //#endregion
+
+//#region Selection
+  changeSelection(i, view, e = null) {
+    if (i.get('IsChecked').value) {
+      this.checkedPickingOrderDetails.push(i);
+      if (i.get('HasChild').value) {
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == i.get('Id').value);
+        subOrders.forEach((sub) => {
+          sub.get('IsChecked').setValue(true);
+          this.checkedPickingOrderDetails.push(sub);
+        });
+      }
+    } else {
+      let index = this.checkedPickingOrderDetails.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
+      this.checkedPickingOrderDetails.removeAt(index);
+      if (i.get('HasChild').value) {
+        let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == i.get('Id').value);
+        subOrders.forEach((sub) => {
+          sub.get('IsChecked').setValue(false);
+          let indexSub = this.checkedPickingOrderDetails.getRawValue().findIndex((d) => d.Id == sub.get('Id').value);
+          this.checkedPickingOrderDetails.removeAt(indexSub);
+        });
+      }
+    }
+  }
+
+  toggleSelectAll() {
+    if (!this.pageConfig.canEdit) return;
+    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    if (!this.isAllChecked) {
+      this.checkedPickingOrderDetails = new FormArray([]);
+    }
+    groups.controls.forEach((i) => {
+      i.get('IsChecked').setValue(this.isAllChecked);
+      if (this.isAllChecked) this.checkedPickingOrderDetails.push(i);
+    });
+  }
+
+  removeSelectedItems() {
+    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    this.checkedPickingOrderDetails.controls.forEach((fg) => {
+      const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
+      groups.removeAt(indexToRemove);
+    });
+
+    this.checkedPickingOrderDetails = new FormArray([]);
+  }
+//#endregion
+
+//#region  Delete
+  removeField(fg, j) {
+    let itemToDelete = fg.getRawValue();
+    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    if (itemToDelete.Id) {
+      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+        this.pickingOrderDetailService.delete(itemToDelete).then((result) => {
+          groups.removeAt(j);
+        });
+      });
+    } else {
+      groups.removeAt(j);
+    }
+  }
+
+  deleteItems() {
+    if (this.pageConfig.canDelete) {
+      let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
+      this.env
+        .showPrompt(
+          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
+          null,
+          'Xóa ' + itemsToDelete.length + ' dòng',
+        )
+        .then((_) => {
+          this.env
+            .showLoading('Xin vui lòng chờ trong giây lát...', this.pickingOrderDetailService.delete(itemsToDelete))
+            .then((_) => {
+              this.removeSelectedItems();
+              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+              this.isAllChecked = false;
+            })
+            .catch((err) => {
+              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              console.log(err);
+            });
+        });
+    }
+  }
+//#endregion
+
+//#region SaveChange
+  async saveChange() {
+    let submitItem = this.getDirtyValues(this.formGroup);
+    super.saveChange2();
+  }
+
+  changeStatusDetail(fg, status) {
+    if (this.submitAttempt) {
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'warning');
+      return;
+    } else {
+      let obj = [
+        {
+          Id: fg.get('Id').value,
+          Status: status,
+        },
+      ];
+      if (fg.get('Status').value == 'Active' && status == 'Done') {
+        this.submitAttempt = true;
+        if (fg.get('Quantity').value > fg.get('QuantityPicked').value) {
+          this.env.showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất ?').then((_) => {
+            this.pageProvider.commonService
+              .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
+              .toPromise()
+              .then((result: any) => {
+                if (result) {
+                  this.env.showTranslateMessage('Saved', 'success');
+                  fg.controls.Status.setValue(status);
+                  fg.disable();
+                } else {
+                  this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                }
+                this.submitAttempt = false;
+              })
+              .catch((err) => {
+                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                this.submitAttempt = false;
+              });
+          }).catch(err=> {
+            this.submitAttempt = false;
+          });
+        } 
+        else {
+          this.pageProvider.commonService
+            .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
+            .toPromise()
+            .then((result: any) => {
+              if (result) {
+                this.env.showTranslateMessage('Saved', 'success');
+                fg.controls.Status.setValue(status);
+                fg.disable();
+              } else {
+                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              }
+              this.submitAttempt = false;
+            })
+            .catch((err) => {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.submitAttempt = false;
+            });
+        }
+        //update status Active -> Done
+      }
+    }
+  }
+
+//#endregion
+
+//#region Sort
+  sortDetail: any = {};
+  sortToggle(field) {
+    if (!this.sortDetail[field]) {
+      this.sortDetail[field] = field;
+    } else if (this.sortDetail[field] == field) {
+      this.sortDetail[field] = field + '_desc';
+    } else {
+      delete this.sortDetail[field];
+    }
+    // let s = Object.keys(sortTerms).reduce(function (res, v) {
+    //     return res.concat(sortTerms[v]);
+    // }, []);
+    if (Object.keys(this.sortDetail).length === 0) {
+      this.refresh();
+    } else {
+      this.reInitPickingOrderDetails();
+    }
+  }
+
+  reInitPickingOrderDetails() {
+    const PickingOrderDetailsArray = this.formGroup.get('PickingOrderDetails') as FormArray;
+    this.item.PickingOrderDetails = PickingOrderDetailsArray.getRawValue();
+    for (const key in this.sortDetail) {
+      if (this.sortDetail.hasOwnProperty(key)) {
+        const value = this.sortDetail[key];
+        this.sortByKey(value);
+      }
+    }
+    PickingOrderDetailsArray.clear();
+    this.buildFlatTree(this.item.PickingOrderDetails, null, false).then((resp: any) => {
+      this.item.PickingOrderDetails = resp;
+      this.patchFieldsValue();
+    });
+    // this.item.PickingOrderDetails.forEach((s) => this.addField(s));
+  }
+
+  sortByKey(key: string, desc: boolean = false) {
+    if (key.includes('_desc')) {
+      key = key.replace('_desc', '');
+      desc = true;
+    }
+    this.item.PickingOrderDetails.sort((a, b) => {
+      const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+      return desc ? -comparison : comparison;
+    });
+  }
+
+  //#endregion
+  
+//#region Segment
+  segmentView = 's1';
+  segmentChanged(ev: any) {
+    this.segmentView = ev.detail.value;
+  }
+//#endregion
+
+  //#region ToggleRow
+  toggleRow(fg, event) {
+    if (!fg.get('HasChild').value) {
+      return;
+    }
+    event.stopPropagation();
+    fg.get('ShowDetail').setValue(!fg.get('ShowDetail').value);
+    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
+    if (fg.get('ShowDetail').value) {
+      subOrders.forEach((it) => {
+        it.get('Showing').setValue(true);
+      });
+    } else {
+      subOrders.forEach((it) => {
+        this.hideSubRows(it);
+      });
+    }
+  }
+
+  hideSubRows(fg) {
+    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    fg.get('Showing').setValue(false);
+    if (fg.get('HasChild').value) {
+      fg.get('ShowDetail').setValue(false);
+      let subOrders = groups.controls.filter((d) => d.get('IDParent').value == fg.get('Id').value);
+
+      subOrders.forEach((it) => {
+        this.hideSubRows(it);
+        it.get('Showing').setValue(false);
+      });
+    }
+  }
+//#endregion
+
+  
+  markNestedNode(ls, Id) {
+    ls.filter((d) => d.IDParent == Id).forEach((i) => {
+      if (i.Type == 'Warehouse') i.disabled = false;
+      this.markNestedNode(ls, i.Id);
+    });
+  }
+
 }

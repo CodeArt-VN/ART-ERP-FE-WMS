@@ -38,7 +38,7 @@ export class PackingOrderPage extends PageBase {
             { Code: 'New', Name: 'Mới', Color: 'warning' },
             { Code: 'Open', Name: 'Mở', Color: 'primary' },
             { Code: 'Allocated', Name: 'Đã chỉ định', Color: 'secondary' },
-            { Code: 'ShippedAllocated', Name: 'Đã phân tài', Color: 'secondary' },
+            { Code: 'ShippingAllocated', Name: 'Đã phân tài', Color: 'secondary' },
             { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
           ];
 

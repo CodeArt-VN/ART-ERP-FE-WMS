@@ -25,6 +25,7 @@ import { TransactionModalPage } from '../transaction-modal/transaction-modal.pag
   styleUrls: ['shipping-detail.page.scss'],
 })
 export class ShippingDetailPage extends PageBase {
+  //#region Variables
   countTypeDataSource: any;
   statusDataSource: any;
   config: any = null;
@@ -34,6 +35,9 @@ export class ShippingDetailPage extends PageBase {
 
   isAllChecked = false;
   checkedShippingDetails: any = new FormArray([]);
+//#endregion
+
+//#region Init
   constructor(
     public pageProvider: WMS_ShippingProvider,
     public shippingDetailService: WMS_ShippingDetailProvider,
@@ -74,8 +78,10 @@ export class ShippingDetailPage extends PageBase {
       ModifiedDate: new FormControl({ value: '', disabled: true }),
     });
   }
+//#endregion
 
-  preLoadData(event) {
+//#region Load
+preLoadData(event) {
     this.statusDataSource = [
       { Name: 'Active', Code: 'Active' },
       { Name: 'Done', Code: 'Done' },
@@ -176,7 +182,9 @@ export class ShippingDetailPage extends PageBase {
     });
     groups.push(group);
   }
+//#endregion
 
+//#region Business logic
   closeShip() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
@@ -325,8 +333,99 @@ export class ShippingDetailPage extends PageBase {
       }
     }
   }
+  
+  async openTransaction(fg) {
+    const modal = await this.modalController.create({
+      component: TransactionModalPage,
+      componentProps: {
+        sourceLine: fg.controls.Id.value,
+      },
+      cssClass: 'modal90',
+    });
 
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.refresh();
+    }
+  }
+//#endregion
 
+  //#region Selection
+  changeSelection(i, view, e = null) {
+    if (i.get('IsChecked').value) {
+      this.checkedShippingDetails.push(i);
+    } else {
+      let index = this.checkedShippingDetails.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
+      this.checkedShippingDetails.removeAt(index);
+    }
+  }
+
+  toggleSelectAll() {
+    if (!this.pageConfig.canEdit) return;
+    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    if (!this.isAllChecked) {
+      this.checkedShippingDetails = new FormArray([]);
+    }
+    groups.controls.forEach((i) => {
+      i.get('IsChecked').setValue(this.isAllChecked);
+      if (this.isAllChecked) this.checkedShippingDetails.push(i);
+    });
+  }
+
+  removeSelectedItems() {
+    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    this.checkedShippingDetails.controls.forEach((fg) => {
+      const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
+      groups.removeAt(indexToRemove);
+    });
+
+    this.checkedShippingDetails = new FormArray([]);
+  }
+//#endregion
+
+//#region Delete
+  removeField(fg, j) {
+    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+    let itemToDelete = fg.getRawValue();
+    this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+      this.shippingDetailService.delete(itemToDelete).then((result) => {
+        groups.removeAt(j);
+      });
+    });
+  }
+
+  deleteItems() {
+    if (this.pageConfig.canDelete) {
+      let itemsToDelete = this.checkedShippingDetails.getRawValue();
+      this.env
+        .showPrompt(
+          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
+          null,
+          'Xóa ' + itemsToDelete.length + ' dòng',
+        )
+        .then((_) => {
+          this.env .showLoading('Xin vui lòng chờ trong giây lát...', this.shippingDetailService.delete(itemsToDelete)) .then((_) => {
+              this.removeSelectedItems();
+              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+              this.isAllChecked = false;
+            })
+            .catch((err) => {
+              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              console.log(err);
+            });
+        });
+    }
+  }
+//#endregion
+
+//#region SaveChange
+  async saveChange() {
+    let submitItem = this.getDirtyValues(this.formGroup);
+    super.saveChange2();
+  }
+
+  
   changeStatusDetail(fg, status) {
     if(this.submitAttempt){
       fg.get('QuantityShipped').setErrors({valid:false});
@@ -370,76 +469,9 @@ export class ShippingDetailPage extends PageBase {
     }
   }
   }
+//#endregion
 
-  changeSelection(i, view, e = null) {
-    if (i.get('IsChecked').value) {
-      this.checkedShippingDetails.push(i);
-    } else {
-      let index = this.checkedShippingDetails.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
-      this.checkedShippingDetails.removeAt(index);
-    }
-  }
-
-  toggleSelectAll() {
-    if (!this.pageConfig.canEdit) return;
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    if (!this.isAllChecked) {
-      this.checkedShippingDetails = new FormArray([]);
-    }
-    groups.controls.forEach((i) => {
-      i.get('IsChecked').setValue(this.isAllChecked);
-      if (this.isAllChecked) this.checkedShippingDetails.push(i);
-    });
-  }
-
-  removeSelectedItems() {
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    this.checkedShippingDetails.controls.forEach((fg) => {
-      const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
-      groups.removeAt(indexToRemove);
-    });
-
-    this.checkedShippingDetails = new FormArray([]);
-  }
-
-  removeField(fg, j) {
-    let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-    let itemToDelete = fg.getRawValue();
-    this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
-      this.shippingDetailService.delete(itemToDelete).then((result) => {
-        groups.removeAt(j);
-      });
-    });
-  }
-
-  deleteItems() {
-    if (this.pageConfig.canDelete) {
-      let itemsToDelete = this.checkedShippingDetails.getRawValue();
-      this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
-          null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
-        )
-        .then((_) => {
-          this.env .showLoading('Xin vui lòng chờ trong giây lát...', this.shippingDetailService.delete(itemsToDelete)) .then((_) => {
-              this.removeSelectedItems();
-              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
-              this.isAllChecked = false;
-            })
-            .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-              console.log(err);
-            });
-        });
-    }
-  }
-
-  async saveChange() {
-    let submitItem = this.getDirtyValues(this.formGroup);
-    super.saveChange2();
-  }
-
+  //#region Sort
   sortDetail: any = {};
   sortToggle(field) {
     if (!this.sortDetail[field]) {
@@ -482,14 +514,9 @@ export class ShippingDetailPage extends PageBase {
       return desc ? -comparison : comparison;
     });
   }
+//#endregion
 
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
-    });
-  }
-
+  //#region Toggle row
   toggleRow(fg, event) {
     if (!fg.get('HasChild').value) {
       return;
@@ -522,26 +549,19 @@ export class ShippingDetailPage extends PageBase {
       });
     }
   }
+//#endregion
 
-  async openTransaction(fg) {
-    const modal = await this.modalController.create({
-      component: TransactionModalPage,
-      componentProps: {
-        sourceLine: fg.controls.Id.value,
-      },
-      cssClass: 'modal90',
-    });
-
-    await modal.present();
-    const { data } = await modal.onWillDismiss();
-    if (data) {
-      this.refresh();
-    }
-  }
-
-  
+//#region Segment
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
+  }
+//#endregion
+
+  markNestedNode(ls, Id) {
+    ls.filter((d) => d.IDParent == Id).forEach((i) => {
+      if (i.Type == 'Warehouse') i.disabled = false;
+      this.markNestedNode(ls, i.Id);
+    });
   }
 }
