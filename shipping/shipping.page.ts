@@ -32,7 +32,10 @@ export class ShippingPage extends PageBase {
     preLoadData(event?: any): void {
     
         this.statusList = [
-            { Code: 'Open', Name: 'Mở', Color: 'warning' },
+            { Code: 'New', Name: 'Mới', Color: 'warning' },
+            { Code: 'Open', Name: 'Mở', Color: 'primary' },
+            { Code: 'Allocated', Name: 'Đã chỉ định', Color: 'secondary' },
+            { Code: 'ShippedAllocated', Name: 'Đã phân tài', Color: 'secondary' },
             { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
           ];
 

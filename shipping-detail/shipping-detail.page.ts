@@ -109,16 +109,16 @@ export class ShippingDetailPage extends PageBase {
     this.query.IDShipping = this.item.Id;
     this.query.Id = undefined;
     if ( this.item.ShippingDetails.length > 0) {
-      let flatTreeList = [];
-      //this.item.PickingOrderDetails.sort((a,b)=>{return a.IDItem - b.IDItem});
-      let parentList = [...this.item.ShippingDetails.filter(d=> !d.Lot && !d.LPN)];
-      flatTreeList =flatTreeList.concat(parentList);
-      parentList.forEach(p =>{
-        let childList = this.item.ShippingDetails.filter(i => i.IDUoM == p.IDUoM && i.IDItem == p.IDItem && i.Lot && i.LPN);
-        childList.forEach(c=> c.IDParent = p.Id);
-        flatTreeList =flatTreeList.concat(childList);
-      })
-        this.buildFlatTree(flatTreeList, null, false).then((resp: any) => {
+      // let flatTreeList = [];
+      // //this.item.PickingOrderDetails.sort((a,b)=>{return a.IDItem - b.IDItem});
+      // let parentList = [...this.item.ShippingDetails.filter(d=> !d.Lot && !d.LPN)];
+      // flatTreeList =flatTreeList.concat(parentList);
+      // parentList.forEach(p =>{
+      //   let childList = this.item.ShippingDetails.filter(i => i.IDUoM == p.IDUoM && i.IDItem == p.IDItem && i.Lot && i.LPN);
+      //   childList.forEach(c=> c.IDParent = p.Id);
+      //   flatTreeList =flatTreeList.concat(childList);
+      // })
+        this.buildFlatTree( this.item.ShippingDetails, null, false).then((resp: any) => {
           this.item.ShippingDetails = resp;
           const ShippingDetailsArray = this.formGroup.get('ShippingDetails') as FormArray;
           ShippingDetailsArray.clear();
@@ -151,10 +151,11 @@ export class ShippingDetailPage extends PageBase {
       Id: new FormControl({ value: field.Id, disabled: true }),
       IDItem: [field.IDItem, Validators.required],
       Quantity: [field.Quantity],
-      QuantityShipped: new FormControl({ value: field.QuantityShipped, disabled: !field.IDParent? true: false }),
+      QuantityShipped:[field.QuantityShipped],
+      TrackingQuantityShipped : [field.QuantityShipped],
       Status: [field.Status],
       FromLocationName: [field.FromLocationName],
-      LPN: [field.LPN],
+      LPN: [field.LPN > 0 ? field.LPN : null],
       LotName: [field.LotName],
       UoMName: [field.UoMName],
       ItemName: [field.ItemName], 
@@ -205,13 +206,84 @@ export class ShippingDetailPage extends PageBase {
     fg.controls.QuantityShipped.markAsDirty();
     super.saveChange2(fg, this.pageConfig.pageName, this.shippingDetailService);
   }
+
+  calcTotalShippedQuantity(childFG,e = null) {
+    console.log(e);
+    if(this.submitAttempt){
+      childFG.get('QuantityShipped').setErrors({valid:false});
+      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      return;
+    }
+    else{
+      let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+      let totalShippedQty = 0;
+      let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
+      let obj;
+      if (parentFG) {
+        let subOrders = groups.controls.filter((d) => d.get('IDParent').value == parentFG.get('Id').value);
+        subOrders.forEach((sub) => {
+          totalShippedQty += sub.get('QuantityShipped').value;
+        });
+        parentFG.get('QuantityShipped').setValue(totalShippedQty);
+        parentFG.get('QuantityShipped').markAsDirty();
+        obj = [
+          { Id: parentFG.get('Id').value, Status: 'Active', QuantityShipped: parentFG.get('QuantityShipped').value },
+          { Id: childFG.get('Id').value, Status: 'Active', QuantityShipped: childFG.get('QuantityShipped').value },
+        ];
+      } else {
+        obj = [{ Id: childFG.get('Id').value, Status: 'Active', QuantityShipped: childFG.get('QuantityShipped').value }];
+      }
+      // Check if QuantityShipped is valid
+      const isValid = obj.every((item) => {
+        let group = groups.controls.find((d) => d.get('Id').value == item.Id);
+        return group && item.QuantityShipped <= group.get('Quantity').value && item.QuantityShipped >= 0;
+      });
+  
+      if (!isValid) {
+        this.env.showTranslateMessage('Quantity packed is more than quantity', 'danger');
+        return; 
+      }
+      if (this.submitAttempt == false) {
+        this.submitAttempt = true;
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
+          .toPromise()
+          .then((result: any) => {
+            if (result && result.length > 0) {
+              let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+              result.forEach((updatedShipping) => {
+                var shippingDetail = groups.controls.find((d) => d.get('Id').value == updatedShipping.Id);
+                if (shippingDetail) {
+                  shippingDetail.get('QuantityShipped').setValue(updatedShipping.QuantityShipped);
+                  shippingDetail.get('TrackingQuantityShipped').setValue(updatedShipping.QuantityShipped);
+
+                }
+              });
+              this.env.showTranslateMessage('Saved', 'success');
+            } else {
+              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              childFG.get('QuantityShipped').setValue(childFG.get('TrackingQuantityShipped').value);
+            }
+            this.submitAttempt = false;
+          })
+          .catch(err => {
+            this.submitAttempt = false;
+            childFG.get('QuantityShipped').setValue(childFG.get('TrackingQuantityShipped').value);
+            childFG.get('QuantityShipped').setErrors({valid:false});
+            this.env.showTranslateMessage(err.error.Message, 'danger');
+          });
+      }
+    }
+  }
   toggleQty(group) {
     if (group.controls.Quantity.value == group.controls.QuantityShipped.value) {
       group.controls.QuantityShipped.setValue(0);
+      group.controls.QuantityShipped.markAsDirty();
     } else {
       group.controls.QuantityShipped.setValue(group.controls.Quantity.value);
+      group.controls.QuantityShipped.markAsDirty();
     }
-    this.updateQuantity(group);
+    this.calcTotalShippedQuantity(group);
   }
 
   toggleAllQty() {
@@ -223,7 +295,6 @@ export class ShippingDetailPage extends PageBase {
       let groups = <FormArray>this.formGroup.controls.ShippingDetails;
       let obj = [];
       groups.controls.forEach((group: FormGroup) => {
-        if(!group.get('LPN').value || group.get('Status').value != 'Active') return;
         const currentStatus = group.get('Status').value;
         if (currentStatus == 'Active') {
           if (this.item._IsShippedAll) {
@@ -233,43 +304,28 @@ export class ShippingDetailPage extends PageBase {
           }
           const id = group.get('Id').value;
           const quantityShipped = group.controls.QuantityShipped.value;
-          obj.push({ Id: id, QuantityShipped: quantityShipped });
+          obj.push({ Id: id, Status: currentStatus, QuantityShipped: quantityShipped });
         }
       });
   
       if (!this.submitAttempt && obj.length > 0) {
         this.submitAttempt = true;
-        this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.pageProvider.commonService
-        .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj) .toPromise()) .then((_) => {
-          this.env.showTranslateMessage('Saved', 'success');
-          this.item._IsShippedAll = !this.item._IsShippedAll;
-          this.submitAttempt = false;
-        }).catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-          this.submitAttempt = false;
-        });
-        // this.pageProvider.commonService
-        //   .connect('PUT', 'WMS/Shipping/UpdateQuantity/', obj)
-        //   .toPromise()
-        //   .then(() => {
-        //     this.env.showTranslateMessage('Saved', 'success');
-        //     this.item._IsShippedAll = !this.item._IsShippedAll;
-        //     this.submitAttempt = false;
-        //   })
-        //   .catch((err) => {
-        //     this.env.showTranslateMessage('Cannot save, please try again', 'danger');
-        //     this.submitAttempt = false;
-        //   });
+        this.pageProvider.commonService
+          .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
+          .toPromise()
+          .then(() => {
+            this.env.showTranslateMessage('Saved', 'success');
+            this.item._IsShippedAll = !this.item._IsShippedAll;
+            this.submitAttempt = false;
+          })
+          .catch((err) => {
+            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.submitAttempt = false;
+          });
       }
     }
-   
   }
 
-  UpdateShippedQuantity(fg) {
-    if (fg.get('QuantityShipped').value >= 0 && fg.get('QuantityShipped').value <= fg.get('Quantity').value) {
-      this.updateQuantity(fg);
-    }
-  }
 
   changeStatusDetail(fg, status) {
     if(this.submitAttempt){
@@ -287,8 +343,9 @@ export class ShippingDetailPage extends PageBase {
         },
       ];
       if (this.submitAttempt == false) {
-        this.submitAttempt = true;
-        this.pageProvider.commonService
+        this.env.showPrompt('Bạn chắc muốn hoàn tất ?', null, 'Hoàn tất').then((_) => {
+          this.submitAttempt = true;
+          this.pageProvider.commonService
           .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
           .toPromise()
           .then((result: any) => {
@@ -307,6 +364,7 @@ export class ShippingDetailPage extends PageBase {
           .catch((err) => {
             this.env.showTranslateMessage('Cannot save, please try again', 'danger');
             this.submitAttempt = false;
+          });
           });
       }
     }

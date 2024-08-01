@@ -36,7 +36,9 @@ export class PickingOrderPage extends PageBase {
         ];
         this.pageConfig.sort = sorted;
         this.statusList = [
-            { Code: 'Open', Name: 'Mở', Color: 'warning' },
+            { Code: 'New', Name: 'Mới', Color: 'warning' },
+            { Code: 'Open', Name: 'Mở', Color: 'primary' },
+            { Code: 'Allocated', Name: 'Đã chỉ định', Color: 'secondary' },
             { Code: 'Closed', Name: 'Đã đóng', Color: 'success' },
           ];
        

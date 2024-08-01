@@ -16,9 +16,10 @@
         width: unset;
     }
     .col-id {
-        max-width: 50px;
-        min-width: 50px;
+        max-width: 65px;
+        min-width: 65px;
         font-weight: bold;
+        justify-content: flex-start;
     }
     .col-name {
         min-width: 150px;

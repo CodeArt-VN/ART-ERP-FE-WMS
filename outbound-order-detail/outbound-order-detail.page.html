@@ -71,18 +71,10 @@
             <ion-label>{{'Other information' | translate}}</ion-label>
           </ion-segment-button>
         </ion-segment>
-        <ion-buttons slot="end" *ngIf="segmentView=='s1'">
-          <!-- <ion-button (click)="presentModal('addField')">
-                        <ion-icon slot="start" name="add"></ion-icon>
-                        {{'Add' | translate}}
-                    </ion-button>| -->
 
-          <ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
-            <ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
-          </ion-button>
-          <ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canImport" (click)="onClickImport()" title="{{'Import' | translate}}">
-            <ion-icon slot="icon-only" name="cloud-upload-outline"></ion-icon>
-            <input class="hide-all" #importfile type="file" accept=".xlsx" (change)="import($event)" />
+        <ion-buttons slot="end" *ngIf="segmentView=='s3'">
+          <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping" title="{{'Create shipping' | translate}}">
+            <ion-icon slot="icon-only" name="truck"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -134,11 +126,11 @@
                   <app-input-control [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item', form : c,  dataSource: c.get('_IDItemDataSource').value,  bindValue: 'Id', clearable: true, placeholder: 'Type to search...' }" (change)="IDItemChange($event, c);" (nav)="nav($event)"></app-input-control>
                 </div>
                 <div class="col-uom cell">
-                  <app-input-control [field]="{id:'UoMName', type : 'span-text', form : c }"></app-input-control>
+                  <app-input-control [field]="{id:'IDUoM', type : 'ng-select', dataSource: c.get('UoMs').value, bindValue:'Id', bindLabel:'Name', form : c }" (change)="saveChangeDetail(c)"></app-input-control>
                 </div>
 
                 <div class="col-qty cell">
-                  <app-input-control [field]="{id:'Quantity', type : 'number', form : c }" (change)="changeQuantity(c)"></app-input-control>
+                  <app-input-control [field]="{id:'Quantity', type : 'number', form : c }" (change)="saveChangeDetail(c,index)"></app-input-control>
                 </div>
 
                 <div class="col-qty cell">
@@ -153,8 +145,8 @@
                   <app-input-control [field]="{id:'QuantityShipped', type : 'span-text', form : c }"></app-input-control>
                 </div>
 
-                <div class="col-icon cell clickable" (click)="removeField(c,j)" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
-                  <ion-icon color="danger" name="trash"></ion-icon>
+                <div class="col-icon cell clickable" (click)="removeField(c,j)" *ngIf="pageConfig.canEdit && pageConfig.canDelete" >
+                  <ion-icon color="danger" name="trash" *ngIf="c.get('IsChecked').value && c.get('IDParent').value == null"></ion-icon>
                 </div>
               </div>
             </ng-container>
@@ -245,7 +237,9 @@
             </div>
           </header>
           <div *ngFor="let i of item.PackingList; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-            <div class="col-checkbox cell"></div>
+            <div class="col-checkbox cell">
+              <input (click)="changeSelectionPacking(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
+            </div>
             <div (click)="nav('packing-order/'+i.Id,'forward')" class="col-id cell">
               {{i.Id}}
             </div>
@@ -306,7 +300,7 @@
           </header>
           <div *ngFor="let i of item.ShippingList; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
             <div class="col-checkbox cell">
-              <!-- <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox"> -->
+              <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
             </div>
             <div (click)="nav('shipping/'+i.Id,'forward')" class="col-id cell">
               {{i.Id}}

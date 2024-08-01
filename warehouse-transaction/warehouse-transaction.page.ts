@@ -59,6 +59,7 @@ export class WarehouseTransactionPage extends PageBase {
   }
 
   preLoadData(event) {
+
     this.branchProvider
       .read({
         Skip: 0,
@@ -83,6 +84,7 @@ export class WarehouseTransactionPage extends PageBase {
   }
 
   loadData(event) {
+    this.query.SortBy = 'Id_desc';
     super.loadData(event);
   }
 
@@ -184,13 +186,21 @@ export class WarehouseTransactionPage extends PageBase {
   }
 
   myHeaderFn(record, recordIndex, records) {
-    let a: any = recordIndex == 0 ? new Date('2000-01-01') : new Date(records[recordIndex - 1].CreatedDate);
-    let b: any = new Date(record.CreatedDate);
+    if(recordIndex == 0){
+      return lib.dateFormatFriendly(record.CreatedDate);
+    }
+    let b: any = recordIndex == 0 ? new Date() : new Date(records[recordIndex - 1].CreatedDate);//'2000-01-01'
+    let a: any = new Date(record.CreatedDate);
     let mins = Math.floor((b - a) / 1000 / 60);
-
-    if (mins < 30) {
+    
+    
+    if (mins < 30 ) {
       return null;
     }
-    return lib.dateFormatFriendly(record.CreatedDate);
+    let lastRenderedDate =  lib.dateFormatFriendly(records[recordIndex - 1]?.CreatedDate)
+
+    if(lastRenderedDate != lib.dateFormatFriendly(record.CreatedDate)) return lib.dateFormatFriendly(record.CreatedDate);
+    return null;
+
   }
 }
