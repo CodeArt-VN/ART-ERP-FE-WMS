@@ -755,7 +755,6 @@ export class ItemDetailPage extends PageBase {
         i.Id = result['Id'];
       }
       this.env.showTranslateMessage('Unit saved', 'success');
-      this.preLoadData(null);
     });
   }
 
