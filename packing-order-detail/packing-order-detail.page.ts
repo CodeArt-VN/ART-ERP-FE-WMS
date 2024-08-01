@@ -27,6 +27,7 @@ import { TransactionModalPage } from '../transaction-modal/transaction-modal.pag
   styleUrls: ['packing-order-detail.page.scss'],
 })
 export class PackingOrderDetailPage extends PageBase {
+  // #region Variables
   countTypeDataSource: any;
   statusDataSource: any;
   schema: Schema;
@@ -36,9 +37,11 @@ export class PackingOrderDetailPage extends PageBase {
   countItem: number = 0;
   branchList;
   storerList;
-
   isAllChecked = false;
   checkedPackingDetails: any = new FormArray([]);
+  // #endregion
+  
+  // #region Init
   constructor(
     public pageProvider: WMS_PackingProvider,
     public packingDetailservice: WMS_PackingDetailProvider,
@@ -80,7 +83,9 @@ export class PackingOrderDetailPage extends PageBase {
       ModifiedDate: new FormControl({ value: '', disabled: true }),
     });
   }
-
+  // #endregion
+  
+  // #region Load
   preLoadData(event) {
     this.statusDataSource = [
       { Name: 'Done', Code: 'Done' },
@@ -153,18 +158,14 @@ export class PackingOrderDetailPage extends PageBase {
       ShowDetail: [field.showdetail],
       Showing: [field.show],
 
-      IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
-      IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
-      CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
-      CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
-      ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
-      ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
       IsChecked: new FormControl({ value: false, disabled: false }),
     });
     groups.push(group);
   }
-
-  closePack() {
+   // #endregion
+  
+   //#region Business Logic
+   closePack() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env .showPrompt( 'Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng', )
     .then((_) => { 
@@ -178,6 +179,7 @@ export class PackingOrderDetailPage extends PageBase {
         });
     });
   }
+
   changeStatusDetail(fg, status) {
     if (fg.get('Status').value == 'Active' && status == 'Done') {
       //update status Active -> Done
@@ -330,6 +332,43 @@ export class PackingOrderDetailPage extends PageBase {
     }
   }
 
+  async openTransaction(fg) {
+    let sourceLine = [fg.controls.Id.value];
+    //find child
+    const findChildren = (parentId: number) => {
+      const findChild = (parentId: any) => {
+        let groups = (<FormArray>this.formGroup.get('PackingDetails')).controls;
+
+        groups.forEach((group: FormGroup) => {
+          const currentParentId = group.get('IDParent').value;
+          const currentId = group.get('Id').value;
+
+          if (currentParentId == parentId) {
+            sourceLine.push(currentId);
+            findChild(currentId);
+          }
+        });
+      };
+      findChild(parentId);
+    };
+    findChildren(fg.controls.Id.value);
+    const modal = await this.modalController.create({
+      component: TransactionModalPage,
+      componentProps: {
+        sourceLine: sourceLine,
+      },
+      cssClass: 'modal90',
+    });
+
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.refresh();
+    }
+  }
+//#endregion
+
+  // #region Selection
   changeSelection(i, view, e = null) {
     if (i.get('IsChecked').value) {
       this.checkedPackingDetails.push(i);
@@ -367,8 +406,10 @@ export class PackingOrderDetailPage extends PageBase {
       if (this.isAllChecked) this.checkedPackingDetails.push(i);
     });
   }
-
-  removeSelectedItems() {
+//#endregion
+ 
+// #region Delete
+removeSelectedItems() {
     let groups = <FormArray>this.formGroup.controls.PackingDetails;
     this.checkedPackingDetails.controls.forEach((fg) => {
       const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
@@ -413,8 +454,9 @@ export class PackingOrderDetailPage extends PageBase {
         });
     }
   }
+//#endregion
 
-
+// #region Sort
   sortDetail: any = {};
   sortToggle(field) {
     if (!this.sortDetail[field]) {
@@ -470,25 +512,23 @@ export class PackingOrderDetailPage extends PageBase {
       return desc ? -comparison : comparison;
     });
   }
+  //#endregion
 
-
+  // #region SaveChange
   async saveChange() {
     let submitItem = this.getDirtyValues(this.formGroup);
     super.saveChange2();
   }
+//#endregion
 
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
-    });
-  }
-
+  //#region Segment
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
   }
+//#endregion
 
+  // #region ToggleRow
   toggleRow(fg, event) {
     if (!fg.get('HasChild').value) {
       return;
@@ -521,39 +561,13 @@ export class PackingOrderDetailPage extends PageBase {
       });
     }
   }
+//#endregion
 
-  async openTransaction(fg) {
-    let sourceLine = [fg.controls.Id.value];
-    //find child
-    const findChildren = (parentId: number) => {
-      const findChild = (parentId: any) => {
-        let groups = (<FormArray>this.formGroup.get('PackingDetails')).controls;
+markNestedNode(ls, Id) {
+  ls.filter((d) => d.IDParent == Id).forEach((i) => {
+    if (i.Type == 'Warehouse') i.disabled = false;
+    this.markNestedNode(ls, i.Id);
+  });
+}
 
-        groups.forEach((group: FormGroup) => {
-          const currentParentId = group.get('IDParent').value;
-          const currentId = group.get('Id').value;
-
-          if (currentParentId == parentId) {
-            sourceLine.push(currentId);
-            findChild(currentId);
-          }
-        });
-      };
-      findChild(parentId);
-    };
-    findChildren(fg.controls.Id.value);
-    const modal = await this.modalController.create({
-      component: TransactionModalPage,
-      componentProps: {
-        sourceLine: sourceLine,
-      },
-      cssClass: 'modal90',
-    });
-
-    await modal.present();
-    const { data } = await modal.onWillDismiss();
-    if (data) {
-      this.refresh();
-    }
-  }
 }
