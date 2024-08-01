@@ -428,7 +428,7 @@
                           </div>
                           <div class="col2 cell">
                             <ng-select class="c-input" (change)="changedUoM($event, i)"
-                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist || this.selectedBranch"
                               [addTag]="createNewUoM.bind(this)" [(ngModel)]="i.Name" [items]="uomList"
                               appendTo="#unit-specification" [clearable]="false" bindLabel="Name" bindValue="Name"
                               placeholder="{{'Unit' | translate}}">
@@ -483,7 +483,7 @@
                           </div>
                         </div>
                       </section>
-                      <div class="row" *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans ) && this.id">
+                      <div class="row" *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && !this.selectedBranch ) && this.id">
                         <div class="cell">
                           <ion-button fill="clear" size="small" (click)="addUoM()">
                             <ion-icon slot="start" name="add-circle-outline"></ion-icon>
