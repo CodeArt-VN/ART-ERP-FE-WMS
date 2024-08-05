@@ -69,4 +69,7 @@ export const WMSRoutes: Routes = [
      { path: 'uom', loadChildren: () => import('./uom/uom.module').then(m => m.UoMPageModule), canActivate: [AuthGuard]},
      { path: 'uom/:id', loadChildren: () => import('./uom-detail/uom-detail.module').then(m => m.UoMDetailPageModule), canActivate: [AuthGuard]},
 
+     { path: 'putaway-strategy', loadChildren: () => import('./putaway-strategy/putaway-strategy.module').then(m => m.PutawayStrategyPageModule), canActivate: [AuthGuard]},
+     { path: 'putaway-strategy/:id', loadChildren: () => import('./putaway-strategy-detail/putaway-strategy-detail.module').then(m => m.PutawayStrategyDetailPageModule), canActivate: [AuthGuard]},
+
 ];
