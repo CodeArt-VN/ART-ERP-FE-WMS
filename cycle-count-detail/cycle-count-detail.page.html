@@ -107,7 +107,7 @@
 								</ion-button> -->
 								<div class="col-checkbox cell">
 									<input (click)="changeShowTaskDetail()" class="c-checkbox" [(ngModel)]="isHideEqualityTask" type="checkbox">
-									<label for="myCheckbox">Hide equal quantity </label> 
+									<label for="myCheckbox">{{'Hide equal quantity' | translate}}</label> 
 								</div>
 								<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="exportTask()" title="{{'Export' | translate}}">
 									<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>

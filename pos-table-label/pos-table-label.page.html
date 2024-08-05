@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start" class="ion-hide-sm-down_">
-      <ion-button color="dark" class="ion-hide-sm-down"> Tạo nhãn bàn </ion-button>
+      <ion-button color="dark" class="ion-hide-sm-down">{{'Tạo nhãn bàn' | translate}}</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <!-- <ion-button (click)="changePrintMode()" title="{{'Printing option' | translate}}">
@@ -35,7 +35,7 @@
   >
     <div class="ion-padding">
       <div class="c-control">
-        <label class="c-label" for="TableGroup">Thuộc khu</label>
+        <label class="c-label" for="TableGroup">{{'Thuộc khu' | translate}}</label>
         <ng-select
           (change)="changeGroup($event);"
           bindLabel="Name"
@@ -62,7 +62,7 @@
 
       <div class="c-control">
         <label class="c-label" for="IDTable">
-          <ion-text color="primary"> Tìm bàn </ion-text>
+          <ion-text color="primary">{{'Tìm bàn' | translate}}</ion-text>
         </label>
         <ng-select
           (change)="TableChange($event);"
@@ -103,7 +103,7 @@
         <ion-row>
           <ion-col>
             <ion-button expand="block" (click)="createPages()" [disabled]="!item.Table.length || submitAttempt">
-              Tạo nhãn in
+              {{'Tạo nhãn in' | translate}}
             </ion-button>
           </ion-col>
         </ion-row>

@@ -441,7 +441,7 @@
                                 </div>
                               </ng-template>
                               <ng-template ng-tag-tmp let-search="searchTerm">
-                                <ion-text color="primary"> <b>Thêm</b>: {{search}} </ion-text>
+                                <ion-text color="primary"> <b>{{'Thêm' | translate}}</b>: {{search}} </ion-text>
                               </ng-template>
                             </ng-select>
                             
@@ -588,7 +588,7 @@
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <div class="c-control">
-                                    <label class="c-label" for="IDBranch">Kho
+                                    <label class="c-label" for="IDBranch">{{'Kho' | translate}}
                                       <span
                                         *ngIf="!config.controls.IDBranch.valid && !config.controls.IDBranch.pending && (config.controls.IDBranch.dirty || submitAttempt)"
                                         ion-text color="danger">(*)</span>

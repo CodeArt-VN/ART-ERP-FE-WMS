@@ -169,7 +169,7 @@
         <header class="bold">
           <div class="col-checkbox cell"></div>
           <div class="col-date cell" (click)="sortToggle('CreatedDate')">
-            CreatedDate
+            {{'CreatedDate' | translate}}
             <ion-icon
               class="min-btn"
               *ngIf="sort.CreatedDate"
@@ -183,13 +183,13 @@
               color="primary"
             ></ion-icon>
           </div>
-          <div class="col-name cell">Item</div>
-          <div class="col-code cell">Lot</div>
-          <div class="col-code cell">Location</div>
-          <div class="col-code cell">LPN</div>
+          <div class="col-name cell">{{'Item' | translate}}</div>
+          <div class="col-code cell">{{'Lot' | translate}}</div>
+          <div class="col-code cell">{{'Location' | translate}}</div>
+          <div class="col-code cell">{{'LPN' | translate}}</div>
           <div class="col-number cell">{{'Quantity' | translate}}</div>
-          <div class="col-number cell">Số khối</div>
-          <div class="col-number cell">Số tấn</div>
+          <div class="col-number cell">{{'Số khối' | translate}}</div>
+          <div class="col-number cell">{{'Số tấn' | translate}}</div>
         </header>
         <form (submit)="refresh()" action="#">
           <header class="filter" *ngIf="pageConfig.isShowSearch">
@@ -216,7 +216,7 @@
             <div class="col-number cell"></div>
             <div class="col-number cell"></div>
             <div class="col-number cell"></div>
-            <button mat-raised-button type="submit" style="display: none">Search</button>
+            <button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
           </header>
         </form>
       </div>

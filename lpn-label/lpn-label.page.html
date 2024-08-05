@@ -158,14 +158,14 @@
           <ng-template ng-label-tmp let-i="item">
             <div *ngIf="i.Id">
               <span [title]="i.Id">
-                LPN: {{ i.Id }}
+                {{'LPN' | translate}}: {{ i.Id }}
               </span>
             </div>
           </ng-template>
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
                 <div title="{{i.Id}} - {{i.LocationName}}">
-                  <span [ngOptionHighlight]="search">LPN: {{i.Id}}</span><span *ngIf="i.LocationName"> - {{i.LocationName}}</span>
+                  <span [ngOptionHighlight]="search">{{'LPN' | translate}}: {{i.Id}}</span><span *ngIf="i.LocationName"> - {{i.LocationName}}</span>
                 </div>
               </div>
             </ng-template>
@@ -194,14 +194,14 @@
           <ng-template ng-label-tmp let-i="item">
             <div *ngIf="i.Id">
               <span [title]="i.Id">
-                LPN: {{ i.Id }}
+                {{'LPN' | translate}}: {{ i.Id }}
               </span>
             </div>
           </ng-template>
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
                 <div title="{{i.Id}} - {{i.LocationName}}">
-                  <span [ngOptionHighlight]="search">LPN: {{i.Id}}</span><span *ngIf="i.LocationName"> - {{i.LocationName}}</span>
+                  <span [ngOptionHighlight]="search">{{'LPN' | translate}}: {{i.Id}}</span><span *ngIf="i.LocationName"> - {{i.LocationName}}</span>
                 </div>
               </div>
             </ng-template>

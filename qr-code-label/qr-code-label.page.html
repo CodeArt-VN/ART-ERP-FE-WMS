@@ -26,7 +26,7 @@
 
     <div style="min-height: calc(100% - 75px)">
       <ion-list-header lines="full">
-        <ion-label color="dark">Label settings</ion-label>
+        <ion-label color="dark">{{'Label settings' | translate}}</ion-label>
       </ion-list-header>
       <ion-list lines="full">
         <ion-item>
@@ -58,7 +58,7 @@
           <ion-row>
             <ion-col>
               <ion-button expand="block" fill="outline" (click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2, IsOneColumn: false}">
-                Reset về mặc định
+                {{'Reset về mặc định' | translate}}
               </ion-button>
             </ion-col>
           </ion-row>
