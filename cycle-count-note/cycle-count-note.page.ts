@@ -141,7 +141,7 @@ export class CycleCountNotePage extends PageBase {
                 .catch(err => {
                     console.log(err);
                     if (err.message != null) {
-                        this.env.showMessage(err.message, 'danger');
+                        this.env.showTranslateMessage(err.message, 'danger');
                     }
                     else {
                         this.env.showTranslateMessage('erp.app.pages.wms.cycle-count.message.can-not-create-picking-list','danger');

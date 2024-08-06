@@ -177,7 +177,7 @@ export class ItemPage extends PageBase {
 
   duplicateItem() {
     if (this.submitAttempt) {
-      this.env.showMessage('Xin vui lòng chờ xử lý hoàn tất.');
+      this.env.showTranslateMessage('Xin vui lòng chờ xử lý hoàn tất.');
       return;
     }
 

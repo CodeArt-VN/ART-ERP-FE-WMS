@@ -447,7 +447,7 @@ export class ReceiptDetailPage extends PageBase {
           this.loadedData();
         })
         .catch((ex) => {
-          if (ex.error && ex.error.ExceptionMessage) this.env.showMessage(ex.error.ExceptionMessage, 'danger');
+          if (ex.error && ex.error.ExceptionMessage) this.env.showTranslateMessage(ex.error.ExceptionMessage, 'danger');
           else this.env.showTranslateMessage('Cannot save, please try again', 'danger');
           console.log(ex);
           if (loading) loading.dismiss();
@@ -577,7 +577,7 @@ export class ReceiptDetailPage extends PageBase {
           .catch((_) => {});
       })
       .catch((err) => {
-        this.env.showMessage(err);
+        this.env.showTranslateMessage(err);
       });
   }
 }

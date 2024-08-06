@@ -46,11 +46,11 @@ export class SerialLabelPage extends PageBase {
 
   createPages() {
     if (this.submitAttempt) {
-      this.env.showMessage('Xin vui lòng chờ xử lý.');
+      this.env.showTranslateMessage('Xin vui lòng chờ xử lý.');
       return;
     }
     if (!this.item.FromNumber || !this.item.ToNumber) {
-      this.env.showMessage('Xin vui lòng nhập số bắt đầu và số kết thúc để tạo mã.');
+      this.env.showTranslateMessage('Xin vui lòng nhập số bắt đầu và số kết thúc để tạo mã.');
       return;
     }
 
@@ -67,7 +67,7 @@ export class SerialLabelPage extends PageBase {
         this.items = data;
         this.pageConfig.showSpinner = false;
         this.submitAttempt = false;
-        this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
+        this.env.showTranslateMessage('Đã tạo {{value}} mã.',null,this.items.length);
       })
       .catch((err) => {
         console.log(err);

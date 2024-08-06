@@ -54,11 +54,11 @@ export class ItemUomLabelPage extends PageBase {
 
   createPages() {
     if (this.submitAttempt) {
-      this.env.showMessage('Xin vui lòng chờ xử lý.');
+      this.env.showTranslateMessage('Xin vui lòng chờ xử lý.');
       return;
     }
     if (this.item.ItemUoM.length == 0) {
-      this.env.showMessage('Xin vui lòng chọn sản phẩm cần in.');
+      this.env.showTranslateMessage('Xin vui lòng chọn sản phẩm cần in.');
       return;
     }
 
@@ -70,7 +70,7 @@ export class ItemUomLabelPage extends PageBase {
         this.items = data;
         this.pageConfig.showSpinner = false;
         this.submitAttempt = false;
-        this.env.showMessage('Đã tạo ' + this.items.length + ' mã.');
+        this.env.showTranslateMessage('Đã tạo {{value}} mã.',null,this.items.length);
       })
       .catch((err) => {
         console.log(err);

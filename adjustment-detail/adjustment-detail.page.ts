@@ -116,8 +116,7 @@ export class AdjustmentDetailPage extends PageBase {
             super.preLoadData(event);
           })
           .catch((err) => {
-            this.env.showMessage(err);
-            console.log(err);
+            this.env.showTranslateMessage(err);
           });
       });
     this.statusDataSource = [
@@ -384,8 +383,7 @@ export class AdjustmentDetailPage extends PageBase {
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-              console.log(err);
+              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
             });
         });
     }
