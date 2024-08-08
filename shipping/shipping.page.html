@@ -16,6 +16,11 @@
 			<a [routerLink]="['/shipping/'+i.Id]">{{i.Id}}</a>
 		  </ng-template>
 		</datatable-column>
+		<datatable-column class="col-id" name="ID outbound" property="IDOutboundOrder">
+			<ng-template let-i="row" datatable-cell-template>
+			  <a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
+			</ng-template>
+		  </datatable-column>
 		<datatable-column class="col-name" name="WarehouseName" property="WarehouseName">
 		  <ng-template let-i="row" datatable-cell-template>
 			{{i.WarehouseName}}

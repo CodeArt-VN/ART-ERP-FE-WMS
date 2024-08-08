@@ -6,7 +6,7 @@ import {
   BRA_BranchProvider,
   CRM_ContactProvider,
   HRM_StaffProvider,
-  SYS_SchemaProvider,
+  SHIP_VehicleProvider,
   WMS_ItemProvider,
   WMS_OutboundOrderDetailProvider,
   WMS_OutboundOrderProvider,
@@ -14,7 +14,7 @@ import {
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Schema } from 'src/app/models/options-interface';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { lib } from 'src/app/services/static/global-functions';
@@ -27,9 +27,9 @@ import { lib } from 'src/app/services/static/global-functions';
 export class OutboundOrderDetailPage extends PageBase {
   // #region Variables
   countTypeDataSource: any;
-  schema: Schema;
-  config: any = null;
   itemList: any;
+  vehicleList : any = [];
+  selectedVehicles: any = [];
   tempItemList: any;
   countItem: number = 0;
   branchList;
@@ -44,8 +44,8 @@ export class OutboundOrderDetailPage extends PageBase {
   constructor(
     public pageProvider: WMS_OutboundOrderProvider,
     public outboundOrderDetailService: WMS_OutboundOrderDetailProvider,
+    public vehicleService: SHIP_VehicleProvider,
     public staffService: HRM_StaffProvider,
-    public schemaService: SYS_SchemaProvider,
     public itemService: WMS_ItemProvider,
     public commonService: CommonService,
     public contactProvider: CRM_ContactProvider,
@@ -338,9 +338,11 @@ export class OutboundOrderDetailPage extends PageBase {
     return result;
   }
 
-  CreateShippingFromPacking() {
+  CreateShippingFromPacking(isForceCreate = false) {
     let packingQuery = {
       Id: this.selectedItems.map((i) => i.Id),
+      IDVehicle: this.selectedVehicles.map((i) => i.Id),
+      isForceCreate : isForceCreate
     };
     this.env
       .showLoading(
@@ -349,17 +351,83 @@ export class OutboundOrderDetailPage extends PageBase {
       )
       .then((rs) => {
         this.env.showTranslateMessage('saved', 'success');
-        console.log(rs);
         this.refreshSegmentView();
       })
       .catch((err) => {
-        this.env.showTranslateMessage('Cannot save', 'danger');
+        if(err.error && err.error.Message =='Need more vehicle to ship!') {
+          this.env .showPrompt( 'Số lượng xe hiện tại không thể tải hết hàng, bạn có muốn tiếp tục?', null, 'Không đủ tải', )
+          .then((_) => { 
+            this.CreateShippingFromPacking(true)
+          })
+          .catch(err=>{
+            this.env.showTranslateMessage('Cannot save', 'danger');
+          });
+        }
+        else{
+          this.env.showTranslateMessage('Cannot save', 'danger');
+        }
       });
   }
-
+  
+  printQRCode() {
+    let query = { IDPacking: this.selectedItems.map((d) => d.Id) };
+    this.env
+      .showLoading(
+        'Đang tạo mã',
+        this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/getStaticPaymentQRCode', query).toPromise(),
+      )
+      .then((resp: any) => {
+        if (resp) {
+          console.log(resp);
+          let navigationExtras: NavigationExtras = {
+            state: resp.map((m) => {
+              return {
+                line1: m.Line1,
+                line2: m.Line2,
+                qrCode: m.Id,
+              };
+            }),
+          };
+          this.nav('/qr-code-label', 'forward', navigationExtras);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.message != null) this.env.showMessage(err.message, 'danger');
+        else this.env.showMessage('Không tạo được mã, xin vui lòng kiểm tra lại.', 'danger');
+      });
+  }
+  
   getExistedItem() {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
     return groups.controls.map((g) => g.get('IDItem').value);
+  }
+
+  
+  isModalOpen = false
+  presentModal() {
+    this.selectedVehicles = [];
+
+    this.isModalOpen = true;
+    let queryVehicle = {};
+    this.env
+    .showLoading('Xin vui lòng chờ trong giây lát...', this.vehicleService.read(queryVehicle))
+    .then((result:any) => {
+      if(result && result.data.length>0) this.vehicleList = result.data;
+      console.log(this.vehicleList); 
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  }
+
+  dismissModal(isCreateShipping = false) {
+    this.isModalOpen = false
+    if(isCreateShipping){
+      this.CreateShippingFromPacking();
+    }
+
   }
 
   // #endregion
@@ -428,7 +496,18 @@ export class OutboundOrderDetailPage extends PageBase {
 
     console.log(this.selectedItems);
   }
+  changeSelectionVehicle(e) {
+    // if (this.selectedVehicles.length > 0) {
+    //   this.isShowCreateShipping = true;
+    // } else {
+    //   this.isShowCreateShipping = false;
+    // }
+    // this.selectedVehicles.forEach((s) => {
+    //   if (s.Status == 'ShippingAllocated') this.isShowCreateShipping = false;
+    // });
 
+    console.log(this.selectedVehicles);
+  }
   // #endregion
 
   // #region SaveChange

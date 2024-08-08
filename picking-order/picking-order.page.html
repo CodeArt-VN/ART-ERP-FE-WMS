@@ -1,124 +1,5 @@
 <ion-header>
 	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.picking-order.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" ></app-list-toolbar>
-	<!-- <section class="table">
-		<header class="bold">
-			<div class="col-checkbox cell"></div>
-			<div class="col-id cell" (click)="sortToggle('Id')">
-				{{'Id' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-id cell" (click)="sortToggle('IDOutboundOrder')">
-				{{'IDOutbound' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-name unset-maxWidth cell" (click)="sortToggle('WarehouseName')">
-				{{'Warehouse' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.WarehouseName" [name]="sort.WarehouseName == 'WarehouseName'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.WarehouseName" name="search" color="primary"></ion-icon>
-			</div>
-		
-			<div class="col-date cell" (click)="sortToggle('ExpectedDate')">
-				{{'Expected date' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.WarehouseCode" [name]="sort.ExpectedDate == 'ExpectedDate'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.ExpectedDate" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-date cell" (click)="sortToggle('PickedDate')">
-				{{'Picked date' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.PickedDate" [name]="sort.PickedDate == 'PickedDate'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.PickedDate" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-status cell" (click)="sortToggle('Status')">
-				{{'Status' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Status" [name]="sort.Status == 'Status'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Status" name="search" color="primary"></ion-icon>
-			</div>
-		</header>
-		<form (submit)="refresh()" action="#">
-			<header class="filter" *ngIf="pageConfig.isShowSearch">
-			  <div class="col-checkbox cell"></div>
-			  <div class="col-id cell">
-				<input
-				  [ngModelOptions]="{standalone: true}"
-				  [(ngModel)]="query.Id"
-				  class="c-input"
-				  [ngClass]="{active: query.Id}"
-				  type="text"
-				/>
-				<ion-icon
-				  class="min-btn"
-				  (click)="query.Id=''; refresh()"
-				  *ngIf="query.Id"
-				  name="close-circle-outline"
-				></ion-icon>
-			  </div>
-			  <div class="col-id cell">
-				<input
-				  [ngModelOptions]="{standalone: true}"
-				  [(ngModel)]="query.IDOutboundOrder"
-				  class="c-input"
-				  [ngClass]="{active: query.IDOutboundOrder}"
-				  type="text"
-				/>
-				<ion-icon
-				  class="min-btn"
-				  (click)="query.IDOutboundOrder=''; refresh()"
-				  *ngIf="query.IDOutboundOrder"
-				  name="close-circle-outline"
-				></ion-icon>
-			  </div>
-			  <div class="col-name unset-maxWidth cell"></div>
-			
-			  <div class="col-date cell">
-				<input
-				  (change)="refresh()"
-				  [ngModelOptions]="{standalone: true}"
-				  [(ngModel)]="query.ExpectedDate"
-				  class="c-input"
-				  [ngClass]="{active: query.ExpectedDate}"
-				  type="date"
-				/>
-				<ion-icon
-				  class="min-btn"
-				  (click)="query.ExpectedDate=''; refresh()"
-				  *ngIf="query.ExpectedDate"
-				  name="close-circle-outline"
-				></ion-icon>
-			  </div>
-			  <div class="col-date cell">
-				<input
-				  (change)="refresh()"
-				  [ngModelOptions]="{standalone: true}"
-				  [(ngModel)]="query.PickedDate"
-				  class="c-input"
-				  [ngClass]="{active: query.PickedDate}"
-				  type="date"
-				/>
-				<ion-icon
-				  class="min-btn"
-				  (click)="query.PickedDate=''; refresh()"
-				  *ngIf="query.PickedDate"
-				  name="close-circle-outline"
-				></ion-icon>
-			  </div>
-			  <div class="col-status cell">
-				<select
-				  (change)="refresh()"
-				  class="c-input c-dropdown"
-				  [ngModelOptions]="{standalone: true}"
-				  [(ngModel)]="query.Status"
-				  [ngClass]="{active: query.Status}"
-				>
-				  <option value="">{{'All' | translate}}</option>
-				  <option disabled value="">----------</option>
-				  <option *ngFor="let t of statusList" [value]="t.Code">{{t.Name}}</option>
-				</select>
-			  </div>
-			  <button mat-raised-button type="submit" style="display: none">Search</button>
-			</header>
-		  </form>
-	</section> -->
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
@@ -134,6 +15,11 @@
 			<a [routerLink]="['/picking-order/'+i.Id]">{{i.Id}}</a>
 		  </ng-template>
 		</datatable-column>
+		<datatable-column class="col-id" name="ID outbound" property="IDOutboundOrder">
+			<ng-template let-i="row" datatable-cell-template>
+			  <a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
+			</ng-template>
+		  </datatable-column>
 		<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
 		  <ng-template let-i="row" datatable-cell-template>
 			{{i.WarehouseName}}

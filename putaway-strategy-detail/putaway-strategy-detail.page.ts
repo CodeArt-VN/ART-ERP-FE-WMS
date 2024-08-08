@@ -39,6 +39,7 @@ export class PutawayStrategyDetailPage extends PageBase {
   statusDataSource: any;
   arrangeDataSource: any;
   locationSortTypeDataSource: any;
+  typeDataSource: any;
   pickedRuleList: any;
   branchList;
   openedFields: any = [];
@@ -70,6 +71,7 @@ export class PutawayStrategyDetailPage extends PageBase {
       Id: new FormControl({ value: '', disabled: true }),
       IDBranch: ['', Validators.required],
       Name: ['', Validators.required],
+      Code: ['', Validators.required],
       PutawayStrategyDetails: this.formBuilder.array([]),
       Remark: [''],
       Sort: [''],
@@ -98,6 +100,10 @@ export class PutawayStrategyDetailPage extends PageBase {
     //   { Name: 'Right to left', Code: 'RTL' },
     // ];
     this.locationSortTypeDataSource = [
+      { Name: 'Name', Code: 'Name' },
+      { Name: 'RouteSequence', Code: 'RouteSequence' },
+    ];
+    this.typeDataSource = [
       { Name: 'Find an open location in zone', Code: 'findAnOpenLocationInZone' },
       { Name: 'Find all open location in zone', Code: 'findAllOpenLocationsInZone' },
       { Name: 'Find an open location in default zone', Code: 'findAnOpenLocationInDefaultZone' },
@@ -257,7 +263,7 @@ export class PutawayStrategyDetailPage extends PageBase {
 
       FromZone: [rule?.FromZone],
       FromZoneName: [rule?.FromZoneName],
-      ToZone: [rule?.FromZone],
+      ToZone: [rule?.ToZone],
       ToZoneName: [rule?.ToZoneName],
 
       FromLocation: [rule?.FromLocation],
@@ -279,6 +285,23 @@ export class PutawayStrategyDetailPage extends PageBase {
       IsChecked: new FormControl({ value: false, disabled: false }),
     });
     groups.push(group);
+    group.get('_fromLocationDataSource').value
+    if(rule.FromLocation){
+      let fromLocation = {Name:rule.FromLocationName,Id : rule.FromLocation};
+      group.get('_fromLocationDataSource').value.selected = [fromLocation];
+    }
+    if(rule.ToLocation){
+      let toLocation = {Name:rule.ToLocationName,Id : rule.ToLocation};
+      group.get('_toLocationDataSource').value.selected = [toLocation];
+    }
+    if(rule.FromZone){
+      let fromZone = {Name:rule.FromZoneName,Id : rule.FromZone};
+      group.get('_fromZoneDataSource').value.selected = [fromZone];
+    }
+    if(rule.ToZone){ 
+      let toZone = {Name:rule.ToZoneName,Id : rule.ToZone};
+      group.get('_toZoneDataSource').value.selected = [toZone];
+    }
     group.get('_fromLocationDataSource').value.initSearch();
     group.get('_toLocationDataSource').value.initSearch();
     group.get('_fromZoneDataSource').value.initSearch();

@@ -115,15 +115,7 @@ preLoadData(event) {
     this.query.IDShipping = this.item.Id;
     this.query.Id = undefined;
     if ( this.item.ShippingDetails.length > 0) {
-      // let flatTreeList = [];
-      // //this.item.PickingOrderDetails.sort((a,b)=>{return a.IDItem - b.IDItem});
-      // let parentList = [...this.item.ShippingDetails.filter(d=> !d.Lot && !d.LPN)];
-      // flatTreeList =flatTreeList.concat(parentList);
-      // parentList.forEach(p =>{
-      //   let childList = this.item.ShippingDetails.filter(i => i.IDUoM == p.IDUoM && i.IDItem == p.IDItem && i.Lot && i.LPN);
-      //   childList.forEach(c=> c.IDParent = p.Id);
-      //   flatTreeList =flatTreeList.concat(childList);
-      // })
+    
         this.buildFlatTree( this.item.ShippingDetails, null, false).then((resp: any) => {
           this.item.ShippingDetails = resp;
           const ShippingDetailsArray = this.formGroup.get('ShippingDetails') as FormArray;
@@ -157,7 +149,7 @@ preLoadData(event) {
       Id: new FormControl({ value: field.Id, disabled: true }),
       IDItem: [field.IDItem, Validators.required],
       Quantity: [field.Quantity],
-      QuantityShipped:[field.QuantityShipped],
+      QuantityShipped:  new FormControl({ value: field.QuantityShipped, disabled: (field.Status != 'Active') ? true:false }),
       TrackingQuantityShipped : [field.QuantityShipped],
       Status: [field.Status],
       FromLocationName: [field.FromLocationName],
@@ -453,7 +445,9 @@ preLoadData(event) {
               let groups = <FormArray>this.formGroup.controls.ShippingDetails;
               let parent = groups.controls.find(d=> d.get('Id').value == fg.get('IDParent').value);
               fg.controls.Status.setValue(status);
+              fg.controls.QuantityShipped.disable();
               if(parent) parent.get('QuantityShipped').setValue(parseFloat(parent.get('QuantityShipped').value || 0) + parseFloat( fg.get('QuantityShipped').value|| 0 ));
+              fg.controls.QuantityShipped.markAsPristine();
               this.submitAttempt = false;
             } else {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');

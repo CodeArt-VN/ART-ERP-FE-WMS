@@ -27,6 +27,7 @@
 									<ion-col size="12" size-sm="8" size-xl="8">
 
 										<app-form-control [field]="{id:'Name', label: 'Name', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+										<app-form-control [field]="{id:'Code', label: 'Code', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<div class="c-control">
 											<label class="c-label" for="IDBranch">{{'Warehouse' | translate}}
 											  <span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
@@ -87,7 +88,7 @@
 																		<ion-row>
 																			<ion-col size="12" size-xl="12">
 																				<app-form-control [field]="{id:'Name', label: 'Name', type : 'text', form : g }" (change)="saveChange()"></app-form-control>
-																				<app-form-control [field]="{id:'Type', label: 'Type', type : 'text', form : g }" (change)="saveChange()"></app-form-control>
+																				<app-form-control [field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:typeDataSource, bindLabel:'Name', bindValue:'Code', form : g }" (change)="saveChange()"></app-form-control>
 																			</ion-col>
 																			<ion-col size="12" size-xl="6">
 																				<!-- <app-form-control [field]="{id:'IDStorer', label: 'Storer', type :'ng-select-bp', dataSource:g.controls._storerDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>

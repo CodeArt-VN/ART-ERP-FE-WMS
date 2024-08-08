@@ -28,7 +28,7 @@
 						<div class="c-control">
 						    <div class="c-control">
 								<label class="c-label" for="IDWarehouse"
-								  >{{'erp.app.pages.purchase.purchase-order.id-branch' | translate}}
+								  >{{'Warehouse' | translate}}
 								  <span
 									*ngIf="!formGroup.controls.IDWarehouse.valid && !formGroup.controls.IDWarehouse.pending && (formGroup.controls.IDWarehouse.dirty || submitAttempt)"
 									ion-text
@@ -54,7 +54,7 @@
 					</ion-col>
 					
 					<ion-col size="12" size-sm size-xl="4">
-						<app-form-control [field]="{id:'Vehicle', label: 'Vehicle', type : 'span-text', form : formGroup }" ></app-form-control>
+						<app-form-control [field]="{id:'Vehicle', label: 'Truck', type : 'span-text', form : formGroup }" ></app-form-control>
 						<app-form-control [field]="{id:'Shipper', label: 'Shipper', type : 'span-text', form : formGroup }"></app-form-control>
 
 					</ion-col>
@@ -212,8 +212,8 @@
 										<ion-icon *ngIf="c.controls.IDParent.value == null"[color]="c.controls.QuantityShipped.value == c.controls.QuantityShipped.value ? 'danger' : 'primary'" class="min-btn" [name]="c.controls.Quantity.value == c.controls.QuantityShipped.value ? 'remove-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
 									</div>
 									<div class="col-qty cell">
-										<app-input-control *ngIf="c.controls.IDParent.value == null && c.controls.Status.value != 'Active'" [field]="{id:'QuantityShipped', type : 'span-number', form : c, }"></app-input-control>
-										<app-input-control *ngIf="c.controls.IDParent.value == null && c.controls.Status.value == 'Active'" [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="calcTotalShippedQuantity(c, $event)"></app-input-control>
+										<!-- <app-input-control *ngIf="c.controls.IDParent.value == null && c.controls.Status.value != 'Active'" [field]="{id:'QuantityShipped', type : 'span-number', form : c, }"></app-input-control> -->
+										<app-input-control *ngIf="c.controls.IDParent.value == null" [field]="{id:'QuantityShipped', type : 'number', form : c, }" (inputChange)="calcTotalShippedQuantity(c, $event)"></app-input-control>
 										<div *ngIf="c.controls.IDParent.value != null">{{c.get('QuantityShipped').value}}</div>
 									</div>
 									<div class="col-status cell">

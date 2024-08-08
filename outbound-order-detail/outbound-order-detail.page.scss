@@ -155,3 +155,9 @@
     
      
 }
+@media only screen and (min-width: 768px) and (min-height: 600px){
+    ion-modal{
+        --width: 80% !important;
+        --height: 600px;
+    }
+  }
