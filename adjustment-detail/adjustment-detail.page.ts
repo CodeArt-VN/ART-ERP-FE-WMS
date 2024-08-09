@@ -336,7 +336,7 @@ export class AdjustmentDetailPage extends PageBase {
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
     let itemToDelete = fg.getRawValue();
-    this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+    this.env.showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
       this.adjustmentDetailService.delete(itemToDelete).then((result) => {
         groups.removeAt(j);
       });
@@ -369,14 +369,14 @@ export class AdjustmentDetailPage extends PageBase {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkAdjustmentDetails.getRawValue();
       this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
+        .showPrompt2(
+          {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
           null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
+          {code:'Xóa {{value1}} đang chọn?',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading('Xin vui lòng chờ trong giây lát...', this.adjustmentDetailService.delete(itemsToDelete))
+            .showLoading2('Xin vui lòng chờ trong giây lát...', this.adjustmentDetailService.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
               this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');

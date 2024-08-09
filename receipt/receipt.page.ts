@@ -113,7 +113,7 @@ export class ReceiptPage extends PageBase {
         .create({
           header: 'Nhận ' + this.selectedItems.length + ' phiếu nhập hàng',
           //subHeader: '---',
-          message: 'Bạn chắc muốn nhận ' + this.selectedItems.length + ' phiếu nhập hàng đang chọn?',
+          message: 'Bạn có chắc muốn nhận ' + this.selectedItems.length + ' phiếu nhập hàng đang chọn?',
           buttons: [
             {
               text: 'Không',

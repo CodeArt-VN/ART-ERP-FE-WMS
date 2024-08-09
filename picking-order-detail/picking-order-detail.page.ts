@@ -214,9 +214,9 @@ export class PickingOrderDetailPage extends PageBase {
  //#region Business logic
   closePick() {
     this.query.Id = this.item.Id;
-    this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
+    this.env.showPrompt2('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
       this.env
-        .showLoading(
+        .showLoading2(
           'Vui lòng chờ load dữ liệu...',
           this.pageProvider.commonService.connect('GET', 'WMS/Picking/ClosePicking/', this.query).toPromise(),
         )
@@ -233,7 +233,7 @@ export class PickingOrderDetailPage extends PageBase {
   allocatePicking() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
-      .showLoading(
+      .showLoading2(
         'Vui lòng chờ load dữ liệu...',
         this.pageProvider.commonService.connect('GET', 'WMS/Picking/AllocatePicking/', this.query).toPromise(),
       )
@@ -606,7 +606,7 @@ export class PickingOrderDetailPage extends PageBase {
     let itemToDelete = fg.getRawValue();
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
     if (itemToDelete.Id) {
-      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+      this.env.showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
         this.pickingOrderDetailService.delete(itemToDelete).then((result) => {
           groups.removeAt(j);
         });
@@ -620,14 +620,11 @@ export class PickingOrderDetailPage extends PageBase {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
       this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
-          null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
+        .showPrompt2({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},null,{code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading('Xin vui lòng chờ trong giây lát...', this.pickingOrderDetailService.delete(itemsToDelete))
+            .showLoading2('Xin vui lòng chờ trong giây lát...', this.pickingOrderDetailService.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
               this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
@@ -662,7 +659,7 @@ export class PickingOrderDetailPage extends PageBase {
       if (fg.get('Status').value == 'Active' && status == 'Done') {
         this.submitAttempt = true;
         if (fg.get('Quantity').value > fg.get('QuantityPicked').value) {
-          this.env.showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất ?').then((_) => {
+          this.env.showPrompt2('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất?').then((_) => {
             this.pageProvider.commonService
               .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
               .toPromise()

@@ -266,7 +266,7 @@ export class ReceiptDetailPage extends PageBase {
       .create({
         header: 'Xóa sản phẩm',
         //subHeader: '---',
-        message: 'Bạn chắc muốn xóa sản phẩm?',
+        message: 'Bạn có chắc muốn xóa sản phẩm?',
         buttons: [
           {
             text: 'Không',
@@ -556,7 +556,7 @@ export class ReceiptDetailPage extends PageBase {
 
   async createInvoice() {
     this.env
-      .showLoading(
+      .showLoading2(
         'Vui lòng chờ tạo hóa đơn',
         this.pageProvider.commonService
           .connect('POST', 'WMS/Receipt/CreateInvoice/', {
@@ -566,7 +566,7 @@ export class ReceiptDetailPage extends PageBase {
       )
       .then((resp: any) => {
         this.env
-          .showPrompt('Bạn có muốn mở hóa đơn vừa tạo?')
+          .showPrompt2('Bạn có muốn mở hóa đơn vừa tạo?')
           .then((_) => {
             if (resp.length == 1) {
               this.nav('/ap-invoice/' + resp[0]);
