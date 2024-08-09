@@ -428,7 +428,7 @@ export class BatchPickingPage extends PageBase {
       IDs : ids 
     }
 
-    this.env.showLoading('Vui lòng chờ load dữ liệu...', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
+    this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
     .then((result: any) => {
       if(result){
         this.env.showTranslateMessage('saved!','success');

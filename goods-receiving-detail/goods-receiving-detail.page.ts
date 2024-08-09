@@ -276,7 +276,7 @@ export class GoodReceivingDetailPage extends PageBase {
       .create({
         header: 'Xóa sản phẩm',
         //subHeader: '---',
-        message: 'Bạn chắc muốn xóa sản phẩm?',
+        message: 'Bạn có chắc muốn xóa sản phẩm?',
         buttons: [
           {
             text: 'Không',

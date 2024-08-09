@@ -182,10 +182,10 @@ export class ItemPage extends PageBase {
     }
 
     this.env
-      .showPrompt('Bạn muốn tạo mã Z cho các item đang chọn?', null, 'Copy sản phẩm')
+      .showPrompt2('Bạn muốn tạo mã Z cho các item đang chọn?', null, 'Copy sản phẩm')
       .then((_) => {
         this.env
-          .showLoading(
+          .showLoading2(
             'Xin vui lòng chờ copy dữ liệu',
             this.pageProvider.commonService
               .connect('POST', 'WMS/Item/DuplicateItem/', {

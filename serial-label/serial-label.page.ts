@@ -62,7 +62,7 @@ export class SerialLabelPage extends PageBase {
     this.pageConfig.showSpinner = true;
     this.submitAttempt = true;
     this.env
-      .showLoading('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.FromNumber, this.item.ToNumber))
+      .showLoading2('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.FromNumber, this.item.ToNumber))
       .then((data) => {
         this.items = data;
         this.pageConfig.showSpinner = false;

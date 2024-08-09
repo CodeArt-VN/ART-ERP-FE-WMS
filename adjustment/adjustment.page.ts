@@ -100,10 +100,10 @@ export class AdjustmentPage extends PageBase {
       IDs: this.selectedItems.map((s) => s.Id),
     };
     this.env
-      .showPrompt(
-        'Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?',
+      .showPrompt2(
+        {code:'Bạn có chắc muốn duyệt {{value}} đang chọn?',value:{value:this.selectedItems.length}},
         null,
-        'Duyệt ' + this.selectedItems.length + ' dòng',
+        {code:'Duyệt {{value1}} dòng?',value:{value:this.selectedItems.length}},
       )
       .then((_) => {
         this.pageProvider.commonService
@@ -127,10 +127,10 @@ export class AdjustmentPage extends PageBase {
     };
 
     this.env
-      .showPrompt(
-        'Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?',
+      .showPrompt2(
+        {code:'Bạn có chắc muốn duyệt {{value}} đang chọn?',value:{value:this.selectedItems.length}},
         null,
-        'Bỏ duyệt ' + this.selectedItems.length + ' dòng',
+        {code:'Bỏ duyệt {{value}} dòng',value:{value:this.selectedItems.length}}
       )
       .then((_) => {
         this.pageProvider.commonService

@@ -243,7 +243,7 @@ export class LPNLabelPage extends PageBase {
 
   GetLabel() {
     this.env
-      .showLoading(
+      .showLoading2(
         'Vui lòng chờ load dữ liệu...',
         this.pageProvider.commonService.connect('GET', 'WMS/LicencePlateNumber/GetLabel', this.query).toPromise(),
       )

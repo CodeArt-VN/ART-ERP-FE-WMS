@@ -153,7 +153,7 @@ export class ItemGroupDetailPage extends PageBase {
       };
       this.formGroup.controls.IDBranch.markAsDirty();
       this.env
-        .showLoading(
+        .showLoading2(
           'Please wait a moment!',
           this.pageProvider.commonService
             .connect('GET', 'WMS/ItemGroupAccountInBranch/', query)

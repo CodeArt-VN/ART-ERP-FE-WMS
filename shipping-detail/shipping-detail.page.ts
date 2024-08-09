@@ -180,14 +180,14 @@ preLoadData(event) {
   closeShip() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
-    .showPrompt(
+    .showPrompt2(
       'Bạn có chắc muốn đóng tất cả các sản phẩm giao hàng?',
       null,
       'Đóng giao hàng',
     )
     .then((_) => {
       this.env
-        .showLoading(
+        .showLoading2(
           'Vui lòng chờ load dữ liệu...',
           this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise(),
         )
@@ -379,7 +379,7 @@ preLoadData(event) {
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.ShippingDetails;
     let itemToDelete = fg.getRawValue();
-    this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+    this.env.showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
       this.shippingDetailService.delete(itemToDelete).then((result) => {
         groups.removeAt(j);
       });
@@ -389,14 +389,8 @@ preLoadData(event) {
   deleteItems() {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkedShippingDetails.getRawValue();
-      this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
-          null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
-        )
-        .then((_) => {
-          this.env .showLoading('Xin vui lòng chờ trong giây lát...', this.shippingDetailService.delete(itemsToDelete)) .then((_) => {
+      this.env.showPrompt2({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},null,{code:'Xóa {{value1}} dòng',value:{value:itemsToDelete.length}}).then((_) => {
+          this.env .showLoading2('Xin vui lòng chờ trong giây lát...', this.shippingDetailService.delete(itemsToDelete)) .then((_) => {
               this.removeSelectedItems();
               this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
@@ -432,7 +426,7 @@ preLoadData(event) {
         },
       ];
       if (this.submitAttempt == false) {
-        this.env.showPrompt('Bạn chắc muốn hoàn tất ?', null, 'Hoàn tất').then((_) => {
+        this.env.showPrompt2('Bạn có chắc muốn hoàn tất?', null, 'Hoàn tất').then((_) => {
           this.submitAttempt = true;
           this.pageProvider.commonService
           .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)

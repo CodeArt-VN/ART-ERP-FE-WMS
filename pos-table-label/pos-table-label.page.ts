@@ -65,7 +65,7 @@ export class POSTableLabelPage extends PageBase {
     this.pageConfig.showSpinner = true;
     this.submitAttempt = true;
     this.env
-      .showLoading('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.Table))
+      .showLoading2('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.Table))
       .then((data) => {
         this.items = data;
         this.pageConfig.showSpinner = false;

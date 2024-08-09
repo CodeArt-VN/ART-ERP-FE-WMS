@@ -310,7 +310,7 @@ export class OutboundOrderDetailPage extends PageBase {
     this.query.Id = this.formGroup.get('Id').value;
     this.query.ToStatus = 'Open';
     this.env
-      .showLoading(
+      .showLoading2(
         'Vui lòng chờ load dữ liệu...',
         this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/ChangeStatus/', this.query).toPromise(),
       )
@@ -345,7 +345,7 @@ export class OutboundOrderDetailPage extends PageBase {
       isForceCreate : isForceCreate
     };
     this.env
-      .showLoading(
+      .showLoading2(
         'Xin vui lòng chờ trong giây lát...',
         this.commonService.connect('GET', 'WMS/Packing/CreateShippingFromPacking', packingQuery).toPromise(),
       )
@@ -592,7 +592,7 @@ export class OutboundOrderDetailPage extends PageBase {
         itemToDelete.push(i.getRawValue());
       });
       itemToDelete.push(fg.getRawValue());
-      this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + itemToDelete.length + ' dòng').then((_) => {
+      this.env.showPrompt2('Bạn có chắc muốn xóa không?', null,{code:'Xóa {{value}} dòng', value:{value:itemToDelete.length}}).then((_) => {
         this.outboundOrderDetailService
           .delete(itemToDelete)
           .then((result) => {
@@ -626,14 +626,14 @@ export class OutboundOrderDetailPage extends PageBase {
       let itemsToDelete = this.checkedOutboundOrderDetails.getRawValue();
 
       this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
+        .showPrompt2(
+          {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
           null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
+          {code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading('Xin vui lòng chờ trong giây lát...', this.outboundOrderDetailService.delete(itemsToDelete))
+            .showLoading2('Xin vui lòng chờ trong giây lát...', this.outboundOrderDetailService.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
               this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
@@ -725,7 +725,7 @@ export class OutboundOrderDetailPage extends PageBase {
       if (this.segmentView == 's2') {
         if (!this.item.PickingList || reload) {
           this.env
-            .showLoading(
+            .showLoading2(
               'Vui lòng chờ load dữ liệu...',
               this.pageProvider.commonService.connect('GET', 'WMS/Picking/', queryOutbound).toPromise(),
             )
@@ -744,7 +744,7 @@ export class OutboundOrderDetailPage extends PageBase {
       if (this.segmentView == 's3') {
         if (!this.item.PackingList || reload) {
           this.env
-            .showLoading(
+            .showLoading2(
               'Vui lòng chờ load dữ liệu...',
               this.pageProvider.commonService.connect('GET', 'WMS/Packing/', queryOutbound).toPromise(),
             )
@@ -763,7 +763,7 @@ export class OutboundOrderDetailPage extends PageBase {
       if (this.segmentView == 's4') {
         if (!this.item.ShippingList || reload) {
           this.env
-            .showLoading(
+            .showLoading2(
               'Vui lòng chờ load dữ liệu...',
               this.pageProvider.commonService.connect('GET', 'WMS/Shipping/', queryOutbound).toPromise(),
             )
