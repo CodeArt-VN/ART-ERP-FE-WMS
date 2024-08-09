@@ -86,9 +86,8 @@ export class OutboundOrderPage extends PageBase {
                     this.submitAttempt = false;
 
                 }).catch(err => {
-                    this.env.showMessage('Không gộp được, xin vui lòng kiểm tra lại.');
+                    this.env.showTranslateMessage('Không gộp được, xin vui lòng kiểm tra lại.');
                 this.submitAttempt = false;
-                console.log(err);
                 });
         });
     }
@@ -105,8 +104,7 @@ export class OutboundOrderPage extends PageBase {
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
-                    console.log(err);
+                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                 });
         });
 
@@ -126,8 +124,7 @@ export class OutboundOrderPage extends PageBase {
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
-                    console.log(err);
+                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                 });
         });
        

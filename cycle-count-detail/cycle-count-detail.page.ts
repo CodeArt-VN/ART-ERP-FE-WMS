@@ -104,7 +104,7 @@ export class CycleCountDetailPage extends PageBase {
                 this.markNestedNode(this.branchList, this.env.selectedBranch);
                 super.preLoadData(event);
             }).catch(err => {
-                this.env.showMessage(err);
+                this.env.showTranslateMessage(err);
                 console.log(err);
             });
         });
@@ -429,8 +429,7 @@ export class CycleCountDetailPage extends PageBase {
                                     }
                                 })
                         }).catch(err => {
-                            this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-                            console.log(err);
+                            this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
                             this.submitAttempt = false;
 
                         });
@@ -608,8 +607,7 @@ export class CycleCountDetailPage extends PageBase {
                         this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
                         this.isAllChecked = false;
                     }).catch(err => {
-                        this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-                        console.log(err);
+                        this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
                     });
             });
         }

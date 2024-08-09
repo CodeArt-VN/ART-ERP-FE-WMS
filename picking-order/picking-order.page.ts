@@ -65,7 +65,7 @@ export class PickingOrderPage extends PageBase {
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                     console.log(err);
                 });
         });
@@ -87,7 +87,7 @@ export class PickingOrderPage extends PageBase {
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                     console.log(err);
                 });
         });

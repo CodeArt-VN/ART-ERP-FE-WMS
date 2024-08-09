@@ -22,7 +22,7 @@
 					<ion-col size="12" size-sm size-xl="4">
 						<app-form-control  [field]="{id:'Status',label:'Status',  type : 'span-text', form : formGroup }">
 							<small label *ngIf="item?.IDOutboundOrder"> <a [routerLink]="['/outbound-order/'+item.IDOutboundOrder]" (mousedown)="$event.stopPropagation()" >
-							 | Outbound: {{item.IDOutboundOrder}} </a></small>
+							 | {{'Outbound' | translate}}: {{item.IDOutboundOrder}} </a></small>
 						</app-form-control>
 					
 						<div class="c-control">

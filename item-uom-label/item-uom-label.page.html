@@ -62,7 +62,7 @@
 
       <div class="c-control">
         <label class="c-label" for="IDItemUoM">
-          <ion-text color="primary"> Tìm sản phẩm </ion-text>
+          <ion-text color="primary"> {{'Tìm sản phẩm' | translate}} </ion-text>
         </label>
         <ng-select
           (change)="itemUoMChange($event);"
@@ -104,7 +104,7 @@
     </div>
     <div style="min-height: calc(100% - 75px)">
       <ion-list-header lines="full">
-        <ion-label color="dark">Label settings</ion-label>
+        <ion-label color="dark">{{'Label settings' | translate}}</ion-label>
       </ion-list-header>
       <ion-list lines="full">
         <ion-item>
@@ -139,7 +139,7 @@
                 fill="outline"
                 (click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2}"
               >
-                Reset về mặc định
+                {{'Reset về mặc định' | translate}}
               </ion-button>
             </ion-col>
           </ion-row>
@@ -151,7 +151,7 @@
         <ion-row>
           <ion-col>
             <ion-button expand="block" (click)="createPages()" [disabled]="!item.ItemUoM.length || submitAttempt">
-              Tạo nhãn in
+             {{' Tạo nhãn in' | translate}}
             </ion-button>
           </ion-col>
         </ion-row>

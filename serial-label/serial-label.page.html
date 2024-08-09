@@ -36,7 +36,7 @@
     <div class="ion-padding">
       <div class="c-control">
         <label class="c-label" for="Storer">
-          <ion-text color="primary"> Từ số </ion-text>
+          <ion-text color="primary">{{'Từ số' | translate}}</ion-text>
         </label>
         <input
           class="c-input"
@@ -48,7 +48,7 @@
       </div>
       <div class="c-control">
         <label class="c-label" for="Storer">
-          <ion-text color="primary"> Đến số </ion-text>
+          <ion-text color="primary"> {{'Đến số' | translate}} </ion-text>
         </label>
         <input
           class="c-input"
@@ -61,7 +61,7 @@
     </div>
     <div style="min-height: calc(100% - 75px)">
       <ion-list-header lines="full">
-        <ion-label color="dark">Label settings</ion-label>
+        <ion-label color="dark">{{'Label settings' | translate}}</ion-label>
       </ion-list-header>
       <ion-list lines="full">
         <ion-item>
@@ -93,7 +93,7 @@
                 fill="outline"
                 (click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 0, NameFontSize: 48, NameLineClamp: 2}"
               >
-                Reset về mặc định
+                {{'Reset về mặc định' | translate}}
               </ion-button>
             </ion-col>
           </ion-row>
@@ -109,7 +109,7 @@
               (click)="createPages()"
               [disabled]=" !(item.FromNumber && item.ToNumber) || submitAttempt"
             >
-              Tạo nhãn in
+              {{'Tạo nhãn in' | translate}}
             </ion-button>
           </ion-col>
         </ion-row>

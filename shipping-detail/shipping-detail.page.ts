@@ -203,8 +203,7 @@ preLoadData(event) {
           this.refresh();
         })
         .catch((err) => {
-          this.env.showMessage('Cannot save, please try again.');
-          console.log(err);
+          this.env.showTranslateMessage('Cannot save, please try again.');
         });
     });
   }
@@ -411,8 +410,7 @@ preLoadData(event) {
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-              console.log(err);
+              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
             });
         });
     }

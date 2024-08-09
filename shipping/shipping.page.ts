@@ -65,12 +65,9 @@ export class ShippingPage extends PageBase {
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
-                    console.log(err);
+                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                 });
         });
-
-       
     }
 
     
@@ -87,8 +84,7 @@ export class ShippingPage extends PageBase {
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
-                    console.log(err);
+                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                 });
         });
        

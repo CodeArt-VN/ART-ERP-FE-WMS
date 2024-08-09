@@ -561,7 +561,7 @@ export class OutboundOrderDetailPage extends PageBase {
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
               console.log(err);
             });
         });
@@ -657,7 +657,7 @@ export class OutboundOrderDetailPage extends PageBase {
               });
             })
             .catch((err) => {
-              this.env.showMessage('load error, please try again.');
+              this.env.showTranslateMessage('load error, please try again.');
               console.log(err);
             });
         }
@@ -676,7 +676,7 @@ export class OutboundOrderDetailPage extends PageBase {
               });
             })
             .catch((err) => {
-              this.env.showMessage('load error, please try again.');
+              this.env.showTranslateMessage('load error, please try again.');
               console.log(err);
             });
         }
@@ -695,8 +695,7 @@ export class OutboundOrderDetailPage extends PageBase {
               });
             })
             .catch((err) => {
-              this.env.showMessage('load error, please try again.');
-              console.log(err);
+              this.env.showTranslateMessage('load error, please try again.');
             });
         }
       }

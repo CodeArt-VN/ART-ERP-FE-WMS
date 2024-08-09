@@ -113,8 +113,7 @@ export class AdjustmentPage extends PageBase {
             this.refresh();
           })
           .catch((err) => {
-            this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
-            console.log(err);
+            this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
           });
       });
   }
@@ -141,8 +140,7 @@ export class AdjustmentPage extends PageBase {
             this.refresh();
           })
           .catch((err) => {
-            this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
-            console.log(err);
+            this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
           });
       });
   }

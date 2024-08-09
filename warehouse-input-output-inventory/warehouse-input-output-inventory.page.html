@@ -153,23 +153,23 @@
     <section class="table">
       <header class="bold">
         <div class="col-checkbox cell"></div>
-        <div class="col-name cell">Item</div>
+        <div class="col-name cell">{{'Item' | translate}}</div>
 
-        <div class="col-number cell">Đầu kỳ</div>
-        <div class="col-number cell">Số tấn</div>
-        <div class="col-number cell">Số khối</div>
+        <div class="col-number cell">{{'Đầu kỳ' |translate}}</div>
+        <div class="col-number cell">{{'Số tấn' | translate}}</div>
+        <div class="col-number cell">{{'Số khối' | translate}}</div>
 
-        <div class="col-number cell">Nhập</div>
-        <div class="col-number cell">Số tấn</div>
-        <div class="col-number cell">Số khối</div>
+        <div class="col-number cell">{{'Nhập' | translate}}</div>
+        <div class="col-number cell">{{'Số tấn' | translate}}</div>
+        <div class="col-number cell">{{'Số khối' | translate}}</div>
 
-        <div class="col-number cell">Xuất</div>
-        <div class="col-number cell">Số tấn</div>
-        <div class="col-number cell">Số khối</div>
+        <div class="col-number cell">{{'Xuất' | translate}}</div>
+        <div class="col-number cell">{{'Số tấn' | translate}}</div>
+        <div class="col-number cell">{{'Số khối' | translate}}</div>
 
-        <div class="col-number cell">Tồn cuối</div>
-        <div class="col-number cell">Số tấn</div>
-        <div class="col-number cell">Số khối</div>
+        <div class="col-number cell">{{'Tồn cuối' | translate}}</div>
+        <div class="col-number cell">{{'Số tấn' | translate}}</div>
+        <div class="col-number cell">{{'Số khối' | translate}}</div>
       </header>
       <form (submit)="refresh()" action="#">
         <header class="filter" *ngIf="pageConfig.isShowSearch">
@@ -179,7 +179,7 @@
           <div class="col-number cell"></div>
           <div class="col-number cell"></div>
           <div class="col-number cell"></div>
-          <button mat-raised-button type="submit" style="display: none">Search</button>
+          <button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
         </header>
       </form>
 

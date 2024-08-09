@@ -375,7 +375,7 @@
                           <ion-icon
                             [name]="g.controls._IsShowPallets.value? 'chevron-down-outline':'chevron-forward-outline'"
                           ></ion-icon>
-                          Chia thành
+                          {{'Chia thành' | translate}}
                           <b> {{g.get('Pallets').length}} pallet</b>
                         </span>
                       </div>
@@ -383,7 +383,7 @@
                         <div class="col-uom cell"></div>
                         <div class="col-qty cell"></div>
                         <div class="col-code cell">
-                          <b>Vị trí cất hàng</b>
+                          <b>{{'Vị trí cất hàng' | translate}}</b>
                         </div>
                         <!-- <div class="col-code cell">Lottable1</div>
                                                 <div class="col-code cell">Lottable2</div>
@@ -406,7 +406,7 @@
                         <ng-container [formGroup]="p">
                           <div class="col-id cell">{{idx+1}}.{{jdx+1}}</div>
                           <div class="col-name cell" style="justify-content: flex-end">
-                            LPN: {{p.controls._LPN.value.Id}} LOT: {{p.controls.ToLot.value}}
+                            {{'LPN' | translate}}: {{p.controls._LPN.value.Id}} LOT: {{p.controls.ToLot.value}}
                           </div>
                           <div class="col-uom cell">
                             <select formControlName="IDUoM" class="c-input c-dropdown">
@@ -494,7 +494,7 @@
                   <div class="col-id cell"></div>
                   <div class="col-name cell"></div>
                   <div class="col-uom cell">
-                    <b>Tổng cộng:</b>
+                    <b>{{'Tổng cộng' | translate}}:</b>
                   </div>
                   <div class="col-qty cell disable"></div>
                   <div class="col-code cell disable"></div>
