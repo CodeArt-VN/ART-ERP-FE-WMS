@@ -1,6 +1,6 @@
 <ion-header>
   <app-detail-toolbar [page]="this">
-      <ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
+      <ion-button *ngIf="formGroup.get('Status').value == 'New'" title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
         <ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
       </ion-button>
   </app-detail-toolbar>
@@ -73,12 +73,19 @@
         </ion-segment>
 
         <ion-buttons slot="end">
-          <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'" title="{{'Create shipping' | translate}}">
+            <ion-button  (click)="printQRCode()" 
+            class="ion-hide-sm-down" *ngIf="selectedItems.length>0 && segmentView=='s3'"  title="{{'Print QR code' | translate}}">
+              <ion-icon name="qr-code-outline"></ion-icon>
+            </ion-button>
+          <!-- <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'" title="{{'Create shipping' | translate}}">
             <ion-icon slot="icon-only" name="truck"></ion-icon>
-          </ion-button>
+          </ion-button> -->
           <ion-button title="{{ 'Refresh' | translate }}" *ngIf="segmentView != 's1'"  (click)="refreshSegmentView()" > 
             <ion-icon slot="icon-only" name="reload-outline"></ion-icon> 
           </ion-button>
+          <ion-button (click)="presentModal()"  *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'">
+						<ion-icon slot="start" name="truck"></ion-icon>
+					</ion-button>
         </ion-buttons>
         
       </ion-toolbar>
@@ -244,6 +251,53 @@
             </ng-template>
           </datatable-column>
         </app-data-table>
+
+        <ion-modal [isOpen]="isModalOpen"(willDismiss)="dismissModal()" >
+          <ng-template>
+            <ion-header>
+              <ion-toolbar>
+                <ion-title>{{'Filter' | translate}} </ion-title>
+                <ion-buttons slot="end">
+                  <ion-button (click)="dismissModal()">
+                    <ion-icon name="close"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </ion-toolbar>
+            </ion-header>
+  
+            <ion-content class="ion-padding">
+              <app-data-table class="box-shadow responsive" *ngIf ="vehicleList" [rows]="vehicleList" [(selectedRows)]="selectedVehicles"(onSelectedRowsChange)="changeSelectionPacking($event)" [showSpinner]="pageConfig.showSpinner" >
+                <datatable-column [checkbox]="true"></datatable-column>
+                <datatable-column class="col-id" name="Id" property="Id">
+                  <!-- <ng-template let-i="row" datatable-cell-template>
+                    <a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
+                  </ng-template> -->
+                </datatable-column>
+                <datatable-column class="col-name" name="Truck" property="Name">
+                  
+                </datatable-column>
+
+                <datatable-column class="col-name" name="Shipper name" property="ShipperName">
+                  
+                </datatable-column>
+
+                <datatable-column class="col-number" name="Volumn" property="VolumeRecommend">
+                  
+                </datatable-column>
+                <datatable-column class="col-number" name="Weight" property="WeightRecommend">
+                  
+                </datatable-column>
+              </app-data-table>
+            </ion-content>
+            
+            <ion-footer>
+              <ion-toolbar>
+                <ion-button  size="large" slot="end"(click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
+              </ion-toolbar>
+              
+            </ion-footer>
+          </ng-template>
+        </ion-modal>
       </div>
 
       <div class="table responsive" *ngIf="segmentView == 's4'">
@@ -288,53 +342,7 @@
             </ng-template>
           </datatable-column>
         </app-data-table>
-        <!-- <section class="table">
-          <header class="bold">
-           
-            <div class="col-name cell" (click)="sortToggle('WarehouseCode')">
-              {{'Code' | translate}}
-            </div>
-            <div class="col-name cell">
-              {{'Truck' | translate}}
-              <small>{{'shipper' | translate}}</small>
-              </div>
-            
-            <div class="col-status cell" (click)="sortToggle('Status')">
-              {{'Status' | translate}}
-            </div>
-          </header>
-          <div *ngFor="let i of item.ShippingList; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-            <div class="col-checkbox cell">
-              <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-            </div>
-            <div (click)="nav('shipping/'+i.Id,'forward')" class="col-id cell">
-              {{i.Id}}
-            </div>
-            <div class="col-name cell">
-              {{i.WarehouseName}}
-            </div>
-            <div class="col-name cell">
-              {{i.WarehouseCode}}
-            </div>
-            <div class="col-name cell">
-              <span title="{{'View details' | translate}}" (click)="nav('shipment/'+i.Id,'forward')" [ngOptionHighlight]="query.ShipmentTerm">{{i.Vehicle}}</span>
-              <small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')">{{i.Shipper}}</small>
-            </div>
-
-            <div class="col-date cell">
-              {{i.ExpectedDate | date: 'dd/MM/yyyy'}}
-            </div>
-            <div class="col-date cell">
-              {{i.ShippedDate | date: 'dd/MM/yyyy'}}
-            </div>
-            <div class="col-status cell">
-              <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-                {{i._Status?.Name}}
-              </ion-badge>
-            </div>
-          </div>
-
-        </section> -->
+     
       </div>
       <div *ngIf="segmentView == 's5'">
         <ion-row class="hr-group" *ngIf="item.Id">

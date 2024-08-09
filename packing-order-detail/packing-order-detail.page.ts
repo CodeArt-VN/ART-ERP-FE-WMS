@@ -4,9 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import {
   BRA_BranchProvider,
-  CRM_ContactProvider,
-  HRM_StaffProvider,
-  SYS_SchemaProvider,
+  SHIP_VehicleProvider,
   WMS_ItemProvider,
   WMS_PackingDetailProvider,
   WMS_PackingProvider,
@@ -30,10 +28,10 @@ export class PackingOrderDetailPage extends PageBase {
   // #region Variables
   countTypeDataSource: any;
   statusDataSource: any;
-  schema: Schema;
-  config: any = null;
   itemList: any;
   tempItemList: any;
+  selectedVehicles : any = [];
+  vehicleList : any = [];
   countItem: number = 0;
   branchList;
   storerList;
@@ -45,11 +43,9 @@ export class PackingOrderDetailPage extends PageBase {
   constructor(
     public pageProvider: WMS_PackingProvider,
     public packingDetailservice: WMS_PackingDetailProvider,
-    public staffService: HRM_StaffProvider,
-    public schemaService: SYS_SchemaProvider,
+    public vehicleService: SHIP_VehicleProvider,
     public itemService: WMS_ItemProvider,
     public commonService: CommonService,
-    public contactProvider: CRM_ContactProvider,
     public branchProvider: BRA_BranchProvider,
     public route: ActivatedRoute,
     public modalController: ModalController,
@@ -143,7 +139,7 @@ export class PackingOrderDetailPage extends PageBase {
       IDItem: [field.IDItem, Validators.required],
       IDParent: [field.IDParent],
       Quantity: [field.Quantity],
-      QuantityPacked: [field.QuantityPacked],
+      QuantityPacked:  new FormControl({ value: field.QuantityPacked, disabled: (field.Status != 'Active') ? true:false }),
       TrackingQuantityPacked :  [field.QuantityPacked],
       FromLocationName: [field.FromLocationName],
       ToLocationName: [field.ToLocationName],
@@ -197,6 +193,8 @@ export class PackingOrderDetailPage extends PageBase {
             if (result) {
               this.env.showTranslateMessage('Saved', 'success');
               fg.controls.Status.setValue(status);
+              fg.controls.QuantityPacked.disable();
+
               this.submitAttempt = false;
             } else {
               this.env.showTranslateMessage('Cannot save, please try again', 'danger');
@@ -365,6 +363,72 @@ export class PackingOrderDetailPage extends PageBase {
       this.refresh();
     }
   }
+
+  CreateShippingFromPacking(isForceCreate = false) {
+    let packingQuery = {
+      Id: [this.item.Id],
+      IDVehicle: this.selectedVehicles.map((i) => i.Id),
+      isForceCreate : isForceCreate
+    };
+    this.env
+      .showLoading(
+        'Xin vui lòng chờ trong giây lát...',
+        this.commonService.connect('GET', 'WMS/Packing/CreateShippingFromPacking', packingQuery).toPromise(),
+      )
+      .then((rs) => {
+        this.formGroup.get('Status').setValue('ShippingAllocated');
+        this.formGroup.get('Status').markAsPristine();
+
+        this.env.showTranslateMessage('saved', 'success');
+      })
+      .catch((err) => {
+        if(err.error && err.error.Message =='Need more vehicle to ship!') {
+          this.env .showPrompt( 'Số lượng xe hiện tại không thể tải hết hàng, bạn có muốn tiếp tục?', null, 'Không đủ tải', )
+          .then((_) => { 
+            this.CreateShippingFromPacking(true)
+            this.formGroup.get('Status').setValue('ShippingAllocated');
+            this.formGroup.get('Status').markAsPristine();
+          })
+          .catch(err=>{
+            this.env.showTranslateMessage('Cannot save', 'danger');
+          });
+        }
+        else{
+          this.env.showTranslateMessage('Cannot save', 'danger');
+        }
+      });
+  }
+  
+
+  isModalOpen = false;
+  presentModal() {
+    this.selectedVehicles = [];
+
+    this.isModalOpen = true;
+    let queryVehicle = {};
+    this.env
+    .showLoading('Xin vui lòng chờ trong giây lát...', this.vehicleService.read(queryVehicle))
+    .then((result:any) => {
+      if(result && result.data.length>0) this.vehicleList = result.data;
+      console.log(this.vehicleList); 
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  }
+  
+  dismissModal(isCreateShipping = false) {
+    this.isModalOpen = false
+    if(isCreateShipping){
+      this.CreateShippingFromPacking();
+    }
+
+  }
+  changeSelectionVehicle(e) {
+    console.log(this.selectedVehicles);
+  }
+
 //#endregion
 
   // #region Selection

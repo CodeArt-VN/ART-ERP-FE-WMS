@@ -1,10 +1,23 @@
 <ion-header>
-	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.packing-order.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" ></app-list-toolbar>
-	
+	<!-- <app-list-toolbar pageTitle="{{'erp.app.pages.wms.packing-order.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" >
+
+	</app-list-toolbar>
+	 -->
+	 <app-toolbar [page]="this" >
+		<ion-toolbar >
+		  <ion-button  (click)="printQRCode()" 
+		  class="ion-hide-sm-down" *ngIf="selectedItems.length>0"  title="{{'Print QR code' | translate}}">
+			  <ion-icon name="qr-code-outline"></ion-icon>
+		  </ion-button>
+		  <ion-button (click)="presentModal()"  *ngIf="selectedItems?.length>0 && isShowCreateShipping">
+			<ion-icon slot="start" name="truck"></ion-icon>
+		</ion-button>
+		</ion-toolbar>
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-	<app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems" (dataInfinite)="loadData($event)"
+	<app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems" (activate)="changeSelection($event)"(dataInfinite)="loadData($event)"
 		[(query)]="query"
 		(filter)="onDatatableFilter($event)"
 		(sort)="onSort($event)" 
@@ -16,6 +29,11 @@
 			<a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
 		  </ng-template>
 		</datatable-column>
+		<datatable-column class="col-id" name="ID outbound" property="IDOutboundOrder">
+			<ng-template let-i="row" datatable-cell-template>
+			  <a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
+			</ng-template>
+		  </datatable-column>
 		<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
 		  <ng-template let-i="row" datatable-cell-template>
 			{{i.WarehouseName}}
@@ -47,5 +65,52 @@
 		  </ion-badge>
 		  </ng-template>
 		</datatable-column>
-	  </app-data-table>
+	</app-data-table>
+
+	  <ion-modal [isOpen]="isModalOpen"(willDismiss)="dismissModal()" >
+		<ng-template>
+		  <ion-header>
+			<ion-toolbar>
+			  <ion-title>{{'Truck' | translate}} </ion-title>
+			  <ion-buttons slot="end">
+				<ion-button (click)="dismissModal()">
+				  <ion-icon name="close"></ion-icon>
+				</ion-button>
+			  </ion-buttons>
+			</ion-toolbar>
+		  </ion-header>
+
+		  <ion-content class="ion-padding">
+			<app-data-table class="box-shadow responsive" *ngIf ="vehicleList" [rows]="vehicleList" [(selectedRows)]="selectedVehicles"(onSelectedRowsChange)="changeSelectionPacking($event)" [showSpinner]="pageConfig.showSpinner" >
+			  <datatable-column [checkbox]="true"></datatable-column>
+			  <datatable-column class="col-id" name="Id" property="Id">
+				<!-- <ng-template let-i="row" datatable-cell-template>
+				  <a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
+				</ng-template> -->
+			  </datatable-column>
+			  <datatable-column class="col-name" name="Truck" property="Name">
+				
+			  </datatable-column>
+
+			  <datatable-column class="col-name" name="Shipper name" property="ShipperName">
+				
+			  </datatable-column>
+
+			  <datatable-column class="col-number" name="Volumn" property="VolumeRecommend">
+				
+			  </datatable-column>
+			  <datatable-column class="col-number" name="Weight" property="WeightRecommend">
+				
+			  </datatable-column>
+			</app-data-table>
+		  </ion-content>
+		  
+		  <ion-footer>
+			<ion-toolbar>
+			  <ion-button  size="large" slot="end"(click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
+			</ion-toolbar>
+			
+		  </ion-footer>
+		</ng-template>
+	  </ion-modal>
 </ion-content>

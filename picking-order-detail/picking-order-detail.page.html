@@ -1,7 +1,7 @@
 <ion-header>
   <app-detail-toolbar [page]="this">
     <ion-buttons slot="end" *ngIf="item">
-      <ion-button title="{{'Allocate' | translate}}" (click)="allocatePicking()">
+      <ion-button title="{{'Allocate' | translate}}" (click)="allocatePicking()" *ngIf="formGroup.get('Status').value != 'Closed'">
         <ion-icon slot="start" name="color-filter-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
