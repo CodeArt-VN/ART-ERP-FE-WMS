@@ -71,5 +71,8 @@ export const WMSRoutes: Routes = [
 
      { path: 'putaway-strategy', loadChildren: () => import('./putaway-strategy/putaway-strategy.module').then(m => m.PutawayStrategyPageModule), canActivate: [AuthGuard]},
      { path: 'putaway-strategy/:id', loadChildren: () => import('./putaway-strategy-detail/putaway-strategy-detail.module').then(m => m.PutawayStrategyDetailPageModule), canActivate: [AuthGuard]},
+     
+     { path: 'allocation-strategy', loadChildren: () => import('./allocation-strategy/allocation-strategy.module').then(m => m.AllocationStrategyPageModule), canActivate: [AuthGuard]},
+     { path: 'allocation-strategy/:id', loadChildren: () => import('./allocation-strategy-detail/allocation-strategy-detail.module').then(m => m.AllocationStrategyDetailPageModule), canActivate: [AuthGuard]},
 
 ];
