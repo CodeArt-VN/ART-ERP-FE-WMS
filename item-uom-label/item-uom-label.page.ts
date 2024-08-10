@@ -54,23 +54,23 @@ export class ItemUomLabelPage extends PageBase {
 
   createPages() {
     if (this.submitAttempt) {
-      this.env.showTranslateMessage('Xin vui lòng chờ xử lý.');
+      this.env.showMessage('Please wait for a few moments');
       return;
     }
     if (this.item.ItemUoM.length == 0) {
-      this.env.showTranslateMessage('Xin vui lòng chọn sản phẩm cần in.');
+      this.env.showMessage('Xin vui lòng chọn sản phẩm cần in.');
       return;
     }
 
     this.pageConfig.showSpinner = true;
     this.submitAttempt = true;
     this.env
-      .showLoading2('Xin vui lòng chờ tạo nhãn in', () => this.loadLabel(this.item.ItemUoM))
+      .showLoading('Please wait for a few moments', () => this.loadLabel(this.item.ItemUoM))
       .then((data) => {
         this.items = data;
         this.pageConfig.showSpinner = false;
         this.submitAttempt = false;
-        this.env.showTranslateMessage('Đã tạo {{value}} mã.',null,this.items.length);
+        this.env.showMessage('Đã tạo {{value}} mã.',null,this.items.length);
       })
       .catch((err) => {
         console.log(err);

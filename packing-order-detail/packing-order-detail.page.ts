@@ -163,14 +163,14 @@ export class PackingOrderDetailPage extends PageBase {
    //#region Business Logic
    closePack() {
     this.query.Id = this.formGroup.get('Id').value;
-    this.env .showPrompt2('Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng', )
+    this.env .showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng', )
     .then((_) => { 
-      this.env .showLoading2( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(), )
+      this.env .showLoading( 'Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(), )
         .then(async (result: any) => {
           this.refresh();
         })
         .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again.');
+          this.env.showMessage('Cannot save, please try again.');
         });
     });
   }
@@ -191,18 +191,18 @@ export class PackingOrderDetailPage extends PageBase {
           .toPromise()
           .then((result: any) => {
             if (result) {
-              this.env.showTranslateMessage('Saved', 'success');
+              this.env.showMessage('Saved', 'success');
               fg.controls.Status.setValue(status);
               fg.controls.QuantityPacked.disable();
 
               this.submitAttempt = false;
             } else {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               this.submitAttempt = false;
             }
           })
           .catch((err) => {
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.env.showMessage('Cannot save, please try again', 'danger');
             this.submitAttempt = false;
           });
       }
@@ -222,7 +222,7 @@ export class PackingOrderDetailPage extends PageBase {
 
   toggleAllQty() {
     if(this.submitAttempt){
-      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
       return;
     } 
     else{
@@ -248,12 +248,12 @@ export class PackingOrderDetailPage extends PageBase {
           .connect('PUT', 'WMS/Packing/UpdateQuantityOnHand/', obj)
           .toPromise()
           .then(() => {
-            this.env.showTranslateMessage('Saved', 'success');
+            this.env.showMessage('Saved', 'success');
             this.item._IsPackedAll = !this.item._IsPackedAll;
             this.submitAttempt = false;
           })
           .catch((err) => {
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.env.showMessage('Cannot save, please try again', 'danger');
             this.submitAttempt = false;
           });
       }
@@ -264,7 +264,7 @@ export class PackingOrderDetailPage extends PageBase {
     console.log(e);
     if(this.submitAttempt){
       childFG.get('QuantityPacked').setErrors({valid:false});
-      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
       return;
     }
     else{
@@ -293,7 +293,7 @@ export class PackingOrderDetailPage extends PageBase {
       });
   
       if (!isValid) {
-        this.env.showTranslateMessage('Quantity packed is more than quantity', 'danger');
+        this.env.showMessage('Quantity packed is more than quantity', 'danger');
         return; 
       }
       if (this.submitAttempt == false) {
@@ -312,9 +312,9 @@ export class PackingOrderDetailPage extends PageBase {
 
                 }
               });
-              this.env.showTranslateMessage('Saved', 'success');
+              this.env.showMessage('Saved', 'success');
             } else {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               childFG.get('QuantityPacked').setValue(childFG.get('TrackingQuantityPacked').value);
             }
             this.submitAttempt = false;
@@ -323,7 +323,7 @@ export class PackingOrderDetailPage extends PageBase {
             this.submitAttempt = false;
             childFG.get('QuantityPacked').setValue(childFG.get('TrackingQuantityPacked').value);
             childFG.get('QuantityPacked').setErrors({valid:false});
-            this.env.showTranslateMessage(err.error.Message, 'danger');
+            this.env.showMessage(err.error.Message, 'danger');
           });
       }
     }
@@ -372,14 +372,14 @@ export class PackingOrderDetailPage extends PageBase {
     };
     this.env
       .showLoading(
-        'Xin vui lòng chờ trong giây lát...',
+        'Please wait for a few moments',
         this.commonService.connect('GET', 'WMS/Packing/CreateShippingFromPacking', packingQuery).toPromise(),
       )
       .then((rs) => {
         this.formGroup.get('Status').setValue('ShippingAllocated');
         this.formGroup.get('Status').markAsPristine();
 
-        this.env.showTranslateMessage('saved', 'success');
+        this.env.showMessage('saved', 'success');
       })
       .catch((err) => {
         if(err.error && err.error.Message =='Need more vehicle to ship!') {
@@ -390,11 +390,11 @@ export class PackingOrderDetailPage extends PageBase {
             this.formGroup.get('Status').markAsPristine();
           })
           .catch(err=>{
-            this.env.showTranslateMessage('Cannot save', 'danger');
+            this.env.showMessage('Cannot save', 'danger');
           });
         }
         else{
-          this.env.showTranslateMessage('Cannot save', 'danger');
+          this.env.showMessage('Cannot save', 'danger');
         }
       });
   }
@@ -407,7 +407,7 @@ export class PackingOrderDetailPage extends PageBase {
     this.isModalOpen = true;
     let queryVehicle = {};
     this.env
-    .showLoading('Xin vui lòng chờ trong giây lát...', this.vehicleService.read(queryVehicle))
+    .showLoading('Please wait for a few moments', this.vehicleService.read(queryVehicle))
     .then((result:any) => {
       if(result && result.data.length>0) this.vehicleList = result.data;
       console.log(this.vehicleList); 
@@ -485,7 +485,7 @@ removeSelectedItems() {
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.PackingDetails;
     let itemToDelete = fg.getRawValue();
-    this.env.showPrompt2('Bạn có chắc muốn xóa?', null, 'Xóa 1 dòng').then((_) => {
+    this.env.showPrompt('Bạn có chắc muốn xóa?', null, 'Xóa 1 dòng').then((_) => {
       this.packingDetailservice.delete(itemToDelete).then((result) => {
         groups.removeAt(j);
       });
@@ -497,21 +497,21 @@ removeSelectedItems() {
       let itemsToDelete = this.checkedPackingDetails.getRawValue();
 
       this.env
-        .showPrompt2(
+        .showPrompt(
           {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
           null,
           {code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading2('Xin vui lòng chờ trong giây lát...', this.packingDetailservice.delete(itemsToDelete))
+            .showLoading('Please wait for a few moments', this.packingDetailservice.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
-              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+              this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
               console.log(err);
             });
         });

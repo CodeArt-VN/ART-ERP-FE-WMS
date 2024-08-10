@@ -224,7 +224,7 @@ export class LPNLabelPage extends PageBase {
     this.query.FromLPN = this.fromLPN;
     if (this.toLPN > 0) {
       if (this.toLPN < this.fromLPN) {
-        this.env.showTranslateMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
+        this.env.showMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
       } else {
         this.GetLabel();
       }
@@ -237,21 +237,21 @@ export class LPNLabelPage extends PageBase {
       this.GetLabel();
     }
     else if(this.fromLPN > this.toLPN){
-      this.env.showTranslateMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
+      this.env.showMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
     }
   }
 
   GetLabel() {
     this.env
-      .showLoading2(
-        'Vui lòng chờ load dữ liệu...',
+      .showLoading(
+        'Please wait for a few moments',
         this.pageProvider.commonService.connect('GET', 'WMS/LicencePlateNumber/GetLabel', this.query).toPromise(),
       )
       .then((data: any) => {
         if (data) {
           this.itemPalletsList = data;
           if (this.itemPalletsList.length == 0) {
-            this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+            this.env.showMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
           } else {
             this.lpnFromListSelected = this.lpnToListSelected = this.itemPalletsList.map((s) => {
               return {
@@ -268,11 +268,11 @@ export class LPNLabelPage extends PageBase {
           }
         } else {
           this.itemPalletsList = [];
-          this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+          this.env.showMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
         }
       })
       .catch((err) => {
-        this.env.showTranslateMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+        this.env.showMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
       });
   }
 

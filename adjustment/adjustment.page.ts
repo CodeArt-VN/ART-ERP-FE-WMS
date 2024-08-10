@@ -100,7 +100,7 @@ export class AdjustmentPage extends PageBase {
       IDs: this.selectedItems.map((s) => s.Id),
     };
     this.env
-      .showPrompt2(
+      .showPrompt(
         {code:'Bạn có chắc muốn duyệt {{value}} đang chọn?',value:{value:this.selectedItems.length}},
         null,
         {code:'Duyệt {{value1}} dòng?',value:{value:this.selectedItems.length}},
@@ -113,7 +113,7 @@ export class AdjustmentPage extends PageBase {
             this.refresh();
           })
           .catch((err) => {
-            this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+            this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
           });
       });
   }
@@ -127,7 +127,7 @@ export class AdjustmentPage extends PageBase {
     };
 
     this.env
-      .showPrompt2(
+      .showPrompt(
         {code:'Bạn có chắc muốn duyệt {{value}} đang chọn?',value:{value:this.selectedItems.length}},
         null,
         {code:'Bỏ duyệt {{value}} dòng',value:{value:this.selectedItems.length}}
@@ -140,7 +140,7 @@ export class AdjustmentPage extends PageBase {
             this.refresh();
           })
           .catch((err) => {
-            this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+            this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
           });
       });
   }

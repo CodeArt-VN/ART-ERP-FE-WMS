@@ -116,7 +116,7 @@ export class AdjustmentDetailPage extends PageBase {
             super.preLoadData(event);
           })
           .catch((err) => {
-            this.env.showTranslateMessage(err);
+            this.env.showMessage(err);
           });
       });
     this.statusDataSource = [
@@ -308,16 +308,16 @@ export class AdjustmentDetailPage extends PageBase {
           .toPromise()
           .then((result: any) => {
             if (result) {
-              this.env.showTranslateMessage('Saved', 'success');
+              this.env.showMessage('Saved', 'success');
               fg.controls.Status.setValue(status);
               this.submitAttempt = false;
             } else {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               this.submitAttempt = false;
             }
           })
           .catch(err =>{
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.env.showMessage('Cannot save, please try again', 'danger');
             this.submitAttempt = false;
           });
       }
@@ -336,7 +336,7 @@ export class AdjustmentDetailPage extends PageBase {
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
     let itemToDelete = fg.getRawValue();
-    this.env.showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+    this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
       this.adjustmentDetailService.delete(itemToDelete).then((result) => {
         groups.removeAt(j);
       });
@@ -369,21 +369,21 @@ export class AdjustmentDetailPage extends PageBase {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkAdjustmentDetails.getRawValue();
       this.env
-        .showPrompt2(
+        .showPrompt(
           {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
           null,
           {code:'Xóa {{value1}} đang chọn?',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading2('Xin vui lòng chờ trong giây lát...', this.adjustmentDetailService.delete(itemsToDelete))
+            .showLoading('Please wait for a few moments', this.adjustmentDetailService.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
-              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+              this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
             });
         });
     }

@@ -96,7 +96,7 @@ export class ItemUomDetailPage extends PageBase {
   scanning = false;
   scanQRCode() {
     if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-      this.env.showTranslateMessage('This function is only available on phone', 'warning');
+      this.env.showMessage('This function is only available on phone', 'warning');
       return;
     }
     BarcodeScanner.prepare().then(() => {
@@ -200,7 +200,7 @@ export class ItemUomDetailPage extends PageBase {
     let prds = [];
     prds.push(this.product);
     this.itemProvider.disable(prds, this.product.IsDisabled).then((resp) => {
-      this.env.showTranslateMessage('Changes saved', 'success');
+      this.env.showMessage('Changes saved', 'success');
       this.submitAttempt = false;
     });
   }
@@ -214,7 +214,7 @@ export class ItemUomDetailPage extends PageBase {
         HI: this.product.HI,
       })
       .then((resp) => {
-        this.env.showTranslateMessage('Changes saved', 'success');
+        this.env.showMessage('Changes saved', 'success');
         this.submitAttempt = false;
       });
   }

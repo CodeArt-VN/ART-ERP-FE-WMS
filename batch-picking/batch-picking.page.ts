@@ -60,13 +60,13 @@ export class BatchPickingPage extends PageBase {
   sheets: any = [];
   loadBatchPicking() {
     if (this.submitAttempt) {
-      this.env.showTranslateMessage('Please wait for creating lists');
+      this.env.showMessage('Please wait for a few moments');
       return;
     }
 
     let selected = this.selectedItems.map((m) => m.Id);
     if (!selected.length) {
-      this.env.showTranslateMessage('Please wait for creating lists', 'warning');
+      this.env.showMessage('Please wait for a few moments', 'warning');
       return;
     }
 
@@ -85,7 +85,7 @@ export class BatchPickingPage extends PageBase {
     this.loadingController
       .create({
         cssClass: 'my-custom-class',
-        message: 'Đang tạo bảng kê, xin vui lòng chờ giây lát...',
+        message: 'Please wait for a few moments',
       })
       .then((loading) => {
         loading.present();
@@ -408,9 +408,9 @@ export class BatchPickingPage extends PageBase {
           })
           .catch((err) => {
             if (err.message != null) {
-              this.env.showTranslateMessage(err.message, 'danger');
+              this.env.showMessage(err.message, 'danger');
             } else {
-              this.env.showTranslateMessage('Cannote create list', 'danger');
+              this.env.showMessage('Cannote create list', 'danger');
             }
             this.submitAttempt = false;
             if (loading) loading.dismiss();
@@ -428,29 +428,29 @@ export class BatchPickingPage extends PageBase {
       IDs : ids 
     }
 
-    this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
+    this.env.showLoading('Please wait for a few moments', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
     .then((result: any) => {
       if(result){
-        this.env.showTranslateMessage('saved!','success');
+        this.env.showMessage('saved!','success');
         this.refresh();
       }
       else{
-        this.env.showTranslateMessage('cannot save!','danger');
+        this.env.showMessage('cannot save!','danger');
       }
     }).catch((err) =>{
-      this.env.showTranslateMessage(err.message, 'danger');
+      this.env.showMessage(err.message, 'danger');
 
     })
   }
   exportPicking() {
     if (this.submitAttempt) {
-      this.env.showTranslateMessage('Please wait for creating lists');
+      this.env.showMessage('Please wait for a few moments');
       return;
     }
 
     let selected =this.selectedItems.map((m) => m.Id);
     if (!selected.length) {
-      this.env.showTranslateMessage('Please wait for creating lists', 'warning');
+      this.env.showMessage('Please wait for a few moments', 'warning');
       return;
     }
 
@@ -470,7 +470,7 @@ export class BatchPickingPage extends PageBase {
     this.loadingController
       .create({
         cssClass: 'my-custom-class',
-        message: 'Đang tạo bảng kê, xin vui lòng chờ giây lát...',
+        message: 'Please wait for a few moments',
       })
       .then((loading) => {
         loading.present();

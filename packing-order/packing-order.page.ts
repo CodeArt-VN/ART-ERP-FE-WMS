@@ -59,7 +59,7 @@ export class PackingOrderPage extends PageBase {
         let query = { IDPacking: this.selectedItems.map((d) => d.Id) };
         this.env
           .showLoading(
-            'Đang tạo mã',
+            'Please wait for a few moments',
             this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/getStaticPaymentQRCode', query).toPromise(),
           )
           .then((resp: any) => {
@@ -92,14 +92,14 @@ export class PackingOrderPage extends PageBase {
         };
         this.env
           .showLoading(
-            'Xin vui lòng chờ trong giây lát...',
+            'Please wait for a few moments',
             this.pageProvider.commonService.connect('GET', 'WMS/Packing/CreateShippingFromPacking', packingQuery).toPromise(),
           )
           .then((rs) => {
             this.formGroup.get('Status').setValue('ShippingAllocated');
             this.formGroup.get('Status').markAsPristine();
     
-            this.env.showTranslateMessage('saved', 'success');
+            this.env.showMessage('saved', 'success');
           })
           .catch((err) => {
             if(err.error && err.error.Message =='Need more vehicle to ship!') {
@@ -110,11 +110,11 @@ export class PackingOrderPage extends PageBase {
                 this.formGroup.get('Status').markAsPristine();
               })
               .catch(err=>{
-                this.env.showTranslateMessage('Cannot save', 'danger');
+                this.env.showMessage('Cannot save', 'danger');
               });
             }
             else{
-              this.env.showTranslateMessage('Cannot save', 'danger');
+              this.env.showMessage('Cannot save', 'danger');
             }
           });
       }
@@ -126,7 +126,7 @@ export class PackingOrderPage extends PageBase {
         this.isModalOpen = true;
         let queryVehicle = {};
         this.env
-        .showLoading('Xin vui lòng chờ trong giây lát...', this.vehicleService.read(queryVehicle))
+        .showLoading('Please wait for a few moments', this.vehicleService.read(queryVehicle))
         .then((result:any) => {
           if(result && result.data.length>0) this.vehicleList = result.data;
           console.log(this.vehicleList); 

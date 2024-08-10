@@ -315,7 +315,7 @@ export class PutawayStrategyDetailPage extends PageBase {
     let groups = <FormArray>this.formGroup.controls.PutawayStrategyDetails;
     if(groups.controls.length>0 && (groups.controls.some(g=>g.get('FromZone').value || g.get('ToZone').value || g.get('FromLocation').value || g.get('ToLocation').value))){
       this.env
-      .showPrompt2('Bạn có muốn tiếp tục?', null, 'Thay đổi kho sẽ mất hết dữ liệu zone và location của rule!')
+      .showPrompt('Bạn có muốn tiếp tục?', null, 'Thay đổi kho sẽ mất hết dữ liệu zone và location của rule!')
       .then((_) => {
        
         groups.controls.forEach(fg=>{
@@ -360,7 +360,7 @@ export class PutawayStrategyDetailPage extends PageBase {
 
   removeField(g, index) {
     this.env
-      .showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng')
+      .showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng')
       .then((_) => {
         let groups = <FormArray>this.formGroup.controls.PutawayStrategyDetails;
         //groups.controls[index].get('IsDeleted').setValue(true);

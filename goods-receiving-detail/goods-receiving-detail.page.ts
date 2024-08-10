@@ -297,7 +297,7 @@ export class GoodReceivingDetailPage extends PageBase {
                 this.env.publishEvent({
                   Code: this.pageConfig.pageName,
                 });
-                this.env.showTranslateMessage('Deleted!', 'success');
+                this.env.showMessage('Deleted!', 'success');
               });
             },
           },

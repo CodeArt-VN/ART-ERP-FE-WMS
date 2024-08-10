@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { WH_UoMProvider } from 'src/app/services/static/services.service';
+import { WMS_UoMProvider } from 'src/app/services/static/services.service';
 import { UoMDetailPage } from '../uom-detail/uom-detail.page';
 
 @Component({
@@ -12,7 +12,7 @@ import { UoMDetailPage } from '../uom-detail/uom-detail.page';
 })
 export class UoMPage extends PageBase {
   constructor(
-    public pageProvider: WH_UoMProvider,
+    public pageProvider: WMS_UoMProvider,
     public modalController: ModalController,
     public alertCtrl: AlertController,
     public loadingController: LoadingController,

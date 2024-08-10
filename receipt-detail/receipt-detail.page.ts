@@ -287,7 +287,7 @@ export class ReceiptDetailPage extends PageBase {
                 this.env.publishEvent({
                   Code: this.pageConfig.pageName,
                 });
-                this.env.showTranslateMessage('Deleted!', 'success');
+                this.env.showMessage('Deleted!', 'success');
               });
             },
           },
@@ -358,7 +358,7 @@ export class ReceiptDetailPage extends PageBase {
   saveOrder() {
     this.calcTotalLine();
     if (this.formGroup.controls.Lines.valid) super.saveChange2();
-    else this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+    else this.env.showMessage('Please recheck information highlighted in red above', 'warning');
   }
 
   calcTotalLine() {
@@ -447,8 +447,8 @@ export class ReceiptDetailPage extends PageBase {
           this.loadedData();
         })
         .catch((ex) => {
-          if (ex.error && ex.error.ExceptionMessage) this.env.showTranslateMessage(ex.error.ExceptionMessage, 'danger');
-          else this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          if (ex.error && ex.error.ExceptionMessage) this.env.showMessage(ex.error.ExceptionMessage, 'danger');
+          else this.env.showMessage('Cannot save, please try again', 'danger');
           console.log(ex);
           if (loading) loading.dismiss();
         });
@@ -476,7 +476,7 @@ export class ReceiptDetailPage extends PageBase {
           ToLocation: group.controls.ToLocation.value,
         })
         .then((resp) => {
-          this.env.showTranslateMessage('Location updated', 'success');
+          this.env.showMessage('Location updated', 'success');
           //group.controls.ToLocation.markAsPristine();
 
           group.markAsPristine();
@@ -497,7 +497,7 @@ export class ReceiptDetailPage extends PageBase {
 
     const loading = await this.loadingController.create({
       cssClass: 'my-custom-class',
-      message: 'Vui lòng chờ import dữ liệu',
+      message: 'Please wait for a few moments',
     });
     await loading.present().then(() => {
       this.pageProvider['importDetail'](event.target.files[0], this.id)
@@ -542,7 +542,7 @@ export class ReceiptDetailPage extends PageBase {
             this.env.publishEvent({
               Code: this.pageConfig.pageName,
             });
-            this.env.showTranslateMessage('Import completed!', 'success');
+            this.env.showMessage('Import completed!', 'success');
           }
         })
         .catch((err) => {
@@ -556,8 +556,8 @@ export class ReceiptDetailPage extends PageBase {
 
   async createInvoice() {
     this.env
-      .showLoading2(
-        'Vui lòng chờ tạo hóa đơn',
+      .showLoading(
+        'Please wait for a few moments',
         this.pageProvider.commonService
           .connect('POST', 'WMS/Receipt/CreateInvoice/', {
             Ids: [this.item.Id],
@@ -566,7 +566,7 @@ export class ReceiptDetailPage extends PageBase {
       )
       .then((resp: any) => {
         this.env
-          .showPrompt2('Bạn có muốn mở hóa đơn vừa tạo?')
+          .showPrompt('Bạn có muốn mở hóa đơn vừa tạo?')
           .then((_) => {
             if (resp.length == 1) {
               this.nav('/ap-invoice/' + resp[0]);
@@ -577,7 +577,7 @@ export class ReceiptDetailPage extends PageBase {
           .catch((_) => {});
       })
       .catch((err) => {
-        this.env.showTranslateMessage(err);
+        this.env.showMessage(err);
       });
   }
 }

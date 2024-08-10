@@ -99,7 +99,7 @@ export class ReceiptPage extends PageBase {
 
     let itemsCanNotProcess = this.selectedItems.filter((i) => !(i.Status == 'Palletized' || i.Status == 'Scheduled'));
     if (itemsCanNotProcess.length == this.selectedItems.length) {
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'Your chosen order cannot be received. Please only choose goods receipt notes that are planned or divided by pallet',
         'warning',
       );
@@ -143,7 +143,7 @@ export class ReceiptPage extends PageBase {
                   this.loadingController
                     .create({
                       cssClass: 'my-custom-class',
-                      message: 'Đang tạo bảng kê, xin vui lòng chờ giây lát...',
+                      message: 'Please wait for a few moments',
                     })
                     .then((loading) => {
                       loading.present();
@@ -156,7 +156,7 @@ export class ReceiptPage extends PageBase {
                               Code: publishEventCode,
                             });
                           }
-                          this.env.showTranslateMessage('Saving completed!', 'success');
+                          this.env.showMessage('Saving completed!', 'success');
                           this.submitAttempt = false;
                           if (loading) loading.dismiss();
                         })
@@ -247,7 +247,7 @@ export class ReceiptPage extends PageBase {
                   });
               } else {
                 //po không tồn tại
-                this.env.showTranslateMessage('Cannot find PO in the system. Please check again.', 'warning');
+                this.env.showMessage('Cannot find PO in the system. Please check again.', 'warning');
               }
             });
         }
@@ -261,7 +261,7 @@ export class ReceiptPage extends PageBase {
   async copyToReceipt(POItem: any) {
     const loading = await this.loadingController.create({
       cssClass: 'my-custom-class',
-      message: 'Vui lòng chờ import dữ liệu',
+      message: 'Please wait for a few moments',
     });
     await loading.present().then(() => {
       this.purchaseProvider['copyToReceipt'](POItem)
@@ -291,13 +291,13 @@ export class ReceiptPage extends PageBase {
             .then((alert) => {
               alert.present();
             });
-          this.env.showTranslateMessage('ASN created!', 'success');
+          this.env.showMessage('ASN created!', 'success');
           this.env.publishEvent({ Code: this.pageConfig.pageName });
         })
         .catch((err) => {
           console.log(err);
 
-          this.env.showTranslateMessage('Cannot create ASN, please try again later', 'danger');
+          this.env.showMessage('Cannot create ASN, please try again later', 'danger');
           if (loading) loading.dismiss();
         });
     });
@@ -306,7 +306,7 @@ export class ReceiptPage extends PageBase {
   scanning = false;
   scanQRCode() {
     if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-      this.env.showTranslateMessage('This function is only available on phone', 'warning');
+      this.env.showMessage('This function is only available on phone', 'warning');
       //this.findASNByPOId(2);
       return;
     }
@@ -332,7 +332,7 @@ export class ReceiptPage extends PageBase {
 
                 this.closeCamera();
               } else {
-                this.env.showTranslateMessage(
+                this.env.showMessage(
                   'You just scanned: {{value}}, please scanned QR code on paid delivery notes',
                   '',
                   result.content,

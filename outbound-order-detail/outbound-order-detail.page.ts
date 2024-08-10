@@ -310,16 +310,16 @@ export class OutboundOrderDetailPage extends PageBase {
     this.query.Id = this.formGroup.get('Id').value;
     this.query.ToStatus = 'Open';
     this.env
-      .showLoading2(
-        'Vui lòng chờ load dữ liệu...',
+      .showLoading(
+        'Please wait for a few moments',
         this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/ChangeStatus/', this.query).toPromise(),
       )
       .then((result: any) => {
-        this.env.showTranslateMessage('saved', 'success');
+        this.env.showMessage('saved', 'success');
         this.refresh();
       })
       .catch((err) => {
-        this.env.showTranslateMessage(err.error?.Message ?? err.message, 'danger');
+        this.env.showMessage(err.error?.Message ?? err.message, 'danger');
       });
     //   this.query.Id = undefined;
   }
@@ -345,12 +345,12 @@ export class OutboundOrderDetailPage extends PageBase {
       isForceCreate : isForceCreate
     };
     this.env
-      .showLoading2(
-        'Xin vui lòng chờ trong giây lát...',
+      .showLoading(
+        'Please wait for a few moments',
         this.commonService.connect('GET', 'WMS/Packing/CreateShippingFromPacking', packingQuery).toPromise(),
       )
       .then((rs) => {
-        this.env.showTranslateMessage('saved', 'success');
+        this.env.showMessage('saved', 'success');
         this.refreshSegmentView();
       })
       .catch((err) => {
@@ -360,11 +360,11 @@ export class OutboundOrderDetailPage extends PageBase {
             this.CreateShippingFromPacking(true)
           })
           .catch(err=>{
-            this.env.showTranslateMessage('Cannot save', 'danger');
+            this.env.showMessage('Cannot save', 'danger');
           });
         }
         else{
-          this.env.showTranslateMessage('Cannot save', 'danger');
+          this.env.showMessage('Cannot save', 'danger');
         }
       });
   }
@@ -373,7 +373,7 @@ export class OutboundOrderDetailPage extends PageBase {
     let query = { IDPacking: this.selectedItems.map((d) => d.Id) };
     this.env
       .showLoading(
-        'Đang tạo mã',
+        'Please wait for a few moments',
         this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/getStaticPaymentQRCode', query).toPromise(),
       )
       .then((resp: any) => {
@@ -411,7 +411,7 @@ export class OutboundOrderDetailPage extends PageBase {
     this.isModalOpen = true;
     let queryVehicle = {};
     this.env
-    .showLoading('Xin vui lòng chờ trong giây lát...', this.vehicleService.read(queryVehicle))
+    .showLoading('Please wait for a few moments', this.vehicleService.read(queryVehicle))
     .then((result:any) => {
       if(result && result.data.length>0) this.vehicleList = result.data;
       console.log(this.vehicleList); 
@@ -524,7 +524,7 @@ export class OutboundOrderDetailPage extends PageBase {
     fg.get('Id').markAsDirty();
     fg.updateValueAndValidity();
     if (!fg.valid) {
-      this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+      this.env.showMessage('Please recheck information highlighted in red above', 'warning');
     } else if (this.submitAttempt == false) {
       this.submitAttempt = true;
       let submitItem = this.getDirtyValues(fg);
@@ -570,10 +570,10 @@ export class OutboundOrderDetailPage extends PageBase {
             });
           }
 
-          this.env.showTranslateMessage('Saving completed!', 'success');
+          this.env.showMessage('Saving completed!', 'success');
         })
         .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          this.env.showMessage('Cannot save, please try again', 'danger');
           this.cdr.detectChanges();
           this.submitAttempt = false;
         });
@@ -592,7 +592,7 @@ export class OutboundOrderDetailPage extends PageBase {
         itemToDelete.push(i.getRawValue());
       });
       itemToDelete.push(fg.getRawValue());
-      this.env.showPrompt2('Bạn có chắc muốn xóa không?', null,{code:'Xóa {{value}} dòng', value:{value:itemToDelete.length}}).then((_) => {
+      this.env.showPrompt('Bạn có chắc muốn xóa không?', null,{code:'Xóa {{value}} dòng', value:{value:itemToDelete.length}}).then((_) => {
         this.outboundOrderDetailService
           .delete(itemToDelete)
           .then((result) => {
@@ -610,10 +610,10 @@ export class OutboundOrderDetailPage extends PageBase {
               this.checkedOutboundOrderDetails.removeAt(indexToRemove);
             });
 
-            this.env.showTranslateMessage('saved', 'success');
+            this.env.showMessage('saved', 'success');
           })
           .catch((err) => {
-            this.env.showTranslateMessage(err.error?.Message ?? err.message, 'danger');
+            this.env.showMessage(err.error?.Message ?? err.message, 'danger');
           });
       });
     } else {
@@ -626,21 +626,21 @@ export class OutboundOrderDetailPage extends PageBase {
       let itemsToDelete = this.checkedOutboundOrderDetails.getRawValue();
 
       this.env
-        .showPrompt2(
+        .showPrompt(
           {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
           null,
           {code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading2('Xin vui lòng chờ trong giây lát...', this.outboundOrderDetailService.delete(itemsToDelete))
+            .showLoading('Please wait for a few moments', this.outboundOrderDetailService.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
-              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+              this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
               console.log(err);
             });
         });
@@ -725,8 +725,8 @@ export class OutboundOrderDetailPage extends PageBase {
       if (this.segmentView == 's2') {
         if (!this.item.PickingList || reload) {
           this.env
-            .showLoading2(
-              'Vui lòng chờ load dữ liệu...',
+            .showLoading(
+              'Please wait for a few moments',
               this.pageProvider.commonService.connect('GET', 'WMS/Picking/', queryOutbound).toPromise(),
             )
             .then(async (result: any) => {
@@ -736,7 +736,7 @@ export class OutboundOrderDetailPage extends PageBase {
               });
             })
             .catch((err) => {
-              this.env.showTranslateMessage('load error, please try again.');
+              this.env.showMessage('load error, please try again.');
               console.log(err);
             });
         }
@@ -744,8 +744,8 @@ export class OutboundOrderDetailPage extends PageBase {
       if (this.segmentView == 's3') {
         if (!this.item.PackingList || reload) {
           this.env
-            .showLoading2(
-              'Vui lòng chờ load dữ liệu...',
+            .showLoading(
+              'Please wait for a few moments',
               this.pageProvider.commonService.connect('GET', 'WMS/Packing/', queryOutbound).toPromise(),
             )
             .then(async (result: any) => {
@@ -755,7 +755,7 @@ export class OutboundOrderDetailPage extends PageBase {
               });
             })
             .catch((err) => {
-              this.env.showTranslateMessage('load error, please try again.');
+              this.env.showMessage('load error, please try again.');
               console.log(err);
             });
         }
@@ -763,8 +763,8 @@ export class OutboundOrderDetailPage extends PageBase {
       if (this.segmentView == 's4') {
         if (!this.item.ShippingList || reload) {
           this.env
-            .showLoading2(
-              'Vui lòng chờ load dữ liệu...',
+            .showLoading(
+              'Please wait for a few moments',
               this.pageProvider.commonService.connect('GET', 'WMS/Shipping/', queryOutbound).toPromise(),
             )
             .then(async (result: any) => {
@@ -774,7 +774,7 @@ export class OutboundOrderDetailPage extends PageBase {
               });
             })
             .catch((err) => {
-              this.env.showTranslateMessage('load error, please try again.');
+              this.env.showMessage('load error, please try again.');
             });
         }
       }

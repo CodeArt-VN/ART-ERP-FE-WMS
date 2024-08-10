@@ -153,8 +153,8 @@ export class ItemGroupDetailPage extends PageBase {
       };
       this.formGroup.controls.IDBranch.markAsDirty();
       this.env
-        .showLoading2(
-          'Please wait a moment!',
+        .showLoading(
+          'Please wait for a few moments',
           this.pageProvider.commonService
             .connect('GET', 'WMS/ItemGroupAccountInBranch/', query)
             .toPromise()
@@ -243,7 +243,7 @@ export class ItemGroupDetailPage extends PageBase {
       return new Promise((resolve, reject) => {
         this.formGroup.updateValueAndValidity();
         if (!this.formGroup.valid) {
-          this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+          this.env.showMessage('Please recheck information highlighted in red above', 'warning');
         } else if (this.submitAttempt == false) {
           const idItemGroupAccountInBranch = this.item.IDItemGroupAccountInBranch || 0;
           this.formGroup.get('Id').setValue(idItemGroupAccountInBranch);
@@ -269,7 +269,7 @@ export class ItemGroupDetailPage extends PageBase {
               this.formGroup.get('Id').setValue(this.id);
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               this.cdr.detectChanges();
               this.submitAttempt = false;
               reject(err);

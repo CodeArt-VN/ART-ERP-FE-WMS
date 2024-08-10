@@ -62,12 +62,12 @@ export class ReturnedLlistPage extends PageBase {
     let selected = this.items.filter((d) => d.isChecked).map((m) => m.Id);
 
     if (!selected.length) {
-      this.env.showTranslateMessage('Please select trucks to pick up', 'warning');
+      this.env.showMessage('Please select trucks to pick up', 'warning');
       return;
     }
 
     if (this.submitAttempt) {
-      this.env.showTranslateMessage('Please wait for creating lists');
+      this.env.showMessage('Please wait for a few moments');
       return;
     }
 
@@ -88,7 +88,7 @@ export class ReturnedLlistPage extends PageBase {
     this.loadingController
       .create({
         cssClass: 'my-custom-class',
-        message: 'Đang tạo bảng kê, xin vui lòng chờ giây lát...',
+        message: 'Please wait for a few moments',
       })
       .then((loading) => {
         loading.present();
@@ -264,9 +264,9 @@ export class ReturnedLlistPage extends PageBase {
           })
           .catch((err) => {
             if (err.message != null) {
-              this.env.showTranslateMessage(err.message, 'danger');
+              this.env.showMessage(err.message, 'danger');
             } else {
-              this.env.showTranslateMessage('Cannot create pick - up list', 'danger');
+              this.env.showMessage('Cannot create pick - up list', 'danger');
             }
             this.submitAttempt = false;
             if (loading) loading.dismiss();
@@ -302,16 +302,16 @@ export class ReturnedLlistPage extends PageBase {
       .connect(apiPath.method, apiPath.url(ids), this.query)
       .toPromise()
       .then((resp: any) => {
-        this.env.showTranslateMessage('Returned goods inbound confirmed', 'success');
+        this.env.showMessage('Returned goods inbound confirmed', 'success');
         this.sheets = [];
         this.refresh();
         this.submitAttempt = false;
       })
       .catch((err) => {
         if (err.message != null) {
-          this.env.showTranslateMessage(err.message, 'danger');
+          this.env.showMessage(err.message, 'danger');
         } else {
-          this.env.showTranslateMessage('Cannote create list', 'danger');
+          this.env.showMessage('Cannote create list', 'danger');
         }
         this.refresh();
         this.submitAttempt = false;

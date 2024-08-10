@@ -104,7 +104,7 @@ export class CycleCountDetailPage extends PageBase {
                 this.markNestedNode(this.branchList, this.env.selectedBranch);
                 super.preLoadData(event);
             }).catch(err => {
-                this.env.showTranslateMessage(err);
+                this.env.showMessage(err);
                 console.log(err);
             });
         });
@@ -287,18 +287,18 @@ export class CycleCountDetailPage extends PageBase {
         if (this.formGroup.get('IsCountByLot').value) {
             config.CompareBy.push({ Property: 'LotId' })
         }
-        this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
+        this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
             .then((data: any) => {
                 if (data) {
                     this.tempItemList = data.Data;
                     this.countItem = data.Data.length;
-                    this.env.showPrompt2('Bạn có muốn áp dụng?', null,{code:'Tìm thấy {{value}} dòng dữ liệu',value:{value:this.countItem}}).then(_ => {
+                    this.env.showPrompt('Bạn có muốn áp dụng?', null,{code:'Tìm thấy {{value}} dòng dữ liệu',value:{value:this.countItem}}).then(_ => {
                         let obj: any = {
                             id: this.formGroup.get('Id').value,
                             items: this.tempItemList,
                         }
                         this.isModalAddRangesOpen = false;
-                        this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise())
+                        this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise())
                             .then((result: any) => {
                                 if(result>0){
                                     this.refresh();   
@@ -335,7 +335,7 @@ export class CycleCountDetailPage extends PageBase {
     changeStatus() {
         this.query.ToStatus = 'Open';
         this.query.Id = this.formGroup.get('Id').value
-        this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeStatus/', this.query).toPromise())
+        this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeStatus/', this.query).toPromise())
         .then((result: any) => {
             this.refresh();
         })
@@ -369,7 +369,7 @@ export class CycleCountDetailPage extends PageBase {
         this.submitAttempt = true;
         let detailLength = this.formGroup.getRawValue().CycleCountDetails.length
         if (detailLength > 0) {
-            this.env.showPrompt2({code:'Thay đổi {{value}} sẽ xoá hết chi tiết hàng kiểm hiện tại, bạn có tiếp tục?',value:{value:type}}, null,{code:'Xóa {{value1}} dòng',value:{value1:detailLength}})
+            this.env.showPrompt({code:'Thay đổi {{value}} sẽ xoá hết chi tiết hàng kiểm hiện tại, bạn có tiếp tục?',value:{value:type}}, null,{code:'Xóa {{value1}} dòng',value:{value1:detailLength}})
                 .then(_ => {
                     this.cycleCountDetailService.delete(this.formGroup.getRawValue().CycleCountDetails)
                         .then(rs => {
@@ -377,7 +377,7 @@ export class CycleCountDetailPage extends PageBase {
                             this.formGroup.get('IsCountBy'+type).markAsDirty();
                             this.submitAttempt = false;
                             this.saveChange();
-                            this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+                            this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
                             this.isAllChecked = false;
                             let value = this.formGroup.get('CycleCountDetails').value.map(d => d.IDItem).join(',')
                             let filter = {
@@ -414,14 +414,14 @@ export class CycleCountDetailPage extends PageBase {
                             }
                             let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
                             groups.clear();
-                            this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
+                            this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
                                 .then((data: any) => {
                                     if (data) {
                                         let obj: any = {
                                             id: this.formGroup.get('Id').value,
                                             items: data.Data,
                                         }
-                                        this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise())
+                                        this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise())
                                             .then((result: any) => {
                                                 this.submitAttempt = false;
                                                 this.refresh();
@@ -429,7 +429,7 @@ export class CycleCountDetailPage extends PageBase {
                                     }
                                 })
                         }).catch(err => {
-                            this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+                            this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
                             this.submitAttempt = false;
 
                         });
@@ -467,7 +467,7 @@ export class CycleCountDetailPage extends PageBase {
     }
     createAdjustment() {
         if (this.checkCycleCountDetailsInModal.controls.some(d => d.get('CountedQuantity').value == d.get('CurrentQuantity').value)) {
-            this.env.showTranslateMessage('Counted quantity and current quantity are equally ', 'danger');
+            this.env.showMessage('Counted quantity and current quantity are equally ', 'danger');
             return;
         };
         let idsCycleCountDetail = this.checkCycleCountDetailsInModal.getRawValue().map(m => m.Id);
@@ -493,11 +493,11 @@ export class CycleCountDetailPage extends PageBase {
                         })
                         this.checkCycleCountDetailsInModal.removeAt(fg)
                     })
-                    this.env.showTranslateMessage('Saving completed!','success');
+                    this.env.showMessage('Saving completed!','success');
                 }
               
             }).catch(err => {
-                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                this.env.showMessage('Cannot save, please try again', 'danger');
                 console.log(err);
             });
 
@@ -523,7 +523,7 @@ export class CycleCountDetailPage extends PageBase {
             })
         ));
         if(obj.length == 0 ) return;
-        this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('PUT', 'WMS/CycleCount/PutCustomListDetail', obj).toPromise())
+        this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('PUT', 'WMS/CycleCount/PutCustomListDetail', obj).toPromise())
             .then(rs => {
                 if (rs) {
                     this.isSubmitUpdateButton = true;
@@ -534,11 +534,11 @@ export class CycleCountDetailPage extends PageBase {
                     // })
                     this.trackChangeCountedFormGroup = new FormArray([]); 
                     this.loadedData();
-                    this.env.showTranslateMessage('Saving completed!', 'success');
+                    this.env.showMessage('Saving completed!', 'success');
                     // this.dismissModal();
                 }
                 else {
-                    this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                    this.env.showMessage('Cannot save, please try again', 'danger');
                 }
             })
     }
@@ -565,7 +565,7 @@ export class CycleCountDetailPage extends PageBase {
     removeField(fg, j) {
         let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
         let itemToDelete = fg.getRawValue();
-        this.env.showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then(_ => {
+        this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then(_ => {
             this.cycleCountDetailService.delete(itemToDelete).then(result => {
                 groups.removeAt(j);
             })
@@ -600,14 +600,14 @@ export class CycleCountDetailPage extends PageBase {
     deleteItems() {
         if (this.pageConfig.canDelete) {
             let itemsToDelete = this.checkCycleCountDetails.getRawValue();
-            this.env.showPrompt2({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value: {value: itemsToDelete.length}}, null,{code:'Xóa {{value1}} đang chọn?',value: {value1:itemsToDelete.length}}).then(_ => {
-                this.env.showLoading2('Xin vui lòng chờ trong giây lát...', this.cycleCountDetailService.delete(itemsToDelete))
+            this.env.showPrompt({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value: {value: itemsToDelete.length}}, null,{code:'Xóa {{value1}} đang chọn?',value: {value1:itemsToDelete.length}}).then(_ => {
+                this.env.showLoading('Please wait for a few moments', this.cycleCountDetailService.delete(itemsToDelete))
                     .then(_ => {
                         this.removeSelectedItems();
-                        this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+                        this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
                         this.isAllChecked = false;
                     }).catch(err => {
-                        this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+                        this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
                     });
             });
         }
@@ -714,14 +714,14 @@ export class CycleCountDetailPage extends PageBase {
 
     async import(event) {
         if (this.submitAttempt) {
-            this.env.showTranslateMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
+            this.env.showMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
             return;
         }
         this.submitAttempt = true;
         this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: true, Id: 'FileImport', Icon: 'flash', IsBlink: true, Color: 'danger', Message: 'đang import' });
         const formData: FormData = new FormData();
         formData.append('fileKey', event.target.files[0], event.target.files[0].name);
-        this.env.showLoading2('Vui lòng chờ import dữ liệu...', 
+        this.env.showLoading('Please wait for a few moments', 
             this.commonService.connect("UPLOAD", ApiSetting.apiDomain("WMS/CycleCount/ImportExcel/" + this.formGroup.get('Id').value), formData).toPromise())
                 .then((resp:any) => {
                     this.submitAttempt = false;
@@ -735,19 +735,19 @@ export class CycleCountDetailPage extends PageBase {
                                 const e = resp.ErrorList[i];
                                 message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
                             }
-                        this.env.showPrompt2({code:'Có {{value}} lỗi khi import: {{value1}}',value:{value:resp.ErrorList.length, value1:message}},'Bạn có muốn xem lại các mục bị lỗi?', 'Có lỗi import dữ liệu').then(_=>{
+                        this.env.showPrompt({code:'Có {{value}} lỗi khi import: {{value1}}',value:{value:resp.ErrorList.length, value1:message}},'Bạn có muốn xem lại các mục bị lỗi?', 'Có lỗi import dữ liệu').then(_=>{
                             this.downloadURLContent(resp.FileUrl);
                         }).catch(e => { });
                     }
                     else {
-                        this.env.showTranslateMessage('Import completed!','success');
+                        this.env.showMessage('Import completed!','success');
                     }
                     // this.download(data);
                 }).catch(err => {
                     this.submitAttempt = false;
                     this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
                     this.refresh();
-                    this.env.showTranslateMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
+                    this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
                 })
     }
 
@@ -755,7 +755,7 @@ export class CycleCountDetailPage extends PageBase {
         if (this.submitAttempt) return;
         this.query.IDCycleCount = this.formGroup.get('Id').value;
         this.submitAttempt = true;
-        this.env.showLoading2('Vui lòng chờ export dữ liệu...', this.cycleCountDetailService.export(this.query))
+        this.env.showLoading('Please wait for a few moments', this.cycleCountDetailService.export(this.query))
             .then((response: any) => {
                 this.downloadURLContent(response);
                 this.submitAttempt = false;
@@ -772,7 +772,7 @@ export class CycleCountDetailPage extends PageBase {
 
     async importTask(event) {
         if (this.submitAttempt) {
-            this.env.showTranslateMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
+            this.env.showMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
             return;
         }
         this.submitAttempt = true;
@@ -781,7 +781,7 @@ export class CycleCountDetailPage extends PageBase {
         this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: true, Id: 'FileImport', Icon: 'flash', IsBlink: true, Color: 'danger', Message: 'đang import' });
         const formData: FormData = new FormData();
         formData.append('fileKey', event.target.files[0], event.target.files[0].name);
-        this.env.showLoading2('Vui lòng chờ import dữ liệu...',   this.commonService.connect("UPLOAD", ApiSetting.apiDomain("WMS/CycleCount/ImportTaskDetail/" + this.formGroup.get('Id').value), formData).toPromise())
+        this.env.showLoading('Please wait for a few moments',   this.commonService.connect("UPLOAD", ApiSetting.apiDomain("WMS/CycleCount/ImportTaskDetail/" + this.formGroup.get('Id').value), formData).toPromise())
         .then((resp:any) => {
             this.submitAttempt = false;
             this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
@@ -793,14 +793,14 @@ export class CycleCountDetailPage extends PageBase {
                         const e = resp.ErrorList[i];
                         message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
                     }
-                this.env.showPrompt2({code:'Có {{value}} lỗi khi import: {{value1}}',value:{value:resp.ErrorList.length, value1:message}}, 'Bạn có muốn xem lại các mục bị lỗi?', 'Có lỗi import dữ liệu').then(_=>{
+                this.env.showPrompt({code:'Có {{value}} lỗi khi import: {{value1}}',value:{value:resp.ErrorList.length, value1:message}}, 'Bạn có muốn xem lại các mục bị lỗi?', 'Có lỗi import dữ liệu').then(_=>{
                     this.downloadURLContent(resp.FileUrl);
                 }).catch(e => { });
                 
 
             }
             else {
-                this.env.showTranslateMessage('Import completed!','success');
+                this.env.showMessage('Import completed!','success');
             }
             
             this.loadedData();
@@ -809,7 +809,7 @@ export class CycleCountDetailPage extends PageBase {
         }).catch(err => {
             this.submitAttempt = false;
             this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
-            this.env.showTranslateMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
+            this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
         })
 
     }
@@ -818,7 +818,7 @@ export class CycleCountDetailPage extends PageBase {
         if (this.submitAttempt) return;
         this.query.Id = this.formGroup.get('Id').value;
         this.submitAttempt = true;
-        this.env.showLoading2('Vui lòng chờ export dữ liệu...', this.cycleCountTaskService.export(this.query))
+        this.env.showLoading('Please wait for a few moments', this.cycleCountTaskService.export(this.query))
             .then((response: any) => {
                 this.downloadURLContent(response);
                 this.submitAttempt = false;
@@ -849,7 +849,7 @@ export class CycleCountDetailPage extends PageBase {
 
         this.submitAttempt = true;
         this.query.IDTask = i.Id
-        this.env.showLoading2('Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeTaskStatus/', this.query).toPromise())
+        this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeTaskStatus/', this.query).toPromise())
             .then((response: boolean) => {
                 if(response) {
                     i.Status = 'Closed';

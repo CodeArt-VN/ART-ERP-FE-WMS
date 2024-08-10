@@ -214,17 +214,17 @@ export class PickingOrderDetailPage extends PageBase {
  //#region Business logic
   closePick() {
     this.query.Id = this.item.Id;
-    this.env.showPrompt2('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
+    this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
       this.env
-        .showLoading2(
-          'Vui lòng chờ load dữ liệu...',
+        .showLoading(
+          'Please wait for a few moments',
           this.pageProvider.commonService.connect('GET', 'WMS/Picking/ClosePicking/', this.query).toPromise(),
         )
         .then(async (result: any) => {
           this.refresh();
         })
         .catch((err) => {
-          this.env.showTranslateMessage('Cannot save, please try again.');
+          this.env.showMessage('Cannot save, please try again.');
         });
     });
   }
@@ -233,8 +233,8 @@ export class PickingOrderDetailPage extends PageBase {
   allocatePicking() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
-      .showLoading2(
-        'Vui lòng chờ load dữ liệu...',
+      .showLoading(
+        'Please wait for a few moments',
         this.pageProvider.commonService.connect('GET', 'WMS/Picking/AllocatePicking/', this.query).toPromise(),
       )
       .then((result: any) => {
@@ -255,7 +255,7 @@ export class PickingOrderDetailPage extends PageBase {
 
   toggleAllQty() {
     if (this.submitAttempt) {
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'System is saving please wait for seconds then try again',
         'danger',
         'error',
@@ -286,12 +286,12 @@ export class PickingOrderDetailPage extends PageBase {
           .connect('PUT', 'WMS/Picking/UpdateQuantity/', obj)
           .toPromise()
           .then(() => {
-            this.env.showTranslateMessage('Saved', 'success');
+            this.env.showMessage('Saved', 'success');
             this.item._IsPickedAll = !this.item._IsPickedAll;
             this.submitAttempt = false;
           })
           .catch((err) => {
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.env.showMessage('Cannot save, please try again', 'danger');
             this.submitAttempt = false;
           });
       }
@@ -301,7 +301,7 @@ export class PickingOrderDetailPage extends PageBase {
   calcTotalPickedQuantity(childFG) {
     if (this.submitAttempt) {
       childFG.get('QuantityPicked').setErrors({ valid: false });
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'System is saving please wait for seconds then try again',
         'danger',
         'error',
@@ -335,7 +335,7 @@ export class PickingOrderDetailPage extends PageBase {
       });
 
       if (!isValid) {
-        this.env.showTranslateMessage('Quantity picked is more than quantity', 'danger');
+        this.env.showMessage('Quantity picked is more than quantity', 'danger');
 
         return;
       }
@@ -402,7 +402,7 @@ export class PickingOrderDetailPage extends PageBase {
       }
 
       if (group.controls.Quantity.value <= 0) {
-        this.env.showTranslateMessage('Vui lòng nhập số lượng', 'warning');
+        this.env.showMessage('Vui lòng nhập số lượng', 'warning');
       } else {
         this.updatePickingDetail(itemUpdate);
       }
@@ -416,13 +416,13 @@ export class PickingOrderDetailPage extends PageBase {
         (f) => f.IDLot == dataRow.Lot && f.IDLPN == dataRow.LPN && f.IDLocation == dataRow.FromLocation,
       );
       if (dataRow.Quantity < dataRow.QuantityPicked) {
-        this.env.showTranslateMessage('Số lượng nhập vào không thể bé hơn picked quantity', 'warning');
+        this.env.showMessage('Số lượng nhập vào không thể bé hơn picked quantity', 'warning');
         return;
       }
       if (lotLPNLocationSelected) {
         if (dataRow.Quantity > lotLPNLocationSelected.QuantityOnHand) {
           group.controls.Quantity.setValue(dataRow.Quantity);
-          this.env.showTranslateMessage('Số lượng nhập vào không thể lớn hơn số lượng có trong kho', 'warning');
+          this.env.showMessage('Số lượng nhập vào không thể lớn hơn số lượng có trong kho', 'warning');
         } else {
           group.controls.Quantity.markAsDirty();
           this.updatePickingDetail([
@@ -434,10 +434,10 @@ export class PickingOrderDetailPage extends PageBase {
           ]);
         }
       } else {
-        this.env.showTranslateMessage('Vui lòng chọn From location', 'warning');
+        this.env.showMessage('Vui lòng chọn From location', 'warning');
       }
     } else {
-      this.env.showTranslateMessage('Số lượng nhập vào phải lớn hơn 0', 'warning');
+      this.env.showMessage('Số lượng nhập vào phải lớn hơn 0', 'warning');
     }
   }
 
@@ -527,9 +527,9 @@ export class PickingOrderDetailPage extends PageBase {
               item.controls.Id.markAsDirty();
             }
           }
-          this.env.showTranslateMessage('Saved', 'success');
+          this.env.showMessage('Saved', 'success');
         } else {
-          this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+          this.env.showMessage('Cannot save, please try again', 'danger');
         }
       });
   }
@@ -606,7 +606,7 @@ export class PickingOrderDetailPage extends PageBase {
     let itemToDelete = fg.getRawValue();
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
     if (itemToDelete.Id) {
-      this.env.showPrompt2('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+      this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
         this.pickingOrderDetailService.delete(itemToDelete).then((result) => {
           groups.removeAt(j);
         });
@@ -620,18 +620,18 @@ export class PickingOrderDetailPage extends PageBase {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
       this.env
-        .showPrompt2({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},null,{code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
+        .showPrompt({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},null,{code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading2('Xin vui lòng chờ trong giây lát...', this.pickingOrderDetailService.delete(itemsToDelete))
+            .showLoading('Please wait for a few moments', this.pickingOrderDetailService.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
-              this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+              this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
               console.log(err);
             });
         });
@@ -647,7 +647,7 @@ export class PickingOrderDetailPage extends PageBase {
 
   changeStatusDetail(fg, status) {
     if (this.submitAttempt) {
-      this.env.showTranslateMessage('System is saving please wait for seconds then try again', 'warning');
+      this.env.showMessage('System is saving please wait for seconds then try again', 'warning');
       return;
     } else {
       let obj = [
@@ -659,22 +659,22 @@ export class PickingOrderDetailPage extends PageBase {
       if (fg.get('Status').value == 'Active' && status == 'Done') {
         this.submitAttempt = true;
         if (fg.get('Quantity').value > fg.get('QuantityPicked').value) {
-          this.env.showPrompt2('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất?').then((_) => {
+          this.env.showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất?').then((_) => {
             this.pageProvider.commonService
               .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
               .toPromise()
               .then((result: any) => {
                 if (result) {
-                  this.env.showTranslateMessage('Saved', 'success');
+                  this.env.showMessage('Saved', 'success');
                   fg.controls.Status.setValue(status);
                   fg.disable();
                 } else {
-                  this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                  this.env.showMessage('Cannot save, please try again', 'danger');
                 }
                 this.submitAttempt = false;
               })
               .catch((err) => {
-                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                this.env.showMessage('Cannot save, please try again', 'danger');
                 this.submitAttempt = false;
               });
           }).catch(err=> {
@@ -687,16 +687,16 @@ export class PickingOrderDetailPage extends PageBase {
             .toPromise()
             .then((result: any) => {
               if (result) {
-                this.env.showTranslateMessage('Saved', 'success');
+                this.env.showMessage('Saved', 'success');
                 fg.controls.Status.setValue(status);
                 fg.disable();
               } else {
-                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                this.env.showMessage('Cannot save, please try again', 'danger');
               }
               this.submitAttempt = false;
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               this.submitAttempt = false;
             });
         }

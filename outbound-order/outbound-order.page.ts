@@ -58,7 +58,7 @@ export class OutboundOrderPage extends PageBase {
         if(this.selectedItems.every(i => !(i.IDWarehouse === (this.selectedItems[0].IDWarehouse))
         || !(i.IDStorer === (this.selectedItems[0].IDStorer)) 
         || this.selectedItems.some(s =>s.Status == "Open" || s.Status == "Closed" || s.Status == "Merged"))){
-            this.env.showTranslateMessage(
+            this.env.showMessage(
                 'Your selected orders cannot be combined. Please select new order',
                 'warning',
               );
@@ -75,18 +75,18 @@ export class OutboundOrderPage extends PageBase {
             obj.Ids  = this.selectedItems.map(m => m.Id);
           }
           let publishEventCode = this.pageConfig.pageName;
-          this.env.showPrompt2({code:'Bạn có chắc muốn gộp {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Gộp {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
+          this.env.showPrompt({code:'Bạn có chắc muốn gộp {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Gộp {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
             this.submitAttempt = true;
-            this.env.showLoading2('Xin vui lòng chờ trong giây lát...', this.pageProvider.commonService.connect('POST', 'WMS/OutboundOrder/MergeOrders/', obj).toPromise())
+            this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'WMS/OutboundOrder/MergeOrders/', obj).toPromise())
                 .then((savedItem:any) => {
                     if (publishEventCode) {
                         this.env.publishEvent({ Code: publishEventCode });
                       }
-                    this.env.showTranslateMessage('Saving completed', 'success');
+                    this.env.showMessage('Saving completed', 'success');
                     this.submitAttempt = false;
 
                 }).catch(err => {
-                    this.env.showTranslateMessage('Không gộp được, xin vui lòng kiểm tra lại.');
+                    this.env.showMessage('Không gộp được, xin vui lòng kiểm tra lại.');
                 this.submitAttempt = false;
                 });
         });
@@ -99,12 +99,12 @@ export class OutboundOrderPage extends PageBase {
         let obj = {
             IDs : this.selectedItems.map(s=>s.Id)
         }
-        this.env.showPrompt2({code:'Bạn có chắc muốn duyệt {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Duyệt {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
+        this.env.showPrompt({code:'Bạn có chắc muốn duyệt {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Duyệt {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
             this.pageProvider.commonService.connect( 'POST', 'WMS/outbound-order/Approve', obj).toPromise()
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                 });
         });
 
@@ -118,12 +118,12 @@ export class OutboundOrderPage extends PageBase {
         let obj = {
             IDs : this.selectedItems.map(s=>s.Id)
         }
-        this.env.showPrompt2({code:'Bạn có chắc muốn bỏ duyệt {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Bỏ duyệt {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
+        this.env.showPrompt({code:'Bạn có chắc muốn bỏ duyệt {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Bỏ duyệt {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
             this.pageProvider.commonService.connect( 'POST', 'WMS/outbound-order/Disapprove', obj).toPromise()
                 .then(_ => {
                     this.refresh()
                 }).catch(err => {
-                    this.env.showTranslateMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+                    this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
                 });
         });
        

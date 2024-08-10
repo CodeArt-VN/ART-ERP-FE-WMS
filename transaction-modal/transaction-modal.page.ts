@@ -77,11 +77,11 @@ export class TransactionModalPage extends PageBase {
       .then(() => {
         this.update = true;
         super.refresh();
-        this.env.showTranslateMessage('Saving completed!', 'success');
+        this.env.showMessage('Saving completed!', 'success');
         this.submitAttempt = false;
       })
       .catch((err) => {
-        this.env.showTranslateMessage(err.error.Message, 'danger');
+        this.env.showMessage(err.error.Message, 'danger');
         this.submitAttempt = false;
       });
   }

@@ -463,7 +463,7 @@ export class ItemDetailPage extends PageBase {
               this.itemInWarehouseConfig.delete(Ids).then((resp) => {
                 this.items = this.items.filter((d) => d.Id != Ids[0].Id);
                 groups.removeAt(index);
-                this.env.showTranslateMessage('Deleted!', 'success');
+                this.env.showMessage('Deleted!', 'success');
               });
             },
           },
@@ -569,8 +569,8 @@ export class ItemDetailPage extends PageBase {
     }
     this.segmentView.ShowSpinner = true;
     this.env
-      .showLoading2(
-        'Please wait a moment!',
+      .showLoading(
+        'Please wait for a few moments',
         this.vwLotLocLPNProvider.commonService
           .connect('GET', 'vw/WMS/LotLocLPN/', query)
           .toPromise()
@@ -605,8 +605,8 @@ export class ItemDetailPage extends PageBase {
       this.query.IDBranch = this.selectedBranch.Id;
       this.formGroup.controls.IDBranch.markAsDirty();
       this.env
-        .showLoading2(
-          'Please wait a moment!',
+        .showLoading(
+          'Please wait for a few moments',
           this.pageProvider.commonService
             .connect('GET', 'WMS/ItemInBranch/', query)
             .toPromise()
@@ -755,7 +755,7 @@ export class ItemDetailPage extends PageBase {
       if (!i.Id) {
         i.Id = result['Id'];
       }
-      this.env.showTranslateMessage('Unit saved', 'success');
+      this.env.showMessage('Unit saved', 'success');
     });
   }
 
@@ -792,7 +792,7 @@ export class ItemDetailPage extends PageBase {
       await this.uomProvider.save(newUoM).then((result) => {
         this.uomList.push({ Id: result['Id'], Name: result['Name'] });
         this.uomList = [...this.uomList];
-        this.env.showTranslateMessage('New unit saved', 'success');
+        this.env.showMessage('New unit saved', 'success');
         newUoM.Id = result['Id'];
       });
 
@@ -803,7 +803,7 @@ export class ItemDetailPage extends PageBase {
   deleteUoM(i) {
     if (this.pageConfig.canDeleteUoM) {
       if (i.IsBaseUoM) {
-        this.env.showTranslateMessage('Please set up origianl unit before deleting', 'danger');
+        this.env.showMessage('Please set up origianl unit before deleting', 'danger');
         return;
       }
       this.alertCtrl
@@ -831,7 +831,7 @@ export class ItemDetailPage extends PageBase {
                       this.UoMs.splice(index, 1);
                     }
 
-                    this.env.showTranslateMessage('Deleted!', 'success');
+                    this.env.showMessage('Deleted!', 'success');
                   })
                   .catch((err) => {
                     //console.log(err);
@@ -849,7 +849,7 @@ export class ItemDetailPage extends PageBase {
   updateUoM() {
     if (this.pageConfig.canEditUoM) {
       this.pageProvider.save(this.item).then(() => {
-        this.env.showTranslateMessage('Changed unit saved', 'success');
+        this.env.showMessage('Changed unit saved', 'success');
       });
     }
   }
@@ -867,7 +867,7 @@ export class ItemDetailPage extends PageBase {
       };
       this.itemInBranchProvider.save(item).then((result: any) => {
         this.item.IDItemInBranch = result.Id;
-        this.env.showTranslateMessage('Changed unit saved', 'success');
+        this.env.showMessage('Changed unit saved', 'success');
       });
     }
   }
@@ -885,8 +885,8 @@ export class ItemDetailPage extends PageBase {
     };
 
     this.env
-      .showLoading2(
-        'Please wait a moment!',
+      .showLoading(
+        'Please wait for a few moments',
         this.pageProvider.commonService
           .connect(apiPath.method, apiPath.url(this.id), this.priceListQuery)
           .toPromise()
@@ -943,7 +943,7 @@ export class ItemDetailPage extends PageBase {
       .connect(apiPath.method, apiPath.url(p.Id), p)
       .toPromise()
       .then((resp: any) => {
-        this.env.showTranslateMessage('Changes saved', 'success');
+        this.env.showMessage('Changes saved', 'success');
         this.loadPriceList();
       });
   }
@@ -953,7 +953,7 @@ export class ItemDetailPage extends PageBase {
       return new Promise((resolve, reject) => {
         this.formGroup.updateValueAndValidity();
         if (!this.formGroup.valid) {
-          this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+          this.env.showMessage('Please recheck information highlighted in red above', 'warning');
         } else if (this.submitAttempt == false) {
           const idItemInBranch = this.item.IDItemInBranch || 0;
           this.formGroup.get('IDItem').setValue(this.id);
@@ -984,7 +984,7 @@ export class ItemDetailPage extends PageBase {
               this.formGroup.get('Id').setValue(this.id);
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               this.cdr.detectChanges();
               this.submitAttempt = false;
               reject(err);
@@ -1004,7 +1004,7 @@ export class ItemDetailPage extends PageBase {
     return new Promise((resolve, reject) => {
       this.formGroup.updateValueAndValidity();
       if (!form.valid) {
-        this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+        this.env.showMessage('Please recheck information highlighted in red above', 'warning');
       } else if (this.submitAttempt == false) {
         this.submitAttempt = true;
         let submitItem = this.getDirtyValues(form);
@@ -1024,7 +1024,7 @@ export class ItemDetailPage extends PageBase {
             if (publishEventCode) this.env.publishEvent({ Code: publishEventCode });
           })
           .catch((err) => {
-            this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+            this.env.showMessage('Cannot save, please try again', 'danger');
             this.cdr.detectChanges();
             this.submitAttempt = false;
             reject(err);
@@ -1052,7 +1052,7 @@ export class ItemDetailPage extends PageBase {
                   p.Price1 = 0;
                   p.Price2 = 0;
                   p.IsManual = false;
-                  this.env.showTranslateMessage('Changes saved', 'success');
+                  this.env.showMessage('Changes saved', 'success');
                 });
               },
             },
@@ -1081,33 +1081,33 @@ export class ItemDetailPage extends PageBase {
     }));
     if(result.length > 0){
       this.env
-      .showPrompt2(
+      .showPrompt(
         'Bạn có chắc muốn tạo phiếu điều chỉnh không?',
         null,
         'Tạo phiếu điều chỉnh',
       )
       .then((_) => {
         this.env
-        .showLoading2(
-          'Please wait a moment!',
+        .showLoading(
+          'Please wait for a few moments',
           this.pageProvider.commonService
             .connect('POST', 'WMS/Item/PostAdjustments/', result)
             .toPromise()
             .then((res) => {
               if(res) {
-                this.env.showAlert2('Tạo phiếu điều chỉnh thành công!');
+                this.env.showAlert('Tạo phiếu điều chỉnh thành công!');
                 this.isAdjust = false;
                 this.Inventories.forEach((d) => {
                   d.QtyAdjust = 0;
                   d.QtyTarget = d.QuantityOnHand;
                 });
               }else {
-                this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+                this.env.showMessage('Cannot save, please try again', 'danger');
               }
               this.submitAttempt = false;
             })
             .catch((err) => {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
               this.submitAttempt = false;
             })
         )

@@ -118,7 +118,7 @@ export class ItemPage extends PageBase {
 
     const loading = await this.loadingController.create({
       cssClass: 'my-custom-class',
-      message: 'Vui lòng chờ import dữ liệu',
+      message: 'Please wait for a few moments',
     });
     await loading.present().then(() => {
       this.pageProvider['importItemInVendor'](event.target.files[0])
@@ -160,7 +160,7 @@ export class ItemPage extends PageBase {
                 alert.present();
               });
           } else {
-            this.env.showTranslateMessage('Import completed!', 'success');
+            this.env.showMessage('Import completed!', 'success');
             this.env.publishEvent({
               Code: this.pageConfig.pageName,
             });
@@ -177,16 +177,16 @@ export class ItemPage extends PageBase {
 
   duplicateItem() {
     if (this.submitAttempt) {
-      this.env.showTranslateMessage('Xin vui lòng chờ xử lý hoàn tất.');
+      this.env.showMessage('Xin vui lòng chờ xử lý hoàn tất.');
       return;
     }
 
     this.env
-      .showPrompt2('Bạn muốn tạo mã Z cho các item đang chọn?', null, 'Copy sản phẩm')
+      .showPrompt('Bạn muốn tạo mã Z cho các item đang chọn?', null, 'Copy sản phẩm')
       .then((_) => {
         this.env
-          .showLoading2(
-            'Xin vui lòng chờ copy dữ liệu',
+          .showLoading(
+            'Please wait for a few moments',
             this.pageProvider.commonService
               .connect('POST', 'WMS/Item/DuplicateItem/', {
                 Ids: this.selectedItems.map((e) => e.Id),
@@ -194,7 +194,7 @@ export class ItemPage extends PageBase {
               .toPromise(),
           )
           .then((_) => {
-            this.env.showTranslateMessage('Saving completed!', 'success');
+            this.env.showMessage('Saving completed!', 'success');
             this.submitAttempt = false;
             this.refresh();
           })
