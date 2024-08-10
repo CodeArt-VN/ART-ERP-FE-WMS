@@ -35,9 +35,9 @@ export class ShippingDetailPage extends PageBase {
 
   isAllChecked = false;
   checkedShippingDetails: any = new FormArray([]);
-//#endregion
+  //#endregion
 
-//#region Init
+  //#region Init
   constructor(
     public pageProvider: WMS_ShippingProvider,
     public shippingDetailService: WMS_ShippingDetailProvider,
@@ -78,10 +78,10 @@ export class ShippingDetailPage extends PageBase {
       ModifiedDate: new FormControl({ value: '', disabled: true }),
     });
   }
-//#endregion
+  //#endregion
 
-//#region Load
-preLoadData(event) {
+  //#region Load
+  preLoadData(event) {
     this.statusDataSource = [
       { Name: 'Active', Code: 'Active' },
       { Name: 'Done', Code: 'Done' },
@@ -114,15 +114,14 @@ preLoadData(event) {
     super.loadedData(event, ignoredFromGroup);
     this.query.IDShipping = this.item.Id;
     this.query.Id = undefined;
-    if ( this.item.ShippingDetails.length > 0) {
-    
-        this.buildFlatTree( this.item.ShippingDetails, null, false).then((resp: any) => {
-          this.item.ShippingDetails = resp;
-          const ShippingDetailsArray = this.formGroup.get('ShippingDetails') as FormArray;
-          ShippingDetailsArray.clear();
-          this.patchFieldsValue();
-        });
-   
+    if (this.item.ShippingDetails.length > 0) {
+      this.buildFlatTree(this.item.ShippingDetails, null, false).then((resp: any) => {
+        this.item.ShippingDetails = resp;
+        const ShippingDetailsArray = this.formGroup.get('ShippingDetails') as FormArray;
+        ShippingDetailsArray.clear();
+        this.patchFieldsValue();
+      });
+
       // this.patchFieldsValue();
     }
   }
@@ -149,16 +148,19 @@ preLoadData(event) {
       Id: new FormControl({ value: field.Id, disabled: true }),
       IDItem: [field.IDItem, Validators.required],
       Quantity: [field.Quantity],
-      QuantityShipped:  new FormControl({ value: field.QuantityShipped, disabled: (field.Status != 'Active') ? true:false }),
-      TrackingQuantityShipped : [field.QuantityShipped],
+      QuantityShipped: new FormControl({
+        value: field.QuantityShipped,
+        disabled: field.Status != 'Active' ? true : false,
+      }),
+      TrackingQuantityShipped: [field.QuantityShipped],
       Status: [field.Status],
       FromLocationName: [field.FromLocationName],
       LPN: [field.LPN > 0 ? field.LPN : null],
       LotName: [field.LotName],
       UoMName: [field.UoMName],
-      ItemName: [field.ItemName], 
+      ItemName: [field.ItemName],
 
-      IDParent:[field.IDParent],
+      IDParent: [field.IDParent],
       ShowDetail: [field.showdetail],
       Showing: [field.show],
       HasChild: [field.HasChild],
@@ -174,18 +176,12 @@ preLoadData(event) {
     });
     groups.push(group);
   }
-//#endregion
+  //#endregion
 
-//#region Business logic
+  //#region Business logic
   closeShip() {
     this.query.Id = this.formGroup.get('Id').value;
-    this.env
-    .showPrompt(
-      'Bạn có chắc muốn đóng tất cả các sản phẩm giao hàng?',
-      null,
-      'Đóng giao hàng',
-    )
-    .then((_) => {
+    this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm giao hàng?', null, 'Đóng giao hàng').then((_) => {
       this.env
         .showLoading(
           'Please wait for a few moments',
@@ -206,14 +202,13 @@ preLoadData(event) {
     super.saveChange2(fg, this.pageConfig.pageName, this.shippingDetailService);
   }
 
-  calcTotalShippedQuantity(childFG,e = null) {
+  calcTotalShippedQuantity(childFG, e = null) {
     console.log(e);
-    if(this.submitAttempt){
-      childFG.get('QuantityShipped').setErrors({valid:false});
-      this.env.showMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+    if (this.submitAttempt) {
+      childFG.get('QuantityShipped').setErrors({ valid: false });
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger', 'error', 5000, true);
       return;
-    }
-    else{
+    } else {
       let groups = <FormArray>this.formGroup.controls.ShippingDetails;
       let totalShippedQty = 0;
       let parentFG = groups.controls.find((d) => d.get('Id').value == childFG.get('IDParent').value);
@@ -230,17 +225,19 @@ preLoadData(event) {
           { Id: childFG.get('Id').value, Status: 'Active', QuantityShipped: childFG.get('QuantityShipped').value },
         ];
       } else {
-        obj = [{ Id: childFG.get('Id').value, Status: 'Active', QuantityShipped: childFG.get('QuantityShipped').value }];
+        obj = [
+          { Id: childFG.get('Id').value, Status: 'Active', QuantityShipped: childFG.get('QuantityShipped').value },
+        ];
       }
       // Check if QuantityShipped is valid
       const isValid = obj.every((item) => {
         let group = groups.controls.find((d) => d.get('Id').value == item.Id);
         return group && item.QuantityShipped <= group.get('Quantity').value && item.QuantityShipped >= 0;
       });
-  
+
       if (!isValid) {
         this.env.showMessage('Quantity packed is more than quantity', 'danger');
-        return; 
+        return;
       }
       if (this.submitAttempt == false) {
         this.submitAttempt = true;
@@ -255,7 +252,6 @@ preLoadData(event) {
                 if (shippingDetail) {
                   shippingDetail.get('QuantityShipped').setValue(updatedShipping.QuantityShipped);
                   shippingDetail.get('TrackingQuantityShipped').setValue(updatedShipping.QuantityShipped);
-
                 }
               });
               this.env.showMessage('Saved', 'success');
@@ -265,10 +261,10 @@ preLoadData(event) {
             }
             this.submitAttempt = false;
           })
-          .catch(err => {
+          .catch((err) => {
             this.submitAttempt = false;
             childFG.get('QuantityShipped').setValue(childFG.get('TrackingQuantityShipped').value);
-            childFG.get('QuantityShipped').setErrors({valid:false});
+            childFG.get('QuantityShipped').setErrors({ valid: false });
             this.env.showMessage(err.error.Message, 'danger');
           });
       }
@@ -286,11 +282,10 @@ preLoadData(event) {
   }
 
   toggleAllQty() {
-    if(this.submitAttempt){
-      this.env.showMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+    if (this.submitAttempt) {
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger', 'error', 5000, true);
       return;
-    } 
-    else{
+    } else {
       let groups = <FormArray>this.formGroup.controls.ShippingDetails;
       let obj = [];
       groups.controls.forEach((group: FormGroup) => {
@@ -306,7 +301,7 @@ preLoadData(event) {
           obj.push({ Id: id, Status: currentStatus, QuantityShipped: quantityShipped });
         }
       });
-  
+
       if (!this.submitAttempt && obj.length > 0) {
         this.submitAttempt = true;
         this.pageProvider.commonService
@@ -324,7 +319,7 @@ preLoadData(event) {
       }
     }
   }
-  
+
   async openTransaction(fg) {
     const modal = await this.modalController.create({
       component: TransactionModalPage,
@@ -340,7 +335,7 @@ preLoadData(event) {
       this.refresh();
     }
   }
-//#endregion
+  //#endregion
 
   //#region Selection
   changeSelection(i, view, e = null) {
@@ -373,9 +368,9 @@ preLoadData(event) {
 
     this.checkedShippingDetails = new FormArray([]);
   }
-//#endregion
+  //#endregion
 
-//#region Delete
+  //#region Delete
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.ShippingDetails;
     let itemToDelete = fg.getRawValue();
@@ -389,8 +384,15 @@ preLoadData(event) {
   deleteItems() {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkedShippingDetails.getRawValue();
-      this.env.showPrompt({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},null,{code:'Xóa {{value1}} dòng',value:{value:itemsToDelete.length}}).then((_) => {
-          this.env .showLoading('Please wait for a few moments', this.shippingDetailService.delete(itemsToDelete)) .then((_) => {
+      this.env
+        .showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: itemsToDelete.length }, null, {
+          code: 'Xóa {{value1}} dòng',
+          value: itemsToDelete.length,
+        })
+        .then((_) => {
+          this.env
+            .showLoading('Please wait for a few moments', this.shippingDetailService.delete(itemsToDelete))
+            .then((_) => {
               this.removeSelectedItems();
               this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
               this.isAllChecked = false;
@@ -401,61 +403,65 @@ preLoadData(event) {
         });
     }
   }
-//#endregion
+  //#endregion
 
-//#region SaveChange
+  //#region SaveChange
   async saveChange() {
     let submitItem = this.getDirtyValues(this.formGroup);
     super.saveChange2();
   }
 
-  
   changeStatusDetail(fg, status) {
-    if(this.submitAttempt){
-      fg.get('QuantityShipped').setErrors({valid:false});
-      this.env.showMessage('System is saving please wait for seconds then try again', 'danger','error',5000,true);
+    if (this.submitAttempt) {
+      fg.get('QuantityShipped').setErrors({ valid: false });
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger', 'error', 5000, true);
       return;
-    }
-    else{
-    if (fg.get('Status').value == 'Active' && status == 'Done') {
-      //update status Active -> Done
-      let obj = [
-        {
-          Id: fg.get('Id').value,
-          Status: status,
-        },
-      ];
-      if (this.submitAttempt == false) {
-        this.env.showPrompt('Bạn có chắc muốn hoàn tất?', null, 'Hoàn tất').then((_) => {
-          this.submitAttempt = true;
-          this.pageProvider.commonService
-          .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
-          .toPromise()
-          .then((result: any) => {
-            if (result) {
-              this.env.showMessage('Saved', 'success');
-              let groups = <FormArray>this.formGroup.controls.ShippingDetails;
-              let parent = groups.controls.find(d=> d.get('Id').value == fg.get('IDParent').value);
-              fg.controls.Status.setValue(status);
-              fg.controls.QuantityShipped.disable();
-              if(parent) parent.get('QuantityShipped').setValue(parseFloat(parent.get('QuantityShipped').value || 0) + parseFloat( fg.get('QuantityShipped').value|| 0 ));
-              fg.controls.QuantityShipped.markAsPristine();
-              this.submitAttempt = false;
-            } else {
-              this.env.showMessage('Cannot save, please try again', 'danger');
-              this.submitAttempt = false;
-            }
-          })
-          .catch((err) => {
-            this.env.showMessage('Cannot save, please try again', 'danger');
-            this.submitAttempt = false;
+    } else {
+      if (fg.get('Status').value == 'Active' && status == 'Done') {
+        //update status Active -> Done
+        let obj = [
+          {
+            Id: fg.get('Id').value,
+            Status: status,
+          },
+        ];
+        if (this.submitAttempt == false) {
+          this.env.showPrompt('Bạn có chắc muốn hoàn tất?', null, 'Hoàn tất').then((_) => {
+            this.submitAttempt = true;
+            this.pageProvider.commonService
+              .connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)
+              .toPromise()
+              .then((result: any) => {
+                if (result) {
+                  this.env.showMessage('Saved', 'success');
+                  let groups = <FormArray>this.formGroup.controls.ShippingDetails;
+                  let parent = groups.controls.find((d) => d.get('Id').value == fg.get('IDParent').value);
+                  fg.controls.Status.setValue(status);
+                  fg.controls.QuantityShipped.disable();
+                  if (parent)
+                    parent
+                      .get('QuantityShipped')
+                      .setValue(
+                        parseFloat(parent.get('QuantityShipped').value || 0) +
+                          parseFloat(fg.get('QuantityShipped').value || 0),
+                      );
+                  fg.controls.QuantityShipped.markAsPristine();
+                  this.submitAttempt = false;
+                } else {
+                  this.env.showMessage('Cannot save, please try again', 'danger');
+                  this.submitAttempt = false;
+                }
+              })
+              .catch((err) => {
+                this.env.showMessage('Cannot save, please try again', 'danger');
+                this.submitAttempt = false;
+              });
           });
-          });
+        }
       }
     }
   }
-  }
-//#endregion
+  //#endregion
 
   //#region Sort
   sortDetail: any = {};
@@ -500,7 +506,7 @@ preLoadData(event) {
       return desc ? -comparison : comparison;
     });
   }
-//#endregion
+  //#endregion
 
   //#region Toggle row
   toggleRow(fg, event) {
@@ -535,14 +541,14 @@ preLoadData(event) {
       });
     }
   }
-//#endregion
+  //#endregion
 
-//#region Segment
+  //#region Segment
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
   }
-//#endregion
+  //#endregion
 
   markNestedNode(ls, Id) {
     ls.filter((d) => d.IDParent == Id).forEach((i) => {

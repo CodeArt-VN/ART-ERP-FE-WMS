@@ -209,9 +209,9 @@ export class PickingOrderDetailPage extends PageBase {
       group.controls.Lot.markAsDirty();
     }
   }
- //#endregion
+  //#endregion
 
- //#region Business logic
+  //#region Business logic
   closePick() {
     this.query.Id = this.item.Id;
     this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
@@ -229,7 +229,6 @@ export class PickingOrderDetailPage extends PageBase {
     });
   }
 
-  
   allocatePicking() {
     this.query.Id = this.formGroup.get('Id').value;
     this.env
@@ -255,13 +254,7 @@ export class PickingOrderDetailPage extends PageBase {
 
   toggleAllQty() {
     if (this.submitAttempt) {
-      this.env.showMessage(
-        'System is saving please wait for seconds then try again',
-        'danger',
-        'error',
-        5000,
-        true,
-      );
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger', 'error', 5000, true);
       return;
     } else {
       let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
@@ -301,13 +294,7 @@ export class PickingOrderDetailPage extends PageBase {
   calcTotalPickedQuantity(childFG) {
     if (this.submitAttempt) {
       childFG.get('QuantityPicked').setErrors({ valid: false });
-      this.env.showMessage(
-        'System is saving please wait for seconds then try again',
-        'danger',
-        'error',
-        5000,
-        true,
-      );
+      this.env.showMessage('System is saving please wait for seconds then try again', 'danger', 'error', 5000, true);
       return;
     } else {
       let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
@@ -346,7 +333,6 @@ export class PickingOrderDetailPage extends PageBase {
     }
   }
 
-  
   changedFromLocationID(valueNew, group, index) {
     let itemUpdate = [];
     if (valueNew) {
@@ -551,7 +537,7 @@ export class PickingOrderDetailPage extends PageBase {
   }
   //#endregion
 
-//#region Selection
+  //#region Selection
   changeSelection(i, view, e = null) {
     if (i.get('IsChecked').value) {
       this.checkedPickingOrderDetails.push(i);
@@ -599,9 +585,9 @@ export class PickingOrderDetailPage extends PageBase {
 
     this.checkedPickingOrderDetails = new FormArray([]);
   }
-//#endregion
+  //#endregion
 
-//#region  Delete
+  //#region  Delete
   removeField(fg, j) {
     let itemToDelete = fg.getRawValue();
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
@@ -620,8 +606,10 @@ export class PickingOrderDetailPage extends PageBase {
     if (this.pageConfig.canDelete) {
       let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
       this.env
-        .showPrompt({code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},null,{code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
-        )
+        .showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: itemsToDelete.length }, null, {
+          code: 'Xóa {{value1}} dòng',
+          value1: itemsToDelete.length,
+        })
         .then((_) => {
           this.env
             .showLoading('Please wait for a few moments', this.pickingOrderDetailService.delete(itemsToDelete))
@@ -637,9 +625,9 @@ export class PickingOrderDetailPage extends PageBase {
         });
     }
   }
-//#endregion
+  //#endregion
 
-//#region SaveChange
+  //#region SaveChange
   async saveChange() {
     let submitItem = this.getDirtyValues(this.formGroup);
     super.saveChange2();
@@ -659,29 +647,31 @@ export class PickingOrderDetailPage extends PageBase {
       if (fg.get('Status').value == 'Active' && status == 'Done') {
         this.submitAttempt = true;
         if (fg.get('Quantity').value > fg.get('QuantityPicked').value) {
-          this.env.showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất?').then((_) => {
-            this.pageProvider.commonService
-              .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
-              .toPromise()
-              .then((result: any) => {
-                if (result) {
-                  this.env.showMessage('Saved', 'success');
-                  fg.controls.Status.setValue(status);
-                  fg.disable();
-                } else {
+          this.env
+            .showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất?')
+            .then((_) => {
+              this.pageProvider.commonService
+                .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
+                .toPromise()
+                .then((result: any) => {
+                  if (result) {
+                    this.env.showMessage('Saved', 'success');
+                    fg.controls.Status.setValue(status);
+                    fg.disable();
+                  } else {
+                    this.env.showMessage('Cannot save, please try again', 'danger');
+                  }
+                  this.submitAttempt = false;
+                })
+                .catch((err) => {
                   this.env.showMessage('Cannot save, please try again', 'danger');
-                }
-                this.submitAttempt = false;
-              })
-              .catch((err) => {
-                this.env.showMessage('Cannot save, please try again', 'danger');
-                this.submitAttempt = false;
-              });
-          }).catch(err=> {
-            this.submitAttempt = false;
-          });
-        } 
-        else {
+                  this.submitAttempt = false;
+                });
+            })
+            .catch((err) => {
+              this.submitAttempt = false;
+            });
+        } else {
           this.pageProvider.commonService
             .connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)
             .toPromise()
@@ -705,9 +695,9 @@ export class PickingOrderDetailPage extends PageBase {
     }
   }
 
-//#endregion
+  //#endregion
 
-//#region Sort
+  //#region Sort
   sortDetail: any = {};
   sortToggle(field) {
     if (!this.sortDetail[field]) {
@@ -756,13 +746,13 @@ export class PickingOrderDetailPage extends PageBase {
   }
 
   //#endregion
-  
-//#region Segment
+
+  //#region Segment
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
   }
-//#endregion
+  //#endregion
 
   //#region ToggleRow
   toggleRow(fg, event) {
@@ -797,14 +787,12 @@ export class PickingOrderDetailPage extends PageBase {
       });
     }
   }
-//#endregion
+  //#endregion
 
-  
   markNestedNode(ls, Id) {
     ls.filter((d) => d.IDParent == Id).forEach((i) => {
       if (i.Type == 'Warehouse') i.disabled = false;
       this.markNestedNode(ls, i.Id);
     });
   }
-
 }

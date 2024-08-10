@@ -28,7 +28,7 @@ export class OutboundOrderDetailPage extends PageBase {
   // #region Variables
   countTypeDataSource: any;
   itemList: any;
-  vehicleList : any = [];
+  vehicleList: any = [];
   selectedVehicles: any = [];
   tempItemList: any;
   countItem: number = 0;
@@ -39,7 +39,7 @@ export class OutboundOrderDetailPage extends PageBase {
   isAllChecked = false;
   checkedOutboundOrderDetails: any = new FormArray([]);
   // #endregion
-  
+
   // #region Init
   constructor(
     public pageProvider: WMS_OutboundOrderProvider,
@@ -277,7 +277,7 @@ export class OutboundOrderDetailPage extends PageBase {
     }
   }
   // #endregion
- 
+
   // #region Business logic
   IDItemChange(e, group) {
     group.controls.UoMName.setValue('');
@@ -342,7 +342,7 @@ export class OutboundOrderDetailPage extends PageBase {
     let packingQuery = {
       Id: this.selectedItems.map((i) => i.Id),
       IDVehicle: this.selectedVehicles.map((i) => i.Id),
-      isForceCreate : isForceCreate
+      isForceCreate: isForceCreate,
     };
     this.env
       .showLoading(
@@ -354,21 +354,21 @@ export class OutboundOrderDetailPage extends PageBase {
         this.refreshSegmentView();
       })
       .catch((err) => {
-        if(err.error && err.error.Message =='Need more vehicle to ship!') {
-          this.env .showPrompt( 'Số lượng xe hiện tại không thể tải hết hàng, bạn có muốn tiếp tục?', null, 'Không đủ tải', )
-          .then((_) => { 
-            this.CreateShippingFromPacking(true)
-          })
-          .catch(err=>{
-            this.env.showMessage('Cannot save', 'danger');
-          });
-        }
-        else{
+        if (err.error && err.error.Message == 'Need more vehicle to ship!') {
+          this.env
+            .showPrompt('Số lượng xe hiện tại không thể tải hết hàng, bạn có muốn tiếp tục?', null, 'Không đủ tải')
+            .then((_) => {
+              this.CreateShippingFromPacking(true);
+            })
+            .catch((err) => {
+              this.env.showMessage('Cannot save', 'danger');
+            });
+        } else {
           this.env.showMessage('Cannot save', 'danger');
         }
       });
   }
-  
+
   printQRCode() {
     let query = { IDPacking: this.selectedItems.map((d) => d.Id) };
     this.env
@@ -397,37 +397,34 @@ export class OutboundOrderDetailPage extends PageBase {
         else this.env.showMessage('Không tạo được mã, xin vui lòng kiểm tra lại.', 'danger');
       });
   }
-  
+
   getExistedItem() {
     let groups = <FormArray>this.formGroup.controls.OutboundOrderDetails;
     return groups.controls.map((g) => g.get('IDItem').value);
   }
 
-  
-  isModalOpen = false
+  isModalOpen = false;
   presentModal() {
     this.selectedVehicles = [];
 
     this.isModalOpen = true;
     let queryVehicle = {};
     this.env
-    .showLoading('Please wait for a few moments', this.vehicleService.read(queryVehicle))
-    .then((result:any) => {
-      if(result && result.data.length>0) this.vehicleList = result.data;
-      console.log(this.vehicleList); 
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
+      .showLoading('Please wait for a few moments', this.vehicleService.read(queryVehicle))
+      .then((result: any) => {
+        if (result && result.data.length > 0) this.vehicleList = result.data;
+        console.log(this.vehicleList);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   dismissModal(isCreateShipping = false) {
-    this.isModalOpen = false
-    if(isCreateShipping){
+    this.isModalOpen = false;
+    if (isCreateShipping) {
       this.CreateShippingFromPacking();
     }
-
   }
 
   // #endregion
@@ -592,30 +589,32 @@ export class OutboundOrderDetailPage extends PageBase {
         itemToDelete.push(i.getRawValue());
       });
       itemToDelete.push(fg.getRawValue());
-      this.env.showPrompt('Bạn có chắc muốn xóa không?', null,{code:'Xóa {{value}} dòng', value:{value:itemToDelete.length}}).then((_) => {
-        this.outboundOrderDetailService
-          .delete(itemToDelete)
-          .then((result) => {
-            groups.removeAt(j);
-            let indexToRemove = this.checkedOutboundOrderDetails.controls.findIndex(
-              (control) => control.get('Id').value === fg.get('Id').value,
-            );
-            this.checkedOutboundOrderDetails.removeAt(indexToRemove);
-            allNest.forEach((i) => {
-              let index = groups.controls.indexOf(i);
-              groups.removeAt(index);
+      this.env
+        .showPrompt('Bạn có chắc muốn xóa không?', null, { code: 'Xóa {{value}} dòng', value: itemToDelete.length })
+        .then((_) => {
+          this.outboundOrderDetailService
+            .delete(itemToDelete)
+            .then((result) => {
+              groups.removeAt(j);
               let indexToRemove = this.checkedOutboundOrderDetails.controls.findIndex(
-                (control) => control.get('Id').value === i.get('Id').value,
+                (control) => control.get('Id').value === fg.get('Id').value,
               );
               this.checkedOutboundOrderDetails.removeAt(indexToRemove);
-            });
+              allNest.forEach((i) => {
+                let index = groups.controls.indexOf(i);
+                groups.removeAt(index);
+                let indexToRemove = this.checkedOutboundOrderDetails.controls.findIndex(
+                  (control) => control.get('Id').value === i.get('Id').value,
+                );
+                this.checkedOutboundOrderDetails.removeAt(indexToRemove);
+              });
 
-            this.env.showMessage('saved', 'success');
-          })
-          .catch((err) => {
-            this.env.showMessage(err.error?.Message ?? err.message, 'danger');
-          });
-      });
+              this.env.showMessage('saved', 'success');
+            })
+            .catch((err) => {
+              this.env.showMessage(err.error?.Message ?? err.message, 'danger');
+            });
+        });
     } else {
       groups.removeAt(j);
     }
@@ -627,9 +626,9 @@ export class OutboundOrderDetailPage extends PageBase {
 
       this.env
         .showPrompt(
-          {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
+          { code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: { value: itemsToDelete.length } },
           null,
-          {code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
+          { code: 'Xóa {{value1}} dòng', value: { value1: itemsToDelete.length } },
         )
         .then((_) => {
           this.env
