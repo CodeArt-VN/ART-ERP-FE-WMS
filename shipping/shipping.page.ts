@@ -60,7 +60,7 @@ export class ShippingPage extends PageBase {
         let obj = {
             IDs : this.selectedItems.map(s=>s.Id)
         }
-        this.env.showPrompt('Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?', null, 'Duyệt ' + this.selectedItems.length + ' dòng').then(_ => {
+        this.env.showPrompt2({code:'Bạn có chắc muốn duyệt {{value}} đang chọn?',value:{value:this.selectedItems.length}},null,{code:'Duyệt {{value1}} dòng?',value:{value:this.selectedItems.length}}).then(_ => {
             this.pageProvider.commonService.connect( 'POST', 'WMS/shipping/Approve', obj).toPromise()
                 .then(_ => {
                     this.refresh()
@@ -79,7 +79,7 @@ export class ShippingPage extends PageBase {
             IDs : this.selectedItems.map(s=>s.Id)
         }
    
-        this.env.showPrompt('Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?', null, 'Bỏ duyệt ' + this.selectedItems.length + ' dòng').then(_ => {
+        this.env.showPrompt2({code:'Bạn có chắc muốn bỏ duyệt {{value}} đang chọn?',value:{value:this.selectedItems.length}},null,{code:'Bỏ duyệt {{value1}} dòng?',value:{value:this.selectedItems.length}}).then(_ => {
             this.pageProvider.commonService.connect( 'POST', 'WMS/shipping/Disapprove', obj).toPromise()
                 .then(_ => {
                     this.refresh()

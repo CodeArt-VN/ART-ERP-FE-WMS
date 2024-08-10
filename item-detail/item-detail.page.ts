@@ -445,7 +445,7 @@ export class ItemDetailPage extends PageBase {
       .create({
         header: 'Xóa địa chỉ',
         //subHeader: '---',
-        message: 'Bạn chắc muốn xóa chủ hàng và các cấu hình này?',
+        message: 'Bạn có chắc muốn xóa chủ hàng và các cấu hình này?',
         buttons: [
           {
             text: 'Không',
@@ -569,7 +569,7 @@ export class ItemDetailPage extends PageBase {
     }
     this.segmentView.ShowSpinner = true;
     this.env
-      .showLoading(
+      .showLoading2(
         'Please wait a moment!',
         this.vwLotLocLPNProvider.commonService
           .connect('GET', 'vw/WMS/LotLocLPN/', query)
@@ -605,7 +605,7 @@ export class ItemDetailPage extends PageBase {
       this.query.IDBranch = this.selectedBranch.Id;
       this.formGroup.controls.IDBranch.markAsDirty();
       this.env
-        .showLoading(
+        .showLoading2(
           'Please wait a moment!',
           this.pageProvider.commonService
             .connect('GET', 'WMS/ItemInBranch/', query)
@@ -810,7 +810,7 @@ export class ItemDetailPage extends PageBase {
         .create({
           header: 'Xóa đơn vị ' + (i.Name ? ' ' + i.Name : ''),
           //subHeader: '---',
-          message: 'Bạn chắc muốn xóa đơn vị' + (i.Name ? ' ' + i.Name : '') + '?',
+          message: 'Bạn có chắc muốn xóa đơn vị' + (i.Name ? ' ' + i.Name : '') + '?',
           buttons: [
             {
               text: 'Không',
@@ -885,7 +885,7 @@ export class ItemDetailPage extends PageBase {
     };
 
     this.env
-      .showLoading(
+      .showLoading2(
         'Please wait a moment!',
         this.pageProvider.commonService
           .connect(apiPath.method, apiPath.url(this.id), this.priceListQuery)
@@ -1039,7 +1039,7 @@ export class ItemDetailPage extends PageBase {
         .create({
           header: 'Xóa giá',
           //subHeader: '---',
-          message: 'Bạn chắc muốn xóa giá này?',
+          message: 'Bạn có chắc muốn xóa giá này?',
           buttons: [
             { text: 'Không', role: 'cancel' },
             {
@@ -1081,21 +1081,21 @@ export class ItemDetailPage extends PageBase {
     }));
     if(result.length > 0){
       this.env
-      .showPrompt(
+      .showPrompt2(
         'Bạn có chắc muốn tạo phiếu điều chỉnh không?',
         null,
         'Tạo phiếu điều chỉnh',
       )
       .then((_) => {
         this.env
-        .showLoading(
+        .showLoading2(
           'Please wait a moment!',
           this.pageProvider.commonService
             .connect('POST', 'WMS/Item/PostAdjustments/', result)
             .toPromise()
             .then((res) => {
               if(res) {
-                this.env.showAlert('Tạo phiếu điều chỉnh thành công!');
+                this.env.showAlert2('Tạo phiếu điều chỉnh thành công!');
                 this.isAdjust = false;
                 this.Inventories.forEach((d) => {
                   d.QtyAdjust = 0;

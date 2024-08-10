@@ -163,9 +163,9 @@ export class PackingOrderDetailPage extends PageBase {
    //#region Business Logic
    closePack() {
     this.query.Id = this.formGroup.get('Id').value;
-    this.env .showPrompt( 'Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng', )
+    this.env .showPrompt2('Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng', )
     .then((_) => { 
-      this.env .showLoading( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(), )
+      this.env .showLoading2( 'Vui lòng chờ load dữ liệu...', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise(), )
         .then(async (result: any) => {
           this.refresh();
         })
@@ -485,7 +485,7 @@ removeSelectedItems() {
   removeField(fg, j) {
     let groups = <FormArray>this.formGroup.controls.PackingDetails;
     let itemToDelete = fg.getRawValue();
-    this.env.showPrompt('Bạn chắc muốn xóa ?', null, 'Xóa ' + 1 + ' dòng').then((_) => {
+    this.env.showPrompt2('Bạn có chắc muốn xóa?', null, 'Xóa 1 dòng').then((_) => {
       this.packingDetailservice.delete(itemToDelete).then((result) => {
         groups.removeAt(j);
       });
@@ -497,14 +497,14 @@ removeSelectedItems() {
       let itemsToDelete = this.checkedPackingDetails.getRawValue();
 
       this.env
-        .showPrompt(
-          'Bạn chắc muốn xóa ' + itemsToDelete.length + ' đang chọn?',
+        .showPrompt2(
+          {code:'Bạn có chắc muốn xóa {{value}} đang chọn?',value:{value:itemsToDelete.length}},
           null,
-          'Xóa ' + itemsToDelete.length + ' dòng',
+          {code:'Xóa {{value1}} dòng',value:{value1:itemsToDelete.length}},
         )
         .then((_) => {
           this.env
-            .showLoading('Xin vui lòng chờ trong giây lát...', this.packingDetailservice.delete(itemsToDelete))
+            .showLoading2('Xin vui lòng chờ trong giây lát...', this.packingDetailservice.delete(itemsToDelete))
             .then((_) => {
               this.removeSelectedItems();
               this.env.showTranslateMessage('erp.app.app-component.page-bage.delete-complete', 'success');

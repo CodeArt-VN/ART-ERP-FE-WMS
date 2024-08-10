@@ -75,9 +75,9 @@ export class OutboundOrderPage extends PageBase {
             obj.Ids  = this.selectedItems.map(m => m.Id);
           }
           let publishEventCode = this.pageConfig.pageName;
-          this.env.showPrompt('Bạn chắc muốn gộp ' + this.selectedItems.length + ' đang chọn?', null, 'Gộp ' + this.selectedItems.length  + ' dòng').then(_ => {
+          this.env.showPrompt2({code:'Bạn có chắc muốn gộp {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Gộp {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
             this.submitAttempt = true;
-            this.env.showLoading('Xin vui lòng chờ trong giây lát...', this.pageProvider.commonService.connect('POST', 'WMS/OutboundOrder/MergeOrders/', obj).toPromise())
+            this.env.showLoading2('Xin vui lòng chờ trong giây lát...', this.pageProvider.commonService.connect('POST', 'WMS/OutboundOrder/MergeOrders/', obj).toPromise())
                 .then((savedItem:any) => {
                     if (publishEventCode) {
                         this.env.publishEvent({ Code: publishEventCode });
@@ -99,7 +99,7 @@ export class OutboundOrderPage extends PageBase {
         let obj = {
             IDs : this.selectedItems.map(s=>s.Id)
         }
-        this.env.showPrompt('Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?', null, 'Duyệt ' + this.selectedItems.length + ' dòng').then(_ => {
+        this.env.showPrompt2({code:'Bạn có chắc muốn duyệt {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Duyệt {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
             this.pageProvider.commonService.connect( 'POST', 'WMS/outbound-order/Approve', obj).toPromise()
                 .then(_ => {
                     this.refresh()
@@ -118,8 +118,7 @@ export class OutboundOrderPage extends PageBase {
         let obj = {
             IDs : this.selectedItems.map(s=>s.Id)
         }
-   
-        this.env.showPrompt('Bạn chắc muốn duyệt ' + this.selectedItems.length + ' đang chọn?', null, 'Bỏ duyệt ' + this.selectedItems.length + ' dòng').then(_ => {
+        this.env.showPrompt2({code:'Bạn có chắc muốn bỏ duyệt {{value}} đang chọn?', value:{value:this.selectedItems.length}}, null,  {code:'Bỏ duyệt {{value1}} dòng', value:{value1:this.selectedItems.length}}).then(_ => {
             this.pageProvider.commonService.connect( 'POST', 'WMS/outbound-order/Disapprove', obj).toPromise()
                 .then(_ => {
                     this.refresh()
