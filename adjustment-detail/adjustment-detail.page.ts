@@ -147,9 +147,7 @@ export class AdjustmentDetailPage extends PageBase {
         this.patchFieldsValue();
       }
     });
-    if (this.item.Id > 0) {
-      this.formGroup.get('Status').markAsPristine();
-    } else {
+    if (!this.item.Id) {
       this.formGroup.get('Status').markAsDirty();
     }
     this.query.Id = this.item.Id;

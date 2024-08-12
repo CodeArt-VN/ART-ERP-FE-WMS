@@ -148,7 +148,7 @@ export class AllocationStrategyDetailPage extends PageBase {
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
     super.loadedData(event, ignoredFromGroup);
-    if(this.item.Id == 0 ){
+    if(!this.item.Id){
       this.formGroup.get('Type').markAsDirty();
     }
     if(this.item.FindInZone){

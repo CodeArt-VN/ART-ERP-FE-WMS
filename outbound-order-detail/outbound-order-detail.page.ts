@@ -163,7 +163,7 @@ export class OutboundOrderDetailPage extends PageBase {
       this.pageConfig.canEdit = false;
     }
     super.loadedData(event, ignoredFromGroup);
-    if (!(this.item.Id > 0)) {
+    if (!this.item.Id) {
       this.formGroup.get('Status').markAsDirty();
     }
     if (this.item.OutboundOrderDetails?.length > 0) {
