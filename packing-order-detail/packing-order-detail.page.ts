@@ -113,7 +113,9 @@ export class PackingOrderDetailPage extends PageBase {
       this.formGroup.disable();
     }
     // this.query.Id = this.item.Id;
-    this.formGroup.get('Status').markAsDirty();
+    if(!this.item.Id){
+      this.formGroup.get('Status').markAsDirty();
+    }
   }
   private patchFieldsValue() {
     this.pageConfig.showSpinner = true;

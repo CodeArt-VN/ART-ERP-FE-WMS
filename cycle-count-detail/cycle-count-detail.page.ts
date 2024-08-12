@@ -157,7 +157,9 @@ export class CycleCountDetailPage extends PageBase {
       });
     }
 
-    this.formGroup.get('Status').markAsDirty();
+    if(!this.item.Id){
+      this.formGroup.get('Status').markAsDirty();
+    }
     console.log(this.formGroup);
     this.removeSelectedItems();
     this.isAllChecked = false;
