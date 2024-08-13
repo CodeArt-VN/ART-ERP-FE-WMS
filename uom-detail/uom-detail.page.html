@@ -13,59 +13,42 @@
     <ion-grid fixed>
       <ion-row>
         <ion-col size="12" size-sm="12" size-md="6">
-          <div class="c-control">
-            <label class="c-label" for="Name"
-              >{{'Name' | translate}}
-              <span
-                *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)"
-                ion-text
-                color="danger"
-                >(*)</span
-              >
-            </label>
-            <input class="c-input" id="Name" formControlName="Name" type="text" />
-          </div>
-          <div class="c-control">
-            <label class="c-label" for="Code"
-              >{{'Code' | translate}}
-              <span
-                *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)"
-                ion-text
-                color="danger"
-                >(*)</span
-              >
-            </label>
-            <input class="c-input" id="Code" formControlName="Code" type="text" />
-          </div>
-          <div class="c-control">
-            <label class="c-label" for="Type">{{'Type' | translate}}</label>
-            <input class="c-input" id="Type" formControlName="Type" type="text" />
-          </div>
+          <app-form-control [field]="{id:'Name', form : formGroup }" (change)="saveChange()"></app-form-control>
+          <app-form-control
+            [field]="{id:'Type', type : 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Name', form: formGroup }"
+            (change)="saveChange()"
+          ></app-form-control>
+          <app-form-control [field]="{id:'Sort', form : formGroup }" (change)="saveChange()"></app-form-control>
+        </ion-col>
+        <ion-col size="12" size-sm="12" size-md="6">
+          <app-form-control
+            [field]="{id:'Id', form : formGroup }"
+          ></app-form-control>
+          <app-form-control
+            [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
+            (change)="saveChange()"
+          ></app-form-control>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col size="12" size-sm="12" size-md="6">
+          <app-form-control
+            [field]="{id:'CreatedBy', label: 'Created by', form : formGroup }"
+          ></app-form-control>
+          <app-form-control
+            [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"
+          ></app-form-control>
           
         </ion-col>
         <ion-col size="12" size-sm="12" size-md="6">
-          <div class="c-control">
-            <label class="c-label" for="Id">{{'Id' | translate}}</label>
-            <input [readonly]="id" class="c-input" id="Id" formControlName="Id" type="text" />
-          </div>
-          <div class="c-control">
-            <label class="c-label" for="Sort">{{'Sort' | translate}}</label>
-            <input class="c-input" id="Sort" formControlName="Sort" type="number" />
-          </div>
+          <app-form-control
+            [field]="{id:'ModifiedBy', label: 'Last modified by', form : formGroup }"
+          ></app-form-control>
+          <app-form-control
+            [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"
+          ></app-form-control>
           
-          <div class="c-control">
-            <label class="c-label" for="Remark"
-              >{{'Description' | translate}}
-              <span
-                *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)"
-                ion-text
-                color="danger"
-                >(*)</span
-              >
-            </label>
-            <textarea rows="3" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
-          </div>
-
           <div class="c-control ion-text-right" *ngIf="item.Id==0">
             <label class="c-label" for=""></label>
             <ion-button (click)="saveChange()">{{'Add new' | translate}}</ion-button>
@@ -80,6 +63,7 @@
           </div>
         </ion-col>
       </ion-row>
+
     </ion-grid>
   </form>
 </ion-content>

@@ -3,7 +3,7 @@ import { NavController, LoadingController, AlertController, ModalController, Nav
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { WH_UoMProvider } from 'src/app/services/static/services.service';
+import { WMS_UoMProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 
 @Component({
@@ -12,8 +12,9 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
   styleUrls: ['./uom-detail.page.scss'],
 })
 export class UoMDetailPage extends PageBase {
+  typeList = [{ Name: 'Each' }, { Name: 'Innerpack' }, { Name: 'Case' }, { Name: 'Pallet' }];
   constructor(
-    public pageProvider: WH_UoMProvider,
+    public pageProvider: WMS_UoMProvider,
     public env: EnvService,
     public navCtrl: NavController,
     public route: ActivatedRoute,
@@ -32,9 +33,9 @@ export class UoMDetailPage extends PageBase {
     this.formGroup = formBuilder.group({
       IDBranch: [this.env.selectedBranch],
       Id: new FormControl({ value: '', disabled: true }),
-      Code: ['', Validators.required],
+      Code: [''],
       Name: ['', Validators.required],
-      Type: [''],
+      Type: ['', Validators.required],
       Remark: [''],
       Sort: [''],
       IsDisabled: new FormControl({ value: '', disabled: true }),

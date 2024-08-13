@@ -429,7 +429,7 @@
                           <div class="col2 cell">
                             <ng-select class="c-input" (change)="changedUoM($event, i)"
                               [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist || this.selectedBranch"
-                              [addTag]="createNewUoM.bind(this)" [(ngModel)]="i.Name" [items]="uomList"
+                              [(ngModel)]="i.Name" [items]="uomList"
                               appendTo="#unit-specification" [clearable]="false" bindLabel="Name" bindValue="Name"
                               placeholder="{{'Unit' | translate}}">
                               <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
