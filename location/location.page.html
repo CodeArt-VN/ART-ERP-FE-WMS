@@ -5,67 +5,71 @@
       <ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">
         <ion-icon name="qr-code-outline"></ion-icon>
       </ion-button>
+      <ion-button (click)="isShowModal = true" class="ion-hide-sm-down" title="{{'Sort route sequence' | translate}}">
+        <ion-icon name="reorder-three-outline"></ion-icon>
+      </ion-button>
     </ion-toolbar>
+  
   </app-toolbar>
 
-  <section class="table">
-    <header class="bold">
-      <div class="col-checkbox cell"></div>
-      <div class="col-id cell" (click)="sortToggle('Id')">
-        {{'Id' | translate}}
-        <ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-        <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-      </div>
-      <div class="col-code cell" (click)="sortToggle('Name')">
-        {{'Location' | translate}}
-        <ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
-        <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
-      </div>
-      <div class="col-code cell" (click)="sortToggle('Zone')">
-        {{'Zone' | translate}}
-        <ion-icon class="min-btn" *ngIf="sort.Zone" [name]="sort.Zone == 'Zone'?'arrow-down': 'arrow-up'"></ion-icon>
-        <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Zone" name="search" color="primary"></ion-icon>
-      </div>
-      <div class="col-remark cell">{{'Remark' | translate}}</div>
-    </header>
-    <form (submit)="refresh()" action="#">
-      <header class="filter" *ngIf="pageConfig.isShowSearch">
-        <div class="col-checkbox cell"></div>
-        <div class="col-id cell">
-          <input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Id" class="c-input" [ngClass]="{active: query.Id}" type="text" />
-          <ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
-        </div>
-        <div class="col-code cell">
-          <input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text" />
-          <ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
-        </div>
-        <div class="col-code cell">
-          <input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Zone" class="c-input" [ngClass]="{active: query.Zone}" type="text" />
-          <ion-icon class="min-btn" (click)="query.Zone=''; refresh()" *ngIf="query.Zone" name="close-circle-outline"></ion-icon>
-        </div>
-        <div class="col-remark cell"></div>
-        <button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
-      </header>
-    </form>
-  </section>
+
+  
+   
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-  <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-  <div *ngIf="items.length && pageConfig.showSpinner==false">
-    <section class="table">
-      <div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-        <div class="col-checkbox cell">
-          <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-        </div>
-        <div (click)="nav('location/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
-        <div (click)="nav('location/'+i.Id,'forward')" class="col-code cell">{{i.Name}}</div>
-        <div (click)="nav('location/'+i.Id,'forward')" class="col-code cell">{{i.Zone}}</div>
-        <div class="col-remark cell">{{i.Remark}}</div>
-      </div>
-    </section>
-  </div>
-  <ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+  <app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems" (dataInfinite)="loadData($event)"
+  [(query)]="query"
+  (filter)="onDatatableFilter($event)"
+  (sort)="onSort($event)" 
+  [showFilter]="pageConfig.isShowSearch"
+  [showSpinner]="pageConfig.showSpinner" >
+
+  <datatable-column [checkbox]="true"></datatable-column>
+  <datatable-column class="col-id" name="Id" property="Id">
+    <ng-template let-i="row" datatable-cell-template>
+      <a [routerLink]="['/location/'+i.Id]">{{i.Id}}</a>
+    </ng-template>
+  </datatable-column>
+
+  <datatable-column class="col-name" name="Location" property="Name">
+  </datatable-column>
+
+  <datatable-column class="col-name" name="Zone" property="Zone">
+   
+  </datatable-column>
+  <datatable-column class="col-name" name="Route sequence" property="RouteSequence">
+   
+  </datatable-column>
+
+ </app-data-table>
+ 
+ <ion-modal [isOpen]="isShowModal"(willDismiss)="dismissModal()" >
+  <ng-template>
+     <ion-header>
+       <ion-toolbar>
+         <ion-title>{{'Reorder route sequence' | translate}} </ion-title>
+         <ion-buttons slot="end">
+           <ion-button (click)="dismissModal()">
+             <ion-icon name="close"></ion-icon>
+           </ion-button>
+         </ion-buttons>
+       </ion-toolbar>
+     </ion-header>
+     <ion-content class="ion-padding">
+       <section class="table table-contain responsive">
+       <app-reorder *ngIf="items.length>0"[items]="items" sortProperty="RouteSequence" (reoder)="doReorder($event)"> </app-reorder>
+     </section>
+     </ion-content>
+     <ion-footer>
+       <ion-toolbar>
+         <ion-button color="warning" size="default" slot="end" (click)="dismissModal(true)">
+           {{'Apply' | translate}}
+         </ion-button>
+       </ion-toolbar>
+     
+     </ion-footer>
+ </ng-template>
+</ion-modal>
+ 
 </ion-content>
