@@ -108,7 +108,7 @@
               <ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
             </div>
 
-            <div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
+            <div class="col-qty cell" (click)="sortToggle('QuantityAdjusted')">
               {{'Quantity' | translate}}
               <ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
             </div>
@@ -134,26 +134,26 @@
                 </div>
 
                 <div class="col-name cell">
-                  <app-input-control [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item', form : c,  dataSource: c.get('_IDItemDataSource').value,  bindValue: 'Id', clearable: true, placeholder: 'Type to search...' }" (change)="IDItemChange($event, c);" (nav)="nav($event)"></app-input-control>
+                  <app-input-control [field]="{id:'IDItem', label: 'Product', type : 'ng-select-item', form : c,  dataSource: c.get('_IDItemDataSource').value,  bindValue: 'Id', clearable: true, placeholder: 'Type to search...' }" (change)="IDItemChange($event, c);" (nav)="nav($event)"></app-input-control>
                 </div>
                 <div class="col-uom cell">
-                  <app-input-control [field]="{id:'IDUoM', type : 'ng-select', dataSource: c.get('UoMs').value, bindValue:'Id', bindLabel:'Name', form : c }" (change)="saveChangeDetail(c)"></app-input-control>
+                  <app-input-control [field]="{id:'IDUoM',label: 'UoM', type : 'ng-select', dataSource: c.get('UoMs').value, bindValue:'Id', bindLabel:'Name', form : c }" (change)="saveChangeDetail(c)"></app-input-control>
                 </div>
 
                 <div class="col-qty cell">
-                  <app-input-control [field]="{id:'Quantity', type : 'number', form : c }" (change)="saveChangeDetail(c,index)"></app-input-control>
+                  <app-input-control [field]="{id:'Quantity',label:'Quantity', type : 'number', form : c }" (change)="saveChangeDetail(c,index)"></app-input-control>
                 </div>
 
                 <div class="col-qty cell">
-                  <app-input-control [field]="{id:'QuantityPicked', type : 'span-text', form : c }"></app-input-control>
+                  <app-input-control [field]="{id:'QuantityPicked',label:'Quantity picked', type : 'span-text', form : c }"></app-input-control>
                 </div>
 
                 <div class="col-qty cell">
-                  <app-input-control [field]="{id:'QuantityPacked', type : 'span-text', form : c }"></app-input-control>
+                  <app-input-control [field]="{id:'QuantityPacked',label:'Quantity packed', type : 'span-text', form : c }"></app-input-control>
                 </div>
 
                 <div class="col-qty cell">
-                  <app-input-control [field]="{id:'QuantityShipped', type : 'span-text', form : c }"></app-input-control>
+                  <app-input-control [field]="{id:'QuantityShipped',label:'Quantity shipped', type : 'span-text', form : c }"></app-input-control>
                 </div>
 
                 <div class="col-icon cell clickable" (click)="removeField(c,j)" *ngIf="pageConfig.canEdit && pageConfig.canDelete" >

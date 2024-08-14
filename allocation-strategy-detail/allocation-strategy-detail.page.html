@@ -26,7 +26,6 @@
 									<ion-col size="12" size-sm="8" size-xl="4">
 
 										<app-form-control [field]="{id:'Name', label: 'Name', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
-										<app-form-control [field]="{id:'Code', label: 'Code', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<div class="c-control">
 											<label class="c-label" for="IDBranch">{{'Warehouse' | translate}}
 											  <span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
@@ -42,24 +41,24 @@
 											  </ng-template>
 											</ng-select>
 										  </div>
-
 										<app-form-control [field]="{id:'IsStrictLotRotation', label: 'Strict lot Rotation', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'IsOverallocateAssigned', label: 'Overal locate assigned', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'IsUseSpeedPickLocations', label: 'Use speed pick locations', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
-									
-									</ion-col>
-									<ion-col size="12" size-sm="8" size-xl="4">
-
-										<app-form-control [field]="{id:'Type', label: 'Type', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'FindInZone', label: 'Find in zone', type :'ng-select-async', dataSource:_zoneDataSource, bindLabel:'Name', bindValue:'Id',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'FindLocationType', label: 'Find location type', type :'ng-select', dataSource: locationTypeDatasource, bindLabel:'Name', bindValue:'Id',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'FindLocationCategory', label: 'Find location category', type :'ng-select', dataSource:locationTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
+									</ion-col>
+									<ion-col size="12" size-sm="8" size-xl="4">
+										<app-form-control [field]="{id:'Code', label: 'Code', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+										<app-form-control [field]="{id:'Type', label: 'Type', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
+
+										
 										<app-form-control [field]="{id:'SortPriority1', label: 'Sort priority 1', type :'checkbox',  type :'ng-select', dataSource:sortTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup  }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'SortPriority2', label: 'Sort priority 2', type :'checkbox',  type :'ng-select', dataSource:sortTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'SortPriority3', label: 'Sort priority 3', type :'checkbox',  type :'ng-select', dataSource:sortTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'SortPriority4', label: 'Sort priority 4', type :'checkbox', type :'ng-select', 	dataSource:sortTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'SortPriority5', label: 'Sort priority 5', type :'checkbox',  type :'ng-select', dataSource:sortTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
-										<app-form-control [field]="{id:'LPNQuantityRule', label: 'LPN quantity rule',  type :'ng-select', dataSource: LPNQuantityRuleDatasource, bindLabel:'Name', bindValue:'Id', form : formGroup }" (change)="saveChange()"></app-form-control>
+										<app-form-control [field]="{id:'LPNQuantityRule', label: 'LPN quantity rule',  type :'ng-select', dataSource: LPNQuantityRuleDatasource, bindLabel:'Name', bindValue:'Code', form : formGroup }" (change)="saveChange()"></app-form-control>
 									</ion-col>
 
 								</ion-row>
