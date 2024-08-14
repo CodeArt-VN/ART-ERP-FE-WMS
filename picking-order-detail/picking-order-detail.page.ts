@@ -238,6 +238,8 @@ export class PickingOrderDetailPage extends PageBase {
       )
       .then((result: any) => {
         this.refresh();
+      }).catch(err =>{
+        this.env.showMessage('Cannot save, please try again.');
       });
   }
 
@@ -571,8 +573,10 @@ export class PickingOrderDetailPage extends PageBase {
       this.checkedPickingOrderDetails = new FormArray([]);
     }
     groups.controls.forEach((i) => {
-      i.get('IsChecked').setValue(this.isAllChecked);
-      if (this.isAllChecked) this.checkedPickingOrderDetails.push(i);
+      if(i.get('Status').value == 'Active'){
+        i.get('IsChecked').setValue(this.isAllChecked);
+        if (this.isAllChecked) this.checkedPickingOrderDetails.push(i);
+      }
     });
   }
 
@@ -593,7 +597,8 @@ export class PickingOrderDetailPage extends PageBase {
     let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
     if (itemToDelete.Id) {
       this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
-        this.pickingOrderDetailService.delete(itemToDelete).then((result) => {
+        this.env
+        .showLoading('Please wait for a few moments',  this.commonService.connect('GET','WMS/Picking/DeleteDetails',{Id:itemToDelete.Id}).toPromise()).then((_) => {
           groups.removeAt(j);
         });
       });
@@ -604,7 +609,7 @@ export class PickingOrderDetailPage extends PageBase {
 
   deleteItems() {
     if (this.pageConfig.canDelete) {
-      let itemsToDelete = this.checkedPickingOrderDetails.getRawValue();
+      let itemsToDelete = this.checkedPickingOrderDetails.getRawValue().filter(d=>d.IDParent != null && d.Status == "Active");
       this.env
         .showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: itemsToDelete.length }, null, {
           code: 'Xóa {{value1}} dòng',
@@ -612,7 +617,7 @@ export class PickingOrderDetailPage extends PageBase {
         })
         .then((_) => {
           this.env
-            .showLoading('Please wait for a few moments', this.pickingOrderDetailService.delete(itemsToDelete))
+            .showLoading('Please wait for a few moments',  this.commonService.connect('GET','WMS/Picking/DeleteDetails',{Id:itemsToDelete.map(d=>d.Id)} ).toPromise())
             .then((_) => {
               this.removeSelectedItems();
               this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');

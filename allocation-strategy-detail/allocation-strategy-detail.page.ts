@@ -122,9 +122,9 @@ export class AllocationStrategyDetailPage extends PageBase {
  
     ];
     this.LPNQuantityRuleDatasource = [
-      { Name:'Low to High', Code :'LowToHigh'}, { Name:' xact Fit', Code :'ExactFit'},
+      { Name:'Low to High', Code :'LowToHigh'}, { Name:'Exact Fit', Code :'ExactFit'},
       { Name:'Bigger Fit', Code :'BiggerFit'}, { Name:'Best fit', Code :'BestFit'},
-      { Name:' High to Low', Code :'HighToLow'},
+      { Name:'High to Low', Code :'HighToLow'},
     
     ]
 
