@@ -152,7 +152,7 @@ export class AllocationStrategyDetailPage extends PageBase {
       this.formGroup.get('Type').markAsDirty();
     }
     if(this.item.FindInZone){
-      this._zoneDataSource.selected = [{Id :this.item.FindInZone}]
+      this._zoneDataSource.selected =[{Id :this.item.FindInZone, Name :this.item._Zone?.Name}]
     }
     this._zoneDataSource.initSearch();
   }

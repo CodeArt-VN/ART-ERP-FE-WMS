@@ -3,7 +3,7 @@ import { NavController, LoadingController, AlertController, PopoverController } 
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_StaffProvider, WMS_StorerProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_StaffProvider, WMS_LocationProvider, WMS_StorerProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
@@ -16,6 +16,7 @@ import { lib } from 'src/app/services/static/global-functions';
 export class StorerDetailPage extends PageBase {
   segmentList = [];
   branchList = [];
+  locationList = []
 
   constructor(
     public pageProvider: WMS_StorerProvider,
@@ -30,6 +31,7 @@ export class StorerDetailPage extends PageBase {
     public cdr: ChangeDetectorRef,
     public loadingController: LoadingController,
     public commonService: CommonService,
+    public locationProvider: WMS_LocationProvider,
   ) {
     super();
     this.pageConfig.isDetailPage = true;
@@ -70,6 +72,11 @@ export class StorerDetailPage extends PageBase {
           this.markNestedNode(this.branchList, this.env.selectedBranch);
         });
       });
+
+      this.locationProvider.read().then((resp) => {
+        this.locationList = resp['data'];
+      });
+
     super.preLoadData(event);
   }
 
@@ -150,4 +157,7 @@ export class StorerDetailPage extends PageBase {
   async saveChange() {
     this.saveChange2();
   }
+
+
+
 }
