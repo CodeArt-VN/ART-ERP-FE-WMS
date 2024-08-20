@@ -3,7 +3,12 @@ import { NavController, LoadingController, AlertController, PopoverController } 
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_StaffProvider, WMS_LocationProvider, WMS_StorerProvider } from 'src/app/services/static/services.service';
+import {
+  BRA_BranchProvider,
+  HRM_StaffProvider,
+  WMS_LocationProvider,
+  WMS_StorerProvider,
+} from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
@@ -16,7 +21,7 @@ import { lib } from 'src/app/services/static/global-functions';
 export class StorerDetailPage extends PageBase {
   segmentList = [];
   branchList = [];
-  locationList = []
+  locationList = [];
 
   constructor(
     public pageProvider: WMS_StorerProvider,
@@ -71,10 +76,6 @@ export class StorerDetailPage extends PageBase {
           });
           this.markNestedNode(this.branchList, this.env.selectedBranch);
         });
-      });
-
-      this.locationProvider.read().then((resp) => {
-        this.locationList = resp['data'];
       });
 
     super.preLoadData(event);
@@ -145,19 +146,33 @@ export class StorerDetailPage extends PageBase {
   segmentView = 's1';
   segmentChanged(ev: any) {
     this.segmentView = ev.detail.value;
+    if (this.item._StorerConfig[ev.detail.value]?.IDWarehouse) {
+      this.locationProvider.read({ IDBranch: this.item._StorerConfig[ev.detail.value]?.IDWarehouse }).then((resp) => {
+        this.locationList = resp['data'];
+      });
+    }
   }
 
   IDWarehouseChange(index, event) {
+    this.locationList = [];
+    let groups = <FormArray>this.formGroup.controls.StorerConfig;
     if (event) {
-      let groups = <FormArray>this.formGroup.controls.StorerConfig;
       groups.at(index).get('WarehouseName').setValue(event.Name);
+      this.locationProvider.read({ IDBranch: event.Id }).then((resp) => {
+        this.locationList = resp['data'];
+      });
     }
+    groups.at(index).get('DefaultInboundQCLocation').setValue(null);
+    groups.at(index).get('DefaultOutboundQCLocation').setValue(null);
+    groups.at(index).get('DefaultReturnsReceiptLocation').setValue(null);
+    groups.at(index).get('DefaultPackingLocation').setValue(null);
+    groups.at(index).get('DefaultInboundQCLocation').markAsDirty();
+    groups.at(index).get('DefaultOutboundQCLocation').markAsDirty();
+    groups.at(index).get('DefaultReturnsReceiptLocation').markAsDirty();
+    groups.at(index).get('DefaultPackingLocation').markAsDirty();
     this.saveChange();
   }
   async saveChange() {
     this.saveChange2();
   }
-
-
-
 }
