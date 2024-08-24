@@ -1004,7 +1004,14 @@ export class ItemDetailPage extends PageBase {
     return new Promise((resolve, reject) => {
       this.formGroup.updateValueAndValidity();
       if (!form.valid) {
-        this.env.showMessage('Please recheck information highlighted in red above', 'warning');
+        let invalidControls = this.findInvalidControlsRecursive(form); 
+        const translationPromises = invalidControls.map(control => this.env.translateResource(control));
+        Promise.all(translationPromises).then((values:any) => {
+          invalidControls = values;
+          this.env.showMessage('Please recheck control(s): {{value}}', 'warning', invalidControls.join(' | '));
+          reject('form invalid');
+          });
+       
       } else if (this.submitAttempt == false) {
         this.submitAttempt = true;
         let submitItem = this.getDirtyValues(form);
