@@ -28,7 +28,7 @@ export class AllocationStrategyDetailPage extends PageBase {
   
   branchList;
   typeDataSource: any;
-  zoneDatasource : any;
+  zoneDatasource : any = [];
   locationSortTypeDataSource: any;
   locationTypeDatasource:any;
   LPNQuantityRuleDatasource : any;
@@ -67,6 +67,7 @@ export class AllocationStrategyDetailPage extends PageBase {
       Type: ['Firm'],
       IsUseSpeedPickLocations: [''],
       FindInZone: [''],
+      _zoneDataSource : [],
       FindLocationType: [''],
       FindLocationCategory: [''],
       CanBreakPallets: [''],
@@ -85,33 +86,6 @@ export class AllocationStrategyDetailPage extends PageBase {
     });
     
   }
-   
-  _zoneDataSource = {
-    page: this,
-    loading: false,
-    input$: new Subject<string>(),
-    selected: [],
-    items$: null,
-    initSearch() {
-      this.loading = false;
-      this.items$ = concat(
-        of(this.selected),
-        this.input$.pipe(
-          distinctUntilChanged(),
-          tap(() => (this.loading = true)),
-          switchMap((term) =>
-            this.page.zoneService
-              .search({ Take: 20, Skip: 0, Term: term, IDBranch: this.page.formGroup.get('IDBranch').value })
-              .pipe(
-                catchError(() => of([])), // empty list on error
-                tap(() => (this.loading = false)),
-              ),
-          ),
-        ),
-      );
-    },
-  };
-
  
   //#region Load
   preLoadData(event) {
@@ -129,8 +103,11 @@ export class AllocationStrategyDetailPage extends PageBase {
     ]
 
     this.locationTypeDatasource = [
-      {Name:1,Code:'1'},
-      {Name:2,Code:'2'}
+      {Name:null,Code:'NULL'},
+      {Name:'Bulk locations',Code:'BulkLocations'},
+      {Name:'Case locations',Code:'CaseLocations'},
+      {Name:'Damaged hold locations',Code:'DamagedHoldLocations'},
+      {Name:'Pick to locations',Code:'PickToLocations'},
     ]
     this.branchProvider
       .read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren })
@@ -151,16 +128,32 @@ export class AllocationStrategyDetailPage extends PageBase {
     if(!this.item.Id){
       this.formGroup.get('Type').markAsDirty();
     }
-    if(this.item.FindInZone){
-      this._zoneDataSource.selected = [{Id :this.item.FindInZone}]
+    if(this.formGroup.get('IDBranch').value){
+      let queryZone = {
+        IDBranch:this.formGroup.get('IDBranch').value
+      }
+      this.zoneService.read(queryZone).then((rs:any)=>{
+        this.zoneDatasource = rs?.data;
+        this.formGroup.get('_zoneDataSource').setValue(this.zoneDatasource);
+      
+      })
     }
-    this._zoneDataSource.initSearch();
   }
  
   //#endregion
 
   //#region Bussiness logic
   IDBranchChange(){
+    this.formGroup.get('FindInZone').setValue(null);
+    if(this.formGroup.get('IDBranch').value){
+      let queryZone = {
+        IDBranch:this.formGroup.get('IDBranch').value
+      }
+      this.zoneService.read(queryZone).then((rs:any)=>{
+        this.zoneDatasource = rs?.data;
+        this.formGroup.get('_zoneDataSource').setValue(this.zoneDatasource);
+      } )
+    }
     this.saveChange();
     
   }

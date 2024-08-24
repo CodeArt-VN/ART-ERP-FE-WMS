@@ -93,15 +93,15 @@
 																			<ion-col size="12" size-xl="6">
 																				<!-- <app-form-control [field]="{id:'IDStorer', label: 'Storer', type :'ng-select-bp', dataSource:g.controls._storerDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
 																				<app-form-control [field]="{id:'IDItem', label: 'Item', type :'ng-select-item', dataSource: g.controls._itemDataSource.value, bindLabel:'Name', bindValue:'Code' ,clearable:true,form : g}" (change)="saveChange()"></app-form-control> -->
-																				<app-form-control [field]="{id:'FromZone', label: 'From zone', type :'ng-select-async', dataSource: g.controls._fromZoneDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
-																				<app-form-control [field]="{id:'FromLocation', label: 'From location', type :'ng-select-async', dataSource: g.controls._fromLocationDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
-																				
+																				<app-form-control [field]="{id:'FromZone', label: 'From zone', type :'ng-select', dataSource:  g.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+																				<app-form-control [field]="{id:'FromLocation', label: 'From location', type :'ng-select', dataSource:  g.get('_locationDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+
 																				<app-form-control [field]="{id:'IsSinglePutawayForMultiplePallets', label: 'single putaway/pallets', type :'checkbox',  form : g}" (change)="saveChange()"></app-form-control>
 																				
 																			</ion-col>
 																			<ion-col size="12" size-xl="6">
-																					<app-form-control [field]="{id:'ToZone', label: 'To zone', type :'ng-select-async', dataSource: g.controls._toZoneDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
-																					<app-form-control [field]="{id:'ToLocation', label: 'To location', type :'ng-select-async', dataSource: g.controls._toLocationDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+																					<app-form-control [field]="{id:'ToZone', label: 'To zone', type :'ng-select', dataSource:  g.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+																					<app-form-control [field]="{id:'ToLocation', label: 'To location', type :'ng-select', dataSource:  g.get('_locationDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
 																					<app-form-control [field]="{id:'IsChecksRestrictions', label: 'Checks restrictions', type :'checkbox',  form : g}" (change)="saveChange()"></app-form-control>
 
 																			</ion-col>

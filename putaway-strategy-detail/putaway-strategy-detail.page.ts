@@ -35,6 +35,8 @@ import { lib } from 'src/app/services/static/global-functions';
   styleUrls: ['putaway-strategy-detail.page.scss'],
 })
 export class PutawayStrategyDetailPage extends PageBase {
+  zoneDataSoure:any;
+  locationDataSoure:any;
   countTypeDataSource: any;
   statusDataSource: any;
   arrangeDataSource: any;
@@ -124,15 +126,42 @@ export class PutawayStrategyDetailPage extends PageBase {
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
+
     super.loadedData(event, ignoredFromGroup);
     // Rules : this.formBuilder.array([]);
-    if (this.item.PutawayStrategyDetails?.length > 0) {
-      this.item.PutawayStrategyDetails = this.item.PutawayStrategyDetails?.sort((a, b) => a.Sort - b.Sort);
-      let groups = this.formGroup.get('PutawayStrategyDetails') as FormArray;
-      groups.clear();
-      this.patchPutawayStrategyValue();
+    if(this.formGroup.get('IDBranch').value){
+      let queryZoneandLocation = {
+        IDBranch: this.formGroup.get('IDBranch').value
+      }
+      // this.zoneService.read(queryZoneandLocation).then((rs :any)=> {
+      //   this.zoneDataSoure = rs?.data;
+      //   console.log(this.zoneDataSoure);
+        
+      // })
+      Promise.all([this.zoneService.read(queryZoneandLocation),
+        this.locationService.read(queryZoneandLocation)]).then((values:any)=>{
+          this.zoneDataSoure = values[0]?.data;
+          this.locationDataSoure = values[1]?.data;
+          if (this.item.PutawayStrategyDetails?.length > 0) {
+            this.item.PutawayStrategyDetails = this.item.PutawayStrategyDetails?.sort((a, b) => a.Sort - b.Sort);
+            let groups = this.formGroup.get('PutawayStrategyDetails') as FormArray;
+            groups.clear();
+            this.patchPutawayStrategyValue();
+          }
+          this.formGroup.get('_TrackingIDBranch').setValue(this.item?.IDBranch);
+        })
     }
-    this.formGroup.get('_TrackingIDBranch').setValue(this.item?.IDBranch);
+    else{
+      if (this.item.PutawayStrategyDetails?.length > 0) {
+        this.item.PutawayStrategyDetails = this.item.PutawayStrategyDetails?.sort((a, b) => a.Sort - b.Sort);
+        let groups = this.formGroup.get('PutawayStrategyDetails') as FormArray;
+        groups.clear();
+        this.patchPutawayStrategyValue();
+      }
+      this.formGroup.get('_TrackingIDBranch').setValue(this.item?.IDBranch);
+    }
+   
+    
     // super.preLoadData(event);
   }
 
@@ -156,120 +185,17 @@ export class PutawayStrategyDetailPage extends PageBase {
     let groups = <FormArray>this.formGroup.controls.PutawayStrategyDetails;
     if (markAsDirty == true && groups.controls.some((d) => d.get('Id').value == null)) return;
     let group = this.formBuilder.group({
-      _fromLocationDataSource: {
-        loading: false,
-        page: this,
-        input$: new Subject<string>(),
-        selected: [],
-        items$: null,
-        initSearch() {
-          this.loading = false;
-          this.items$ = concat(
-            of(this.selected),
-            this.input$.pipe(
-              distinctUntilChanged(),
-              tap(() => (this.loading = true)),
-              switchMap((term) =>
-                this.page.locationService
-                  .search({ Take: 20, Skip: 0, Term: term, IDBranch: this.page.formGroup.get('IDBranch').value })
-                  .pipe(
-                    catchError(() => of([])), // empty list on error
-                    tap(() => (this.loading = false)),
-                  ),
-              ),
-            ),
-          );
-        },
-      },
-      _toLocationDataSource: {
-        loading: false,
-        page: this,
-        input$: new Subject<string>(),
-        selected: [],
-        items$: null,
-        initSearch() {
-          this.loading = false;
-          this.items$ = concat(
-            of(this.selected),
-            this.input$.pipe(
-              distinctUntilChanged(),
-              tap(() => (this.loading = true)),
-              switchMap((term) =>
-                this.page.locationService
-                  .search({ Take: 20, Skip: 0, Term: term, IDBranch: this.page.formGroup.get('IDBranch').value })
-                  .pipe(
-                    catchError(() => of([])), // empty list on error
-                    tap(() => (this.loading = false)),
-                  ),
-              ),
-            ),
-          );
-        },
-      },
-      _fromZoneDataSource: {
-        page: this,
-        loading: false,
-        input$: new Subject<string>(),
-        selected: [],
-        items$: null,
-        initSearch() {
-          this.loading = false;
-          this.items$ = concat(
-            of(this.selected),
-            this.input$.pipe(
-              distinctUntilChanged(),
-              tap(() => (this.loading = true)),
-              switchMap((term) =>
-                this.page.zoneService
-                  .search({ Take: 20, Skip: 0, Term: term, IDBranch: this.page.formGroup.get('IDBranch').value })
-                  .pipe(
-                    catchError(() => of([])), // empty list on error
-                    tap(() => (this.loading = false)),
-                  ),
-              ),
-            ),
-          );
-        },
-      },
-      _toZoneDataSource: {
-        page: this,
-        loading: false,
-        input$: new Subject<string>(),
-        selected: [],
-        items$: null,
-        initSearch() {
-          this.loading = false;
-          this.items$ = concat(
-            of(this.selected),
-            this.input$.pipe(
-              distinctUntilChanged(),
-              tap(() => (this.loading = true)),
-              switchMap((term) =>
-                this.page.zoneService
-                  .search({ Take: 20, Skip: 0, Term: term, IDBranch: this.page.formGroup.get('IDBranch').value })
-                  .pipe(
-                    catchError(() => of([])), // empty list on error
-                    tap(() => (this.loading = false)),
-                  ),
-              ),
-            ),
-          );
-        },
-      },
       Id: [rule?.Id],
       Name: [rule?.Name, Validators.required],
       IDPutawayStrategy: [this.formGroup.get('Id').value, Validators.required],
-      Type: [rule?.Type || 'Test', Validators.required],
+      Type: [rule?.Type, Validators.required],
 
       FromZone: [rule?.FromZone],
-      FromZoneName: [rule?.FromZoneName],
+      _zoneDataSource: [this.zoneDataSoure],
       ToZone: [rule?.ToZone],
-      ToZoneName: [rule?.ToZoneName],
-
       FromLocation: [rule?.FromLocation],
-      FromLocationName: [rule?.FromLocationName],
       ToLocation: [rule?.ToLocation],
-      ToLocationName: [rule?.ToLocationName],
+      _locationDataSource: [this.locationDataSoure],
 
       IsSinglePutawayForMultiplePallets: [rule?.IsSinglePutawayForMultiplePallets],
       IsChecksRestrictions: [rule?.IsChecksRestrictions],
@@ -285,28 +211,7 @@ export class PutawayStrategyDetailPage extends PageBase {
       IsChecked: new FormControl({ value: false, disabled: false }),
     });
     groups.push(group);
-    group.get('_fromLocationDataSource').value
-    if(rule.FromLocation){
-      let fromLocation = {Name:rule.FromLocationName,Id : rule.FromLocation};
-      group.get('_fromLocationDataSource').value.selected = [fromLocation];
-    }
-    if(rule.ToLocation){
-      let toLocation = {Name:rule.ToLocationName,Id : rule.ToLocation};
-      group.get('_toLocationDataSource').value.selected = [toLocation];
-    }
-    if(rule.FromZone){
-      let fromZone = {Name:rule.FromZoneName,Id : rule.FromZone};
-      group.get('_fromZoneDataSource').value.selected = [fromZone];
-    }
-    if(rule.ToZone){ 
-      let toZone = {Name:rule.ToZoneName,Id : rule.ToZone};
-      group.get('_toZoneDataSource').value.selected = [toZone];
-    }
-    group.get('_fromLocationDataSource').value.initSearch();
-    group.get('_toLocationDataSource').value.initSearch();
-    group.get('_fromZoneDataSource').value.initSearch();
-    group.get('_toZoneDataSource').value.initSearch();
-    if (markAsDirty) group.get('Type').markAsDirty();
+
   }
   //#endregion
 
@@ -320,38 +225,49 @@ export class PutawayStrategyDetailPage extends PageBase {
        
         groups.controls.forEach(fg=>{
           fg.get('FromZone').setValue(null);
-          fg.get('FromZoneName').setValue('');
           fg.get('ToZone').setValue(null);
-          fg.get('ToZoneName').setValue('');
           fg.get('FromLocation').setValue(null);
-          fg.get('FromLocationName').setValue('');
           fg.get('ToLocation').setValue(null);
-          fg.get('ToLocationName').setValue('');
 
           fg.get('FromZone').markAsDirty();
           fg.get('ToZone').markAsDirty();
           fg.get('FromLocation').markAsDirty();
           fg.get('ToLocation').markAsDirty();
-
-          fg.get('_fromLocationDataSource').value.items$ = null;
-          fg.get('_toLocationDataSource').value.items$ = null;
-          fg.get('_fromZoneDataSource').value.items$ = null;
-          fg.get('_fromZoneDataSource').value.items$ = null;
-
-          fg.get('_fromLocationDataSource').value.initSearch();
-          fg.get('_toLocationDataSource').value.initSearch();
-          fg.get('_fromZoneDataSource').value.initSearch();
-          fg.get('_toZoneDataSource').value.initSearch();
         })
 
         this.formGroup.get('_TrackingIDBranch').setValue( this.formGroup.get('IDBranch').value)
+        let queryZoneandLocation = {
+          IDBranch :  this.formGroup.get('IDBranch').value
+        }
+        Promise.all([this.zoneService.read(queryZoneandLocation),
+          this.locationService.read(queryZoneandLocation)]).then((values:any)=>{
+            this.zoneDataSoure = values[0]?.data;
+            this.locationDataSoure = values[1]?.data;
+            groups.controls.forEach(fg=>{
+              fg.get('_zoneDataSource').setValue( this.zoneDataSoure);
+              fg.get('_locationDataSource').setValue( this.locationDataSoure);
+            })
+          })
         this.saveChange();
+
       }).catch(err=>{
         this.formGroup.get('IDBranch').setValue(this.formGroup.get('_TrackingIDBranch').value);
         this.formGroup.get('IDBranch').markAsPristine();
       })
     }
       else {
+        let queryZoneandLocation = {
+          IDBranch :  this.formGroup.get('IDBranch').value
+        }
+        Promise.all([this.zoneService.read(queryZoneandLocation),
+          this.locationService.read(queryZoneandLocation)]).then((values:any)=>{
+            this.zoneDataSoure = values[0]?.data;
+            this.locationDataSoure = values[1]?.data;
+            groups.controls.forEach(fg=>{
+              fg.get('_zoneDataSource').setValue( this.zoneDataSoure);
+              fg.get('_locationDataSource').setValue( this.locationDataSoure);
+            })
+          })
         this.formGroup.get('_TrackingIDBranch').setValue( this.formGroup.get('IDBranch').value)
         this.saveChange();
       }
