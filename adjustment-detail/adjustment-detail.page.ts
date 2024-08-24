@@ -111,6 +111,8 @@ export class AdjustmentDetailPage extends PageBase {
             this.branchList = result;
             this.branchList.forEach((i) => {
               i.disabled = true;
+            if(i.Type == 'Warehouse') i.disabled = false;
+
             });
             this.markNestedNode(this.branchList, this.env.selectedBranch);
             super.preLoadData(event);

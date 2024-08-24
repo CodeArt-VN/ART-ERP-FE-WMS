@@ -44,7 +44,7 @@
 										<app-form-control [field]="{id:'IsStrictLotRotation', label: 'Strict lot Rotation', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'IsOverallocateAssigned', label: 'Overal locate assigned', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'IsUseSpeedPickLocations', label: 'Use speed pick locations', type :'checkbox', form : formGroup }" (change)="saveChange()"></app-form-control>
-										<app-form-control [field]="{id:'FindInZone', label: 'Find in zone', type :'ng-select-async', dataSource:_zoneDataSource, bindLabel:'Name', bindValue:'Id',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
+										<app-form-control [field]="{id:'FindInZone', label: 'Find in zone', type :'ng-select', dataSource:formGroup.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'FindLocationType', label: 'Find location type', type :'ng-select', dataSource: locationTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'FindLocationCategory', label: 'Find location category', type :'ng-select', dataSource:locationTypeDatasource, bindLabel:'Name', bindValue:'Code',clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
 									</ion-col>
