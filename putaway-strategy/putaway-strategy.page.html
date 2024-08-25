@@ -18,7 +18,8 @@
 		  </ng-template>
 		</datatable-column>
 
-		<datatable-column class="col-id" name="Name" property="Name"> </datatable-column>
+		
+		<datatable-column class="col-name" name="Name" property="Name"> </datatable-column>
 
 		<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
 		  <ng-template let-i="row" datatable-cell-template>
@@ -28,7 +29,7 @@
 			</small>
 		  </ng-template>
 		</datatable-column>
-		
+		<datatable-column class="col-code bold" name="Code" property="Code"> </datatable-column>
 
 	  </app-data-table>
 </ion-content>
