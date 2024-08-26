@@ -12,7 +12,6 @@ import {
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Schema } from 'src/app/models/options-interface';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
@@ -27,7 +26,6 @@ export class PickingOrderDetailPage extends PageBase {
   //#region Variables
   countTypeDataSource: any;
   statusDataSource: any;
-  schema: Schema;
   config: any = null;
   itemList: any;
   tempItemList: any;
@@ -139,6 +137,7 @@ export class PickingOrderDetailPage extends PageBase {
           this.buildFlatTree(list, this.item.PickingOrderDetails, false).then((resp: any) => {
             this.item.PickingOrderDetails = resp;
             this.patchFieldsValue();
+            this.calcAllTotalPickedQuantity();
           });
         }
       });
@@ -283,6 +282,7 @@ export class PickingOrderDetailPage extends PageBase {
           .then(() => {
             this.env.showMessage('Saved', 'success');
             this.item._IsPickedAll = !this.item._IsPickedAll;
+            this.calcAllTotalPickedQuantity();
             this.submitAttempt = false;
           })
           .catch((err) => {
@@ -333,6 +333,15 @@ export class PickingOrderDetailPage extends PageBase {
       childFG.get('QuantityPicked').markAsDirty();
       super.saveChange2(childFG, this.pageConfig.pageName, this.pickingOrderDetailService);
     }
+  }
+
+  calcAllTotalPickedQuantity() {
+    let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
+    groups.controls.filter(g=> !g.get('IDParent').value).forEach(fg=>{
+      let allChilds = groups.controls.filter(c => c.get('IDParent').value == fg.get('Id').value);
+      let totalQuantity = allChilds.reduce((sum, control) => sum + control.get('QuantityPicked').value, 0);
+      fg.get('QuantityPicked').setValue(totalQuantity);
+    })
   }
 
   changedFromLocationID(valueNew, group, index) {

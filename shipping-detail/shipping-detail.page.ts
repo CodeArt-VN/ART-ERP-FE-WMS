@@ -265,7 +265,7 @@ export class ShippingDetailPage extends PageBase {
             this.submitAttempt = false;
             childFG.get('QuantityShipped').setValue(childFG.get('TrackingQuantityShipped').value);
             childFG.get('QuantityShipped').setErrors({ valid: false });
-            this.env.showMessage(err.error.Message, 'danger');
+            this.env.showMessage(err.error?.ExceptionMessage || err.error?.Message || err.Message, 'danger');
           });
       }
     }

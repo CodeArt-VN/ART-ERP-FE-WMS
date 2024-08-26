@@ -1,6 +1,10 @@
 <ion-header>
   <app-detail-toolbar [page]="this">
-    <ion-button title="In nhãn" (click)="createLabel()">
+    <ion-button title="Goods receipt" (click)="submitReceipt()" *ngIf="formGroup.get('Status').value == 'Palletized'">
+      <ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
+    </ion-button>
+
+    <ion-button title="In nhãn" (click)="createLabel()" *ngIf="formGroup.get('Id').value">
       <ion-icon slot="icon-only" name="print"></ion-icon>
     </ion-button>
 
@@ -588,6 +592,15 @@
                 <ion-icon slot="start" name="file-tray"></ion-icon>
                 {{'Bỏ chia để chỉnh số liệu' | translate}}
               </ion-button>
+
+              <ion-button   
+              fill="clear"
+              size="small"
+              title="Goods receipt" (click)="submitReceipt()" *ngIf="formGroup.get('Status').value == 'Palletized'">
+                <ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
+                {{'Goods receipt' | translate}}
+              </ion-button>
+          
             </div>
           </div>
         </div>
