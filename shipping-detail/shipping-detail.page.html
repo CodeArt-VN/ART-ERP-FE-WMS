@@ -158,7 +158,7 @@
 						</div>
 						<!-- <div class="col-icon cell" *ngIf="pageConfig.canEdit">
 						</div> -->
-						<div class="col-icon cell">
+						<div class="col-icon cell"  *ngIf="pageConfig.canEdit">
 							<ion-icon  class="clickable" *ngIf="checkedShippingDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
 						</div>
 					</header>
@@ -225,7 +225,7 @@
 									<!-- <div class="col-icon cell clickable" (click)="openTransaction(c)"  *ngIf="pageConfig.canEdit && c.controls.IDParent.value == null">
 										<ion-icon color="primary" name="timer-outline"></ion-icon>
 									</div> -->
-									 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit && pageConfig.canDelete">
+									 <div class="col-icon cell clickable" (click)="removeField(c,j)"  *ngIf="pageConfig.canEdit">
 										<ion-icon color="danger" name="trash"></ion-icon>
 									</div> 
 								</div>

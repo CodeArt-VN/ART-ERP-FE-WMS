@@ -487,6 +487,76 @@ export class ReceiptDetailPage extends PageBase {
   createLabel(){
       this.nav('/lpn-label/'+this.formGroup.get('Id').value, "forward")
   }
+  submitReceipt() {
+    if (!this.pageConfig.canReceive) {
+      return;
+    }
+    this.alertCtrl
+      .create({
+        header: 'Nhận phiếu nhập hàng',
+        //subHeader: '---',
+        message: 'Bạn có chắc muốn nhận phiếu nhập hàng đang chọn?',
+        buttons: [
+          {
+            text: 'Không',
+            role: 'cancel',
+            handler: () => {
+              //console.log('Không xóa');
+            },
+          },
+          {
+            text: 'Nhận',
+            cssClass: 'danger-btn',
+            handler: () => {
+              let publishEventCode = this.pageConfig.pageName;
+              let apiPath = {
+                method: 'POST',
+                url: function () {
+                  return ApiSetting.apiDomain('WMS/Receipt/ReceiveReceipt/');
+                },
+              };
+
+              if (this.submitAttempt == false) {
+                this.submitAttempt = true;
+
+                let postDTO = { Ids: [ this.formGroup.get('Id').value] };
+
+                this.loadingController
+                  .create({
+                    cssClass: 'my-custom-class',
+                    message: 'Please wait for a few moments',
+                  })
+                  .then((loading) => {
+                    loading.present();
+                    this.pageProvider.commonService
+                      .connect(apiPath.method, apiPath.url(), postDTO)
+                      .toPromise()
+                      .then((savedItem: any) => {
+                        if (publishEventCode) {
+                          this.env.publishEvent({
+                            Code: publishEventCode,
+                          });
+                        }
+                        this.env.showMessage('Saving completed!', 'success');
+                        this.submitAttempt = false;
+                        if (loading) loading.dismiss();
+                        this.refresh();
+                      })
+                      .catch((err) => {
+                        this.submitAttempt = false;
+                        if (loading) loading.dismiss();
+                        //console.log(err);
+                      });
+                  });
+              }
+            },
+          },
+        ],
+      })
+      .then((alert) => {
+        alert.present();
+      });
+    }
 
   importClick() {
     this.importfile.nativeElement.value = '';
