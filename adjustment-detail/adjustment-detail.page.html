@@ -21,7 +21,7 @@
 							<label class="c-label" for="IDBranch">{{'Warehouse' | translate}}
 								<span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
 							</label>
-							<ng-select class="c-input" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}" (change)="saveChange()">
+							<ng-select class="c-input" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}" (change)="IDBranchChange()">
 								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
 									<div *ngIf="i">
 										<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
@@ -30,7 +30,7 @@
 							</ng-select>
 						</div>
 					
-						<app-form-control  [field]="{id:'IDStorer', label: 'IDStorer', type : 'ng-select-bp', dataSource: storerDataSource, bindValue: 'Id',  form : formGroup ,clearable:true}" (change)="saveChange()"></app-form-control>
+						<app-form-control  [field]="{id:'IDStorer', label: 'IDStorer', type : 'ng-select-bp', dataSource: storerDataSource, bindValue: 'Id',  form : formGroup ,clearable:true}" (change)="IDStorerChange($event)"></app-form-control>
 				
 					</ion-col>
 
@@ -215,7 +215,7 @@
 								</div>
 							</form>
 						</ng-container>
-						<div class="row" *ngIf="pageConfig.canEdit">
+						<div class="row" *ngIf="pageConfig.canEdit && formGroup.get('IDBranch').value && formGroup.get('IDStorer').value">
 							<div class="cell">
 								<ion-button fill="clear" size="small" (click)="addField({},true)">
 									<ion-icon slot="start" name="add-circle-outline"></ion-icon>

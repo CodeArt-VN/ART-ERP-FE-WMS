@@ -793,10 +793,14 @@
                               <ng-container [formGroup]="config">
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
                                   <ion-list-header class="ion-no-padding">
-                                    <ion-label color="primary"
+                                    <ion-label color="primary" style="max-width: 150px;"
                                       >{{'Warehouse arrangement' | translate}} {{i+1}}</ion-label
                                     >
+                                    <ion-button color="danger"   (click)="$event.stopPropagation();removeStorer(i)">
+                                    <ion-icon slot="icon-only"   name="trash"></ion-icon>
+                                  </ion-button>
                                   </ion-list-header>
+                                
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <div class="c-control">

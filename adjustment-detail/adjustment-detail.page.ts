@@ -19,7 +19,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Vali
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
-import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
+import { Subject, catchError, concat, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { lib } from 'src/app/services/static/global-functions';
 import { WMS_Adjustment } from 'src/app/models/model-list-interface';
 import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
@@ -61,13 +61,12 @@ export class AdjustmentDetailPage extends PageBase {
       IDStorer: [''],
       IDCycleCount: new FormControl({ value: '', disabled: false }),
       AdjustmentDetails: this.formBuilder.array([]),
-
       Reason: ['', Validators.required],
       Remark: [''],
       Sort: [''],
-   
       Status: new FormControl({ value: 'New', disabled: true }, Validators.required),
-
+      _TrackingIDBranch:[''],
+      _TrackingIDStorer:[''],
       IsDisabled: new FormControl({ value: '', disabled: true }),
       IsDeleted: new FormControl({ value: '', disabled: true }),
       CreatedBy: new FormControl({ value: '', disabled: true }),
@@ -161,6 +160,8 @@ export class AdjustmentDetailPage extends PageBase {
        this.pageConfig.canDelete = false;
     }
     this.storerDataSource.initSearch();
+    this.formGroup.get('_TrackingIDBranch').setValue(this.formGroup.get('IDBranch').value);
+    this.formGroup.get('_TrackingIDStorer').setValue(this.item._Storer);
   }
 
   private patchFieldsValue() {
@@ -206,6 +207,10 @@ export class AdjustmentDetailPage extends PageBase {
                   })
                   .pipe(
                     catchError(() => of([])), // empty list on error
+                    map((searchResults:any) => {
+                      // Combine selected items with search results, ensuring no duplicates
+                      return [...this.selected, ...searchResults.filter(item => !this.selected.some(selectedItem => selectedItem.Id === item.Id))];
+                    }),
                     tap(() => (this.loading = false)),
                   ),
               ),
@@ -213,10 +218,11 @@ export class AdjustmentDetailPage extends PageBase {
           );
         },
       },
+    
       Id: [field?.Id],
       IDAdjustment: [this.formGroup.get('Id').value, Validators.required],
       IDItem: [field?.IDItem, Validators.required],
-      QuantityAdjusted: [field?.QuantityAdjusted || 0],
+      QuantityAdjusted: [field?.QuantityAdjusted, Validators.required],
       WarehouseQuantity: [field?.WarehouseQuantity],
       Cube: [field?.Cube || 0],
       GrossWeight: [field?.GrossWeight || 0],
@@ -243,7 +249,6 @@ export class AdjustmentDetailPage extends PageBase {
     if (markAsDirty) {
       group.get('IDAdjustment').markAsDirty();
       group.get('Status').markAsDirty();
-      group.get('QuantityAdjusted').markAsDirty();
       group.get('Cube').markAsDirty();
       group.get('GrossWeight').markAsDirty();
       group.get('NetWeight').markAsDirty();
@@ -252,6 +257,88 @@ export class AdjustmentDetailPage extends PageBase {
     console.log(group);
   }
 
+  IDBranchChange(){
+    let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+    if(groups.controls.length>0){
+      this.env
+      .showPrompt('Bạn có muốn tiếp tục?', null, 'Thay đổi kho sẽ mất hết dữ liệu sản phẩm!')
+      .then((_) => {
+        let itemsToDelete = [];
+        itemsToDelete = groups.controls
+        .map(fg => fg.get('Id').value ? fg.getRawValue() : undefined)
+        .filter(value => value !== undefined);
+      
+
+        this.formGroup.get('_TrackingIDBranch').setValue( this.formGroup.get('IDBranch').value)
+        if(itemsToDelete.length>0){
+          this.adjustmentDetailService.delete(itemsToDelete).then((values:any)=>{
+            groups.clear();
+            this.saveChange();
+          }).catch(err=>{
+          this.formGroup.get('IDBranch').setValue(this.formGroup.get('_TrackingIDBranch').value);
+          this.formGroup.get('IDBranch').markAsPristine();
+        })
+        
+        }
+        else{
+          groups.clear();
+          this.formGroup.get('_TrackingIDBranch').setValue( this.formGroup.get('IDBranch').value)
+          this.saveChange();
+        }
+       
+    }).catch(err=>{
+      this.formGroup.get('IDBranch').setValue(this.formGroup.get('_TrackingIDBranch').value);
+      this.formGroup.get('IDBranch').markAsPristine();
+    })
+  }
+    else {
+      this.formGroup.get('_TrackingIDBranch').setValue( this.formGroup.get('IDBranch').value)
+      this.saveChange();
+    }
+   
+  }
+
+  IDStorerChange(e){
+    let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
+    if(groups.controls.length>0){
+      this.env
+      .showPrompt('Bạn có muốn tiếp tục?', null, 'Thay đổi chủ hàng sẽ mất hết dữ liệu sản phẩm!')
+      .then((_) => {
+        let itemsToDelete = [];
+        itemsToDelete = groups.controls
+        .map(fg => fg.get('Id').value ? fg.getRawValue() : undefined)
+        .filter(value => value !== undefined);
+      
+        this.formGroup.get('_TrackingIDStorer').setValue(e)
+        if(itemsToDelete.length>0){
+        this.adjustmentDetailService.delete(itemsToDelete).then((values:any)=>{
+          groups.clear();
+          this.saveChange();
+        }).catch(err=>{
+        this.formGroup.get('IDStorer').setValue(this.formGroup.get('_TrackingIDStorer').value.Id);
+        this.formGroup.get('IDStorer').markAsPristine();
+        this.storerDataSource.selected.push(this.formGroup.get('_TrackingIDStorer').value);
+        this.storerDataSource.initSearch();
+      })
+    }
+    else{
+      groups.clear();
+      this.formGroup.get('_TrackingIDStorer').setValue(e)
+      this.saveChange();
+    }
+    }).catch(err=>{
+      this.formGroup.get('IDStorer').setValue(this.formGroup.get('_TrackingIDStorer').value.Id);
+      this.formGroup.get('IDStorer').markAsPristine();
+      this.storerDataSource.selected=[this.formGroup.get('_TrackingIDStorer').value];
+      this.storerDataSource.initSearch();
+    })
+  }
+    else {
+      this.formGroup.get('_TrackingIDStorer').setValue(e)
+      this.saveChange();
+    }
+   
+  }
   changeIDItem(e, fg) {
     console.log(e);
     if (e) {
