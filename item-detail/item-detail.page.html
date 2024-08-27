@@ -1,6 +1,13 @@
 <ion-header>
-  <app-toolbar [page]="this" pageTitle="{{'Item detail in branch' | translate}}" [pageConfig]="pageConfig"
-    [selectedItems]="selectedItems" [ShowArchive]="false" (refresh)="refresh()" (help)="help()">
+  <app-toolbar
+    [page]="this"
+    pageTitle="{{'Item detail in branch' | translate}}"
+    [pageConfig]="pageConfig"
+    [selectedItems]="selectedItems"
+    [ShowArchive]="false"
+    (refresh)="refresh()"
+    (help)="help()"
+  >
     <ion-buttons rightScreen *ngIf="segmentView.Page == 'Inventory'">
       <ion-button (click)="isAdjust = !isAdjust">
         <label> {{ 'Điều chỉnh' | translate }}</label>
@@ -9,7 +16,6 @@
         <label> {{ 'Tạo điều chỉnh' | translate }}</label>
       </ion-button>
     </ion-buttons>
-    
   </app-toolbar>
   <div class="withFeature left" [ngClass]="{withFeature: pageConfig.isShowFeature}" *ngIf="pageConfig.isShowSearch">
     <section class="table">
@@ -17,18 +23,32 @@
         <div class="col-checkbox cell"></div>
         <div class="col-name cell">
           {{'Search info' | translate}}
-          <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
-            *ngIf="optionQuery.Keyword" name="search" color="primary"></ion-icon>
+          <ion-icon
+            class="min-btn"
+            (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+            *ngIf="optionQuery.Keyword"
+            name="search"
+            color="primary"
+          ></ion-icon>
         </div>
       </header>
       <form (submit)="preLoadData(null)" action="#">
         <header class="filter">
           <div class="col-checkbox cell"></div>
           <div class="cell">
-            <input [ngModelOptions]="{standalone: true}" [(ngModel)]="optionQuery.Keyword" class="c-input"
-              [ngClass]="{active: optionQuery.Keyword}" type="text" />
-            <ion-icon class="min-btn" (click)="optionQuery.Keyword=''; preLoadData(null)" *ngIf="optionQuery.Keyword"
-              name="close-circle-outline"></ion-icon>
+            <input
+              [ngModelOptions]="{standalone: true}"
+              [(ngModel)]="optionQuery.Keyword"
+              class="c-input"
+              [ngClass]="{active: optionQuery.Keyword}"
+              type="text"
+            />
+            <ion-icon
+              class="min-btn"
+              (click)="optionQuery.Keyword=''; preLoadData(null)"
+              *ngIf="optionQuery.Keyword"
+              name="close-circle-outline"
+            ></ion-icon>
           </div>
           <button mat-raised-button type="submit" style="display: none">Search</button>
         </header>
@@ -38,9 +58,14 @@
 </ion-header>
 
 <ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
-  <ion-fab *ngIf="pageConfig.isShowFeature"
+  <ion-fab
+    *ngIf="pageConfig.isShowFeature"
     [ngClass]="{withSearch: pageConfig.isShowSearch,'ion-hide-md-down': pageConfig.isSubActive}"
-    class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+    class="feature no-print"
+    vertical="bottom"
+    horizontal="start"
+    slot="fixed"
+  >
     <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
     <div *ngIf="pageConfig.showSpinner==false">
       <div class="ion-padding" style="padding-bottom: 0">
@@ -48,15 +73,27 @@
           <label class="c-label" for="IDBranch">
             <ion-text color="primary"> {{'Unit' | translate}} </ion-text>
           </label>
-          <ng-select class="c-input no-check-dirty" [searchFn]="searchShowAllChildren" (change)="selectBranch();"
-            [clearable]="true" appendTo="" #IDBranch [(ngModel)]="selectedBranch" labelForId="IDBranch"
-            [items]="branchList" bindLabel="Name" bindValue="" placeholder="{{'Select unit' | translate}}">
+          <ng-select
+            class="c-input no-check-dirty"
+            [searchFn]="searchShowAllChildren"
+            (change)="selectBranch();"
+            [clearable]="true"
+            appendTo=""
+            #IDBranch
+            [(ngModel)]="selectedBranch"
+            labelForId="IDBranch"
+            [items]="branchList"
+            bindLabel="Name"
+            bindValue=""
+            placeholder="{{'Select unit' | translate}}"
+          >
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
                 <div>
                   <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <ion-text [color]=" i.Type == 'Company'? 'primary':'dark'"
-                    [ngOptionHighlight]="search">{{i.Name}}</ion-text>
+                  <ion-text [color]=" i.Type == 'Company'? 'primary':'dark'" [ngOptionHighlight]="search"
+                    >{{i.Name}}</ion-text
+                  >
                 </div>
               </div>
             </ng-template>
@@ -69,14 +106,20 @@
         </ion-list-header>
         <ion-list>
           <ng-container *ngFor="let i of optionGroup">
-            <ion-item *ngIf="(formGroup.get('IsInventoryItem').value && i.Code =='Inventory') || i.Code !='Inventory' " [color]="segmentView.Page == i.Code? 'primary': '' " button
-              detail="true" lines="full" class="clickable" (click)="loadNode(i)">
+            <ion-item
+              *ngIf="(formGroup.get('IsInventoryItem').value && i.Code =='Inventory') || i.Code !='Inventory' "
+              [color]="segmentView.Page == i.Code? 'primary': '' "
+              button
+              detail="true"
+              lines="full"
+              class="clickable"
+              (click)="loadNode(i)"
+            >
               <ion-label class="ion-text-wrap">
                 <h3>{{i.Name}}</h3>
               </ion-label>
             </ion-item>
           </ng-container>
-          
         </ion-list>
       </div>
       <div class="ion-padding" style="padding-bottom: 0"></div>
@@ -86,8 +129,13 @@
     <ion-row>
       <ion-col size="12">
         <div class="ion-padding" style="min-width: 300px">
-          <app-page-title class="ion-margin-bottom" *ngIf="selectedOption" icon="cog-outline" color="primary"
-            [title]="selectedOption.Name">
+          <app-page-title
+            class="ion-margin-bottom"
+            *ngIf="selectedOption"
+            icon="cog-outline"
+            color="primary"
+            [title]="selectedOption.Name"
+          >
           </app-page-title>
           <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
           <div class="main-view" *ngIf="pageConfig.showSpinner == false">
@@ -110,56 +158,70 @@
                                 <input class="c-input" readonly id="Id" formControlName="Id" type="number" />
                               </div>
                               <app-form-control
-                                [field]="{id:'Code', label: 'Product code', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Code', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                                 <small label>{{'from vendor' | translate}}</small>
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Name', label: 'Product name', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
-                                <small>{{'from vendor' | translate}}</small>
+                                [field]="{id: 'Name', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'ForeignName', label: 'English name', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'ForeignName', label: 'English name', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Expiry', label: 'Shelf life from manufactured date', type : 'number', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Expiry', label: 'Shelf life from manufactured date', type: 'number', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'ExpiryUnit', label: 'Unit', type : 'select', form : formGroup,  dataSource: ExpiryUnitList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="saveChange()">
+                                [field]="{id: 'ExpiryUnit', label: 'Unit', type: 'select', form: formGroup,  dataSource: ExpiryUnitList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
-
                               <app-form-control
-                                [field]="{id:'IsInventoryItem', label: 'Goods for storage', type : 'checkbox', form : formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()">
+                                [field]="{id: 'IsInventoryItem', label: 'Goods for storage', type: 'checkbox', form: formGroup }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()"
+                              >
                               </app-form-control>
                               <app-form-control
-                                [field]="{id:'IsSalesItem', label: 'Goods for sale', type : 'checkbox', form : formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()">
+                                [field]="{id: 'IsSalesItem', label: 'Goods for sale', type: 'checkbox', form: formGroup }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()"
+                              >
                               </app-form-control>
                               <app-form-control
-                                [field]="{id:'IsPurchaseItem', label: 'Goods to order', type : 'checkbox', form : formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()">
+                                [field]="{id: 'IsPurchaseItem', label: 'Goods to order', type: 'checkbox', form: formGroup }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()"
+                              >
                               </app-form-control>
                               <div class="c-control">
-                                <input [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="saveChange()"
-                                  class="c-checkbox" id="IsDisabled" formControlName="IsDisabled" type="checkbox" />
-                                <label class="c-label checkbox" for="IsDisabled">{{'Sản phẩm đã ngưng sử dụng' |
-                                  translate}}
+                                <input
+                                  [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                                  (change)="saveChange()"
+                                  class="c-checkbox"
+                                  id="IsDisabled"
+                                  formControlName="IsDisabled"
+                                  type="checkbox"
+                                />
+                                <label class="c-label checkbox" for="IsDisabled"
+                                  >{{'Sản phẩm đã ngưng sử dụng' | translate}}
                                   <span
                                     *ngIf="!formGroup.controls.IsDisabled.valid && !formGroup.controls.IsDisabled.pending && (formGroup.controls.IsDisabled.dirty || submitAttempt)"
-                                    ion-text color="danger">(*)</span>
+                                    ion-text
+                                    color="danger"
+                                    >(*)</span
+                                  >
                                 </label>
                               </div>
-
                             </ion-col>
                           </ion-row>
 
@@ -170,10 +232,10 @@
                               </ion-list-header>
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-
                               <app-form-control
-                                [field]="{id:'VendorIds', label: 'Select Vendor', type : 'ng-select', form : formGroup,  dataSource: vendorList,  bindLabel: 'Name',  bindValue: 'Id', multiple: true }"
-                                (change)="saveChange()">
+                                [field]="{id: 'VendorIds', label: 'Select Vendor', type: 'ng-select', form: formGroup,  dataSource: vendorList,  bindLabel: 'Name',  bindValue: 'Id', multiple: true }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
                             </ion-col>
                           </ion-row>
@@ -185,31 +247,34 @@
                               </ion-list-header>
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-
                               <app-form-control
-                                [field]="{id:'IDItemGroup', label: 'Belonged to group', type : 'ng-select-bp', form : formGroup,  dataSource: itemGroupListDataSource,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
-                              </app-form-control>
-                              
-
-                              <app-form-control
-                                [field]="{id:'ItemType', label: 'Product type', type : 'ng-select', form : formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select-bp', form: formGroup,  dataSource: itemGroupListDataSource,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'IDCartonGroup', label: 'Carton group', type : 'ng-select', form : formGroup,  dataSource: cartonGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Industry', label: 'Industry', type : 'ng-select', form : formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                [field]="{id: 'IDCartonGroup', label: 'Carton group', type: 'ng-select', form: formGroup,  dataSource: cartonGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Division', label: 'Division', type : 'ng-select', form : formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                [field]="{id: 'Industry', label: 'Industry', type: 'ng-select', form: formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
+                              </app-form-control>
+
+                              <app-form-control
+                                [field]="{id: 'Division', label: 'Division', type: 'ng-select', form: formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
                               </app-form-control>
                             </ion-col>
                           </ion-row>
@@ -222,15 +287,16 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id:'IDSalesTaxDefinition', label: 'Sales Tax', type : 'ng-select', form : formGroup,  dataSource: outputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                [field]="{id: 'IDSalesTaxDefinition', label: 'Sales Tax', type: 'ng-select', form: formGroup,  dataSource: outputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'IDPurchaseTaxDefinition', label: 'Purchase Tax', type : 'ng-select', form : formGroup,  dataSource: inputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange();">
+                                [field]="{id: 'IDPurchaseTaxDefinition', label: 'Purchase Tax', type: 'ng-select', form: formGroup,  dataSource: inputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange();"
+                              >
                               </app-form-control>
-
                             </ion-col>
                           </ion-row>
 
@@ -242,18 +308,21 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6" class="ion-no-padding">
                               <app-form-control
-                                [field]="{id:'SerialNumberStart', label: 'Start', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'SerialNumberStart', label: 'Start', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'SerialNumberEnd', label: 'End', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'SerialNumberEnd', label: 'End', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'SerialNumberNext', label: 'Next', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'SerialNumberNext', label: 'Next', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
                             </ion-col>
                           </ion-row>
@@ -266,53 +335,63 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id:'Lottable0', label: 'Lottable0', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable0', label: 'Lottable0', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable1', label: 'Lottable1', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable1', label: 'Lottable1', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable2', label: 'Lottable2', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable2', label: 'Lottable2', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable3', label: 'Lottable3', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable3', label: 'Lottable3', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable4', label: 'Lottable4', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable4', label: 'Lottable4', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable5', label: 'Lottable5', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable5', label: 'Lottable5', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable6', label: 'Lottable6', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable6', label: 'Lottable6', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable7', label: 'Lottable7', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable7', label: 'Lottable7', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable8', label: 'Lottable8', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable8', label: 'Lottable8', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'Lottable9', label: 'Lottable9', type : 'text', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'Lottable9', label: 'Lottable9', type: 'text', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
                             </ion-col>
                           </ion-row>
@@ -338,12 +417,14 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id:'TI', label: 'TI - Boxes /Tie', type : 'number', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'TI', label: 'TI - Boxes /Tie', type: 'number', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
                               <app-form-control
-                                [field]="{id:'HI', label: 'HI - Number of stack', type : 'number', form : formGroup }"
-                                (change)="saveChange()">
+                                [field]="{id: 'HI', label: 'HI - Number of stack', type: 'number', form: formGroup }"
+                                (change)="saveChange()"
+                              >
                               </app-form-control>
                             </ion-col>
                           </ion-row>
@@ -356,19 +437,25 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"></app-form-control>
+                                [field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"
+                              ></app-form-control>
                               <app-form-control
-                                [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
+                                [field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"
+                              ></app-form-control>
                               <app-form-control
-                                [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"></app-form-control>
+                                [field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"
+                              ></app-form-control>
                               <app-form-control
-                                [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
+                                [field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"
+                              ></app-form-control>
 
                               <app-form-control
-                                [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
+                                [field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource:env.branchList }"
+                              ></app-form-control>
                               <app-form-control
-                                [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()"></app-form-control>
+                                [field]="{id: 'Remark', type: 'textarea', label: 'Remark', form: formGroup }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()"
+                              ></app-form-control>
                             </ion-col>
                           </ion-row>
                         </form>
@@ -398,40 +485,71 @@
                         </header>
                         <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of UoMs; let j = index;">
                           <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              [(ngModel)]="i.IsBaseUoM"></ion-checkbox>
+                            <ion-checkbox
+                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                              [(ngModel)]="i.IsBaseUoM"
+                            ></ion-checkbox>
                           </div>
                           <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              [(ngModel)]="i.IsBaseUoM"></ion-checkbox>
+                            <ion-checkbox
+                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                              [(ngModel)]="i.IsBaseUoM"
+                            ></ion-checkbox>
                           </div>
-                          <div class="col-checkbox cell"
-                            (click)="item.PurchasingUoM = pageConfig.canEditUoM ? i.Id: item.PurchasingUoM; branchSelected ? updateUoMInBranch() : updateUoM()">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM"
-                              [checked]="item.PurchasingUoM == i.Id"></ion-checkbox>
+                          <div
+                            class="col-checkbox cell"
+                            (click)="item.PurchasingUoM = pageConfig.canEditUoM ? i.Id: item.PurchasingUoM; branchSelected ? updateUoMInBranch() : updateUoM()"
+                          >
+                            <ion-checkbox
+                              [disabled]="!pageConfig.canEditUoM"
+                              [checked]="item.PurchasingUoM == i.Id"
+                            ></ion-checkbox>
                           </div>
-                          <div class="col-checkbox cell"
-                            (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; branchSelected ? updateUoMInBranch() : updateUoM()">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM"
-                              [checked]="item.InventoryUoM == i.Id"></ion-checkbox>
+                          <div
+                            class="col-checkbox cell"
+                            (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; branchSelected ? updateUoMInBranch() : updateUoM()"
+                          >
+                            <ion-checkbox
+                              [disabled]="!pageConfig.canEditUoM"
+                              [checked]="item.InventoryUoM == i.Id"
+                            ></ion-checkbox>
                           </div>
-                          <div class="col-checkbox cell"
-                            (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; branchSelected ? updateUoMInBranch() : updateUoM()">
-                            <ion-checkbox [disabled]="!pageConfig.canEditUoM"
-                              [checked]="item.SalesUoM == i.Id"></ion-checkbox>
+                          <div
+                            class="col-checkbox cell"
+                            (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; branchSelected ? updateUoMInBranch() : updateUoM()"
+                          >
+                            <ion-checkbox
+                              [disabled]="!pageConfig.canEditUoM"
+                              [checked]="item.SalesUoM == i.Id"
+                            ></ion-checkbox>
                           </div>
 
                           <div class="col1 cell">
-                            <input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              class="c-input" (change)="saveUoM(i)" [(ngModel)]="i.AlternativeQuantity" type="number"
-                              min="0" step="1" max="999999999999999999" />
+                            <input
+                              *ngIf="!i.IsBaseUoM"
+                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                              class="c-input"
+                              (change)="saveUoM(i)"
+                              [(ngModel)]="i.AlternativeQuantity"
+                              type="number"
+                              min="0"
+                              step="1"
+                              max="999999999999999999"
+                            />
                           </div>
                           <div class="col2 cell">
-                            <ng-select class="c-input" (change)="changedUoM($event, i)"
+                            <ng-select
+                              class="c-input"
+                              (change)="changedUoM($event, i)"
                               [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist || this.selectedBranch"
-                              [(ngModel)]="i.Name" [items]="uomList"
-                              appendTo="#unit-specification" [clearable]="false" bindLabel="Name" bindValue="Name"
-                              placeholder="{{'Unit' | translate}}">
+                              [(ngModel)]="i.Name"
+                              [items]="uomList"
+                              appendTo="#unit-specification"
+                              [clearable]="false"
+                              bindLabel="Name"
+                              bindValue="Name"
+                              placeholder="{{'Unit' | translate}}"
+                            >
                               <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                 <div *ngIf="i">
                                   <div>
@@ -444,46 +562,89 @@
                                 <ion-text color="primary"> <b>{{'Thêm' | translate}}</b>: {{search}} </ion-text>
                               </ng-template>
                             </ng-select>
-                            
                           </div>
                           <div class="col3 cell">
                             <span *ngIf="!i.IsBaseUoM">=</span>
                           </div>
                           <div class="col4 cell">
-                            <input *ngIf="!i.IsBaseUoM" [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              (change)="saveUoM(i)" class="c-input" [(ngModel)]="i.BaseQuantity" type="number" min="0"
-                              step="1" max="999999999999999999" />
+                            <input
+                              *ngIf="!i.IsBaseUoM"
+                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                              (change)="saveUoM(i)"
+                              class="c-input"
+                              [(ngModel)]="i.BaseQuantity"
+                              type="number"
+                              min="0"
+                              step="1"
+                              max="999999999999999999"
+                            />
                           </div>
                           <div class="col2 cell">
                             <span *ngIf="!i.IsBaseUoM">{{baseUomName}}</span>
                           </div>
                           <div class="col5 cell">
-                            <input [disabled]="!pageConfig.canEditUoM " (change)="saveUoM(i)" class="c-input"
-                              [(ngModel)]="i.Length" type="number" min="0" />
+                            <input
+                              [disabled]="!pageConfig.canEditUoM "
+                              (change)="saveUoM(i)"
+                              class="c-input"
+                              [(ngModel)]="i.Length"
+                              type="number"
+                              min="0"
+                            />
                           </div>
                           <div class="col6 cell">
-                            <input [disabled]="!pageConfig.canEditUoM " (change)="saveUoM(i)" class="c-input"
-                              [(ngModel)]="i.Width" type="number" min="0" />
+                            <input
+                              [disabled]="!pageConfig.canEditUoM "
+                              (change)="saveUoM(i)"
+                              class="c-input"
+                              [(ngModel)]="i.Width"
+                              type="number"
+                              min="0"
+                            />
                           </div>
                           <div class="col7 cell">
-                            <input [disabled]="!pageConfig.canEditUoM " (change)="saveUoM(i)" class="c-input"
-                              [(ngModel)]="i.Height" type="number" min="0" />
+                            <input
+                              [disabled]="!pageConfig.canEditUoM "
+                              (change)="saveUoM(i)"
+                              class="c-input"
+                              [(ngModel)]="i.Height"
+                              type="number"
+                              min="0"
+                            />
                           </div>
                           <div class="col8 cell">
-                            <input [disabled]="!pageConfig.canEditUoM " (change)="saveUoM(i)" class="c-input"
-                              [(ngModel)]="i.Weight" type="number" min="0" />
+                            <input
+                              [disabled]="!pageConfig.canEditUoM "
+                              (change)="saveUoM(i)"
+                              class="c-input"
+                              [(ngModel)]="i.Weight"
+                              type="number"
+                              min="0"
+                            />
                           </div>
                           <div class="col2 cell">
-                            <input [disabled]="!pageConfig.canEditUoM " (change)="saveUoM(i)" class="c-input"
-                              [(ngModel)]="i.Barcode" type="text" />
+                            <input
+                              [disabled]="!pageConfig.canEditUoM "
+                              (change)="saveUoM(i)"
+                              class="c-input"
+                              [(ngModel)]="i.Barcode"
+                              type="text"
+                            />
                           </div>
                           <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM && pageConfig.canEditTrans">
-                            <ion-icon color="danger" (click)="deleteUoM(i)" class="min-btn"
-                              name="trash-outline"></ion-icon>
+                            <ion-icon
+                              color="danger"
+                              (click)="deleteUoM(i)"
+                              class="min-btn"
+                              name="trash-outline"
+                            ></ion-icon>
                           </div>
                         </div>
                       </section>
-                      <div class="row" *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && !this.selectedBranch ) && this.id">
+                      <div
+                        class="row"
+                        *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && !this.selectedBranch ) && this.id"
+                      >
                         <div class="cell">
                           <ion-button fill="clear" size="small" (click)="addUoM()">
                             <ion-icon slot="start" name="add-circle-outline"></ion-icon>
@@ -512,39 +673,77 @@
                                   <div class="col-id cell" *ngIf="pageConfig.canEditPrice"></div>
                                   <div class="col-id cell" *ngIf="pageConfig.canEditPrice"></div>
                                 </header>
-                                <div class="row" [ngClass]="{border_: k==0 }"
-                                  *ngFor="let p of i.Prices; let k = index;">
+                                <div
+                                  class="row"
+                                  [ngClass]="{border_: k==0 }"
+                                  *ngFor="let p of i.Prices; let k = index;"
+                                >
                                   <div class="col-id cell"></div>
                                   <div class="col-item cell"></div>
                                   <div class="col-uom cell">
                                     <ion-text color="primary"><b>{{p._UoM.Name}}</b></ion-text>
                                   </div>
                                   <div class="col-price cell">
-                                    <span *ngIf="!p.Id">-</span><input *ngIf="p.Id" class="c-input"
-                                      [disabled]="!pageConfig.canEditPrice || !p.IsManual" (change)="savePriceDetail(p)"
-                                      mask="separator.4" thousandSeparator="," [allowNegativeNumbers]="false" type="tel"
-                                      [(ngModel)]="p.Price" />
+                                    <span *ngIf="!p.Id">-</span
+                                    ><input
+                                      *ngIf="p.Id"
+                                      class="c-input"
+                                      [disabled]="!pageConfig.canEditPrice || !p.IsManual"
+                                      (change)="savePriceDetail(p)"
+                                      mask="separator.4"
+                                      thousandSeparator=","
+                                      [allowNegativeNumbers]="false"
+                                      type="tel"
+                                      [(ngModel)]="p.Price"
+                                    />
                                   </div>
                                   <div class="col-price cell">
-                                    <span *ngIf="!p.Id">-</span><input *ngIf="p.Id" class="c-input"
-                                      [disabled]="!pageConfig.canEditPrice || !p.IsManual" (change)="savePriceDetail(p)"
-                                      mask="separator.4" thousandSeparator="," [allowNegativeNumbers]="false" type="tel"
-                                      [(ngModel)]="p.Price1" />
+                                    <span *ngIf="!p.Id">-</span
+                                    ><input
+                                      *ngIf="p.Id"
+                                      class="c-input"
+                                      [disabled]="!pageConfig.canEditPrice || !p.IsManual"
+                                      (change)="savePriceDetail(p)"
+                                      mask="separator.4"
+                                      thousandSeparator=","
+                                      [allowNegativeNumbers]="false"
+                                      type="tel"
+                                      [(ngModel)]="p.Price1"
+                                    />
                                   </div>
                                   <div class="col-price cell">
-                                    <span *ngIf="!p.Id">-</span><input *ngIf="p.Id" class="c-input"
-                                      [disabled]="!pageConfig.canEditPrice || !p.IsManual" (change)="savePriceDetail(p)"
-                                      mask="separator.4" thousandSeparator="," [allowNegativeNumbers]="false" type="tel"
-                                      [(ngModel)]="p.Price2" />
+                                    <span *ngIf="!p.Id">-</span
+                                    ><input
+                                      *ngIf="p.Id"
+                                      class="c-input"
+                                      [disabled]="!pageConfig.canEditPrice || !p.IsManual"
+                                      (change)="savePriceDetail(p)"
+                                      mask="separator.4"
+                                      thousandSeparator=","
+                                      [allowNegativeNumbers]="false"
+                                      type="tel"
+                                      [(ngModel)]="p.Price2"
+                                    />
                                   </div>
-                                  <div class="col-id cell" (click)="changeManualPrice(p)"
-                                    *ngIf="pageConfig.canEditPrice">
-                                    <ion-icon [color]="p.IsManual?'danger':'success'" class="min-btn"
-                                      [name]="p.Id? (p.IsManual?'lock-open':'lock-closed') : 'pencil'"></ion-icon>
+                                  <div
+                                    class="col-id cell"
+                                    (click)="changeManualPrice(p)"
+                                    *ngIf="pageConfig.canEditPrice"
+                                  >
+                                    <ion-icon
+                                      [color]="p.IsManual?'danger':'success'"
+                                      class="min-btn"
+                                      [name]="p.Id? (p.IsManual?'lock-open':'lock-closed') : 'pencil'"
+                                    ></ion-icon>
                                   </div>
                                   <div class="col-id cell" *ngIf="pageConfig.canEditPrice">
-                                    <ion-icon color="danger" class="min-btn" name="trash-outline" *ngIf="p.Id"
-                                      (click)="deletePriceDetail(p)"></ion-icon>
+                                    <ion-icon
+                                      color="danger"
+                                      class="min-btn"
+                                      name="trash-outline"
+                                      *ngIf="p.Id"
+                                      (click)="deletePriceDetail(p)"
+                                    ></ion-icon>
                                   </div>
                                 </div>
                                 <div class="ion-padding"></div>
@@ -559,11 +758,21 @@
                     <div class="ion-padding">
                       <ion-grid fixed>
                         <ion-row>
-                          <ion-col size="12" size-sm="6" size-md="6" size-lg="4" size-xl="3"
-                            *ngFor="let i of UoMs; let j = index;">
+                          <ion-col
+                            size="12"
+                            size-sm="6"
+                            size-md="6"
+                            size-lg="4"
+                            size-xl="3"
+                            *ngFor="let i of UoMs; let j = index;"
+                          >
                             <div class="image-box">
-                              <img class="img" [src]="i.Image" (error)="img.src = 'assets/undraw_no_data_qbuo.svg'"
-                                #img />
+                              <img
+                                class="img"
+                                [src]="i.Image"
+                                (error)="img.src = 'assets/undraw_no_data_qbuo.svg'"
+                                #img
+                              />
 
                               <div class="image-title">{{i.Name}}</div>
                             </div>
@@ -577,25 +786,39 @@
                       <ion-grid fixed>
                         <form [formGroup]="formGroup">
                           <ng-container formArrayName="WMS_ItemInWarehouseConfig">
-                            <ion-row class="hr-group"
-                              *ngFor="let config of formGroup.get('WMS_ItemInWarehouseConfig')['controls']; let i=index">
+                            <ion-row
+                              class="hr-group"
+                              *ngFor="let config of formGroup.get('WMS_ItemInWarehouseConfig')['controls']; let i=index"
+                            >
                               <ng-container [formGroup]="config">
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
                                   <ion-list-header class="ion-no-padding">
-                                    <ion-label color="primary">{{'Warehouse arrangement' | translate}}
-                                      {{i+1}}</ion-label>
+                                    <ion-label color="primary"
+                                      >{{'Warehouse arrangement' | translate}} {{i+1}}</ion-label
+                                    >
                                   </ion-list-header>
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <div class="c-control">
-                                    <label class="c-label" for="IDBranch">{{'Kho' | translate}}
+                                    <label class="c-label" for="IDBranch"
+                                      >{{'Kho' | translate}}
                                       <span
                                         *ngIf="!config.controls.IDBranch.valid && !config.controls.IDBranch.pending && (config.controls.IDBranch.dirty || submitAttempt)"
-                                        ion-text color="danger">(*)</span>
+                                        ion-text
+                                        color="danger"
+                                        >(*)</span
+                                      >
                                     </label>
-                                    <ng-select class="c-input" (change)="saveChange();" labelForId="IDBranch"
-                                      formControlName="IDBranch" [items]="branchList" bindLabel="Name" bindValue="Id"
-                                      placeholder="{{'Search' | translate}}">
+                                    <ng-select
+                                      class="c-input"
+                                      (change)="saveChange();"
+                                      labelForId="IDBranch"
+                                      formControlName="IDBranch"
+                                      [items]="branchList"
+                                      bindLabel="Name"
+                                      bindValue="Id"
+                                      placeholder="{{'Search' | translate}}"
+                                    >
                                       <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                         <div *ngIf="i">
                                           <div>
@@ -608,75 +831,88 @@
                                   </div>
 
                                   <app-form-control
-                                    [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select', form : config,  dataSource: storerList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'IDStorer', label: 'Goods owner', type: 'ng-select', form: config,  dataSource: storerList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'PutawayZone', label: 'Putaway zone', type : 'ng-select', form : config,  dataSource: zoneList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'PutawayZone', label: 'Putaway zone', type: 'ng-select', form: config,  dataSource: zoneList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'Rotation', label: 'Rotation', type : 'ng-select', form : config,  dataSource: RotationList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'Rotation', label: 'Rotation', type: 'ng-select', form: config,  dataSource: RotationList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'RotateBy', label: 'RotateBy', type : 'ng-select', form : config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Code' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'RotateBy', label: 'RotateBy', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'MaxPalletsPerZone', label: 'Max pallets/Zone', type : 'text', form : config }"
-                                    (change)="saveChange()">
+                                    [field]="{id: 'MaxPalletsPerZone', label: 'Max pallets/Zone', type: 'text', form: config }"
+                                    (change)="saveChange()"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'StackLimit', label: 'StackLimit', type : 'text', form : config }"
-                                    (change)="saveChange()">
+                                    [field]="{id: 'StackLimit', label: 'StackLimit', type: 'text', form: config }"
+                                    (change)="saveChange()"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'PutawayStrategy', label: 'Arrange goods into warehouse', type : 'ng-select', form : config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'PutawayStrategy', label: 'Arrange goods into warehouse', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'AllocationStrategy', label: 'Goods pick-up assignment', type : 'ng-select', form : config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'AllocationStrategy', label: 'Goods pick-up assignment', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'PutawayLocation', label: 'PutawayLocation', type : 'ng-select', form : config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'PutawayLocation', label: 'PutawayLocation', type: 'ng-select', form: config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'InboundQCLocation', label: 'Inbound QC location', type : 'ng-select', form : config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'InboundQCLocation', label: 'Inbound QC location', type: 'ng-select', form: config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'ReturnLocation', label: 'Return location', type : 'ng-select', form : config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
-                                    (change)="saveChange();">
+                                    [field]="{id: 'ReturnLocation', label: 'Return location', type: 'ng-select', form: config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    (change)="saveChange();"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'MinimumInventoryLevel', label: 'Min inventory', type : 'number', form : config }"
-                                    (change)="saveChange()">
+                                    [field]="{id: 'MinimumInventoryLevel', label: 'Min inventory', type: 'number', form: config }"
+                                    (change)="saveChange()"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'MaximumInventoryLevel', label: 'Max inventory', type : 'number', form : config }"
-                                    (change)="saveChange()">
+                                    [field]="{id: 'MaximumInventoryLevel', label: 'Max inventory', type: 'number', form: config }"
+                                    (change)="saveChange()"
+                                  >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id:'IsAllowConsolidation', label: 'Allow to gather LCL goods', type : 'checkbox', form : config }"
-                                    (change)="saveChange()">
+                                    [field]="{id: 'IsAllowConsolidation', label: 'Allow to gather LCL goods', type: 'checkbox', form: config }"
+                                    (change)="saveChange()"
+                                  >
                                   </app-form-control>
-
                                 </ion-col>
                               </ng-container>
                             </ion-row>
@@ -684,7 +920,12 @@
                         </form>
                         <ion-row class="hr-group" *ngIf="this.id">
                           <ion-col size="12" size-md="12" size-lg="12" size-xl="4" offset-xl="4">
-                            <ion-button [disabled]="!(pageConfig.canEdit || pageConfig.canAdd)" (click)="addConfig({Id:0})"> {{'Add goods owner' | translate}} </ion-button>
+                            <ion-button
+                              [disabled]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                              (click)="addConfig({Id:0})"
+                            >
+                              {{'Add goods owner' | translate}}
+                            </ion-button>
                           </ion-col>
                         </ion-row>
                       </ion-grid>
@@ -702,20 +943,22 @@
                             </ion-col>
                             <ion-col size="12" size-sm size-xl="6">
                               <app-form-control
-                                [field]="{id:'InventoryLevelRequired', label: 'Required (Purchasing UoM)', type : 'number', form : formGroup }"
-                                (change)="saveItemInBranch()">
+                                [field]="{id: 'InventoryLevelRequired', label: 'Required (Purchasing UoM)', type: 'number', form: formGroup }"
+                                (change)="saveItemInBranch()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'InventoryLevelMinimum', label: 'Minimum', type : 'number', form : formGroup }"
-                                (change)="saveItemInBranch()">
+                                [field]="{id: 'InventoryLevelMinimum', label: 'Minimum', type: 'number', form: formGroup }"
+                                (change)="saveItemInBranch()"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'InventoryLevelMaximum', label: 'Maximum', type : 'number', form : formGroup }"
-                                (change)="saveItemInBranch()">
+                                [field]="{id: 'InventoryLevelMaximum', label: 'Maximum', type: 'number', form: formGroup }"
+                                (change)="saveItemInBranch()"
+                              >
                               </app-form-control>
-
                             </ion-col>
                           </ion-row>
                           <ion-row class="hr-group">
@@ -726,13 +969,18 @@
                             </ion-col>
                             <ion-col size="12" size-sm size-xl="6">
                               <div class="c-control">
-                                <label class="c-label" for="PlanningMethod">{{'Planning Method' | translate}}
-                                </label>
-                                <ng-select class="c-input" (change)="saveItemInBranch();"
+                                <label class="c-label" for="PlanningMethod">{{'Planning Method' | translate}} </label>
+                                <ng-select
+                                  class="c-input"
+                                  (change)="saveItemInBranch();"
                                   [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
-                                  labelForId="PlanningMethod" formControlName="PlanningMeThod"
-                                  [items]="PlanningMethodList" bindLabel="Name" bindValue="Code"
-                                  placeholder="{{'Search' | translate}}">
+                                  labelForId="PlanningMethod"
+                                  formControlName="PlanningMeThod"
+                                  [items]="PlanningMethodList"
+                                  bindLabel="Name"
+                                  bindValue="Code"
+                                  placeholder="{{'Search' | translate}}"
+                                >
                                   <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                     <div *ngIf="i">
                                       <div>
@@ -744,13 +992,20 @@
                                 </ng-select>
                               </div>
                               <div class="c-control">
-                                <label class="c-label" for="ProcurementMethod">{{'Procurement Method' | translate}}
+                                <label class="c-label" for="ProcurementMethod"
+                                  >{{'Procurement Method' | translate}}
                                 </label>
-                                <ng-select class="c-input" (change)="saveItemInBranch();"
+                                <ng-select
+                                  class="c-input"
+                                  (change)="saveItemInBranch();"
                                   [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
-                                  labelForId="ProcurementMethod" formControlName="ProcurementMethod"
-                                  [items]="ProcurementMethodList" bindLabel="Name" bindValue="Code"
-                                  placeholder="{{'Search' | translate}}">
+                                  labelForId="ProcurementMethod"
+                                  formControlName="ProcurementMethod"
+                                  [items]="ProcurementMethodList"
+                                  bindLabel="Name"
+                                  bindValue="Code"
+                                  placeholder="{{'Search' | translate}}"
+                                >
                                   <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                     <div *ngIf="i">
                                       <div>
@@ -762,12 +1017,18 @@
                                 </ng-select>
                               </div>
                               <div class="c-control">
-                                <label class="c-label" for="OrderInterval">{{'Order Interval' | translate}}
-                                </label>
-                                <ng-select class="c-input" (change)="saveItemInBranch();"
+                                <label class="c-label" for="OrderInterval">{{'Order Interval' | translate}} </label>
+                                <ng-select
+                                  class="c-input"
+                                  (change)="saveItemInBranch();"
                                   [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
-                                  labelForId="OrderInterval" formControlName="OrderInterval" [items]="OrderIntervalList"
-                                  bindLabel="Name" bindValue="Code" placeholder="{{'Search' | translate}}">
+                                  labelForId="OrderInterval"
+                                  formControlName="OrderInterval"
+                                  [items]="OrderIntervalList"
+                                  bindLabel="Name"
+                                  bindValue="Code"
+                                  placeholder="{{'Search' | translate}}"
+                                >
                                   <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                     <div *ngIf="i">
                                       <div>
@@ -780,30 +1041,34 @@
                               </div>
 
                               <app-form-control
-                                [field]="{id:'OrderMultiple', label: 'Order Multiple', type : 'number', form : formGroup}"
-                                (change)="saveItemInBranch();">
+                                [field]="{id: 'OrderMultiple', label: 'Order Multiple', type: 'number', form: formGroup}"
+                                (change)="saveItemInBranch();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'MinimumOrderQty', label: 'Minimum Order Qty', type : 'number', form : formGroup}"
-                                (change)="saveItemInBranch();">
+                                [field]="{id: 'MinimumOrderQty', label: 'Minimum Order Qty', type: 'number', form: formGroup}"
+                                (change)="saveItemInBranch();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'CheckingRule', label: 'Checking Rule', type : 'number', form : formGroup}"
-                                (change)="saveItemInBranch();">
+                                [field]="{id: 'CheckingRule', label: 'Checking Rule', type: 'number', form: formGroup}"
+                                (change)="saveItemInBranch();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'LeadTime', label: 'Lead Time', type : 'number', form : formGroup}"
-                                (change)="saveItemInBranch();">
+                                [field]="{id: 'LeadTime', label: 'Lead Time', type: 'number', form: formGroup}"
+                                (change)="saveItemInBranch();"
+                              >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id:'ToleranceDays', label: 'Tolerance Days', type : 'number', form : formGroup}"
-                                (change)="saveItemInBranch();">
+                                [field]="{id: 'ToleranceDays', label: 'Tolerance Days', type: 'number', form: formGroup}"
+                                (change)="saveItemInBranch();"
+                              >
                               </app-form-control>
-
                             </ion-col>
                           </ion-row>
                         </form>
@@ -816,11 +1081,11 @@
                         <header class="bold" style="padding-right: 0">
                           <div class="col-code cell">{{'Warehouse' | translate}}</div>
                           <div class="col-code cell">{{'Storer' | translate}}</div>
-    
+
                           <div class="col-name cell">{{'Zone - Location' | translate}}</div>
                           <div class="col-number cell">{{'Lot' | translate}}</div>
                           <div class="col-number cell">{{'LPN' | translate}}</div>
-                         
+
                           <div class="col-number cell">{{'OnHand' | translate}}</div>
                           <div class="col-number cell">{{'Expected' | translate}}</div>
                           <div class="col-number cell">{{'Allocated' | translate}}</div>
@@ -828,39 +1093,35 @@
                           <div class="col-number cell" *ngIf="isAdjust">{{'Qty Target' | translate}}</div>
                         </header>
                         <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of Inventories; let j = index;">
-                          <div class="col-code cell">
-                            {{i.Warehouse}}
-                          </div>
-                          <div class="col-code cell">
-                            {{i.StorerName}}
-                          </div>
-                          <div class="col-name cell">
-                            {{i.ZoneName}} -  {{i.LocationName}}
-                          </div>
-                          <div class="col-number cell">
-                            {{i.LotId}}
-                          </div>
-                          <div class="col-number cell">
-                            {{i.LPNId}}
-                          </div>
-                          <div class="col-number cell">
-                            {{i.QuantityOnHand}}
-                          </div>
-                          <div class="col-number cell">
-                            {{i.QuantityExpected}}
-                          </div>
-                          <div class="col-number cell">
-                            {{i.QuantityAllocated}}
+                          <div class="col-code cell">{{i.Warehouse}}</div>
+                          <div class="col-code cell">{{i.StorerName}}</div>
+                          <div class="col-name cell">{{i.ZoneName}} - {{i.LocationName}}</div>
+                          <div class="col-number cell">{{i.LotId}}</div>
+                          <div class="col-number cell">{{i.LPNId}}</div>
+                          <div class="col-number cell">{{i.QuantityOnHand}}</div>
+                          <div class="col-number cell">{{i.QuantityExpected}}</div>
+                          <div class="col-number cell">{{i.QuantityAllocated}}</div>
+                          <div class="col-number cell" *ngIf="isAdjust">
+                            <input
+                              [disabled]="!pageConfig.canEdit"
+                              (change)="calculateQtyAdjust(i)"
+                              [(ngModel)]="i.QtyAdjust"
+                              class="c-input"
+                              type="number"
+                              step="1"
+                              max="999999999999999999"
+                            />
                           </div>
                           <div class="col-number cell" *ngIf="isAdjust">
-                            <input [disabled]="!pageConfig.canEdit"
-                              (change)="calculateQtyAdjust(i)" [(ngModel)]="i.QtyAdjust"class="c-input"type="number" 
-                              step="1" max="999999999999999999" />
-                          </div>
-                          <div class="col-number cell" *ngIf="isAdjust">
-                            <input [disabled]="!pageConfig.canEdit"
-                              (change)="calculateQtyTarget(i)" [(ngModel)]="i.QtyTarget"class="c-input" type="number" 
-                              step="1" max="999999999999999999" />
+                            <input
+                              [disabled]="!pageConfig.canEdit"
+                              (change)="calculateQtyTarget(i)"
+                              [(ngModel)]="i.QtyTarget"
+                              class="c-input"
+                              type="number"
+                              step="1"
+                              max="999999999999999999"
+                            />
                           </div>
                         </div>
                       </section>
@@ -870,7 +1131,6 @@
               </ion-grid>
             </div>
           </div>
-
         </div>
       </ion-col>
     </ion-row>
