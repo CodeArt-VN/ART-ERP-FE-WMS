@@ -73,20 +73,6 @@
           <label class="c-label" for="IDBranch">
             <ion-text color="primary"> {{'Unit' | translate}} </ion-text>
           </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            [searchFn]="searchShowAllChildren"
-            (change)="selectBranch();"
-            [clearable]="true"
-            appendTo=""
-            #IDBranch
-            [(ngModel)]="selectedBranch"
-            labelForId="IDBranch"
-            [items]="branchList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select unit' | translate}}"
-          >
           <ng-select class="c-input no-check-dirty" [searchFn]="searchShowAllChildren" (change)="selectBranch();"
             [clearable]="true" appendTo="" #IDBranch [(ngModel)]="selectedBranch" labelForId="IDBranch" [disabled]="formGroup.get('IDBranch').value"
             [items]="branchList" bindLabel="Name" bindValue="" placeholder="{{'Select unit' | translate}}">
@@ -479,14 +465,8 @@
                               ></app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource:env.branchList }"
-                              ></app-form-control>
-                              <app-form-control
-                                [field]="{id: 'Remark', type: 'textarea', label: 'Remark', form: formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()"
-                              ></app-form-control>
                                 [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
-                              <app-form-control *ngIf="page"
+                              <app-form-control
                                 [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange()"></app-form-control>
                             </ion-col>
