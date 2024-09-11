@@ -337,7 +337,7 @@ export class ItemDetailPage extends PageBase {
     if (!(this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup?.controls.WMS_ItemInWarehouseConfig.disable();
     }
-
+    if(this.formGroup.get('IDBranch').value) this.selectedBranch = this.env.branchList.find(d=>d.Id == this.formGroup.get('IDBranch').value);
     if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
       this.formGroup.get('InventoryLevelMinimum').enable();
@@ -389,6 +389,11 @@ export class ItemDetailPage extends PageBase {
     this.loadItemInBranch();
   }
 
+  changeIDBranch(ev){
+    this.selectedBranch = ev;
+    this.selectBranch() ;
+    this.saveChange();
+  }
   markNestedNode(ls, Id) {
     ls.filter((d) => d.IDParent == Id).forEach((i) => {
       if (i.Type == 'Warehouse') i.disabled = false;
