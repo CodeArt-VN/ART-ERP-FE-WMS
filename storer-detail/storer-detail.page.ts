@@ -48,6 +48,7 @@ export class StorerDetailPage extends PageBase {
       Name: ['', Validators.required],
       Remark: [''],
       Sort: [''],
+      Status: ['New'],
       IsPersonal: [''],
       IsDisabled: new FormControl({ value: '', disabled: true }),
       IsDeleted: new FormControl({ value: '', disabled: true }),

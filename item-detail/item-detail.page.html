@@ -73,20 +73,9 @@
           <label class="c-label" for="IDBranch">
             <ion-text color="primary"> {{'Unit' | translate}} </ion-text>
           </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            [searchFn]="searchShowAllChildren"
-            (change)="selectBranch();"
-            [clearable]="true"
-            appendTo=""
-            #IDBranch
-            [(ngModel)]="selectedBranch"
-            labelForId="IDBranch"
-            [items]="branchList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select unit' | translate}}"
-          >
+          <ng-select class="c-input no-check-dirty" [searchFn]="searchShowAllChildren" (change)="selectBranch();"
+            [clearable]="true" appendTo="" #IDBranch [(ngModel)]="selectedBranch" labelForId="IDBranch" [disabled]="formGroup.get('IDBranch').value"
+            [items]="branchList" bindLabel="Name" bindValue="" placeholder="{{'Select unit' | translate}}">
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
                 <div>
@@ -175,7 +164,33 @@
                                 (change)="saveChange()"
                               >
                               </app-form-control>
-
+                              <div class="c-control" *ngIf="pageConfig.canChangeBranch">
+                                <label class="c-label" for="IDBranch">
+                                  <ion-text color="primary"> {{'Unit' | translate}} </ion-text>
+                                </label>
+                              <ng-select
+                              class="c-input"
+                              #IDDepartment
+                              (change)="changeIDBranch($event);"
+                              labelForId="IDBranch"
+                              [items]="env.branchList"
+                              formControlName="IDBranch"
+                              bindLabel="Name"
+                              bindValue="Id"
+                              placeholder="{{'Select unit' | translate}}"
+                            >
+                              <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                <div *ngIf="i">
+                                  <div>
+                                    <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                    <ion-text [color]=" i.Type == 'Company'? 'primary':'dark'" [ngOptionHighlight]="search"
+                                      >{{i.Name}}</ion-text
+                                    >
+                                  </div>
+                                </div>
+                              </ng-template>
+                            </ng-select>
+                            </div>
                               <app-form-control
                                 [field]="{id: 'Expiry', label: 'Shelf life from manufactured date', type: 'number', form: formGroup }"
                                 (change)="saveChange()"
@@ -450,12 +465,10 @@
                               ></app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource:env.branchList }"
-                              ></app-form-control>
+                                [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
                               <app-form-control
-                                [field]="{id: 'Remark', type: 'textarea', label: 'Remark', form: formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()"
-                              ></app-form-control>
+                                [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
+                                (change)="branchSelected ? saveItemInBranch() : saveChange()"></app-form-control>
                             </ion-col>
                           </ion-row>
                         </form>
