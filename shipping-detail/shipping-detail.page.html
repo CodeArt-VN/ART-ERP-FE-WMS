@@ -36,7 +36,7 @@
 									>(*)</span
 								  >
 								</label>
-								<ng-select class="c-input" (change)="saveChange();" labelForId="IDWarehouse" formControlName="IDWarehouse" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.purchase.purchase-order.search-placeholder' | translate}}" >
+								<ng-select class="c-input" (change)="saveChange();" labelForId="IDWarehouse" formControlName="IDWarehouse" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}" >
 								  <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
 									<div *ngIf="i">
 									  <div>
