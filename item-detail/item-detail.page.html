@@ -263,7 +263,7 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select-bp', form: formGroup,  dataSource: itemGroupListDataSource,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -816,37 +816,11 @@
                                 
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                                  <div class="c-control">
-                                    <label class="c-label" for="IDBranch"
-                                      >{{'Warehouse' | translate}}
-                                      <span
-                                        *ngIf="!config.controls.IDBranch.valid && !config.controls.IDBranch.pending && (config.controls.IDBranch.dirty || submitAttempt)"
-                                        ion-text
-                                        color="danger"
-                                        >(*)</span
-                                      >
-                                    </label>
-                                    <ng-select
-                                      class="c-input"
-                                      (change)="saveChange();"
-                                      labelForId="IDBranch"
-                                      formControlName="IDBranch"
-                                      [items]="branchInWarehouse"
-                                      bindLabel="Name"
-                                      bindValue="Id"
-                                      placeholder="{{'Search' | translate}}"
-                                    >
-                                      <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                                        <div *ngIf="i">
-                                          <div>
-                                            <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                            <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                                          </div>
-                                        </div>
-                                      </ng-template>
-                                    </ng-select>
-                                  </div>
-
+                                  <app-form-control
+                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-level', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                  (controlChange)="changeBranchInWarehouse(config);"
+                                  >
+                                  </app-form-control>
                                   <app-form-control
                                     [field]="{id: 'IDStorer', label: 'Goods owner', type: 'ng-select', form: config,  dataSource: storerList,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
@@ -884,13 +858,13 @@
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'PutawayStrategy', label: 'Arrange goods into warehouse', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'PutawayStrategy', label: 'Arrange goods into warehouse', type: 'ng-select', form: config,  dataSource:config.get('_putawayStrategyList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'AllocationStrategy', label: 'Goods pick-up assignment', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'AllocationStrategy', label: 'Goods pick-up assignment', type: 'ng-select', form: config,  dataSource: config.get('_allocationStrategyList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
