@@ -818,7 +818,7 @@
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <div class="c-control">
                                     <label class="c-label" for="IDBranch"
-                                      >{{'Kho' | translate}}
+                                      >{{'Warehouse' | translate}}
                                       <span
                                         *ngIf="!config.controls.IDBranch.valid && !config.controls.IDBranch.pending && (config.controls.IDBranch.dirty || submitAttempt)"
                                         ion-text
@@ -831,7 +831,7 @@
                                       (change)="saveChange();"
                                       labelForId="IDBranch"
                                       formControlName="IDBranch"
-                                      [items]="branchList"
+                                      [items]="branchInWarehouse"
                                       bindLabel="Name"
                                       bindValue="Id"
                                       placeholder="{{'Search' | translate}}"

@@ -96,9 +96,10 @@ export class PickingOrderDetailPage extends PageBase {
       })
       .then((resp) => {
         lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
-          this.branchList = result;
+          this.branchList = result; 
           this.branchList.forEach((i) => {
             i.disabled = true;
+            if(i.Type == 'Warehouse' && i.Id == this.env.selectedBranch) i.disabled = false;
           });
           this.markNestedNode(this.branchList, this.env.selectedBranch);
         });

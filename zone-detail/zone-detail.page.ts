@@ -75,6 +75,7 @@ export class ZoneDetailPage extends PageBase {
           this.branchList = result;
           this.branchList.forEach((i) => {
             i.disabled = true;
+            if(i.Type == 'Warehouse' && i.Id == this.env.selectedBranch) i.disabled = false;
           });
           this.markNestedNode(this.branchList, this.env.selectedBranch);
           super.preLoadData(event);

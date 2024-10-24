@@ -337,6 +337,12 @@ export class ItemDetailPage extends PageBase {
     if (!(this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup?.controls.WMS_ItemInWarehouseConfig.disable();
     }
+    this.RotateByList = this.RotateByList.filter(i =>{
+      if(this.formGroup.value[i.Code] && this.formGroup.value[i.Code] != 'None' && this.formGroup.value[i.Code]){
+        i.Name = this.formGroup.value[i.Code]
+        return i;
+      }
+    })
     if(this.formGroup.get('IDBranch').value) this.selectedBranch = this.env.branchList.find(d=>d.Id == this.formGroup.get('IDBranch').value);
     if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
@@ -513,7 +519,7 @@ export class ItemDetailPage extends PageBase {
     },
   };
 
-  branchListDataSource = [this.env.branchList];
+ // branchListDataSource = [this.env.branchList];
   changeGroup() {
     this.env.setStorage('item.IDItemGroup', this.item?.IDItemGroup);
   }
