@@ -295,8 +295,8 @@ export class ItemDetailPage extends PageBase {
         if(values[4] && values[4].data){
           this.allocationStrategyList = values[4].data;
         };
-        if(values[5] && values[5].data){
-          this.ExpiryUnitList = values[5].data
+        if(values[5] && values[5]){
+          this.ExpiryUnitList = values[5]
         };
         if(values[6] && values[6].data){
           this.storerList = values[6].data;
@@ -304,14 +304,14 @@ export class ItemDetailPage extends PageBase {
         if(values[7] && values[7].data){
           this.vendorList = values[7].data
         };
-        if(values[8] && values[8].data){
-          this.RotationList = values[8].data;
+        if(values[8]){
+          this.RotationList = values[8];
         };
-        if(values[9] && values[9].data){
-          this.RotateByList = values[9].data
+        if(values[9]){
+          this.RotateByList = values[9]
         };
-        if(values[10] && values[10].data){
-          this.ItemTypeList = values[10].data;
+        if(values[10]){
+          this.ItemTypeList = values[10];
         };
     
         lib.buildFlatTree( this.env.branchList, this.branchList).then((result: any) => {
