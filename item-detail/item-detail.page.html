@@ -248,7 +248,7 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id: 'VendorIds', label: 'Select Vendor', type: 'ng-select', form: formGroup,  dataSource: vendorList,  bindLabel: 'Name',  bindValue: 'Id', multiple: true }"
+                                [field]="{id: 'VendorIds', label: 'Select Vendor', type: 'ng-select-bp', form: formGroup,  dataSource: _vendorDataSource,  bindLabel: 'Name',  bindValue: 'Id', multiple: true }"
                                 (change)="saveChange()"
                               >
                               </app-form-control>
@@ -263,7 +263,7 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select-level', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -828,7 +828,7 @@
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'PutawayZone', label: 'Putaway zone', type: 'ng-select', form: config,  dataSource: zoneList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'PutawayZone', label: 'Putaway zone', type: 'ng-select', form: config,  dataSource: config.get('_zoneList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
@@ -870,19 +870,19 @@
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'PutawayLocation', label: 'PutawayLocation', type: 'ng-select', form: config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'PutawayLocation', label: 'PutawayLocation', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'InboundQCLocation', label: 'Inbound QC location', type: 'ng-select', form: config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'InboundQCLocation', label: 'Inbound QC location', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'ReturnLocation', label: 'Return location', type: 'ng-select', form: config,  dataSource: locationList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'ReturnLocation', label: 'Return location', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
