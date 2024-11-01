@@ -94,6 +94,38 @@ export class ItemDetailPage extends PageBase {
   branchSelected = false;
   isAdjust = false;
 
+  _vendorDataSource = {
+    searchProvider: this.contactProvider,
+    loading: false,
+    input$: new Subject<string>(),
+    selected: [],
+    items$: null,
+    id: this.id,
+    initSearch() {
+      this.loading = false;
+      this.items$ = concat(
+        of(this.selected),
+        this.input$.pipe(
+          distinctUntilChanged(),
+          tap(() => (this.loading = true)),
+          switchMap((term) =>
+            this.searchProvider
+              .search({
+                SkipMCP: term ? false : true,
+                SortBy: ['Id_desc'],
+                Take: 20,
+                Skip: 0,
+                IsVendor:true
+              })
+              .pipe(
+                catchError(() => of([])), // empty list on error
+                tap(() => (this.loading = false)),
+              ),
+          ),
+        ),
+      );
+    },
+  };
   constructor(
     public pageProvider: WMS_ItemProvider,
     public itemInBranchProvider: WMS_ItemInBranchProvider,
@@ -270,11 +302,10 @@ export class ItemDetailPage extends PageBase {
             Skip: 0,
           }),
         this.env.getType('ExpiryUnit'),
-        this.contactProvider.read({ IsStorer: true }),
-        this.contactProvider.read({ IsVendor: true, Take: 5000 }),
+        this.contactProvider.read({ IsStorer: true, Take: 5000 }),
+        this.env.getType('ItemType', true),
         this.env.getType('Rotation'),
         this.env.getType('RotateBy'),
-        this.env.getType('ItemType', true),
       ]).then((values: any) => {
         if (values[0]['Value'] && this.item?.Id == 0) {
           let idTaxInput = JSON.parse(values[0]['Value']).Id;
@@ -287,7 +318,9 @@ export class ItemDetailPage extends PageBase {
           this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
         };
         if(values[2] && values[2].data){
-          this.itemGroupList = values[2].data;
+          lib.buildFlatTree(values[2].data,[]).then((result:any)=>{
+            this.itemGroupList = result;
+          })
         }
         if(values[3] && values[3].data){
           this.putawayStrategyList = values[3].data;
@@ -301,8 +334,8 @@ export class ItemDetailPage extends PageBase {
         if(values[6] && values[6].data){
           this.storerList = values[6].data;
         };
-        if(values[7] && values[7].data){
-          this.vendorList = values[7].data
+        if(values[7]){
+          this.ItemTypeList = values[7];
         };
         if(values[8]){
           this.RotationList = values[8];
@@ -313,15 +346,12 @@ export class ItemDetailPage extends PageBase {
         if(values[10]){
           this.ItemTypeList = values[10];
         };
-    
-        lib.buildFlatTree( this.env.branchList, this.branchList).then((result: any) => {
-          this.branchInWarehouse = result;
-          this.branchInWarehouse.forEach((i) => {
-            i.disabled = true;
-          });
-
-          this.markNestedNode(this.branchInWarehouse, this.selectedBranch);
+        this.branchInWarehouse = lib.cloneObject(this.env.branchList);
+        this.branchInWarehouse.forEach((i) => {
+          i.disabled = true;
         });
+        this.markNestedNode(this.branchInWarehouse, this.selectedBranch);
+
         super.preLoadData();
       });
     });
@@ -415,6 +445,10 @@ export class ItemDetailPage extends PageBase {
       this.formGroup.controls.Lottable8.markAsDirty();
       this.formGroup.controls.Lottable9.markAsDirty();
     }
+    if(this.item._Vendors){
+      this._vendorDataSource.selected = [...this.item._Vendors];
+    }
+    this._vendorDataSource.initSearch();
   }
   refresh() {
     this.loadItemInBranch();
@@ -465,6 +499,8 @@ export class ItemDetailPage extends PageBase {
       AllocationStrategy: config.AllocationStrategy,
       _putawayStrategyList : [[...this.putawayStrategyList.filter(d=> d.IDBranch == config?.IDBranch)]],
       _allocationStrategyList : [[...this.allocationStrategyList.filter(d=> d.IDBranch == config?.IDBranch)]],
+      _locationList : [[...this.locationList.filter(d=> d.IDBranch == config?.IDBranch )]],
+      _zoneList : [[...this.zoneList.filter(d=> d.IDBranch == config?.IDBranch )]],
       Id: config.Id,
       IsDisabled: config.IsDisabled,
 
@@ -512,12 +548,39 @@ export class ItemDetailPage extends PageBase {
   }
 
   changeBranchInWarehouse(fg){
-    fg.get('PutawayStrategy').setValue(null);
-    fg.get('PutawayStrategy').markAsDirty();
+    if(fg.get('PutawayStrategy').value){
+      fg.get('PutawayStrategy').setValue(null);
+      fg.get('PutawayStrategy').markAsDirty();
+    }
     fg.get('_putawayStrategyList').setValue([...this.putawayStrategyList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
-    fg.get('AllocationStrategy').setValue(null);
-    fg.get('AllocationStrategy').markAsDirty();
+    if(fg.get('AllocationStrategy').value){
+      fg.get('AllocationStrategy').setValue(null);
+      fg.get('AllocationStrategy').markAsDirty();
+    }
     fg.get('_allocationStrategyList').setValue([...this.allocationStrategyList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
+   
+    if(fg.get('PutawayLocation').value){
+      fg.get('PutawayLocation').setValue(null);
+      fg.get('PutawayLocation').markAsDirty();
+    }
+
+   if(  fg.get('InboundQCLocation').value){
+    fg.get('InboundQCLocation').setValue(null);
+    fg.get('InboundQCLocation').markAsDirty();
+   }
+
+    if(fg.get('ReturnLocation').value){
+      fg.get('ReturnLocation').setValue(null);
+      fg.get('ReturnLocation').markAsDirty();
+    }
+    fg.get('_locationList').setValue([...this.locationList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
+  
+    if(  fg.get('PutawayZone').value){
+      fg.get('PutawayZone').setValue(null);
+      fg.get('PutawayZone').markAsDirty();
+    }   
+    fg.get('_zoneList').setValue([...this.zoneList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
+
     this.saveChange();
   }
  // branchListDataSource = [this.env.branchList];
