@@ -263,7 +263,7 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select-level', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id'}" [treeConfig]="{searchFn:searchShowAllChildren,isTree:true}" 
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -817,7 +817,7 @@
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <app-form-control
-                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-level', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id' }" [treeConfig]="{isTree:true}" 
                                   (controlChange)="changeBranchInWarehouse(config);"
                                   >
                                   </app-form-control>
@@ -959,29 +959,13 @@
                               </ion-list-header>
                             </ion-col>
                             <ion-col size="12" size-sm size-xl="6">
-                              <div class="c-control">
-                                <label class="c-label" for="PlanningMethod">{{'Planning Method' | translate}} </label>
-                                <ng-select
-                                  class="c-input"
-                                  (change)="saveItemInBranch();"
-                                  [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
-                                  labelForId="PlanningMethod"
-                                  formControlName="PlanningMeThod"
-                                  [items]="PlanningMethodList"
-                                  bindLabel="Name"
-                                  bindValue="Code"
-                                  placeholder="{{'Search' | translate}}"
-                                >
-                                  <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                                    <div *ngIf="i">
-                                      <div>
-                                        <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                        <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                                      </div>
-                                    </div>
-                                  </ng-template>
-                                </ng-select>
-                              </div>
+                              <app-form-control
+                                  [field]="{id: 'PlanningMeThod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code' }" [treeConfig]="{isTree:true}" 
+                                  (controlChange)="saveItemInBranch();"
+                                  >
+                                  </app-form-control>
+
+                           
                               <div class="c-control">
                                 <label class="c-label" for="ProcurementMethod"
                                   >{{'Procurement Method' | translate}}

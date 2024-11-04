@@ -247,7 +247,7 @@ export class ItemDetailPage extends PageBase {
   IndustryList = [];
   DivisionList = [];
   vendorList = [];
-
+  
   preLoadData(event) {
     this.branchList = this.env.branchList.filter((d) => d.Type != 'TitlePosition');
 
@@ -343,9 +343,7 @@ export class ItemDetailPage extends PageBase {
         if(values[9]){
           this.RotateByList = values[9]
         };
-        if(values[10]){
-          this.ItemTypeList = values[10];
-        };
+      
         this.branchInWarehouse = lib.cloneObject(this.env.branchList);
         this.branchInWarehouse.forEach((i) => {
           i.disabled = true;
@@ -1174,4 +1172,9 @@ export class ItemDetailPage extends PageBase {
    }
    i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
  }
+
+ searchShowAllChildren = (term: string, ids: any) :any => {
+  return super.searchShowAllChildren(term,ids,this.itemGroupList);
+ } 
+ 
 }
