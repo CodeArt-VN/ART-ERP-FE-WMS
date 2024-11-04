@@ -817,7 +817,7 @@
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <app-form-control
-                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id' }" [treeConfig]="{searchFn:searchShowAllChildren,isTree:true}" 
+                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id' }" [treeConfig]="{isTree:true}" 
                                   (controlChange)="changeBranchInWarehouse(config);"
                                   >
                                   </app-form-control>
@@ -960,7 +960,7 @@
                             </ion-col>
                             <ion-col size="12" size-sm size-xl="6">
                               <app-form-control
-                                  [field]="{id: 'PlanningMeThod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code' }" [treeConfig]="{searchFn:searchShowAllChildren,isTree:true}" 
+                                  [field]="{id: 'PlanningMeThod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code' }" [treeConfig]="{isTree:true}" 
                                   (controlChange)="saveItemInBranch();"
                                   >
                                   </app-form-control>
