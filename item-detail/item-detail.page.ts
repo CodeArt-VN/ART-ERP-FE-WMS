@@ -111,11 +111,11 @@ export class ItemDetailPage extends PageBase {
           switchMap((term) =>
             this.searchProvider
               .search({
-                SkipMCP: term ? false : true,
-                SortBy: ['Id_desc'],
+                Term: term,
                 Take: 20,
                 Skip: 0,
-                IsVendor:true
+                IsVendor: true,
+                SkipAddress: true,
               })
               .pipe(
                 catchError(() => of([])), // empty list on error
