@@ -6,7 +6,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { lib } from 'src/app/services/static/global-functions';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import {
@@ -93,14 +93,14 @@ export class ItemDetailPage extends PageBase {
   };
   branchSelected = false;
   isAdjust = false;
-
+  trackingVendorList = [];
   _vendorDataSource = {
     searchProvider: this.contactProvider,
     loading: false,
     input$: new Subject<string>(),
     selected: [],
     items$: null,
-    id: this.id,
+    that:this,
     initSearch() {
       this.loading = false;
       this.items$ = concat(
@@ -112,6 +112,7 @@ export class ItemDetailPage extends PageBase {
             this.searchProvider
               .search({
                 Term: term,
+                SortBy: ['Id_desc'],
                 Take: 20,
                 Skip: 0,
                 IsVendor: true,
@@ -119,12 +120,16 @@ export class ItemDetailPage extends PageBase {
               })
               .pipe(
                 catchError(() => of([])), // empty list on error
+              
                 tap(() => (this.loading = false)),
               ),
           ),
         ),
       );
     },
+    addSelectedItem(items) {
+      this.selected = [...items];
+    }
   };
   constructor(
     public pageProvider: WMS_ItemProvider,
@@ -759,6 +764,9 @@ export class ItemDetailPage extends PageBase {
     this.selectedOption = option;
 
     this.segmentView.Page = option.Code;
+    if(option.Code == 'GeneralInformation'){
+      this._vendorDataSource.initSearch();
+    }
     if (this.segmentView.Page == 'UnitPrice') {
       this.loadPriceList();
     }
@@ -1173,8 +1181,17 @@ export class ItemDetailPage extends PageBase {
    i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
  }
 
- searchShowAllChildren = (term: string, ids: any) :any => {
+ searchItemGroupShowAllChildren = (term: string, ids: any) :any => {
   return super.searchShowAllChildren(term,ids,this.itemGroupList);
  } 
- 
+
+ searchResultIdBranchList = { term: '', ids: [] };
+ searchBranchShowAllChildren =  (term: string, item: any) :any =>{
+  if (this.searchResultIdBranchList.term != term) {
+    this.searchResultIdBranchList.term = term;
+    let source = this.env.branchList
+    this.searchResultIdBranchList.ids = lib.searchTreeReturnId(source, term);
+  }
+  return this.searchResultIdBranchList.ids.indexOf(item.Id) > -1;
+ }
 }
