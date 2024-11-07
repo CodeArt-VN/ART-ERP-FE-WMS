@@ -1185,6 +1185,10 @@ export class ItemDetailPage extends PageBase {
   return super.searchShowAllChildren(term,ids,this.itemGroupList);
  } 
 
+ searchItemTypeShowAllChildren = (term: string, ids: any) :any => {
+  return super.searchShowAllChildren(term,ids,this.ItemTypeList);
+ } 
+ 
  searchResultIdBranchList = { term: '', ids: [] };
  searchBranchShowAllChildren =  (term: string, item: any) :any =>{
   if (this.searchResultIdBranchList.term != term) {

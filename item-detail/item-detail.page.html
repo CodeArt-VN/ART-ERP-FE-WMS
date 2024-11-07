@@ -270,7 +270,8 @@
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' ,
+                                treeConfig:{searchFn:searchItemTypeShowAllChildren,isTree:true}}"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
