@@ -827,7 +827,7 @@
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <app-form-control
                                   [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id',
-                                    treeConfig:{searchFn:searchBranchShowAllChildren,isTree:true,isCollapsed : true}}"
+                                    treeConfig:{searchFn:searchBranchShowAllChildren,isTree:true}}"
                                   (controlChange)="changeBranchInWarehouse(config);"
                                   >
                                   </app-form-control>
