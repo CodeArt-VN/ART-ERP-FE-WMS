@@ -532,15 +532,20 @@ export class ItemDetailPage extends PageBase {
             cssClass: 'danger-btn',
             handler: () => {
               let groups = <FormArray>this.formGroup.controls.WMS_ItemInWarehouseConfig;
+              let id = groups.controls[index]['controls'].Id.value
               let Ids = [];
-              Ids.push({
-                Id: groups.controls[index]['controls'].Id.value,
-              });
-              this.itemInWarehouseConfig.delete(Ids).then((resp) => {
-                this.items = this.items.filter((d) => d.Id != Ids[0].Id);
-                groups.removeAt(index);
-                this.env.showMessage('Deleted!', 'success');
-              });
+              if(id){
+                Ids.push({Id: id});
+                this.itemInWarehouseConfig.delete(Ids).then((resp) => {
+                  // this.items = this.items.filter((d) => d.Id != Ids[0].Id);
+                  groups.removeAt(index);
+                  this.env.showMessage('Deleted!', 'success');
+                }).catch(err=>{
+                  console.log(err);
+                  this.env.showMessage('Cannot delete!', 'danger');
+                });
+              }
+              else groups.removeAt(index);
             },
           },
         ],
@@ -1076,7 +1081,7 @@ export class ItemDetailPage extends PageBase {
       let newIds = new Set(this.item.WMS_ItemInWarehouseConfig.map((i) => i.Id));
       const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
       if (diff?.length > 0) {
-        groups.controls .find((d) => d.get('Id').value == null) ?.get('Id') .setValue(diff[0]);
+        groups.controls .find((d) => d.get('Id').value == null || d.get('Id').value == 0 ) ?.get('Id') .setValue(diff[0]);
       }
     }
   }
@@ -1197,5 +1202,13 @@ export class ItemDetailPage extends PageBase {
     this.searchResultIdBranchList.ids = lib.searchTreeReturnId(source, term);
   }
   return this.searchResultIdBranchList.ids.indexOf(item.Id) > -1;
+ }
+
+ private isShowButtonAddConfig(){
+  let groups = this.formGroup.controls.WMS_ItemInWarehouseConfig as FormArray
+  if(groups.controls.find(d=> !d.get('Id').value)){
+    return false;
+  }
+  else return true;
  }
 }
