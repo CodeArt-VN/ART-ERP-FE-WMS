@@ -460,7 +460,7 @@ export class ItemDetailPage extends PageBase {
       this.formGroup.controls.Lottable9.markAsDirty();
     }
     if (this.item._Vendors) {
-      this._vendorDataSource.selected.push(...this.item._Vendors);
+      this._vendorDataSource.selected=[...this._vendorDataSource.selected,...this.item._Vendors];
     }
     this._vendorDataSource.initSearch();
   }
