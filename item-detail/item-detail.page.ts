@@ -74,8 +74,8 @@ export class ItemDetailPage extends PageBase {
   zoneList = [];
   filterZoneList = [];
   locationList = [];
-  putawayStrategyList:any = [];
-  allocationStrategyList:any = [];
+  putawayStrategyList: any = [];
+  allocationStrategyList: any = [];
   filterLocationList = [];
   cartonGroupList = [];
   storerList = [];
@@ -100,7 +100,7 @@ export class ItemDetailPage extends PageBase {
     input$: new Subject<string>(),
     selected: [],
     items$: null,
-    that:this,
+    that: this,
     initSearch() {
       this.loading = false;
       this.items$ = concat(
@@ -108,28 +108,32 @@ export class ItemDetailPage extends PageBase {
         this.input$.pipe(
           distinctUntilChanged(),
           tap(() => (this.loading = true)),
-          switchMap((term) =>
-            this.searchProvider
-              .search({
-                Term: term,
-                SortBy: ['Id_desc'],
-                Take: 20,
-                Skip: 0,
-                IsVendor: true,
-                SkipAddress: true,
-              })
-              .pipe(
-                catchError(() => of([])), // empty list on error
-              
-                tap(() => (this.loading = false)),
-              ),
-          ),
+          switchMap((term) => {
+            if (!term) {
+              this.loading = false;
+              return of(this.selected);
+            } else {
+              return this.searchProvider
+                .search({
+                  Term: term,
+                  SortBy: ['Id_desc'],
+                  Take: 20,
+                  Skip: 0,
+                  IsVendor: true,
+                  SkipAddress: true,
+                })
+                .pipe(
+                  catchError(() => of([])), // empty list on error
+                  tap(() => (this.loading = false)),
+                );
+            }
+          }),
         ),
       );
     },
     addSelectedItem(items) {
       this.selected = [...items];
-    }
+    },
   };
   constructor(
     public pageProvider: WMS_ItemProvider,
@@ -252,7 +256,7 @@ export class ItemDetailPage extends PageBase {
   IndustryList = [];
   DivisionList = [];
   vendorList = [];
-  
+
   preLoadData(event) {
     this.branchList = this.env.branchList.filter((d) => d.Type != 'TitlePosition');
 
@@ -286,31 +290,35 @@ export class ItemDetailPage extends PageBase {
             IDBranch: this.env.selectedBranch,
           })
           .toPromise(),
-        this.itemGroupProvider
-          .read({
-            SortBy: ['Id_desc'],
-            Take: 5000,
-            Skip: 0,
-            SkipMCP: true,
-            SkipAddress: true,
-          }),
-          this.putawayStrategyProvider
-          .read({
-            SortBy: ['Id_desc'],
-            Take: 5000,
-            Skip: 0,
-          }),
-          this.allocationStrategyProvider
-          .read({
-            SortBy: ['Id_desc'],
-            Take: 5000,
-            Skip: 0,
-          }),
+        this.itemGroupProvider.read({
+          SortBy: ['Id_desc'],
+          Take: 5000,
+          Skip: 0,
+          SkipMCP: true,
+          SkipAddress: true,
+        }),
+        this.putawayStrategyProvider.read({
+          SortBy: ['Id_desc'],
+          Take: 5000,
+          Skip: 0,
+        }),
+        this.allocationStrategyProvider.read({
+          SortBy: ['Id_desc'],
+          Take: 5000,
+          Skip: 0,
+        }),
         this.env.getType('ExpiryUnit'),
         this.contactProvider.read({ IsStorer: true, Take: 5000 }),
         this.env.getType('ItemType', true),
         this.env.getType('Rotation'),
         this.env.getType('RotateBy'),
+        this.contactProvider.read({
+          SortBy: ['Id_desc'],
+          Take: 20,
+          Skip: 0,
+          IsVendor: true,
+          SkipAddress: true,
+        }),
       ]).then((values: any) => {
         if (values[0]['Value'] && this.item?.Id == 0) {
           let idTaxInput = JSON.parse(values[0]['Value']).Id;
@@ -321,34 +329,36 @@ export class ItemDetailPage extends PageBase {
           let idTaxOput = JSON.parse(values[1]['Value']).Id;
           this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
           this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
-        };
-        if(values[2] && values[2].data){
-          lib.buildFlatTree(values[2].data,[]).then((result:any)=>{
-            this.itemGroupList = result;
-          })
         }
-        if(values[3] && values[3].data){
+        if (values[2] && values[2].data) {
+          lib.buildFlatTree(values[2].data, []).then((result: any) => {
+            this.itemGroupList = result;
+          });
+        }
+        if (values[3] && values[3].data) {
           this.putawayStrategyList = values[3].data;
         }
-        if(values[4] && values[4].data){
+        if (values[4] && values[4].data) {
           this.allocationStrategyList = values[4].data;
-        };
-        if(values[5] && values[5]){
-          this.ExpiryUnitList = values[5]
-        };
-        if(values[6] && values[6].data){
+        }
+        if (values[5] && values[5]) {
+          this.ExpiryUnitList = values[5];
+        }
+        if (values[6] && values[6].data) {
           this.storerList = values[6].data;
-        };
-        if(values[7]){
+        }
+        if (values[7]) {
           this.ItemTypeList = values[7];
-        };
-        if(values[8]){
+        }
+        if (values[8]) {
           this.RotationList = values[8];
-        };
-        if(values[9]){
-          this.RotateByList = values[9]
-        };
-      
+        }
+        if (values[9]) {
+          this.RotateByList = values[9];
+        }
+        if (values[10] && values[10].data?.length) {
+          this._vendorDataSource.selected.push(...values[10].data);
+        }
         this.branchInWarehouse = lib.cloneObject(this.env.branchList);
         this.branchInWarehouse.forEach((i) => {
           i.disabled = true;
@@ -395,13 +405,14 @@ export class ItemDetailPage extends PageBase {
     if (!(this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup?.controls.WMS_ItemInWarehouseConfig.disable();
     }
-    this.RotateByList = this.RotateByList.filter(i =>{
-      if(this.formGroup.value[i.Code] && this.formGroup.value[i.Code] != 'None' && this.formGroup.value[i.Code]){
-        i.Name = this.formGroup.value[i.Code]
+    this.RotateByList = this.RotateByList.filter((i) => {
+      if (this.formGroup.value[i.Code] && this.formGroup.value[i.Code] != 'None' && this.formGroup.value[i.Code]) {
+        i.Name = this.formGroup.value[i.Code];
         return i;
       }
-    })
-    if(this.formGroup.get('IDBranch').value) this.selectedBranch = this.env.branchList.find(d=>d.Id == this.formGroup.get('IDBranch').value);
+    });
+    if (this.formGroup.get('IDBranch').value)
+      this.selectedBranch = this.env.branchList.find((d) => d.Id == this.formGroup.get('IDBranch').value);
     if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
       this.formGroup.get('InventoryLevelMinimum').enable();
@@ -448,8 +459,8 @@ export class ItemDetailPage extends PageBase {
       this.formGroup.controls.Lottable8.markAsDirty();
       this.formGroup.controls.Lottable9.markAsDirty();
     }
-    if(this.item._Vendors){
-      this._vendorDataSource.selected = [...this.item._Vendors];
+    if (this.item._Vendors) {
+      this._vendorDataSource.selected=[...this._vendorDataSource.selected,...this.item._Vendors];
     }
     this._vendorDataSource.initSearch();
   }
@@ -457,9 +468,9 @@ export class ItemDetailPage extends PageBase {
     this.loadItemInBranch();
   }
 
-  changeIDBranch(ev){
+  changeIDBranch(ev) {
     this.selectedBranch = ev;
-    this.selectBranch() ;
+    this.selectBranch();
     this.saveChange();
   }
   markNestedNode(ls, Id) {
@@ -500,10 +511,10 @@ export class ItemDetailPage extends PageBase {
 
       PutawayStrategy: config.PutawayStrategy,
       AllocationStrategy: config.AllocationStrategy,
-      _putawayStrategyList : [[...this.putawayStrategyList.filter(d=> d.IDBranch == config?.IDBranch)]],
-      _allocationStrategyList : [[...this.allocationStrategyList.filter(d=> d.IDBranch == config?.IDBranch)]],
-      _locationList : [[...this.locationList.filter(d=> d.IDBranch == config?.IDBranch )]],
-      _zoneList : [[...this.zoneList.filter(d=> d.IDBranch == config?.IDBranch )]],
+      _putawayStrategyList: [[...this.putawayStrategyList.filter((d) => d.IDBranch == config?.IDBranch)]],
+      _allocationStrategyList: [[...this.allocationStrategyList.filter((d) => d.IDBranch == config?.IDBranch)]],
+      _locationList: [[...this.locationList.filter((d) => d.IDBranch == config?.IDBranch)]],
+      _zoneList: [[...this.zoneList.filter((d) => d.IDBranch == config?.IDBranch)]],
       Id: config.Id,
       IsDisabled: config.IsDisabled,
 
@@ -532,15 +543,22 @@ export class ItemDetailPage extends PageBase {
             cssClass: 'danger-btn',
             handler: () => {
               let groups = <FormArray>this.formGroup.controls.WMS_ItemInWarehouseConfig;
+              let id = groups.controls[index]['controls'].Id.value;
               let Ids = [];
-              Ids.push({
-                Id: groups.controls[index]['controls'].Id.value,
-              });
-              this.itemInWarehouseConfig.delete(Ids).then((resp) => {
-                this.items = this.items.filter((d) => d.Id != Ids[0].Id);
-                groups.removeAt(index);
-                this.env.showMessage('Deleted!', 'success');
-              });
+              if (id) {
+                Ids.push({ Id: id });
+                this.itemInWarehouseConfig
+                  .delete(Ids)
+                  .then((resp) => {
+                    // this.items = this.items.filter((d) => d.Id != Ids[0].Id);
+                    groups.removeAt(index);
+                    this.env.showMessage('Deleted!', 'success');
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    this.env.showMessage('Cannot delete!', 'danger');
+                  });
+              } else groups.removeAt(index);
             },
           },
         ],
@@ -550,43 +568,47 @@ export class ItemDetailPage extends PageBase {
       });
   }
 
-  changeBranchInWarehouse(fg){
-    if(fg.get('PutawayStrategy').value){
+  changeBranchInWarehouse(fg) {
+    if (fg.get('PutawayStrategy').value) {
       fg.get('PutawayStrategy').setValue(null);
       fg.get('PutawayStrategy').markAsDirty();
     }
-    fg.get('_putawayStrategyList').setValue([...this.putawayStrategyList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
-    if(fg.get('AllocationStrategy').value){
+    fg.get('_putawayStrategyList').setValue([
+      ...this.putawayStrategyList.filter((d) => d.IDBranch == fg.get('IDBranch').value),
+    ]);
+    if (fg.get('AllocationStrategy').value) {
       fg.get('AllocationStrategy').setValue(null);
       fg.get('AllocationStrategy').markAsDirty();
     }
-    fg.get('_allocationStrategyList').setValue([...this.allocationStrategyList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
-   
-    if(fg.get('PutawayLocation').value){
+    fg.get('_allocationStrategyList').setValue([
+      ...this.allocationStrategyList.filter((d) => d.IDBranch == fg.get('IDBranch').value),
+    ]);
+
+    if (fg.get('PutawayLocation').value) {
       fg.get('PutawayLocation').setValue(null);
       fg.get('PutawayLocation').markAsDirty();
     }
 
-   if(  fg.get('InboundQCLocation').value){
-    fg.get('InboundQCLocation').setValue(null);
-    fg.get('InboundQCLocation').markAsDirty();
-   }
+    if (fg.get('InboundQCLocation').value) {
+      fg.get('InboundQCLocation').setValue(null);
+      fg.get('InboundQCLocation').markAsDirty();
+    }
 
-    if(fg.get('ReturnLocation').value){
+    if (fg.get('ReturnLocation').value) {
       fg.get('ReturnLocation').setValue(null);
       fg.get('ReturnLocation').markAsDirty();
     }
-    fg.get('_locationList').setValue([...this.locationList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
-  
-    if(  fg.get('PutawayZone').value){
+    fg.get('_locationList').setValue([...this.locationList.filter((d) => d.IDBranch == fg.get('IDBranch').value)]);
+
+    if (fg.get('PutawayZone').value) {
       fg.get('PutawayZone').setValue(null);
       fg.get('PutawayZone').markAsDirty();
-    }   
-    fg.get('_zoneList').setValue([...this.zoneList.filter(d=> d.IDBranch == fg.get('IDBranch').value)]);
+    }
+    fg.get('_zoneList').setValue([...this.zoneList.filter((d) => d.IDBranch == fg.get('IDBranch').value)]);
 
     this.saveChange();
   }
- // branchListDataSource = [this.env.branchList];
+  // branchListDataSource = [this.env.branchList];
   changeGroup() {
     this.env.setStorage('item.IDItemGroup', this.item?.IDItemGroup);
   }
@@ -637,14 +659,14 @@ export class ItemDetailPage extends PageBase {
       };
       findChild(parentId);
     };
-    if(selectedBranchId != undefined) {
+    if (selectedBranchId != undefined) {
       findChildren(selectedBranchId);
     }
 
     let query = {
       ItemId: this.id,
-      IDBranch: selectedBranch
-    }
+      IDBranch: selectedBranch,
+    };
     this.segmentView.ShowSpinner = true;
     this.env
       .showLoading(
@@ -662,7 +684,7 @@ export class ItemDetailPage extends PageBase {
                 d.Warehouse = branch.Name;
               }
             });
-          
+
             this.Inventories = data;
             this.segmentView.ShowSpinner = false;
           }),
@@ -694,7 +716,6 @@ export class ItemDetailPage extends PageBase {
                 this.formGroup?.patchValue(this.item);
                 this.formGroup?.markAsPristine();
                 this.cdr.detectChanges();
-               
               } else {
                 this.item.IDItemInBranch = 0;
                 this.resetItemInBranch();
@@ -764,7 +785,7 @@ export class ItemDetailPage extends PageBase {
     this.selectedOption = option;
 
     this.segmentView.Page = option.Code;
-    if(option.Code == 'GeneralInformation'){
+    if (option.Code == 'GeneralInformation') {
       this._vendorDataSource.initSearch();
     }
     if (this.segmentView.Page == 'UnitPrice') {
@@ -1025,14 +1046,14 @@ export class ItemDetailPage extends PageBase {
           this.formGroup.get('IDItem').setValue(this.id);
           this.formGroup.get('Id').setValue(idItemInBranch);
           this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
-          if(idItemInBranch == 0) {
+          if (idItemInBranch == 0) {
             this.formGroup.get('TreeType').setValue(this.item?.TreeType);
           }
           this.formGroup.controls.IDBranch.markAsDirty();
           this.formGroup.controls.Id.markAsDirty();
           this.formGroup.controls.IDItem.markAsDirty();
           this.formGroup.controls.ItemType.markAsDirty();
-          this.formGroup.controls.TreeType.markAsDirty();     
+          this.formGroup.controls.TreeType.markAsDirty();
           this.submitAttempt = true;
           let submitItem = this.getDirtyValues(this.formGroup);
 
@@ -1076,7 +1097,10 @@ export class ItemDetailPage extends PageBase {
       let newIds = new Set(this.item.WMS_ItemInWarehouseConfig.map((i) => i.Id));
       const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
       if (diff?.length > 0) {
-        groups.controls .find((d) => d.get('Id').value == null) ?.get('Id') .setValue(diff[0]);
+        groups.controls
+          .find((d) => d.get('Id').value == null || d.get('Id').value == 0)
+          ?.get('Id')
+          .setValue(diff[0]);
       }
     }
   }
@@ -1112,8 +1136,10 @@ export class ItemDetailPage extends PageBase {
     }
   }
 
-  createAdjust(){  
-    let filteredInventories = this.Inventories.filter((inventory: any) => inventory.QtyAdjust != 0 && inventory.QtyTarget >= 0);
+  createAdjust() {
+    let filteredInventories = this.Inventories.filter(
+      (inventory: any) => inventory.QtyAdjust != 0 && inventory.QtyTarget >= 0,
+    );
     // Group by IDBranch and StorerId
     let groupedInventories = filteredInventories.reduce((groups, inventory) => {
       let key = `${inventory.IDBranch}-${inventory.StorerId}`;
@@ -1123,52 +1149,45 @@ export class ItemDetailPage extends PageBase {
       groups[key].push(inventory);
       return groups;
     }, {});
-    let result = Object.keys(groupedInventories).map(key => ({
+    let result = Object.keys(groupedInventories).map((key) => ({
       IDBranch: parseInt(key.split('-')[0]),
-      AdjustLotLPNLocations: groupedInventories[key]
+      AdjustLotLPNLocations: groupedInventories[key],
     }));
-    if(result.length > 0){
-      this.env
-      .showPrompt(
-        'Bạn có chắc muốn tạo phiếu điều chỉnh không?',
-        null,
-        'Tạo phiếu điều chỉnh',
-      )
-      .then((_) => {
+    if (result.length > 0) {
+      this.env.showPrompt('Bạn có chắc muốn tạo phiếu điều chỉnh không?', null, 'Tạo phiếu điều chỉnh').then((_) => {
         this.env
-        .showLoading(
-          'Please wait for a few moments',
-          this.pageProvider.commonService
-            .connect('POST', 'WMS/Item/PostAdjustments/', result)
-            .toPromise()
-            .then((res) => {
-              if(res) {
-                this.env.showAlert('Tạo phiếu điều chỉnh thành công!');
-                this.isAdjust = false;
-                this.Inventories.forEach((d) => {
-                  d.QtyAdjust = 0;
-                  d.QtyTarget = d.QuantityOnHand;
-                });
-              }else {
+          .showLoading(
+            'Please wait for a few moments',
+            this.pageProvider.commonService
+              .connect('POST', 'WMS/Item/PostAdjustments/', result)
+              .toPromise()
+              .then((res) => {
+                if (res) {
+                  this.env.showAlert('Tạo phiếu điều chỉnh thành công!');
+                  this.isAdjust = false;
+                  this.Inventories.forEach((d) => {
+                    d.QtyAdjust = 0;
+                    d.QtyTarget = d.QuantityOnHand;
+                  });
+                } else {
+                  this.env.showMessage('Cannot save, please try again', 'danger');
+                }
+                this.submitAttempt = false;
+              })
+              .catch((err) => {
                 this.env.showMessage('Cannot save, please try again', 'danger');
-              }
-              this.submitAttempt = false;
-            })
-            .catch((err) => {
-              this.env.showMessage('Cannot save, please try again', 'danger');
-              this.submitAttempt = false;
-            })
-        )
-        .catch((error) => {
-          this.segmentView.ShowSpinner = false;
-        });
+                this.submitAttempt = false;
+              }),
+          )
+          .catch((error) => {
+            this.segmentView.ShowSpinner = false;
+          });
       });
     }
-   
   }
 
   calculateQtyAdjust(i) {
-     if (!i.QtyAdjust && !i.QtyTarget) {
+    if (!i.QtyAdjust && !i.QtyTarget) {
       return;
     }
     i.QtyTarget = i.QuantityOnHand + i.QtyAdjust;
@@ -1176,22 +1195,33 @@ export class ItemDetailPage extends PageBase {
 
   calculateQtyTarget(i) {
     if (!i.QtyAdjust && !i.QtyTarget) {
-     return;
-   }
-   i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
- }
-
- searchItemGroupShowAllChildren = (term: string, ids: any) :any => {
-  return super.searchShowAllChildren(term,ids,this.itemGroupList);
- } 
-
- searchResultIdBranchList = { term: '', ids: [] };
- searchBranchShowAllChildren =  (term: string, item: any) :any =>{
-  if (this.searchResultIdBranchList.term != term) {
-    this.searchResultIdBranchList.term = term;
-    let source = this.env.branchList
-    this.searchResultIdBranchList.ids = lib.searchTreeReturnId(source, term);
+      return;
+    }
+    i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
   }
-  return this.searchResultIdBranchList.ids.indexOf(item.Id) > -1;
- }
+
+  searchItemGroupShowAllChildren = (term: string, ids: any): any => {
+    return super.searchShowAllChildren(term, ids, this.itemGroupList);
+  };
+
+  searchItemTypeShowAllChildren = (term: string, ids: any): any => {
+    return super.searchShowAllChildren(term, ids, this.ItemTypeList);
+  };
+
+  searchResultIdBranchList = { term: '', ids: [] };
+  searchBranchShowAllChildren = (term: string, item: any): any => {
+    if (this.searchResultIdBranchList.term != term) {
+      this.searchResultIdBranchList.term = term;
+      let source = this.env.branchList;
+      this.searchResultIdBranchList.ids = lib.searchTreeReturnId(source, term);
+    }
+    return this.searchResultIdBranchList.ids.indexOf(item.Id) > -1;
+  };
+
+  private isShowButtonAddConfig() {
+    let groups = this.formGroup.controls.WMS_ItemInWarehouseConfig as FormArray;
+    if (groups.controls.find((d) => !d.get('Id').value)) {
+      return false;
+    } else return true;
+  }
 }

@@ -264,13 +264,14 @@
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control id="ng-select-holder"
                                 [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',
-                                  treeConfig:{searchFn:searchItemGroupShowAllChildren,isTree:true}}"
+                                  treeConfig:{searchFn:searchItemGroupShowAllChildren,isTree:true, isCollapsed:true}}"
                                   (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' ,
+                                treeConfig:{searchFn:searchItemTypeShowAllChildren,isTree:true,isCollapsed : true}}"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -826,7 +827,7 @@
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <app-form-control
                                   [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id',
-                                    treeConfig:{searchFn:searchBranchShowAllChildren,isTree:true,isCollapsed : false}}"
+                                    treeConfig:{searchFn:searchBranchShowAllChildren,isTree:true}}"
                                   (controlChange)="changeBranchInWarehouse(config);"
                                   >
                                   </app-form-control>
@@ -918,11 +919,11 @@
                             </ion-row>
                           </ng-container>
                         </form>
-                        <ion-row class="hr-group" *ngIf="this.id">
+                        <ion-row class="hr-group" *ngIf="this.id && isShowButtonAddConfig()">
                           <ion-col size="12" size-md="12" size-lg="12" size-xl="4" offset-xl="4">
                             <ion-button
                               [disabled]="!(pageConfig.canEdit || pageConfig.canAdd)"
-                              (click)="addConfig({Id:0})"
+                              (click)="addConfig({})"
                             >
                               {{'Add goods owner' | translate}}
                             </ion-button>
@@ -970,7 +971,7 @@
                             <ion-col size="12" size-sm size-xl="6">
                               <app-form-control
                                   [field]="{id: 'PlanningMeThod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code'                                     
-                                  ,treeConfig:{isTree:true}}"
+                                  ,treeConfig:{isTree:true,isCollapsed : true}}"
 
                                   (controlChange)="saveItemInBranch();"
                                   >
