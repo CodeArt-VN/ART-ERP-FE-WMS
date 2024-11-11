@@ -71,7 +71,7 @@
       <div class="ion-padding" style="padding-bottom: 0">
         <div class="c-control">
           <label class="c-label" for="IDBranch">
-            <ion-text color="primary"> {{'Unit' | translate}} </ion-text>
+            <ion-text color="primary"> {{'Branch' | translate}} </ion-text>
           </label>
           <ng-select class="c-input no-check-dirty" [searchFn]="searchBranchShowAllChildren" (change)="selectBranch();"
             [clearable]="true" appendTo="" #IDBranch [(ngModel)]="selectedBranch" labelForId="IDBranch" [disabled]="formGroup.get('IDBranch').value"
@@ -470,7 +470,7 @@
                                 [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
                               <app-form-control
                                 [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
-                                (change)="branchSelected ? saveItemInBranch() : saveChange()"></app-form-control>
+                                (change)="saveMasterDataOrItemInBranch()"></app-form-control>
                             </ion-col>
                           </ion-row>
                         </form>
@@ -483,7 +483,7 @@
                         <header class="bold" style="padding-right: 0">
                           <div class="col-checkbox cell">{{'Original unit' | translate}}</div>
                           <div class="col-checkbox cell">{{'Lẻ KT' | translate}}</div>
-                          <div class="col-checkbox cell">{{'Purchase' | translate}}</div>
+                          <div class="col-checkbox cell" style="padding:0 !important">{{'Purchase' | translate}}</div>
                           <div class="col-checkbox cell">{{'warehousing' | translate}}</div>
                           <div class="col-checkbox cell">{{'Sales' | translate}}</div>
                           <div class="col1 cell">{{'Cứ' | translate}}</div>
@@ -491,168 +491,195 @@
                           <div class="col3 cell">=</div>
                           <div class="col4 cell">{{'Convert' | translate}}</div>
                           <div class="col2 cell"></div>
-                          <div class="col5 cell">{{'Length (cm)' | translate}}</div>
+                          <div class="col5 cell" style="padding:0 !important">{{'Length (cm)' | translate}}</div>
                           <div class="col6 cell">{{'Width' | translate}}</div>
                           <div class="col7 cell">{{'High' | translate}}</div>
                           <div class="col8 cell">{{'Weight (kg)' | translate}}</div>
                           <div class="col2 cell">{{'Barcode' | translate}}</div>
                           <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM && pageConfig.canEditTrans"></div>
                         </header>
-                        <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of UoMs; let j = index;">
-                          <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
-                            <ion-checkbox
-                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              [(ngModel)]="i.IsBaseUoM"
+                        <div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let i of formGroup.get('ItemUoMs')['controls']; let j = index;">
+                          <ng-container [formGroup]="i">
+                          <div class="col-checkbox cell">
+                            <ion-checkbox  *ngIf="i.get('Id').value"
+                            [checked]="i.controls['IsBaseUoM'].value"
+                            (ionChange)="changeBaseUoM(i)"
+                              formControlName="IsBaseUoM"
                             ></ion-checkbox>
                           </div>
-                          <div class="col-checkbox cell" (click)="changeBaseUoM(i)">
-                            <ion-checkbox
-                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              [(ngModel)]="i.IsBaseUoM"
+                          <div class="col-checkbox cell">
+                            <ion-checkbox  *ngIf="i.get('Id').value"
+                            [checked]="i.controls['IsBaseUoM'].value"
+                            (ionChange)="changeBaseUoM(i)"
+                            formControlName="IsBaseUoM"
                             ></ion-checkbox>
                           </div>
-                          <div
-                            class="col-checkbox cell"
-                            (click)="item.PurchasingUoM = pageConfig.canEditUoM ? i.Id: item.PurchasingUoM; branchSelected ? updateUoMInBranch() : updateUoM()"
-                          >
-                            <ion-checkbox
-                              [disabled]="!pageConfig.canEditUoM"
-                              [checked]="item.PurchasingUoM == i.Id"
-                            ></ion-checkbox>
-                          </div>
-                          <div
-                            class="col-checkbox cell"
-                            (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; branchSelected ? updateUoMInBranch() : updateUoM()"
-                          >
-                            <ion-checkbox
-                              [disabled]="!pageConfig.canEditUoM"
-                              [checked]="item.InventoryUoM == i.Id"
-                            ></ion-checkbox>
-                          </div>
-                          <div
-                            class="col-checkbox cell"
-                            (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; branchSelected ? updateUoMInBranch() : updateUoM()"
-                          >
-                            <ion-checkbox
-                              [disabled]="!pageConfig.canEditUoM"
-                              [checked]="item.SalesUoM == i.Id"
+                          <!-- (click)="item.PurchasingUoM = pageConfig.canEditUoM ? formGroup.get('Id').value: formGroup.get('PurchasingUoM').value; branchSelected ? updateUoMInBranch() : updateUoM()" -->
+                          <div class="col-checkbox cell" >
+                            <ion-checkbox  *ngIf="i.get('Id').value"
+                              (ionChange)="changeFGUoM($event,i,'PurchasingUoM')"
+                              [disabled]="!pageConfig.canEditUoM || submitAttempt"
+                              [checked]="formGroup.get('PurchasingUoM').value == i.get('Id').value"
                             ></ion-checkbox>
                           </div>
 
-                          <div class="col1 cell">
-                            <input
-                              *ngIf="!i.IsBaseUoM"
-                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              class="c-input"
-                              (change)="saveUoM(i)"
-                              [(ngModel)]="i.AlternativeQuantity"
-                              type="number"
-                              min="0"
-                              step="1"
-                              max="999999999999999999"
-                            />
+                          <!-- (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; branchSelected ? updateUoMInBranch() : updateUoM()" > -->
+                          <div class="col-checkbox cell">
+                          <ion-checkbox  *ngIf="i.get('Id').value"
+                          [disabled]="!pageConfig.canEditUoM || submitAttempt"
+                          (ionChange)="changeFGUoM($event,i,'InventoryUoM')"
+                          [checked]="formGroup.get('InventoryUoM').value ==i.get('Id').value" >
+                          </ion-checkbox>
+                        </div>
+
+                        <!-- (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; branchSelected ? updateUoMInBranch() : updateUoM()" -->
+                        <div class="col-checkbox cell">
+                        <ion-checkbox *ngIf="i.get('Id').value"
+                        (ionChange)="changeFGUoM($event,i,'SalesUoM')"
+                        [disabled]="!pageConfig.canEditUoM || submitAttempt"
+                        [checked]="formGroup.get('SalesUoM').value == i.get('Id').value"
+                        ></ion-checkbox>
+                      </div>
+
+                      <div class="col1 cell">
+                        <app-input-control *ngIf="!i.get('IsBaseUoM').value && i.get('Id').value"
+                         [field]="{id:'AlternativeQuantity',label:'Alternative quantity',type:'number',form:i}"  
+                         (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                      
+                          class="c-input"
+                         
+                          [(ngModel)]="i.AlternativeQuantity"
+                          type="number"
+                          min="0"
+                          step="1"
+                          max="999999999999999999"
+                        /> -->
+                      </div>
+                      
+                      <div class="col2 cell">
+                        <app-input-control  [appendToPart]="'#unit-specification'" (change)="changedUoM($event, i)"
+                        [field]="{id:'Name',label:'unit',type:'ng-select',dataSource: uomList,bindLabel:'Name',bindValue:'Name',form:i, clearable:false,placeholder:'Unit'}"></app-input-control>
+                        <!-- <ng-select
+                          class="c-input"
+                          (change)="changedUoM($event, i)"
+                          [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist || this.selectedBranch"
+                          [(ngModel)]="i.Name"
+                          [items]="uomList"
+                          appendTo="#unit-specification"
+                          [clearable]="false"
+                          bindLabel="Name"
+                          bindValue="Name"
+                          placeholder="{{'Unit' | translate}}"
+                        >
+                        <ng-template ng-label-tmp let-i="item" >
+                          <div *ngIf="i">
+                            <div>
+                              <span>{{i.Name}}</span>
+                            </div>
                           </div>
-                          <div class="col2 cell">
-                            <ng-select
-                              class="c-input"
-                              (change)="changedUoM($event, i)"
-                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist || this.selectedBranch"
-                              [(ngModel)]="i.Name"
-                              [items]="uomList"
-                              appendTo="#unit-specification"
-                              [clearable]="false"
-                              bindLabel="Name"
-                              bindValue="Name"
-                              placeholder="{{'Unit' | translate}}"
-                            >
-                            <ng-template ng-label-tmp let-i="item" >
-                              <div *ngIf="i">
-                                <div>
-                                  <span>{{i.Name}}</span>
-                                </div>
+                        </ng-template>
+                          <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                            <div *ngIf="i">
+                              <div>
+                                <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                <span [ngOptionHighlight]="search">{{i.Name}}</span>
                               </div>
-                            </ng-template>
-                              <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                                <div *ngIf="i">
-                                  <div>
-                                    <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                    <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                                  </div>
-                                </div>
-                              </ng-template>
-                              <ng-template ng-tag-tmp let-search="searchTerm">
-                                <ion-text color="primary"> <b>{{'Thêm' | translate}}</b>: {{search}} </ion-text>
-                              </ng-template>
-                            </ng-select>
-                          </div>
-                          <div class="col3 cell">
-                            <span *ngIf="!i.IsBaseUoM">=</span>
-                          </div>
-                          <div class="col4 cell">
-                            <input
-                              *ngIf="!i.IsBaseUoM"
-                              [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
-                              (change)="saveUoM(i)"
-                              class="c-input"
-                              [(ngModel)]="i.BaseQuantity"
-                              type="number"
-                              min="0"
-                              step="1"
-                              max="999999999999999999"
-                            />
-                          </div>
-                          <div class="col2 cell">
-                            <span *ngIf="!i.IsBaseUoM">{{baseUomName}}</span>
-                          </div>
-                          <div class="col5 cell">
-                            <input
-                              [disabled]="!pageConfig.canEditUoM "
-                              (change)="saveUoM(i)"
-                              class="c-input"
-                              [(ngModel)]="i.Length"
-                              type="number"
-                              min="0"
-                            />
-                          </div>
-                          <div class="col6 cell">
-                            <input
-                              [disabled]="!pageConfig.canEditUoM "
-                              (change)="saveUoM(i)"
-                              class="c-input"
-                              [(ngModel)]="i.Width"
-                              type="number"
-                              min="0"
-                            />
-                          </div>
-                          <div class="col7 cell">
-                            <input
-                              [disabled]="!pageConfig.canEditUoM "
-                              (change)="saveUoM(i)"
-                              class="c-input"
-                              [(ngModel)]="i.Height"
-                              type="number"
-                              min="0"
-                            />
-                          </div>
-                          <div class="col8 cell">
-                            <input
-                              [disabled]="!pageConfig.canEditUoM "
-                              (change)="saveUoM(i)"
-                              class="c-input"
-                              [(ngModel)]="i.Weight"
-                              type="number"
-                              min="0"
-                            />
-                          </div>
-                          <div class="col2 cell">
-                            <input
-                              [disabled]="!pageConfig.canEditUoM "
-                              (change)="saveUoM(i)"
-                              class="c-input"
-                              [(ngModel)]="i.Barcode"
-                              type="text"
-                            />
-                          </div>
+                            </div>
+                          </ng-template>
+                          <ng-template ng-tag-tmp let-search="searchTerm">
+                            <ion-text color="primary"> <b>{{'Thêm' | translate}}</b>: {{search}} </ion-text>
+                          </ng-template>
+                        </ng-select> -->
+                      </div>
+                      <div class="col3 cell">
+                        <span *ngIf="!i.get('IsBaseUoM').value">=</span>
+                      </div>
+                      <div class="col4 cell">
+                        <app-input-control *ngIf="!i.get('IsBaseUoM').value && i.get('Id').value"
+                        [field]="{id:'BaseQuantity',label:'Base quantity',type:'number',form:i}"  
+                        (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                          *ngIf="!i.IsBaseUoM"
+                          [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist"
+                          (change)="saveUoM(i)"
+                          class="c-input"
+                          [(ngModel)]="i.BaseQuantity"
+                          type="number"
+                          min="0"
+                          step="1"
+                          max="999999999999999999"
+                        /> -->
+                      </div>
+                      <div class="col2 cell">
+                        <span *ngIf="!i.get('IsBaseUoM').value">{{baseUomName}}</span>
+                      </div>
+
+                      <div class="col5 cell">
+                        <app-input-control  *ngIf="i.get('Id').value"
+                        [field]="{id:'Length',label:'Length',type:'number',form:i}"  
+                        (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                          [disabled]="!pageConfig.canEditUoM "
+                          (change)="saveUoM(i)"
+                          class="c-input"
+                          [(ngModel)]="i.Length"
+                          type="number"
+                          min="0"
+                        /> -->
+                      </div>
+
+                      <div class="col6 cell">
+                        <app-input-control  *ngIf="i.get('Id').value"
+                        [field]="{id:'Width',label:'Width',type:'number',form:i}"  
+                        (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                          [disabled]="!pageConfig.canEditUoM "
+                          (change)="saveUoM(i)"
+                          class="c-input"
+                          [(ngModel)]="i.Width"
+                          type="number"
+                          min="0"
+                        /> -->
+                      </div>
+                      <div class="col7 cell">
+                        <app-input-control  *ngIf="i.get('Id').value"
+                        [field]="{id:'Height',label:'Height',type:'number',form:i}"  
+                        (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                          [disabled]="!pageConfig.canEditUoM "
+                          (change)="saveUoM(i)"
+                          class="c-input"
+                          [(ngModel)]="i.Height"
+                          type="number"
+                          min="0"
+                        /> -->
+                      </div>
+                      <div class="col8 cell">
+                        <app-input-control *ngIf="i.get('Id').value"
+                        [field]="{id:'Weight',label:'Weight',type:'number',form:i}"  
+                        (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                          [disabled]="!pageConfig.canEditUoM "
+                          (change)="saveUoM(i)"
+                          class="c-input"
+                          [(ngModel)]="i.Weight"
+                          type="number"
+                          min="0"
+                        /> -->
+                      </div>
+                      <div class="col2 cell">
+                        <app-input-control  *ngIf="i.get('Id').value"
+                        [field]="{id:'Barcode',label:'Barcode',type:'number',form:i}"  
+                        (change)="saveUoM(i)"></app-input-control>
+                        <!-- <input
+                          [disabled]="!pageConfig.canEditUoM "
+                          (change)="saveUoM(i)"
+                          class="c-input"
+                          [(ngModel)]="i.Barcode"
+                          type="text"
+                        /> -->
+                      </div>
                           <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM && pageConfig.canEditTrans">
                             <ion-icon
                               color="danger"
@@ -661,14 +688,15 @@
                               name="trash-outline"
                             ></ion-icon>
                           </div>
+                        </ng-container>
                         </div>
                       </section>
                       <div
                         class="row"
-                        *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && !this.selectedBranch ) && this.id"
+                        *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && !this.selectedBranch && this.formGroup.get('ItemUoMs').valid) && this.id"
                       >
                         <div class="cell">
-                          <ion-button fill="clear" size="small" (click)="addUoM()">
+                          <ion-button fill="clear" size="small" (click)="checkingUoMBeforeAdd()">
                             <ion-icon slot="start" name="add-circle-outline"></ion-icon>
                             {{'Add unit' | translate}}
                           </ion-button>
