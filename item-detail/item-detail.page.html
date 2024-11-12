@@ -558,39 +558,9 @@
                       </div>
                       
                       <div class="col2 cell">
-                        <app-input-control  [appendToPart]="'#unit-specification'" (change)="changedUoM($event, i)"
+                        <!-- appendTo="#unit-specification" -->
+                        <app-input-control  (change)="changedUoM($event, i)"
                         [field]="{id:'Name',label:'unit',type:'ng-select',dataSource: uomList,bindLabel:'Name',bindValue:'Name',form:i, clearable:false,placeholder:'Unit'}"></app-input-control>
-                        <!-- <ng-select
-                          class="c-input"
-                          (change)="changedUoM($event, i)"
-                          [disabled]="!pageConfig.canEditUoM || item?.TransactionsExist || this.selectedBranch"
-                          [(ngModel)]="i.Name"
-                          [items]="uomList"
-                          appendTo="#unit-specification"
-                          [clearable]="false"
-                          bindLabel="Name"
-                          bindValue="Name"
-                          placeholder="{{'Unit' | translate}}"
-                        >
-                        <ng-template ng-label-tmp let-i="item" >
-                          <div *ngIf="i">
-                            <div>
-                              <span>{{i.Name}}</span>
-                            </div>
-                          </div>
-                        </ng-template>
-                          <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                            <div *ngIf="i">
-                              <div>
-                                <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                              </div>
-                            </div>
-                          </ng-template>
-                          <ng-template ng-tag-tmp let-search="searchTerm">
-                            <ion-text color="primary"> <b>{{'Thêm' | translate}}</b>: {{search}} </ion-text>
-                          </ng-template>
-                        </ng-select> -->
                       </div>
                       <div class="col3 cell">
                         <span *ngIf="!i.get('IsBaseUoM').value">=</span>
