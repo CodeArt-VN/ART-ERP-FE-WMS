@@ -102,17 +102,17 @@ export class CycleCountDetailPage extends PageBase {
     this.schemaService.getAnItem(13).then((value: any) => {
       if (value) this.schema = value;
     });
-    this.branchProvider
+      this.branchProvider
       .read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren })
       .then((resp) => {
         lib
           .buildFlatTree(resp['data'], this.branchList)
           .then((result: any) => {
-            this.branchList = result;
+            this.branchList = lib.cloneObject(result);
             this.branchList.forEach((i) => {
               i.disabled = true;
             if(i.Type == 'Warehouse') i.disabled = false;
-
+  
             });
             this.markNestedNode(this.branchList, this.env.selectedBranch);
             super.preLoadData(event);
@@ -122,7 +122,7 @@ export class CycleCountDetailPage extends PageBase {
             console.log(err);
           });
       });
-    super.preLoadData(event);
+   
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
@@ -161,6 +161,7 @@ export class CycleCountDetailPage extends PageBase {
 
     if(!this.item.Id){
       this.formGroup.get('Status').markAsDirty();
+      this.formGroup.get('CountType').markAsDirty();
     }
     console.log(this.formGroup);
     this.removeSelectedItems();
@@ -189,8 +190,6 @@ export class CycleCountDetailPage extends PageBase {
         console.log(c.get('IsShowInModal').value);
       });
     }
-    this.formGroup.get('CountType').markAsDirty();
-
     //  this.patchFormValue();
   }
 
@@ -373,6 +372,12 @@ export class CycleCountDetailPage extends PageBase {
       )
       .then((result: any) => {
         this.refresh();
+        this.env.showMessage('success', 'success');
+
+      })
+      .catch(err=>{
+        this.env.showMessage(err.error?.ExceptionMessage || err, 'danger');
+
       });
     this.query.Id = undefined;
   }
