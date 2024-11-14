@@ -19,7 +19,7 @@
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
 <ion-content appScrollbarTheme class="ion-padding">
-	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+	<div class="main-view" *ngIf="item">
 		<ion-grid fixed>
 			<form [formGroup]="formGroup">
 				<ion-row class="hr-group">

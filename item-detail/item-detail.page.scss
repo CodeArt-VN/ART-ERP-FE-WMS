@@ -49,6 +49,7 @@
             color: var(--ion-color-primary) !important;
         }
     }
+    ::ng-deep{
 
     .col1,
     .col4,
@@ -76,6 +77,8 @@
         max-width: 30px;
         justify-content: center;
     }
+    
+}
 }
 
 #s2 {

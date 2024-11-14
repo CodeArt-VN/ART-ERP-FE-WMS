@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AlertController, LoadingController, NavController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, map, mergeMap, switchMap, tap } from 'rxjs/operators';
@@ -85,7 +85,6 @@ export class ItemDetailPage extends PageBase {
   baseUomName = '???';
   UoMs = []; //UoM grid
   Inventories = []; //Inventories grid
-
   subOptions = null;
   segmentView = {
     Page: 'ProductInformation',
@@ -238,6 +237,7 @@ export class ItemDetailPage extends PageBase {
       LeadTime: [''],
       ToleranceDays: [''],
       WMS_ItemInWarehouseConfig: this.formBuilder.array([]),
+      ItemUoMs : this.formBuilder.array([]),
       VendorIds: [],
       IDItemInBranch: [],
       IDItem: [],
@@ -258,7 +258,7 @@ export class ItemDetailPage extends PageBase {
   vendorList = [];
 
   preLoadData(event) {
-    this.branchList = this.env.branchList.filter((d) => d.Type != 'TitlePosition');
+    this.branchList = [...this.env.branchList.filter((d) => d.Type != 'TitlePosition')];
 
     this.uomProvider.read().then((resp) => {
       this.uomList = resp['data'];
@@ -384,23 +384,8 @@ export class ItemDetailPage extends PageBase {
   }
 
   loadedData() {
-    if (this.item?.IDItemGroup) {
-      let itemGroupSelected = {
-        Id: this.item.IDItemGroup,
-        Name: this.item?.ItemGroupName,
-      };
-    }
-    if (this.item?.Id) {
-      Promise.all([this.itemUoMProvider.read({ IDItem: this.item.Id })]).then((values) => {
-        this.UoMs = values[0]['data'];
-        let baseUoM = this.UoMs.find((d) => d.IsBaseUoM);
-        if (baseUoM) {
-          baseUoM._IsBaseUoM = baseUoM.IsBaseUoM;
-          this.baseUomName = baseUoM.Name;
-        }
-      });
-    }
     super.loadedData(null);
+    this.patchItemUoMs();
     this.setItemConfigs();
     if (!(this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup?.controls.WMS_ItemInWarehouseConfig.disable();
@@ -411,8 +396,9 @@ export class ItemDetailPage extends PageBase {
         return i;
       }
     });
-    if (this.formGroup.get('IDBranch').value)
+    if (this.formGroup.get('IDBranch').value){
       this.selectedBranch = this.env.branchList.find((d) => d.Id == this.formGroup.get('IDBranch').value);
+    }
     if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
       this.formGroup.get('InventoryLevelMinimum').enable();
@@ -479,7 +465,50 @@ export class ItemDetailPage extends PageBase {
       this.markNestedNode(ls, i.Id);
     });
   }
-
+  patchItemUoMs(){
+    this.formGroup.controls.ItemUoMs = new FormArray([]);
+    if (this.item?.ItemUoMs && this.item?.ItemUoMs.length) {
+      this.item.ItemUoMs.forEach((u) => {
+        this.addUoM(u);
+      });
+    }
+    if(!this.pageConfig.canEditUoM){
+      this.formGroup.controls.ItemUoMs.disable();
+    }
+    
+    let baseUoM = this.item?.ItemUoMs?.find((d) => d.IsBaseUoM);
+    if (baseUoM) {
+      baseUoM._IsBaseUoM = baseUoM.IsBaseUoM;
+      this.baseUomName = baseUoM.Name;
+    }
+  }
+  addUoM(u,markAsDirty = false){
+    let groups =  this.formGroup.controls.ItemUoMs  as FormArray;
+    let group = this.formBuilder.group({
+      Id: [u?.Id],
+      IDItem: [u?.IDItem || this.formGroup.get('Id').value],
+      IDUoM:[u?.IDUoM],
+      Name: [u?.Name || "N/A",[Validators.required, Validators.pattern(/^(?!N\/A$).*/)]],
+      AlternativeQuantity:[u?.AlternativeQuantity],
+      BaseQuantity: [u?.BaseQuantity],
+      IsBaseUoM: [u?.IsBaseUoM || false],
+      Length:[u?.Length],
+      Width:[u?.Width],
+      Height:[u?.Length],
+      Weight:[u?.Weight],
+      Barcode:[u?.Barcode],
+    }) 
+    group.get('Id').markAsDirty();
+    group.get('IDItem').markAsDirty();
+    if(markAsDirty){
+     group.get('IsBaseUoM').markAsDirty();
+    }
+    groups.push(group);
+    if(this.item?.TransactionsExist || this.selectedBranch){
+      group.get('IsBaseUoM').disable();
+    }
+  }
+ 
   setItemConfigs() {
     this.formGroup.controls.WMS_ItemInWarehouseConfig = new FormArray([]);
     if (this.item?.WMS_ItemInWarehouseConfig && this.item?.WMS_ItemInWarehouseConfig.length) {
@@ -698,18 +727,16 @@ export class ItemDetailPage extends PageBase {
   loadItemInBranch() {
     if (this.selectedBranch) {
       let query = {
-        IdItem: this.id,
+        IDItem: this.id,
         IDBranch: this.selectedBranch.Id,
       };
-      this.query.IdItem = this.id;
-      this.query.IDBranch = this.selectedBranch.Id;
-      this.formGroup.controls.IDBranch.markAsDirty();
+   //   this.query.IdItem = this.id;
+    //  this.query.IDBranch = this.selectedBranch.Id;
+    //  this.formGroup.controls.IDBranch.markAsDirty();
       this.env
         .showLoading(
           'Please wait for a few moments',
-          this.pageProvider.commonService
-            .connect('GET', 'WMS/ItemInBranch/', query)
-            .toPromise()
+          this.itemInBranchProvider.commonService.connect('GET','WMS/ItemInBranch/',query).toPromise()
             .then((data: any) => {
               if (data) {
                 this.item = data;
@@ -799,97 +826,107 @@ export class ItemDetailPage extends PageBase {
     if (!this.pageConfig.canEditUoM || this.item?.TransactionsExist) {
       return;
     }
-    let checkedRows = this.UoMs.filter((d) => d.IsBaseUoM);
-    if (i.IsBaseUoM && checkedRows.length > 0) {
-      for (let index = 0; index < checkedRows.length; index++) {
-        const r = checkedRows[index];
-        if (r.Id != i.Id) {
-          r.IsBaseUoM = false;
-          this.saveUoM(r);
-        } else {
-          r.AlternativeQuantity = 1;
-          r.BaseQuantity = 1;
-        }
+    let uomGroups = this.formGroup.get('ItemUoMs') as FormArray;
+    let currentBaseUoM = uomGroups.controls.find((d) => d.get('IsBaseUoM').value && d.get('Id').value != i.get('Id').value);
+    if(i.get('IsBaseUoM').value ){
+      i.get('AlternativeQuantity').setValue(1);
+      i.get('AlternativeQuantity').markAsDirty();
+      i.get('BaseQuantity').setValue(1);
+      i.get('BaseQuantity').markAsDirty();
+      currentBaseUoM?.get('IsBaseUoM').setValue(false);
+      currentBaseUoM?.get('IsBaseUoM').markAsDirty();
+      this.baseUomName = i.get('Name').value;
+      this.saveMasterDataOrItemInBranch();
       }
-      this.saveUoM(i);
-    } else {
-      this.UoMs[0].IsBaseUoM = true;
-      this.UoMs[0].AlternativeQuantity = 1;
-      this.UoMs[0].BaseQuantity = 1;
-      this.saveUoM(this.UoMs[0]);
-      this.saveUoM(i);
+    else if (!i.controls.valid){
+      i.get('IsBaseUoM').setValue(!i.get('IsBaseUoM').value);
+      this.env.showMessage('Unit invalid!','danger');
+    }
+    else{
+      i.get('IsBaseUoM').setValue(!i.get('IsBaseUoM').value);
+      return;
     }
   }
+  changeFGUoM(e,fg,control){
+    if(!fg.get('Id').value){
+      this.env.showMessage('Unit invalid!','danger');
+      return;
+    }
+    console.log(e);
+    if(!this.pageConfig.canEditUoM){
+      return;
+    }
+    if(this.submitAttempt){
+      this.env.showMessage('System is saving, please try again!','warning');
+      return;
+    }
+    if(e.detail.checked){
+      this.formGroup.get(control).setValue(fg.get('Id').value);
+    }
+    else{
+      this.formGroup.get(control).setValue(null);
+    }
+    this.formGroup.get(control).markAsDirty();
+    this.saveMasterDataOrItemInBranch();
 
+  }
   changedUoM(event, i) {
     if (i) {
-      i.IDUoM = event.Id;
+      i.get('IDUoM').setValue(event.Id);
+      i.get('IDUoM').markAsDirty();
       this.saveUoM(i);
     }
   }
 
   saveUoM(i) {
-    if (!i.IDUoM) {
-      return;
-    }
-    if (i.IsBaseUoM) {
-      this.baseUomName = i.Name;
-    }
-    if (!i.AlternativeQuantity) {
-      i.AlternativeQuantity = 1;
-    }
-    this.itemUoMProvider.save(i).then((result) => {
-      if (!i.Id) {
-        i.Id = result['Id'];
+      if (i.get('IsBaseUoM').value) {
+        this.baseUomName = i.get('Name').value;
       }
-      this.env.showMessage('Unit saved', 'success');
-    });
-  }
-
-  checkCreatedItem() {
-    return new Promise((resolve, reject) => {
-      if (!this.item?.Id) {
-        this.saveChange().then((result) => {
-          resolve(this.item.Id);
-        });
-      } else {
-        resolve(this.item?.Id);
+      if (!i.get('AlternativeQuantity').value) {
+        i.get('AlternativeQuantity').setValue(1);
+        i.get('AlternativeQuantity').markAsDirty();
       }
-    });
+      if (!i.get('BaseQuantity').value) {
+        i.get('BaseQuantity').setValue(1);
+        i.get('BaseQuantity').markAsDirty();
+      }
+
+      return (this.saveChange2(i,null,this.itemUoMProvider))
+   
+    //this.saveChange2(i,null,this.itemUoMProvider)
+
   }
 
-  addUoM() {
-    this.checkCreatedItem().then(() => {
-      let newUoM = {
-        Id: 0,
-        IDItem: this.selectedBranch ? this.id : this.item?.Id,
-        AlternativeQuantity: 1,
-        BaseQuantity: 1,
-        IsBaseUoM: this.UoMs.filter((d) => d.IsBaseUoM).length == 0,
-        Name: 'N/A',
-      };
-      this.UoMs.push(newUoM);
-      this.saveUoM(newUoM);
-    });
+  // addUoM() {
+  //   this.checkCreatedItem().then(() => {
+  //     let newUoM = {
+  //       Id: 0,
+  //       IDItem: this.selectedBranch ? this.id : this.item?.Id,
+  //       AlternativeQuantity: 1,
+  //       BaseQuantity: 1,
+  //       IsBaseUoM: this.UoMs.filter((d) => d.IsBaseUoM).length == 0,
+  //       Name: 'N/A',
+  //     };
+  //     this.UoMs.push(newUoM);
+  //     this.saveUoM(newUoM);
+  //   });
+  // }
+  checkingUoMBeforeAdd(){
+    let uomGroup = this.formGroup.get('ItemUoMs') as FormArray;
+    if(uomGroup.controls.length == 0 || !uomGroup.controls.some(d=> d.get('IsBaseUoM').value)){
+      this.addUoM({Id:0,IsBaseUoM : true},true);
+    } else this.addUoM({Id:0});
   }
-
-  async createNewUoM(name) {
-    let newUoM = { Id: null, Name: name };
-    if (this.uomList.findIndex((d) => d.name == name) == -1) {
-      await this.uomProvider.save(newUoM).then((result) => {
-        this.uomList.push({ Id: result['Id'], Name: result['Name'] });
-        this.uomList = [...this.uomList];
-        this.env.showMessage('New unit saved', 'success');
-        newUoM.Id = result['Id'];
-      });
-
-      return newUoM;
-    }
-  }
-
+ 
   deleteUoM(i) {
-    if (this.pageConfig.canDeleteUoM) {
-      if (i.IsBaseUoM) {
+    let groups = this.formGroup.get('ItemUoMs') as FormArray;
+    let index = groups.controls.findIndex(d=> d.get('Id').value == i.get('Id').value);
+    if (this.pageConfig.canDeleteUoM && index > -1) {
+      if(!(i.get('Id').value>0)){
+          groups.removeAt(index);
+          return;
+      }
+      if (i.get('IsBaseUoM').value) {
         this.env.showMessage('Please set up origianl unit before deleting', 'danger');
         return;
       }
@@ -911,16 +948,13 @@ export class ItemDetailPage extends PageBase {
               cssClass: 'danger-btn',
               handler: () => {
                 this.itemUoMProvider
-                  .delete(i)
+                  .delete(i.getRawValue())
                   .then(() => {
-                    const index = this.UoMs.indexOf(i, 0);
-                    if (index > -1) {
-                      this.UoMs.splice(index, 1);
-                    }
-
+                    groups.removeAt(index);
                     this.env.showMessage('Deleted!', 'success');
                   })
                   .catch((err) => {
+                    this.env.showMessage(err, 'danger');
                     //console.log(err);
                   });
               },
@@ -932,33 +966,6 @@ export class ItemDetailPage extends PageBase {
         });
     }
   }
-
-  updateUoM() {
-    if (this.pageConfig.canEditUoM) {
-      this.pageProvider.save(this.item).then(() => {
-        this.env.showMessage('Changed unit saved', 'success');
-      });
-    }
-  }
-
-  updateUoMInBranch() {
-    if (this.pageConfig.canEditUoM) {
-      const idItemInBranch = this.item.IDItemInBranch || 0;
-      let item = {
-        Id: idItemInBranch,
-        IDBranch: this.selectedBranch.Id,
-        IDItem: this.id,
-        InventoryUoM: this.item.InventoryUoM,
-        PurchasingUoM: this.item.PurchasingUoM,
-        SalesUoM: this.item.SalesUoM,
-      };
-      this.itemInBranchProvider.save(item).then((result: any) => {
-        this.item.IDItemInBranch = result.Id;
-        this.env.showMessage('Changed unit saved', 'success');
-      });
-    }
-  }
-
   priceList = [];
   priceListQuery = {};
   loadPriceList() {
@@ -1037,6 +1044,7 @@ export class ItemDetailPage extends PageBase {
 
   async saveItemInBranch() {
     if (this.selectedBranch) {
+      this. alwaysReturnProps = ['Id', 'IDBranch'];
       return new Promise((resolve, reject) => {
         this.formGroup.updateValueAndValidity();
         if (!this.formGroup.valid) {
@@ -1081,14 +1089,20 @@ export class ItemDetailPage extends PageBase {
     }
   }
 
+  saveMasterDataOrItemInBranch(){
+    if(this.selectedBranch){
+      this.saveItemInBranch();
+    }
+    else this.saveChange();
+  }
+  
   async saveChange() {
-    this.formGroup.get('Id').setValue(this.id);
-    this.formGroup.controls.Id.markAsDirty();
+    this.alwaysReturnProps = ['Id'];
     super.saveChange2();
   }
 
   savedChange(savedItem = null, form = this.formGroup) {
-    super.savedChange(savedItem);
+    super.savedChange(savedItem,form);
     let groups = this.formGroup.get('WMS_ItemInWarehouseConfig') as FormArray;
     let idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id').value));
     this.item = savedItem;
