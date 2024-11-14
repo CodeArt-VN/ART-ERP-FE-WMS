@@ -101,25 +101,7 @@ export class AdjustmentDetailPage extends PageBase {
   };
 
   preLoadData(event) {
-    this.branchProvider
-      .read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren })
-      .then((resp) => {
-        lib
-          .buildFlatTree(resp['data'], this.branchList)
-          .then((result: any) => {
-            this.branchList = result;
-            this.branchList.forEach((i) => {
-              i.disabled = true;
-            if(i.Type == 'Warehouse') i.disabled = false;
-
-            });
-            this.markNestedNode(this.branchList, this.env.selectedBranch);
-            super.preLoadData(event);
-          })
-          .catch((err) => {
-            this.env.showMessage(err);
-          });
-      });
+    this.branchList = lib.cloneObject(this.env.branchList);
     this.statusDataSource = [
       { Name: 'New', Code: 'New' },
       { Name: 'Pending', Code: 'Pending' },

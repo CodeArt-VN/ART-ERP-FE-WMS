@@ -30,19 +30,10 @@
 					</ion-col>
 				
 					<ion-col size="12" size-sm size-xl="4">
-						<div class="c-control">
-							<label class="c-label" for="IDBranch">{{'Warehouse' | translate}}
-								<span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-							</label>
-							<ng-select class="c-input" (change)="changeWarehouse($event);" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}">
-								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-									<div *ngIf="i">
-										<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
-									</div>
-								</ng-template>
-							</ng-select>
-						</div>
-                        
+						<app-form-control [field]="{branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
+						,id:'IDBranch',label:'Warehouse', type:'ng-select-branch',dataSource:branchList,bindValue:'Id', bindLabel:'Name',form:formGroup}"
+						(change)="changeWarehouse($event);" ></app-form-control>
+					
 						<div class="c-control">
 							<label class="c-label" for="IDBranch">{{'Status' | translate}}
 								<span >: {{item?.Status}}</span>

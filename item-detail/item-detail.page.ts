@@ -258,7 +258,8 @@ export class ItemDetailPage extends PageBase {
   vendorList = [];
 
   preLoadData(event) {
-    this.branchList = [...this.env.branchList.filter((d) => d.Type != 'TitlePosition')];
+    this.branchList = [...this.env.branchList];
+    this.branchInWarehouse = lib.cloneObject(this.env.branchList);
 
     this.uomProvider.read().then((resp) => {
       this.uomList = resp['data'];
@@ -273,100 +274,94 @@ export class ItemDetailPage extends PageBase {
       this.cartonGroupList = resp['data'];
     });
 
-    this.taxProvider.read().then((resp) => {
-      this.inputTaxList = resp['data'].filter((d) => d.Category == 'InputTax');
-      this.outputTaxList = resp['data'].filter((d) => d.Category == 'OutputTax');
-
-      Promise.all([
-        this.pageProvider.commonService
-          .connect('GET', 'SYS/Config/ConfigByBranch', {
-            Code: 'TaxInput',
-            IDBranch: this.env.selectedBranch,
-          })
-          .toPromise(),
-        this.pageProvider.commonService
-          .connect('GET', 'SYS/Config/ConfigByBranch', {
-            Code: 'TaxOutput',
-            IDBranch: this.env.selectedBranch,
-          })
-          .toPromise(),
-        this.itemGroupProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 5000,
-          Skip: 0,
-          SkipMCP: true,
-          SkipAddress: true,
-        }),
-        this.putawayStrategyProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 5000,
-          Skip: 0,
-        }),
-        this.allocationStrategyProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 5000,
-          Skip: 0,
-        }),
-        this.env.getType('ExpiryUnit'),
-        this.contactProvider.read({ IsStorer: true, Take: 5000 }),
-        this.env.getType('ItemType', true),
-        this.env.getType('Rotation'),
-        this.env.getType('RotateBy'),
-        this.contactProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 20,
-          Skip: 0,
-          IsVendor: true,
-          SkipAddress: true,
-        }),
-      ]).then((values: any) => {
-        if (values[0]['Value'] && this.item?.Id == 0) {
-          let idTaxInput = JSON.parse(values[0]['Value']).Id;
-          this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
-          this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
-        }
-        if (values[1]['Value'] && this.item?.Id == 0) {
-          let idTaxOput = JSON.parse(values[1]['Value']).Id;
-          this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
-          this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
-        }
-        if (values[2] && values[2].data) {
-          lib.buildFlatTree(values[2].data, []).then((result: any) => {
-            this.itemGroupList = result;
-          });
-        }
-        if (values[3] && values[3].data) {
-          this.putawayStrategyList = values[3].data;
-        }
-        if (values[4] && values[4].data) {
-          this.allocationStrategyList = values[4].data;
-        }
-        if (values[5] && values[5]) {
-          this.ExpiryUnitList = values[5];
-        }
-        if (values[6] && values[6].data) {
-          this.storerList = values[6].data;
-        }
-        if (values[7]) {
-          this.ItemTypeList = values[7];
-        }
-        if (values[8]) {
-          this.RotationList = values[8];
-        }
-        if (values[9]) {
-          this.RotateByList = values[9];
-        }
-        if (values[10] && values[10].data?.length) {
-          this._vendorDataSource.selected.push(...values[10].data);
-        }
-        this.branchInWarehouse = lib.cloneObject(this.env.branchList);
-        this.branchInWarehouse.forEach((i) => {
-          i.disabled = true;
+    Promise.all([
+      this.pageProvider.commonService
+        .connect('GET', 'SYS/Config/ConfigByBranch', {
+          Code: 'TaxInput',
+          IDBranch: this.env.selectedBranch,
+        })
+        .toPromise(),
+      this.pageProvider.commonService
+        .connect('GET', 'SYS/Config/ConfigByBranch', {
+          Code: 'TaxOutput',
+          IDBranch: this.env.selectedBranch,
+        })
+        .toPromise(),
+      this.itemGroupProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 5000,
+        Skip: 0,
+        SkipMCP: true,
+        SkipAddress: true,
+      }),
+      this.putawayStrategyProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 5000,
+        Skip: 0,
+      }),
+      this.allocationStrategyProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 5000,
+        Skip: 0,
+      }),
+      this.env.getType('ExpiryUnit'),
+      this.contactProvider.read({ IsStorer: true, Take: 5000 }),
+      this.env.getType('ItemType', true),
+      this.env.getType('Rotation'),
+      this.env.getType('RotateBy'),
+      this.contactProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 20,
+        Skip: 0,
+        IsVendor: true,
+        SkipAddress: true,
+      }),
+      this.taxProvider.read()
+    ]).then((values: any) => {
+      if (values[0]['Value'] && this.item?.Id == 0) {
+        let idTaxInput = JSON.parse(values[0]['Value']).Id;
+        this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
+        this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
+      }
+      if (values[1]['Value'] && this.item?.Id == 0) {
+        let idTaxOput = JSON.parse(values[1]['Value']).Id;
+        this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
+        this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
+      }
+      if (values[2] && values[2].data) {
+        lib.buildFlatTree(values[2].data, []).then((result: any) => {
+          this.itemGroupList = result;
         });
-        this.markNestedNode(this.branchInWarehouse, this.selectedBranch);
-
-        super.preLoadData();
-      });
+      }
+      if (values[3] && values[3].data) {
+        this.putawayStrategyList = values[3].data;
+      }
+      if (values[4] && values[4].data) {
+        this.allocationStrategyList = values[4].data;
+      }
+      if (values[5] && values[5]) {
+        this.ExpiryUnitList = values[5];
+      }
+      if (values[6] && values[6].data) {
+        this.storerList = values[6].data;
+      }
+      if (values[7]) {
+        this.ItemTypeList = values[7];
+      }
+      if (values[8]) {
+        this.RotationList = values[8];
+      }
+      if (values[9]) {
+        this.RotateByList = values[9];
+      }
+      if (values[10] && values[10].data?.length) {
+        this._vendorDataSource.selected.push(...values[10].data);
+      }
+      if (values[11] && values[11].data?.length) {
+        this.inputTaxList = values[11]['data'].filter((d) => d.Category == 'InputTax');
+        this.outputTaxList = values[11]['data'].filter((d) => d.Category == 'OutputTax');
+      }
+      super.preLoadData();
     });
 
     // this.env.getType('PlanningMethod').then((result: any) => {
@@ -457,14 +452,8 @@ export class ItemDetailPage extends PageBase {
   changeIDBranch(ev) {
     this.selectedBranch = ev;
     this.selectBranch();
-    this.saveChange();
   }
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
-    });
-  }
+
   patchItemUoMs(){
     this.formGroup.controls.ItemUoMs = new FormArray([]);
     if (this.item?.ItemUoMs && this.item?.ItemUoMs.length) {
@@ -890,27 +879,8 @@ export class ItemDetailPage extends PageBase {
         i.get('BaseQuantity').setValue(1);
         i.get('BaseQuantity').markAsDirty();
       }
-
       return (this.saveChange2(i,null,this.itemUoMProvider))
-   
-    //this.saveChange2(i,null,this.itemUoMProvider)
-
   }
-
-  // addUoM() {
-  //   this.checkCreatedItem().then(() => {
-  //     let newUoM = {
-  //       Id: 0,
-  //       IDItem: this.selectedBranch ? this.id : this.item?.Id,
-  //       AlternativeQuantity: 1,
-  //       BaseQuantity: 1,
-  //       IsBaseUoM: this.UoMs.filter((d) => d.IsBaseUoM).length == 0,
-  //       Name: 'N/A',
-  //     };
-  //     this.UoMs.push(newUoM);
-  //     this.saveUoM(newUoM);
-  //   });
-  // }
   checkingUoMBeforeAdd(){
     let uomGroup = this.formGroup.get('ItemUoMs') as FormArray;
     if(uomGroup.controls.length == 0 || !uomGroup.controls.some(d=> d.get('IsBaseUoM').value)){
@@ -1212,30 +1182,5 @@ export class ItemDetailPage extends PageBase {
       return;
     }
     i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
-  }
-
-  searchItemGroupShowAllChildren = (term: string, ids: any): any => {
-    return super.searchShowAllChildren(term, ids, this.itemGroupList);
-  };
-
-  searchItemTypeShowAllChildren = (term: string, ids: any): any => {
-    return super.searchShowAllChildren(term, ids, this.ItemTypeList);
-  };
-
-  searchResultIdBranchList = { term: '', ids: [] };
-  searchBranchShowAllChildren = (term: string, item: any): any => {
-    if (this.searchResultIdBranchList.term != term) {
-      this.searchResultIdBranchList.term = term;
-      let source = this.env.branchList;
-      this.searchResultIdBranchList.ids = lib.searchTreeReturnId(source, term);
-    }
-    return this.searchResultIdBranchList.ids.indexOf(item.Id) > -1;
-  };
-
-  private isShowButtonAddConfig() {
-    let groups = this.formGroup.controls.WMS_ItemInWarehouseConfig as FormArray;
-    if (groups.controls.find((d) => !d.get('Id').value)) {
-      return false;
-    } else return true;
   }
 }

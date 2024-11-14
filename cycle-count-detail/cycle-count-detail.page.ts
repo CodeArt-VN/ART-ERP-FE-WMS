@@ -19,8 +19,6 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
-import { lib } from 'src/app/services/static/global-functions';
-import { er, s } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'app-cycle-count-detail',
@@ -99,29 +97,13 @@ export class CycleCountDetailPage extends PageBase {
       { Name: 'Kiểm thẩm định', Code: 'Validation' },
     ];
 
+    this.branchList = [...this.env.branchList];
     this.schemaService.getAnItem(13).then((value: any) => {
       if (value) this.schema = value;
+      super.preLoadData(event);
+    }).catch(err=>{
+      super.preLoadData(event);
     });
-      this.branchProvider
-      .read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren })
-      .then((resp) => {
-        lib
-          .buildFlatTree(resp['data'], this.branchList)
-          .then((result: any) => {
-            this.branchList = lib.cloneObject(result);
-            this.branchList.forEach((i) => {
-              i.disabled = true;
-            if(i.Type == 'Warehouse') i.disabled = false;
-  
-            });
-            this.markNestedNode(this.branchList, this.env.selectedBranch);
-            super.preLoadData(event);
-          })
-          .catch((err) => {
-            this.env.showMessage(err);
-            console.log(err);
-          });
-      });
    
   }
 
@@ -974,7 +956,6 @@ export class CycleCountDetailPage extends PageBase {
     let submitItem = this.getDirtyValues(this.formGroup);
     super.saveChange2();
   }
-
   changeStatusTask(i, e = null) {
     if (this.submitAttempt) return;
 
