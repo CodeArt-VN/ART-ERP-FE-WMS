@@ -69,25 +69,34 @@
     <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
     <div *ngIf="pageConfig.showSpinner==false">
       <div class="ion-padding" style="padding-bottom: 0">
-        <div class="c-control">
+        <div class="c-control" *ngIf="formGroup.get('Id').value>0">
+          <app-form-control 
+          [field]="{branchConfig:{selectedBranch:this.formGroup.get('IDBranch').value, showingMode:'showSelectedAndChildren'},
+            id: 'IDBranchItemInBranch', label: 'Branch', type: 'ng-select-branch',dataSource:branchList, form: formGroup,bindLabel:'Name',bindValue:'Id',clearable:true}"
+          (controlChange)="changeIDBranchItemInBranch($event)" >
+        </app-form-control>
+        </div>
+    
+        <!-- <div class="c-control">
           <label class="c-label" for="IDBranch">
             <ion-text color="primary"> {{'Branch' | translate}} </ion-text>
           </label>
-          <ng-select class="c-input no-check-dirty" [searchFn]="searchBranchShowAllChildren" (change)="selectBranch();"
+
+          <ng-select class="c-input no-check-dirty" [searchFn]="searchShowAllChildren" (change)="selectBranch();"
             [clearable]="true" appendTo="" #IDBranch [(ngModel)]="selectedBranch" labelForId="IDBranch" [disabled]="formGroup.get('IDBranch').value"
-            [items]="branchList" bindLabel="Name" bindValue="" placeholder="{{'Select unit' | translate}}">
+            [items]="branchList" bindLabel="Name" bindValue=""placeholder="{{'Select unit' | translate}}">
             <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
               <div *ngIf="i">
                 <div>
                   <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <ion-text [color]=" i.Type == 'Company'? 'primary':'dark'" [ngOptionHighlight]="search"
+                  <ion-text class="text-warp" [color]=" i.Type == 'Company'? 'primary':'dark'" [ngOptionHighlight]="search"
                     >{{i.Name}}</ion-text
                   >
                 </div>
               </div>
             </ng-template>
           </ng-select>
-        </div>
+        </div> -->
       </div>
       <div>
         <ion-list-header lines="full">
@@ -127,7 +136,7 @@
           >
           </app-page-title>
           <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-          <div class="main-view" *ngIf="pageConfig.showSpinner == false">
+          <div class="main-view" *ngIf="pageConfig?.showSpinner == false">
             <div class="row-full shadow full-screen ion-padding">
               <ion-grid fixed class="grid-child">
                 <div>
@@ -164,11 +173,15 @@
                                 (change)="saveChange()"
                               >
                               </app-form-control>
-                              <div class="c-control" *ngIf="pageConfig.canChangeBranch">
-                                <label class="c-label" for="IDBranch">
+                            
+                              <app-form-control  *ngIf="pageConfig.canChangeBranch"
+                              [field]="{id: 'IDBranch', label: 'Branch', type: 'ng-select-branch',dataSource:branchList, form: formGroup,bindLabel:'Name',bindValue:'Id',clearable:true}"
+                              (controlChange)="changeIDBranch($event)">
+                            </app-form-control>
+                                <!-- <label class="c-label" for="IDBranch">
                                   <ion-text color="primary"> {{'Branch' | translate}} </ion-text>
-                                </label>
-                              <ng-select
+                                </label> -->
+                              <!-- <ng-select
                               class="c-input"
                               #IDDepartment
                               (change)="changeIDBranch($event);"
@@ -189,8 +202,7 @@
                                   </div>
                                 </div>
                               </ng-template>
-                            </ng-select>
-                            </div>
+                            </ng-select> -->
                               <app-form-control
                                 [field]="{id: 'Expiry', label: 'Shelf life from manufactured date', type: 'number', form: formGroup }"
                                 (change)="saveChange()"
@@ -264,14 +276,14 @@
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control id="ng-select-holder"
                                 [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',
-                                  treeConfig:{searchFn:searchItemGroupShowAllChildren,isTree:true, isCollapsed:true}}"
+                                  treeConfig:{searchFnDefault:true,isTree:true, isCollapsed:true}}"
                                   (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
                                 [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' ,
-                                treeConfig:{searchFn:searchItemTypeShowAllChildren,isTree:true,isCollapsed : true}}"
+                                treeConfig:{searchFnDefault:true,isTree:true,isCollapsed : true}}"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -483,9 +495,9 @@
                         <header class="bold" style="padding-right: 0">
                           <div class="col-checkbox cell">{{'Original unit' | translate}}</div>
                           <div class="col-checkbox cell">{{'Lẻ KT' | translate}}</div>
-                          <div class="col-checkbox cell" style="padding:0 !important">{{'Purchase' | translate}}</div>
-                          <div class="col-checkbox cell">{{'warehousing' | translate}}</div>
-                          <div class="col-checkbox cell">{{'Sales' | translate}}</div>
+                          <div class="col-checkbox cell" *ngIf="formGroup.get('IsPurchaseItem').value" style="padding:0 !important" >{{'Purchase' | translate}}</div>
+                          <div class="col-checkbox cell" *ngIf="formGroup.get('IsInventoryItem').value">{{'warehousing' | translate}}</div>
+                          <div class="col-checkbox cell" *ngIf="formGroup.get('IsSalesItem').value">{{'Sales' | translate}}</div>
                           <div class="col1 cell">{{'Cứ' | translate}}</div>
                           <div class="col2 cell">{{'Unit' | translate}}</div>
                           <div class="col3 cell">=</div>
@@ -504,7 +516,7 @@
                             <ion-checkbox  *ngIf="i.get('Id').value"
                             [checked]="i.controls['IsBaseUoM'].value"
                             (ionChange)="changeBaseUoM(i)"
-                              formControlName="IsBaseUoM"
+                            formControlName="IsBaseUoM"
                             ></ion-checkbox>
                           </div>
                           <div class="col-checkbox cell">
@@ -515,34 +527,34 @@
                             ></ion-checkbox>
                           </div>
                           <!-- (click)="item.PurchasingUoM = pageConfig.canEditUoM ? formGroup.get('Id').value: formGroup.get('PurchasingUoM').value; branchSelected ? updateUoMInBranch() : updateUoM()" -->
-                          <div class="col-checkbox cell" >
-                            <ion-checkbox  *ngIf="i.get('Id').value"
+                          <div class="col-checkbox cell" *ngIf="formGroup.get('IsPurchaseItem').value" >
+                            <ion-checkbox 
                               (ionChange)="changeFGUoM($event,i,'PurchasingUoM')"
-                              [disabled]="!pageConfig.canEditUoM || submitAttempt"
+                              [disabled]="!pageConfig.canEditUoM || submitAttempt || formGroup.get('PurchasingUoM').value == i.get('Id').value || !i.get('Id').value"
                               [checked]="formGroup.get('PurchasingUoM').value == i.get('Id').value"
                             ></ion-checkbox>
                           </div>
 
                           <!-- (click)="item.InventoryUoM = pageConfig.canEditUoM ? i.Id: item.InventoryUoM; branchSelected ? updateUoMInBranch() : updateUoM()" > -->
-                          <div class="col-checkbox cell">
-                          <ion-checkbox  *ngIf="i.get('Id').value"
-                          [disabled]="!pageConfig.canEditUoM || submitAttempt"
+                          <div class="col-checkbox cell" *ngIf="formGroup.get('IsInventoryItem').value">
+                          <ion-checkbox 
+                          [disabled]="!pageConfig.canEditUoM || submitAttempt || formGroup.get('InventoryUoM').value ==i.get('Id').value|| !i.get('Id').value"
                           (ionChange)="changeFGUoM($event,i,'InventoryUoM')"
                           [checked]="formGroup.get('InventoryUoM').value ==i.get('Id').value" >
                           </ion-checkbox>
                         </div>
 
                         <!-- (click)="item.SalesUoM = pageConfig.canEditUoM ? i.Id: item.SalesUoM; branchSelected ? updateUoMInBranch() : updateUoM()" -->
-                        <div class="col-checkbox cell">
-                        <ion-checkbox *ngIf="i.get('Id').value"
+                        <div class="col-checkbox cell" *ngIf="formGroup.get('IsSalesItem').value">
+                        <ion-checkbox
                         (ionChange)="changeFGUoM($event,i,'SalesUoM')"
-                        [disabled]="!pageConfig.canEditUoM || submitAttempt"
+                        [disabled]="!pageConfig.canEditUoM || submitAttempt || formGroup.get('SalesUoM').value == i.get('Id').value|| !i.get('Id').value"
                         [checked]="formGroup.get('SalesUoM').value == i.get('Id').value"
                         ></ion-checkbox>
                       </div>
 
                       <div class="col1 cell">
-                        <app-input-control *ngIf="!i.get('IsBaseUoM').value && i.get('Id').value"
+                        <app-input-control *ngIf="!i.get('IsBaseUoM').value"
                          [field]="{id:'AlternativeQuantity',label:'Alternative quantity',type:'number',form:i}"  
                          (change)="saveUoM(i)"></app-input-control>
                         <!-- <input
@@ -566,7 +578,7 @@
                         <span *ngIf="!i.get('IsBaseUoM').value">=</span>
                       </div>
                       <div class="col4 cell">
-                        <app-input-control *ngIf="!i.get('IsBaseUoM').value && i.get('Id').value"
+                        <app-input-control *ngIf="!i.get('IsBaseUoM').value"
                         [field]="{id:'BaseQuantity',label:'Base quantity',type:'number',form:i}"  
                         (change)="saveUoM(i)"></app-input-control>
                         <!-- <input
@@ -603,52 +615,25 @@
                         <app-input-control  *ngIf="i.get('Id').value"
                         [field]="{id:'Width',label:'Width',type:'number',form:i}"  
                         (change)="saveUoM(i)"></app-input-control>
-                        <!-- <input
-                          [disabled]="!pageConfig.canEditUoM "
-                          (change)="saveUoM(i)"
-                          class="c-input"
-                          [(ngModel)]="i.Width"
-                          type="number"
-                          min="0"
-                        /> -->
                       </div>
+
                       <div class="col7 cell">
                         <app-input-control  *ngIf="i.get('Id').value"
                         [field]="{id:'Height',label:'Height',type:'number',form:i}"  
                         (change)="saveUoM(i)"></app-input-control>
-                        <!-- <input
-                          [disabled]="!pageConfig.canEditUoM "
-                          (change)="saveUoM(i)"
-                          class="c-input"
-                          [(ngModel)]="i.Height"
-                          type="number"
-                          min="0"
-                        /> -->
                       </div>
+
                       <div class="col8 cell">
                         <app-input-control *ngIf="i.get('Id').value"
                         [field]="{id:'Weight',label:'Weight',type:'number',form:i}"  
                         (change)="saveUoM(i)"></app-input-control>
-                        <!-- <input
-                          [disabled]="!pageConfig.canEditUoM "
-                          (change)="saveUoM(i)"
-                          class="c-input"
-                          [(ngModel)]="i.Weight"
-                          type="number"
-                          min="0"
-                        /> -->
                       </div>
+
                       <div class="col2 cell">
                         <app-input-control  *ngIf="i.get('Id').value"
                         [field]="{id:'Barcode',label:'Barcode',type:'number',form:i}"  
                         (change)="saveUoM(i)"></app-input-control>
-                        <!-- <input
-                          [disabled]="!pageConfig.canEditUoM "
-                          (change)="saveUoM(i)"
-                          class="c-input"
-                          [(ngModel)]="i.Barcode"
-                          type="text"
-                        /> -->
+                     
                       </div>
                           <div class="col3 cell" *ngIf="pageConfig.canDeleteUoM && pageConfig.canEditTrans">
                             <ion-icon
@@ -663,7 +648,7 @@
                       </section>
                       <div
                         class="row"
-                        *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && !this.selectedBranch && this.formGroup.get('ItemUoMs').valid) && this.id"
+                        *ngIf="(pageConfig.canAddUoM && pageConfig.canEditTrans && this.formGroup.get('ItemUoMs').valid) && this.id"
                       >
                         <div class="cell">
                           <ion-button fill="clear" size="small" (click)="checkingUoMBeforeAdd()">
@@ -824,8 +809,9 @@
                                 </ion-col>
                                 <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                                   <app-form-control
-                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id',
-                                    treeConfig:{searchFn:searchBranchShowAllChildren,isTree:true}}"
+                                  [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id',
+                                    branchConfig:{showingType:'Warehouse'},
+                                    treeConfig:{searchFnDefault:true}}"
                                   (controlChange)="changeBranchInWarehouse(config);"
                                   >
                                   </app-form-control>
@@ -917,7 +903,7 @@
                             </ion-row>
                           </ng-container>
                         </form>
-                        <ion-row class="hr-group" *ngIf="this.id && isShowButtonAddConfig()">
+                        <ion-row class="hr-group" *ngIf="this.id && formGroup.get('WMS_ItemInWarehouseConfig').valid">
                           <ion-col size="12" size-md="12" size-lg="12" size-xl="4" offset-xl="4">
                             <ion-button
                               [disabled]="!(pageConfig.canEdit || pageConfig.canAdd)"
@@ -968,39 +954,16 @@
                             </ion-col>
                             <ion-col size="12" size-sm size-xl="6">
                               <app-form-control
-                                  [field]="{id: 'PlanningMeThod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code'                                     
-                                  ,treeConfig:{isTree:true,isCollapsed : true}}"
+                                  [field]="{id: 'PlanningMethod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code', placeholder:'Search'}"
+                                  (controlChange)="saveItemInBranch();" >
+                              </app-form-control>
 
-                                  (controlChange)="saveItemInBranch();"
-                                  >
-                                  </app-form-control>
+                              <app-form-control
+                              [field]="{id: 'ProcurementMethod', label: 'Procurement Method', type: 'ng-select', form: formGroup,  dataSource: ProcurementMethodList,  bindLabel: 'Name',  bindValue: 'Code', placeholder:'Search'}"
+                              (controlChange)="saveItemInBranch();" >
+                              </app-form-control>
+                              <!-- [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))" -->
 
-                           
-                              <div class="c-control">
-                                <label class="c-label" for="ProcurementMethod"
-                                  >{{'Procurement Method' | translate}}
-                                </label>
-                                <ng-select
-                                  class="c-input"
-                                  (change)="saveItemInBranch();"
-                                  [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
-                                  labelForId="ProcurementMethod"
-                                  formControlName="ProcurementMethod"
-                                  [items]="ProcurementMethodList"
-                                  bindLabel="Name"
-                                  bindValue="Code"
-                                  placeholder="{{'Search' | translate}}"
-                                >
-                                  <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                                    <div *ngIf="i">
-                                      <div>
-                                        <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                                        <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                                      </div>
-                                    </div>
-                                  </ng-template>
-                                </ng-select>
-                              </div>
                               <div class="c-control">
                                 <label class="c-label" for="OrderInterval">{{'Order Interval' | translate}} </label>
                                 <ng-select

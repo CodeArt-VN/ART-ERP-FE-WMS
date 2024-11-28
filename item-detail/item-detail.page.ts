@@ -228,7 +228,7 @@ export class ItemDetailPage extends PageBase {
       InventoryLevelRequired: [''],
       InventoryLevelMinimum: [''],
       InventoryLevelMaximum: [''],
-      PlanningMeThod: [''],
+      PlanningMethod: [''],
       ProcurementMethod: [''],
       OrderInterval: [''],
       OrderMultiple: [''],
@@ -240,6 +240,7 @@ export class ItemDetailPage extends PageBase {
       ItemUoMs : this.formBuilder.array([]),
       VendorIds: [],
       IDItemInBranch: [],
+      IDBranchItemInBranch: [],
       IDItem: [],
       TreeType: [],
     });
@@ -258,7 +259,8 @@ export class ItemDetailPage extends PageBase {
   vendorList = [];
 
   preLoadData(event) {
-    this.branchList = [...this.env.branchList.filter((d) => d.Type != 'TitlePosition')];
+    this.branchList = [...this.env.branchList];
+    this.branchInWarehouse = lib.cloneObject(this.env.branchList);
 
     this.uomProvider.read().then((resp) => {
       this.uomList = resp['data'];
@@ -273,111 +275,110 @@ export class ItemDetailPage extends PageBase {
       this.cartonGroupList = resp['data'];
     });
 
-    this.taxProvider.read().then((resp) => {
-      this.inputTaxList = resp['data'].filter((d) => d.Category == 'InputTax');
-      this.outputTaxList = resp['data'].filter((d) => d.Category == 'OutputTax');
-
-      Promise.all([
-        this.pageProvider.commonService
-          .connect('GET', 'SYS/Config/ConfigByBranch', {
-            Code: 'TaxInput',
-            IDBranch: this.env.selectedBranch,
-          })
-          .toPromise(),
-        this.pageProvider.commonService
-          .connect('GET', 'SYS/Config/ConfigByBranch', {
-            Code: 'TaxOutput',
-            IDBranch: this.env.selectedBranch,
-          })
-          .toPromise(),
-        this.itemGroupProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 5000,
-          Skip: 0,
-          SkipMCP: true,
-          SkipAddress: true,
-        }),
-        this.putawayStrategyProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 5000,
-          Skip: 0,
-        }),
-        this.allocationStrategyProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 5000,
-          Skip: 0,
-        }),
-        this.env.getType('ExpiryUnit'),
-        this.contactProvider.read({ IsStorer: true, Take: 5000 }),
-        this.env.getType('ItemType', true),
-        this.env.getType('Rotation'),
-        this.env.getType('RotateBy'),
-        this.contactProvider.read({
-          SortBy: ['Id_desc'],
-          Take: 20,
-          Skip: 0,
-          IsVendor: true,
-          SkipAddress: true,
-        }),
-      ]).then((values: any) => {
-        if (values[0]['Value'] && this.item?.Id == 0) {
-          let idTaxInput = JSON.parse(values[0]['Value']).Id;
-          this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
-          this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
-        }
-        if (values[1]['Value'] && this.item?.Id == 0) {
-          let idTaxOput = JSON.parse(values[1]['Value']).Id;
-          this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
-          this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
-        }
-        if (values[2] && values[2].data) {
-          lib.buildFlatTree(values[2].data, []).then((result: any) => {
-            this.itemGroupList = result;
-          });
-        }
-        if (values[3] && values[3].data) {
-          this.putawayStrategyList = values[3].data;
-        }
-        if (values[4] && values[4].data) {
-          this.allocationStrategyList = values[4].data;
-        }
-        if (values[5] && values[5]) {
-          this.ExpiryUnitList = values[5];
-        }
-        if (values[6] && values[6].data) {
-          this.storerList = values[6].data;
-        }
-        if (values[7]) {
-          this.ItemTypeList = values[7];
-        }
-        if (values[8]) {
-          this.RotationList = values[8];
-        }
-        if (values[9]) {
-          this.RotateByList = values[9];
-        }
-        if (values[10] && values[10].data?.length) {
-          this._vendorDataSource.selected.push(...values[10].data);
-        }
-        this.branchInWarehouse = lib.cloneObject(this.env.branchList);
-        this.branchInWarehouse.forEach((i) => {
-          i.disabled = true;
+    Promise.all([
+      this.pageProvider.commonService
+        .connect('GET', 'SYS/Config/ConfigByBranch', {
+          Code: 'TaxInput',
+          IDBranch: this.env.selectedBranch,
+        })
+        .toPromise(),
+      this.pageProvider.commonService
+        .connect('GET', 'SYS/Config/ConfigByBranch', {
+          Code: 'TaxOutput',
+          IDBranch: this.env.selectedBranch,
+        })
+        .toPromise(),
+      this.itemGroupProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 5000,
+        Skip: 0,
+        SkipMCP: true,
+        SkipAddress: true,
+      }),
+      this.putawayStrategyProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 5000,
+        Skip: 0,
+      }),
+      this.allocationStrategyProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 5000,
+        Skip: 0,
+      }),
+      this.env.getType('ExpiryUnit'),
+      this.contactProvider.read({ IsStorer: true, Take: 5000 }),
+      this.env.getType('ItemType', true),
+      this.env.getType('Rotation'),
+      this.env.getType('RotateBy'),
+      this.contactProvider.read({
+        SortBy: ['Id_desc'],
+        Take: 20,
+        Skip: 0,
+        IsVendor: true,
+        SkipAddress: true,
+      }),
+      this.taxProvider.read(),
+      this.env.getType('PlanningMethod'),
+      
+      this.env.getType('ProcurementMethod'),
+      this.env.getType('OrderInterval')
+    ]).then((values: any) => {
+      if (values[0]['Value'] && this.item?.Id == 0) {
+        let idTaxInput = JSON.parse(values[0]['Value']).Id;
+        this.formGroup.controls.IDPurchaseTaxDefinition.setValue(idTaxInput);
+        this.formGroup.controls.IDPurchaseTaxDefinition.markAsDirty();
+      }
+      if (values[1]['Value'] && this.item?.Id == 0) {
+        let idTaxOput = JSON.parse(values[1]['Value']).Id;
+        this.formGroup.controls.IDSalesTaxDefinition.setValue(idTaxOput);
+        this.formGroup.controls.IDSalesTaxDefinition.markAsDirty();
+      }
+      if (values[2] && values[2].data) {
+        lib.buildFlatTree(values[2].data, []).then((result: any) => {
+          this.itemGroupList = result;
         });
-        this.markNestedNode(this.branchInWarehouse, this.selectedBranch);
-
-        super.preLoadData();
-      });
+      }
+      if (values[3] && values[3].data) {
+        this.putawayStrategyList = values[3].data;
+      }
+      if (values[4] && values[4].data) {
+        this.allocationStrategyList = values[4].data;
+      }
+      if (values[5] && values[5]) {
+        this.ExpiryUnitList = values[5];
+      }
+      if (values[6] && values[6].data) {
+        this.storerList = values[6].data;
+      }
+      if (values[7]) {
+        this.ItemTypeList = values[7];
+      }
+      if (values[8]) {
+        this.RotationList = values[8];
+      }
+      if (values[9]) {
+        this.RotateByList = values[9];
+      }
+      if (values[10] && values[10].data?.length) {
+        this._vendorDataSource.selected.push(...values[10].data);
+      }
+      if (values[11] && values[11].data?.length) {
+        this.inputTaxList = values[11]['data'].filter((d) => d.Category == 'InputTax');
+        this.outputTaxList = values[11]['data'].filter((d) => d.Category == 'OutputTax');
+      }
+      if(values[12]){
+        this.PlanningMethodList =  values[12];
+      }
+      if(values[13]){
+        this.ProcurementMethodList =  values[13];
+      }
+      if(values[14]){
+        this.OrderIntervalList =  values[14];
+      }
+      super.preLoadData();
     });
 
-    // this.env.getType('PlanningMethod').then((result: any) => {
-    //   this.PlanningMethodList = result;
-    // });
-    // this.env.getType('ProcurementMethod').then((result: any) => {
-    //   this.ProcurementMethodList = result;
-    // });
-    // this.env.getType('OrderInterval').then((result: any) => {
-    //   this.OrderIntervalList = result;
-    // });
+  
     setTimeout(() => {
       this.loadNode();
     }, 0);
@@ -397,13 +398,16 @@ export class ItemDetailPage extends PageBase {
       }
     });
     if (this.formGroup.get('IDBranch').value){
-      this.selectedBranch = this.env.branchList.find((d) => d.Id == this.formGroup.get('IDBranch').value);
+      this.formGroup.get('IDBranchItemInBranch').setValue(this.formGroup.get('IDBranch').value);
+      this.changeIDBranchItemInBranch();
+      this.formGroup.get('IDBranchItemInBranch').disable();
+      // this.selectedBranch = this.env.branchList.find((d) => d.Id == this.formGroup.get('IDBranch').value);
     }
-    if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
+    if (this.formGroup.get('IDBranchItemInBranch').value && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
       this.formGroup.get('InventoryLevelRequired').enable();
       this.formGroup.get('InventoryLevelMinimum').enable();
       this.formGroup.get('InventoryLevelMaximum').enable();
-      this.formGroup.get('PlanningMeThod').enable();
+      this.formGroup.get('PlanningMethod').enable();
       this.formGroup.get('ProcurementMethod').enable();
       this.formGroup.get('OrderInterval').enable();
       this.formGroup.get('OrderMultiple').enable();
@@ -415,7 +419,7 @@ export class ItemDetailPage extends PageBase {
       this.formGroup.get('InventoryLevelRequired').disable();
       this.formGroup.get('InventoryLevelMinimum').disable();
       this.formGroup.get('InventoryLevelMaximum').disable();
-      this.formGroup.get('PlanningMeThod').disable();
+      this.formGroup.get('PlanningMethod').disable();
       this.formGroup.get('ProcurementMethod').disable();
       this.formGroup.get('OrderInterval').disable();
       this.formGroup.get('OrderMultiple').disable();
@@ -455,15 +459,51 @@ export class ItemDetailPage extends PageBase {
   }
 
   changeIDBranch(ev) {
-    this.selectedBranch = ev;
-    this.selectBranch();
-    this.saveChange();
-  }
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
+    this.saveChange().then(rs=>{
+      this.formGroup.get('IDBranchItemInBranch').setValue(this.formGroup.get('IDBranch').value);
+      this.changeIDBranchItemInBranch();
+      if(this.formGroup.get('IDBranch').value){
+        this.formGroup.get('IDBranchItemInBranch').disable();
+      
+      }
+      else this.formGroup.get('IDBranchItemInBranch').enable();
+    }).catch(err=>{
+      if(err) this.env.showMessage(err,  'warning');
+      else this.env.showMessage('Cannot save, please try again', 'danger');
     });
+   
+      // this.selectedBranch = this.env.branchList.find((d) => d.Id == this.formGroup.get('IDBranch').value);
+    // this.selectedBranch = e
+    // this.selectBranch();
+  }
+  changeIDBranchItemInBranch(){
+    this.loadItemInBranch();
+    this.loadNode();
+    if (this.formGroup.get('IDBranchItemInBranch').value && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
+      this.formGroup.get('InventoryLevelRequired').enable();
+      this.formGroup.get('InventoryLevelMinimum').enable();
+      this.formGroup.get('InventoryLevelMaximum').enable();
+      this.formGroup.get('PlanningMethod').enable();
+      this.formGroup.get('ProcurementMethod').enable();
+      this.formGroup.get('OrderInterval').enable();
+      this.formGroup.get('OrderMultiple').enable();
+      this.formGroup.get('MinimumOrderQty').enable();
+      this.formGroup.get('CheckingRule').enable();
+      this.formGroup.get('LeadTime').enable();
+      this.formGroup.get('ToleranceDays').enable();
+    } else {
+      this.formGroup.get('InventoryLevelRequired').disable();
+      this.formGroup.get('InventoryLevelMinimum').disable();
+      this.formGroup.get('InventoryLevelMaximum').disable();
+      this.formGroup.get('PlanningMethod').disable();
+      this.formGroup.get('ProcurementMethod').disable();
+      this.formGroup.get('OrderInterval').disable();
+      this.formGroup.get('OrderMultiple').disable();
+      this.formGroup.get('MinimumOrderQty').disable();
+      this.formGroup.get('CheckingRule').disable();
+      this.formGroup.get('LeadTime').disable();
+      this.formGroup.get('ToleranceDays').disable();
+    }
   }
   patchItemUoMs(){
     this.formGroup.controls.ItemUoMs = new FormArray([]);
@@ -489,7 +529,7 @@ export class ItemDetailPage extends PageBase {
       IDItem: [u?.IDItem || this.formGroup.get('Id').value],
       IDUoM:[u?.IDUoM],
       Name: [u?.Name || "N/A",[Validators.required, Validators.pattern(/^(?!N\/A$).*/)]],
-      AlternativeQuantity:[u?.AlternativeQuantity],
+      AlternativeQuantity:[u?.AlternativeQuantity,[Validators.required]],
       BaseQuantity: [u?.BaseQuantity],
       IsBaseUoM: [u?.IsBaseUoM || false],
       Length:[u?.Length],
@@ -500,13 +540,9 @@ export class ItemDetailPage extends PageBase {
     }) 
     group.get('Id').markAsDirty();
     group.get('IDItem').markAsDirty();
-    if(markAsDirty){
-     group.get('IsBaseUoM').markAsDirty();
-    }
+
     groups.push(group);
-    if(this.item?.TransactionsExist || this.selectedBranch){
-      group.get('IsBaseUoM').disable();
-    }
+    this.validateUoMForm(group);
   }
  
   setItemConfigs() {
@@ -641,40 +677,9 @@ export class ItemDetailPage extends PageBase {
   changeGroup() {
     this.env.setStorage('item.IDItemGroup', this.item?.IDItemGroup);
   }
-
-  selectBranch() {
-    this.loadItemInBranch();
-    this.loadNode();
-    if (this.selectedBranch && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {
-      this.formGroup.get('InventoryLevelRequired').enable();
-      this.formGroup.get('InventoryLevelMinimum').enable();
-      this.formGroup.get('InventoryLevelMaximum').enable();
-      this.formGroup.get('PlanningMeThod').enable();
-      this.formGroup.get('ProcurementMethod').enable();
-      this.formGroup.get('OrderInterval').enable();
-      this.formGroup.get('OrderMultiple').enable();
-      this.formGroup.get('MinimumOrderQty').enable();
-      this.formGroup.get('CheckingRule').enable();
-      this.formGroup.get('LeadTime').enable();
-      this.formGroup.get('ToleranceDays').enable();
-    } else {
-      this.formGroup.get('InventoryLevelRequired').disable();
-      this.formGroup.get('InventoryLevelMinimum').disable();
-      this.formGroup.get('InventoryLevelMaximum').disable();
-      this.formGroup.get('PlanningMeThod').disable();
-      this.formGroup.get('ProcurementMethod').disable();
-      this.formGroup.get('OrderInterval').disable();
-      this.formGroup.get('OrderMultiple').disable();
-      this.formGroup.get('MinimumOrderQty').disable();
-      this.formGroup.get('CheckingRule').disable();
-      this.formGroup.get('LeadTime').disable();
-      this.formGroup.get('ToleranceDays').disable();
-    }
-  }
-
   loadInventory() {
     const branchList = this.env.branchList;
-    const selectedBranchId = this.selectedBranch?.Id;
+    const selectedBranchId = this.formGroup.get('IDBranchItemInBranch').value;
     let selectedBranch = [selectedBranchId];
     const findChildren = (parentId: number) => {
       const findChild = (parentId: any) => {
@@ -725,10 +730,10 @@ export class ItemDetailPage extends PageBase {
   }
 
   loadItemInBranch() {
-    if (this.selectedBranch) {
+    if (this.formGroup.get('IDBranchItemInBranch').value) {
       let query = {
         IDItem: this.id,
-        IDBranch: this.selectedBranch.Id,
+        IDBranch: this.formGroup.get('IDBranchItemInBranch').value,
       };
    //   this.query.IdItem = this.id;
     //  this.query.IDBranch = this.selectedBranch.Id;
@@ -738,15 +743,18 @@ export class ItemDetailPage extends PageBase {
           'Please wait for a few moments',
           this.itemInBranchProvider.commonService.connect('GET','WMS/ItemInBranch/',query).toPromise()
             .then((data: any) => {
+              let formGroupIDBranch = this.formGroup.get('IDBranch').value;
+              let IDBranchItemInBranch = this.formGroup.get('IDBranchItemInBranch').value
               if (data) {
                 this.item = data;
                 this.formGroup?.patchValue(this.item);
                 this.formGroup?.markAsPristine();
-                this.cdr.detectChanges();
               } else {
                 this.item.IDItemInBranch = 0;
                 this.resetItemInBranch();
               }
+              this.formGroup.get('IDBranchItemInBranch').setValue(IDBranchItemInBranch);
+              this.formGroup.get('IDBranch').setValue(formGroupIDBranch);
             }),
         )
         .catch((error) => {
@@ -762,7 +770,6 @@ export class ItemDetailPage extends PageBase {
           this.item = ite;
           this.formGroup?.patchValue(this.item);
           this.formGroup?.markAsPristine();
-          this.cdr?.detectChanges();
         })
         .catch((err) => {
           console.log(err);
@@ -779,10 +786,11 @@ export class ItemDetailPage extends PageBase {
   resetItemInBranch() {
     this.formGroup.patchValue({
       IDItemInBranch: 0,
+      IDBranchItemInBranch: null,
       InventoryLevelRequired: '',
       InventoryLevelMinimum: '',
       InventoryLevelMaximum: '',
-      PlanningMeThod: '',
+      PlanningMethod: '',
       ProcurementMethod: '',
       OrderInterval: '',
       OrderMultiple: '',
@@ -835,6 +843,7 @@ export class ItemDetailPage extends PageBase {
       i.get('BaseQuantity').markAsDirty();
       currentBaseUoM?.get('IsBaseUoM').setValue(false);
       currentBaseUoM?.get('IsBaseUoM').markAsDirty();
+      currentBaseUoM?.get('BaseQuantity').setValue(null);
       this.baseUomName = i.get('Name').value;
       this.saveMasterDataOrItemInBranch();
       }
@@ -886,31 +895,10 @@ export class ItemDetailPage extends PageBase {
         i.get('AlternativeQuantity').setValue(1);
         i.get('AlternativeQuantity').markAsDirty();
       }
-      if (!i.get('BaseQuantity').value) {
-        i.get('BaseQuantity').setValue(1);
-        i.get('BaseQuantity').markAsDirty();
-      }
-
-      return (this.saveChange2(i,null,this.itemUoMProvider))
-   
-    //this.saveChange2(i,null,this.itemUoMProvider)
-
+      this.saveMasterDataOrItemInBranch();
+      // this.saveChange();
+      //return (this.saveChange2(i,null,this.itemUoMProvider))
   }
-
-  // addUoM() {
-  //   this.checkCreatedItem().then(() => {
-  //     let newUoM = {
-  //       Id: 0,
-  //       IDItem: this.selectedBranch ? this.id : this.item?.Id,
-  //       AlternativeQuantity: 1,
-  //       BaseQuantity: 1,
-  //       IsBaseUoM: this.UoMs.filter((d) => d.IsBaseUoM).length == 0,
-  //       Name: 'N/A',
-  //     };
-  //     this.UoMs.push(newUoM);
-  //     this.saveUoM(newUoM);
-  //   });
-  // }
   checkingUoMBeforeAdd(){
     let uomGroup = this.formGroup.get('ItemUoMs') as FormArray;
     if(uomGroup.controls.length == 0 || !uomGroup.controls.some(d=> d.get('IsBaseUoM').value)){
@@ -1042,18 +1030,17 @@ export class ItemDetailPage extends PageBase {
       });
   }
 
-  async saveItemInBranch() {
-    if (this.selectedBranch) {
-      this. alwaysReturnProps = ['Id', 'IDBranch'];
+   saveItemInBranch() {
+    if (this.formGroup.get('IDBranchItemInBranch').value) {
       return new Promise((resolve, reject) => {
         this.formGroup.updateValueAndValidity();
         if (!this.formGroup.valid) {
           this.env.showMessage('Please recheck information highlighted in red above', 'warning');
         } else if (this.submitAttempt == false) {
-          const idItemInBranch = this.item.IDItemInBranch || 0;
-          this.formGroup.get('IDItem').setValue(this.id);
-          this.formGroup.get('Id').setValue(idItemInBranch);
-          this.formGroup.get('IDBranch').setValue(this.selectedBranch.Id);
+          const idItemInBranch = this.formGroup.get('IDItemInBranch').value || 0;
+       
+          let formGroupIDBranch = this.formGroup.get('IDBranch').value;
+          // this.formGroup.get('IDBranch').setValue(this.formGroup.get('IDBranchItemInBranch').value);
           if (idItemInBranch == 0) {
             this.formGroup.get('TreeType').setValue(this.item?.TreeType);
           }
@@ -1063,20 +1050,29 @@ export class ItemDetailPage extends PageBase {
           this.formGroup.controls.ItemType.markAsDirty();
           this.formGroup.controls.TreeType.markAsDirty();
           this.submitAttempt = true;
-          let submitItem = this.getDirtyValues(this.formGroup);
 
+          let submitItem : any = this.getDirtyValues(this.formGroup);
+          submitItem.IDItem = this.id;
+          submitItem.Id = idItemInBranch;
+          submitItem.IDBranch = this.formGroup.get('IDBranchItemInBranch').value;
           this.itemInBranchProvider
             .save(submitItem, this.pageConfig.isForceCreate)
             .then((savedItem: any) => {
               resolve(savedItem);
-
               if (savedItem) {
-                this.item.IDItemInBranch = savedItem.Id;
+               // savedItem.IDItemInBranch = savedItem.Id;
+                savedItem.IDBranchItemInBranch = savedItem.IDBranch;
+                savedItem.IDBranch = formGroupIDBranch;
+                this.item.IDItemInBranch = savedItem.IDItemInBranch;
+                this.item.IDBranchItemInBranch = savedItem.IDBranch;
+                this.item.IDBranch = formGroupIDBranch;
               }
               this.savedChange(savedItem, this.formGroup);
-              if (this.pageConfig.pageName) this.env.publishEvent({ Code: this.pageConfig.pageName });
-
+              // if (this.pageConfig.pageName) this.env.publishEvent({ Code: this.pageConfig.pageName });
               this.formGroup.get('Id').setValue(this.id);
+              this.formGroup.get('IDBranch').setValue(this.item.IDBranch);
+              this.formGroup.get('IDItemInBranch').setValue( this.item.IDItemInBranch);
+              this.cdr.detectChanges();
             })
             .catch((err) => {
               this.env.showMessage('Cannot save, please try again', 'danger');
@@ -1090,33 +1086,75 @@ export class ItemDetailPage extends PageBase {
   }
 
   saveMasterDataOrItemInBranch(){
-    if(this.selectedBranch){
+    if(this.formGroup.get('IDBranchItemInBranch').value){
       this.saveItemInBranch();
     }
     else this.saveChange();
   }
   
   async saveChange() {
-    this.alwaysReturnProps = ['Id'];
-    super.saveChange2();
+    return super.saveChange2();
   }
 
   savedChange(savedItem = null, form = this.formGroup) {
-    super.savedChange(savedItem,form);
-    let groups = this.formGroup.get('WMS_ItemInWarehouseConfig') as FormArray;
-    let idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id').value));
-    this.item = savedItem;
+    if (savedItem) {
+      if (form.controls.Id && savedItem.Id && form.controls.Id.value != savedItem.Id)
+        form.controls.Id.setValue(savedItem.Id);
 
+      if (this.pageConfig.isDetailPage && form == this.formGroup && this.id == 0) {
+        this.item = savedItem;
+        this.id = savedItem.Id;
+        if (window.location.hash.endsWith('/0')) {
+          let newURL = window.location.hash.substring(0, window.location.hash.length - 1) + savedItem.Id;
+          history.pushState({}, null, newURL);
+        }
+        if( this.formGroup.get('IDBranchItemInBranch').value !=  this.formGroup.get('IDBranch').value)
+        this.formGroup.get('IDBranchItemInBranch').setValue(this.formGroup.get('IDBranch').value);
+        this.changeIDBranchItemInBranch();
+        if(this.formGroup.get('IDBranch').value){
+          this.formGroup.get('IDBranchItemInBranch').disable();
+        
+        }
+        else this.formGroup.get('IDBranchItemInBranch').enable();
+      }
+    }
+
+    form.markAsPristine();
+    this.submitAttempt = false;
+    this.env.showMessage('Saving completed!', 'success');
+  //  super.savedChange(savedItem,form);
+    let groupsWarehouseConfig = this.formGroup.get('WMS_ItemInWarehouseConfig') as FormArray;
+    let idsWarehouseConfigBeforeSaving = new Set(groupsWarehouseConfig.controls.map((g) => g.get('Id').value));
+    this.item = savedItem;
+    //this.formGroup.patchValue(this.item);
+    this.formGroup.get('SalesUoM').setValue(this.item.SalesUoM);
+    this.formGroup.get('PurchasingUoM').setValue(this.item.PurchasingUoM );
+    this.formGroup.get('InventoryUoM').setValue(this.item.InventoryUoM);
     if (this.item.WMS_ItemInWarehouseConfig?.length > 0) {
       let newIds = new Set(this.item.WMS_ItemInWarehouseConfig.map((i) => i.Id));
-      const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
+      const diff = [...newIds].filter((i) => !idsWarehouseConfigBeforeSaving.has(i));
       if (diff?.length > 0) {
-        groups.controls
+        groupsWarehouseConfig.controls
           .find((d) => d.get('Id').value == null || d.get('Id').value == 0)
           ?.get('Id')
           .setValue(diff[0]);
       }
     }
+    let groupsItemUoM = this.formGroup.get('ItemUoMs') as FormArray;
+    let idsItemUoMConfigBeforeSaving = new Set(groupsItemUoM.controls.map((g) => g.get('Id').value));
+    if (this.item.ItemUoMs?.length > 0) {
+      let newIds = new Set(this.item.ItemUoMs.map((i) => i.Id));
+      const diff = [...newIds].filter((i) => !idsItemUoMConfigBeforeSaving.has(i));
+      if (diff?.length > 0) {
+        let group =  groupsItemUoM.controls.find((d) => d.get('Id').value == null || d.get('Id').value == 0)
+        let itemDiffer = this.item.ItemUoMs.find(d=> d.Id == diff[0]);
+        if(group && itemDiffer) group.patchValue(itemDiffer);
+      }
+    }
+
+    form.markAsPristine();
+    this.submitAttempt = false;
+    this.env.showMessage('Saving completed!', 'success');
   }
 
   async deletePriceDetail(p) {
@@ -1214,28 +1252,37 @@ export class ItemDetailPage extends PageBase {
     i.QtyAdjust = i.QtyTarget - i.QuantityOnHand;
   }
 
-  searchItemGroupShowAllChildren = (term: string, ids: any): any => {
-    return super.searchShowAllChildren(term, ids, this.itemGroupList);
-  };
-
-  searchItemTypeShowAllChildren = (term: string, ids: any): any => {
-    return super.searchShowAllChildren(term, ids, this.ItemTypeList);
-  };
-
-  searchResultIdBranchList = { term: '', ids: [] };
-  searchBranchShowAllChildren = (term: string, item: any): any => {
-    if (this.searchResultIdBranchList.term != term) {
-      this.searchResultIdBranchList.term = term;
-      let source = this.env.branchList;
-      this.searchResultIdBranchList.ids = lib.searchTreeReturnId(source, term);
+  validateUoMForm(group){
+    
+    if (group.get('IsBaseUoM')?.value) {
+      group.get('IsBaseUoM')?.disable({ emitEvent: false });
     }
-    return this.searchResultIdBranchList.ids.indexOf(item.Id) > -1;
-  };
+    group.get('IsBaseUoM')?.valueChanges.subscribe((value: boolean) => {
+      if (value) {
+        group.get('IsBaseUoM')?.disable({ emitEvent: false });
+      } else {
+        group.get('IsBaseUoM')?.enable({ emitEvent: false });
+      }
+    });
 
-  private isShowButtonAddConfig() {
-    let groups = this.formGroup.controls.WMS_ItemInWarehouseConfig as FormArray;
-    if (groups.controls.find((d) => !d.get('Id').value)) {
-      return false;
-    } else return true;
+    if (group.get('IsBaseUoM')?.value) {
+      group.get('BaseQuantity')?.clearValidators();
+    } else {
+      group.get('BaseQuantity')?.setValidators([Validators.required]);
+    }
+    group.get('BaseQuantity')?.updateValueAndValidity();
+    
+    // Subscribe to changes in IsBaseUoM
+    group.get('IsBaseUoM')?.valueChanges.subscribe((isBaseUoM: boolean) => {
+      if (isBaseUoM) {
+        group.get('BaseQuantity')?.clearValidators(); // Remove required validator
+      } else {
+        group.get('BaseQuantity')?.setValidators([Validators.required]); // Add required validator
+      }
+      group.get('BaseQuantity')?.updateValueAndValidity(); // Refresh validation state
+    });
+    if(this.item?.TransactionsExist || this.formGroup.get('IDBranchItemInBranch').value){
+      group.get('IsBaseUoM').disable();
+    }
   }
 }
