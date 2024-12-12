@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { NavController, LoadingController, AlertController, PopoverController } from '@ionic/angular';
+import { NavController, LoadingController, AlertController, PopoverController, ModalController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
@@ -12,6 +12,7 @@ import {
 import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
+import { DataCorrectionRequestModalPage } from 'src/app/modals/data-correction-request-modal/data-correction-request-modal.page';
 
 @Component({
   selector: 'app-storer-detail',
@@ -32,6 +33,7 @@ export class StorerDetailPage extends PageBase {
     public navCtrl: NavController,
     public route: ActivatedRoute,
     public alertCtrl: AlertController,
+    public modalController: ModalController,
     public formBuilder: FormBuilder,
     public cdr: ChangeDetectorRef,
     public loadingController: LoadingController,
@@ -176,4 +178,32 @@ export class StorerDetailPage extends PageBase {
   async saveChange() {
     this.saveChange2();
   }
+
+  async openRequestDataConnectionModal() {
+    // let formGroup = clone
+     const modal = await this.modalController.create({
+       component: DataCorrectionRequestModalPage,
+       componentProps: {
+         item: {
+           IDBranch: this.formGroup.get('IDBranch').value,
+           Id : this.formGroup.get('Id').value,
+           Name : this.formGroup.get('Name').value,
+         },
+         model: {
+           Type: 'Outlet', Fields: [
+             { id: 'Id', type: 'number', label: 'Id',disabled : true },
+             { id: 'IDBranch', type: 'number', label: 'Branch',disabled : true },
+             { id: 'Name', type: 'text', label: 'Name'},
+            //  { id: 'DeletedAddressFields',type:'nonRender'},
+             
+           ]
+         },
+         cssClass: 'modal90',
+       }
+     });
+  
+     await modal.present();
+     const { data } = await modal.onWillDismiss();
+  
+   }
 }
