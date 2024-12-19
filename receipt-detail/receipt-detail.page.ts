@@ -20,9 +20,10 @@ import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators
 import { ApiSetting } from 'src/app/services/static/api-setting';
 
 @Component({
-  selector: 'app-receipt-detail',
-  templateUrl: './receipt-detail.page.html',
-  styleUrls: ['./receipt-detail.page.scss'],
+    selector: 'app-receipt-detail',
+    templateUrl: './receipt-detail.page.html',
+    styleUrls: ['./receipt-detail.page.scss'],
+    standalone: false
 })
 export class ReceiptDetailPage extends PageBase {
   @ViewChild('importfile') importfile: any;

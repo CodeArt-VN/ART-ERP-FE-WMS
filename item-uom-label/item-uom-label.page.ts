@@ -11,9 +11,10 @@ import { catchError, distinctUntilChanged, map, mergeMap, switchMap, tap } from 
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-item-uom-label',
-  templateUrl: 'item-uom-label.page.html',
-  styleUrls: ['item-uom-label.page.scss'],
+    selector: 'app-item-uom-label',
+    templateUrl: 'item-uom-label.page.html',
+    styleUrls: ['item-uom-label.page.scss'],
+    standalone: false
 })
 export class ItemUomLabelPage extends PageBase {
   lableConfig = {

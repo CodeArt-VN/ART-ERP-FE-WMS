@@ -16,9 +16,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-warehouse',
-  templateUrl: 'warehouse.page.html',
-  styleUrls: ['warehouse.page.scss'],
+    selector: 'app-warehouse',
+    templateUrl: 'warehouse.page.html',
+    styleUrls: ['warehouse.page.scss'],
+    standalone: false
 })
 export class WarehousePage extends PageBase {
   branchList = [];

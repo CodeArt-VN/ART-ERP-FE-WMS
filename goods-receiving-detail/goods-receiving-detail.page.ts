@@ -20,9 +20,10 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-goods-receiving-detail',
-  templateUrl: './goods-receiving-detail.page.html',
-  styleUrls: ['./goods-receiving-detail.page.scss'],
+    selector: 'app-goods-receiving-detail',
+    templateUrl: './goods-receiving-detail.page.html',
+    styleUrls: ['./goods-receiving-detail.page.scss'],
+    standalone: false
 })
 export class GoodReceivingDetailPage extends PageBase {
   @ViewChild('importfile') importfile: any;

@@ -13,9 +13,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import QRCode from 'qrcode';
 
 @Component({
-  selector: 'app-returned-list',
-  templateUrl: 'returned-list.page.html',
-  styleUrls: ['returned-list.page.scss'],
+    selector: 'app-returned-list',
+    templateUrl: 'returned-list.page.html',
+    styleUrls: ['returned-list.page.scss'],
+    standalone: false
 })
 export class ReturnedLlistPage extends PageBase {
   warehouses = [];

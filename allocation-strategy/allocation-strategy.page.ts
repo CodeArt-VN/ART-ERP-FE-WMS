@@ -10,7 +10,8 @@ import { FormBuilder, FormControl, Validators } from '@angular/forms';
 @Component({
     selector: 'app-allocation-strategy',
     templateUrl: 'allocation-strategy.page.html',
-    styleUrls: ['allocation-strategy.page.scss']
+    styleUrls: ['allocation-strategy.page.scss'],
+    standalone: false
 })
 export class AllocationStrategyPage extends PageBase {
     

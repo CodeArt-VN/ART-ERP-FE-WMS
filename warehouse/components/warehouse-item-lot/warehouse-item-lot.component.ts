@@ -8,9 +8,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { WMS_LotProvider } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-warehouse-item-lot',
-  templateUrl: './warehouse-item-lot.component.html',
-  styleUrls: ['./warehouse-item-lot.component.scss'],
+    selector: 'app-warehouse-item-lot',
+    templateUrl: './warehouse-item-lot.component.html',
+    styleUrls: ['./warehouse-item-lot.component.scss'],
+    standalone: false
 })
 export class WarehouseItemLotComponent extends PageBase {
   @Input() set setQuery(value) {

@@ -8,9 +8,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { WMS_LotLPNLocationProvider, WMS_StorerProvider } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-warehouse-item-location-lot-lpn',
-  templateUrl: './warehouse-item-location-lot-lpn.component.html',
-  styleUrls: ['./warehouse-item-location-lot-lpn.component.scss'],
+    selector: 'app-warehouse-item-location-lot-lpn',
+    templateUrl: './warehouse-item-location-lot-lpn.component.html',
+    styleUrls: ['./warehouse-item-location-lot-lpn.component.scss'],
+    standalone: false
 })
 export class WarehouseItemLocationLotLpnComponent extends PageBase {
   @Input() set setQuery(value) {

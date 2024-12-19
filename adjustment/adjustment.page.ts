@@ -12,9 +12,10 @@ import { SortConfig } from 'src/app/models/options-interface';
 import { isForOfStatement } from 'typescript';
 
 @Component({
-  selector: 'app-adjustment',
-  templateUrl: 'adjustment.page.html',
-  styleUrls: ['adjustment.page.scss'],
+    selector: 'app-adjustment',
+    templateUrl: 'adjustment.page.html',
+    styleUrls: ['adjustment.page.scss'],
+    standalone: false
 })
 export class AdjustmentPage extends PageBase {
   statusList = [];

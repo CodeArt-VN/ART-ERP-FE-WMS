@@ -18,9 +18,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @Component({
-  selector: 'app-picking-order-detail',
-  templateUrl: 'picking-order-detail.page.html',
-  styleUrls: ['picking-order-detail.page.scss'],
+    selector: 'app-picking-order-detail',
+    templateUrl: 'picking-order-detail.page.html',
+    styleUrls: ['picking-order-detail.page.scss'],
+    standalone: false
 })
 export class PickingOrderDetailPage extends PageBase {
   //#region Variables

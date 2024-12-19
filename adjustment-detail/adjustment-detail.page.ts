@@ -25,9 +25,10 @@ import { WMS_Adjustment } from 'src/app/models/model-list-interface';
 import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @Component({
-  selector: 'app-adjustment-detail',
-  templateUrl: 'adjustment-detail.page.html',
-  styleUrls: ['adjustment-detail.page.scss'],
+    selector: 'app-adjustment-detail',
+    templateUrl: 'adjustment-detail.page.html',
+    styleUrls: ['adjustment-detail.page.scss'],
+    standalone: false
 })
 export class AdjustmentDetailPage extends PageBase {
   statusDataSource: any;

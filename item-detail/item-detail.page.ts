@@ -30,9 +30,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-item-detail',
-  templateUrl: 'item-detail.page.html',
-  styleUrls: ['item-detail.page.scss'],
+    selector: 'app-item-detail',
+    templateUrl: 'item-detail.page.html',
+    styleUrls: ['item-detail.page.scss'],
+    standalone: false
 })
 export class ItemDetailPage extends PageBase {
   branchList = [];

@@ -13,7 +13,8 @@ import { SortConfig } from 'src/app/models/options-interface';
 @Component({
     selector: 'app-cycle-count-note',
     templateUrl: 'cycle-count-note.page.html',
-    styleUrls: ['cycle-count-note.page.scss']
+    styleUrls: ['cycle-count-note.page.scss'],
+    standalone: false
 })
 export class CycleCountNotePage extends PageBase {
     branchList = [];

@@ -20,9 +20,10 @@ import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap }
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-outbound-order-detail',
-  templateUrl: 'outbound-order-detail.page.html',
-  styleUrls: ['outbound-order-detail.page.scss'],
+    selector: 'app-outbound-order-detail',
+    templateUrl: 'outbound-order-detail.page.html',
+    styleUrls: ['outbound-order-detail.page.scss'],
+    standalone: false
 })
 export class OutboundOrderDetailPage extends PageBase {
   // #region Variables

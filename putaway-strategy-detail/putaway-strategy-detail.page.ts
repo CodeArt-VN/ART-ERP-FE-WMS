@@ -30,9 +30,10 @@ import { lib } from 'src/app/services/static/global-functions';
     Và khai báo đối tương áp ụng (Item,)
 */
 @Component({
-  selector: 'app-putaway-strategy-detail',
-  templateUrl: 'putaway-strategy-detail.page.html',
-  styleUrls: ['putaway-strategy-detail.page.scss'],
+    selector: 'app-putaway-strategy-detail',
+    templateUrl: 'putaway-strategy-detail.page.html',
+    styleUrls: ['putaway-strategy-detail.page.scss'],
+    standalone: false
 })
 export class PutawayStrategyDetailPage extends PageBase {
   zoneDataSoure:any;

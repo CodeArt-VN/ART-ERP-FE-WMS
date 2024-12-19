@@ -8,9 +8,10 @@ import QRCode from 'qrcode';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-qr-code-label',
-  templateUrl: 'qr-code-label.page.html',
-  styleUrls: ['qr-code-label.page.scss'],
+    selector: 'app-qr-code-label',
+    templateUrl: 'qr-code-label.page.html',
+    styleUrls: ['qr-code-label.page.scss'],
+    standalone: false
 })
 export class QRCodeLabelPage extends PageBase {
   lableConfig = {

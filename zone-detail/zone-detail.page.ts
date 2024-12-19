@@ -9,9 +9,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-zone-detail',
-  templateUrl: './zone-detail.page.html',
-  styleUrls: ['./zone-detail.page.scss'],
+    selector: 'app-zone-detail',
+    templateUrl: './zone-detail.page.html',
+    styleUrls: ['./zone-detail.page.scss'],
+    standalone: false
 })
 export class ZoneDetailPage extends PageBase {
   branchList = [];

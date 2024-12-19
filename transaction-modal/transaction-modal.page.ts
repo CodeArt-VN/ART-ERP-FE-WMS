@@ -7,9 +7,10 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { WMS_TransactionProvider } from 'src/app/services/static/services.service';
 @Component({
-  selector: 'app-transaction-modal',
-  templateUrl: './transaction-modal.page.html',
-  styleUrls: ['./transaction-modal.page.scss'],
+    selector: 'app-transaction-modal',
+    templateUrl: './transaction-modal.page.html',
+    styleUrls: ['./transaction-modal.page.scss'],
+    standalone: false
 })
 export class TransactionModalPage extends PageBase {
   sourceKey: number;

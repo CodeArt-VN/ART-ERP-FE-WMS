@@ -9,7 +9,8 @@ import { SortConfig } from 'src/app/models/options-interface';
 @Component({
     selector: 'app-putaway-strategy',
     templateUrl: 'putaway-strategy.page.html',
-    styleUrls: ['putaway-strategy.page.scss']
+    styleUrls: ['putaway-strategy.page.scss'],
+    standalone: false
 })
 export class PutawayStrategyPage extends PageBase {
     

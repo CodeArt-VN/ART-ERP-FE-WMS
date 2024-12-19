@@ -12,9 +12,10 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-  selector: 'app-carton-detail',
-  templateUrl: './carton-detail.page.html',
-  styleUrls: ['./carton-detail.page.scss'],
+    selector: 'app-carton-detail',
+    templateUrl: './carton-detail.page.html',
+    styleUrls: ['./carton-detail.page.scss'],
+    standalone: false
 })
 export class CartonDetailPage extends PageBase {
   cartonGroupList = [];

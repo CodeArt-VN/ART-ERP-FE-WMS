@@ -5,9 +5,10 @@ import { PageBase } from 'src/app/page-base';
 import { WMS_ItemGroupProvider } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-item-group',
-  templateUrl: 'item-group.page.html',
-  styleUrls: ['item-group.page.scss'],
+    selector: 'app-item-group',
+    templateUrl: 'item-group.page.html',
+    styleUrls: ['item-group.page.scss'],
+    standalone: false
 })
 export class ItemGroupPage extends PageBase {
   dataItemGroup: any = [];

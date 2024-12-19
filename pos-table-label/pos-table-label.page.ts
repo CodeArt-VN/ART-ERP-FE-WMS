@@ -11,9 +11,10 @@ import { catchError, distinctUntilChanged, map, mergeMap, switchMap, tap } from 
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-pos-table-label',
-  templateUrl: 'pos-table-label.page.html',
-  styleUrls: ['pos-table-label.page.scss'],
+    selector: 'app-pos-table-label',
+    templateUrl: 'pos-table-label.page.html',
+    styleUrls: ['pos-table-label.page.scss'],
+    standalone: false
 })
 export class POSTableLabelPage extends PageBase {
   lableConfig = {

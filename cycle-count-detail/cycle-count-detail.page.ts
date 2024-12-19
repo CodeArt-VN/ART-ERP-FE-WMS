@@ -21,9 +21,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 
 @Component({
-  selector: 'app-cycle-count-detail',
-  templateUrl: 'cycle-count-detail.page.html',
-  styleUrls: ['cycle-count-detail.page.scss'],
+    selector: 'app-cycle-count-detail',
+    templateUrl: 'cycle-count-detail.page.html',
+    styleUrls: ['cycle-count-detail.page.scss'],
+    standalone: false
 })
 export class CycleCountDetailPage extends PageBase {
   countTypeDataSource: any;

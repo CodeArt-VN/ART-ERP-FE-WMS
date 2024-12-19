@@ -10,13 +10,14 @@ import {
 } from 'src/app/services/static/services.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
 import { Capacitor } from '@capacitor/core';
 
 @Component({
-  selector: 'app-goods-receiving',
-  templateUrl: 'goods-receiving.page.html',
-  styleUrls: ['goods-receiving.page.scss'],
+    selector: 'app-goods-receiving',
+    templateUrl: 'goods-receiving.page.html',
+    styleUrls: ['goods-receiving.page.scss'],
+    standalone: false
 })
 export class GoodsReceivingPage extends PageBase {
   constructor(
@@ -304,81 +305,81 @@ export class GoodsReceivingPage extends PageBase {
 
   scanning = false;
   scanQRCode() {
-    if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-      this.env.showMessage('This function is only available on phone', 'warning');
-      //this.findASNByPOId(2);
-      return;
-    }
+    // if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
+    //   this.env.showMessage('This function is only available on phone', 'warning');
+    //   //this.findASNByPOId(2);
+    //   return;
+    // }
 
-    BarcodeScanner.prepare().then(() => {
-      BarcodeScanner.checkPermission({ force: true })
-        .then((status) => {
-          if (status.granted) {
-            this.scanning = true;
-            document.querySelector('ion-app').style.backgroundColor = 'transparent';
-            BarcodeScanner.startScan().then((result) => {
-              console.log(result);
-              let close: any = document.querySelector('#closeCamera');
+    // BarcodeScanner.prepare().then(() => {
+    //   BarcodeScanner.checkPermission({ force: true })
+    //     .then((status) => {
+    //       if (status.granted) {
+    //         this.scanning = true;
+    //         document.querySelector('ion-app').style.backgroundColor = 'transparent';
+    //         BarcodeScanner.startScan().then((result) => {
+    //           console.log(result);
+    //           let close: any = document.querySelector('#closeCamera');
 
-              if (!result.hasContent) {
-                close.click();
-              }
+    //           if (!result.hasContent) {
+    //             close.click();
+    //           }
 
-              if (result.content.indexOf('O:') == 0) {
-                let IDPurchaseOrder = result.content.replace('O:', '');
-                //scan IDPO tìm ASN
-                this.findASNByPOId(IDPurchaseOrder);
+    //           if (result.content.indexOf('O:') == 0) {
+    //             let IDPurchaseOrder = result.content.replace('O:', '');
+    //             //scan IDPO tìm ASN
+    //             this.findASNByPOId(IDPurchaseOrder);
 
-                this.closeCamera();
-              } else {
-                this.env.showMessage(
-                  'You just scanned: {{value}}, please scanned QR code on paid delivery notes',
-                  '',
-                  result.content,
-                );
-                setTimeout(() => this.scanQRCode(), 0);
-              }
-            });
-          } else {
-            this.alertCtrl
-              .create({
-                header: 'Quét QR code',
-                //subHeader: '---',
-                message: 'Bạn chưa cho phép sử dụng camera, Xin vui lòng cấp quyền cho ứng dụng.',
-                buttons: [
-                  {
-                    text: 'Không',
-                    role: 'cancel',
-                    handler: () => {},
-                  },
-                  {
-                    text: 'Đồng ý',
-                    cssClass: 'danger-btn',
-                    handler: () => {
-                      BarcodeScanner.openAppSettings();
-                    },
-                  },
-                ],
-              })
-              .then((alert) => {
-                alert.present();
-              });
-          }
-        })
-        .catch((e: any) => console.log('Error is', e));
-    });
+    //             this.closeCamera();
+    //           } else {
+    //             this.env.showMessage(
+    //               'You just scanned: {{value}}, please scanned QR code on paid delivery notes',
+    //               '',
+    //               result.content,
+    //             );
+    //             setTimeout(() => this.scanQRCode(), 0);
+    //           }
+    //         });
+    //       } else {
+    //         this.alertCtrl
+    //           .create({
+    //             header: 'Quét QR code',
+    //             //subHeader: '---',
+    //             message: 'Bạn chưa cho phép sử dụng camera, Xin vui lòng cấp quyền cho ứng dụng.',
+    //             buttons: [
+    //               {
+    //                 text: 'Không',
+    //                 role: 'cancel',
+    //                 handler: () => {},
+    //               },
+    //               {
+    //                 text: 'Đồng ý',
+    //                 cssClass: 'danger-btn',
+    //                 handler: () => {
+    //                   BarcodeScanner.openAppSettings();
+    //                 },
+    //               },
+    //             ],
+    //           })
+    //           .then((alert) => {
+    //             alert.present();
+    //           });
+    //       }
+    //     })
+    //     .catch((e: any) => console.log('Error is', e));
+    // });
   }
 
   closeCamera() {
-    if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-      return;
-    }
-    this.scanning = false;
-    this.lighting = false;
-    this.useFrontCamera = false;
-    document.querySelector('ion-app').style.backgroundColor = '';
-    BarcodeScanner.showBackground();
-    BarcodeScanner.stopScan();
+    // if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
+    //   return;
+    // }
+    // this.scanning = false;
+    // this.lighting = false;
+    // this.useFrontCamera = false;
+    // document.querySelector('ion-app').style.backgroundColor = '';
+    // BarcodeScanner.showBackground();
+    // BarcodeScanner.stopScan();
   }
 
   lighting = false;

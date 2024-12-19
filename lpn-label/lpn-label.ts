@@ -19,9 +19,10 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-lpn-label',
-  templateUrl: 'lpn-label.page.html',
-  styleUrls: ['lpn-label.page.scss'],
+    selector: 'app-lpn-label',
+    templateUrl: 'lpn-label.page.html',
+    styleUrls: ['lpn-label.page.scss'],
+    standalone: false
 })
 export class LPNLabelPage extends PageBase {
   statusList = [];

@@ -6,9 +6,10 @@ import { WMS_UoMProvider } from 'src/app/services/static/services.service';
 import { UoMDetailPage } from '../uom-detail/uom-detail.page';
 
 @Component({
-  selector: 'app-uom',
-  templateUrl: 'uom.page.html',
-  styleUrls: ['uom.page.scss'],
+    selector: 'app-uom',
+    templateUrl: 'uom.page.html',
+    styleUrls: ['uom.page.scss'],
+    standalone: false
 })
 export class UoMPage extends PageBase {
   constructor(

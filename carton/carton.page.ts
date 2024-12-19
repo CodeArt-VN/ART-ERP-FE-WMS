@@ -6,9 +6,10 @@ import { BRA_BranchProvider, WMS_CartonProvider } from 'src/app/services/static/
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-carton',
-  templateUrl: 'carton.page.html',
-  styleUrls: ['carton.page.scss'],
+    selector: 'app-carton',
+    templateUrl: 'carton.page.html',
+    styleUrls: ['carton.page.scss'],
+    standalone: false
 })
 export class CartonPage extends PageBase {
   constructor(

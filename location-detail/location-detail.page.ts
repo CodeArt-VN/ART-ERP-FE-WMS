@@ -13,9 +13,10 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-  selector: 'app-location-detail',
-  templateUrl: './location-detail.page.html',
-  styleUrls: ['./location-detail.page.scss'],
+    selector: 'app-location-detail',
+    templateUrl: './location-detail.page.html',
+    styleUrls: ['./location-detail.page.scss'],
+    standalone: false
 })
 export class LocationDetailPage extends PageBase {
   constructor(

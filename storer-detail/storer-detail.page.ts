@@ -15,9 +15,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { DataCorrectionRequestModalPage } from 'src/app/modals/data-correction-request-modal/data-correction-request-modal.page';
 
 @Component({
-  selector: 'app-storer-detail',
-  templateUrl: './storer-detail.page.html',
-  styleUrls: ['./storer-detail.page.scss'],
+    selector: 'app-storer-detail',
+    templateUrl: './storer-detail.page.html',
+    styleUrls: ['./storer-detail.page.scss'],
+    standalone: false
 })
 export class StorerDetailPage extends PageBase {
   segmentList = [];

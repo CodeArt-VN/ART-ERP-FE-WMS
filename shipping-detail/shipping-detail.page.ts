@@ -20,9 +20,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @Component({
-  selector: 'app-shipping-detail',
-  templateUrl: 'shipping-detail.page.html',
-  styleUrls: ['shipping-detail.page.scss'],
+    selector: 'app-shipping-detail',
+    templateUrl: 'shipping-detail.page.html',
+    styleUrls: ['shipping-detail.page.scss'],
+    standalone: false
 })
 export class ShippingDetailPage extends PageBase {
   //#region Variables

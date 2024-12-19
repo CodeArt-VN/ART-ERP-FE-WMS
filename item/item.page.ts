@@ -8,9 +8,10 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-item',
-  templateUrl: 'item.page.html',
-  styleUrls: ['item.page.scss'],
+    selector: 'app-item',
+    templateUrl: 'item.page.html',
+    styleUrls: ['item.page.scss'],
+    standalone: false
 })
 export class ItemPage extends PageBase {
   itemGroupList = [];

@@ -18,9 +18,10 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-warehouse-transaction',
-  templateUrl: './warehouse-transaction.page.html',
-  styleUrls: ['./warehouse-transaction.page.scss'],
+    selector: 'app-warehouse-transaction',
+    templateUrl: './warehouse-transaction.page.html',
+    styleUrls: ['./warehouse-transaction.page.scss'],
+    standalone: false
 })
 export class WarehouseTransactionPage extends PageBase {
   branchList = [];

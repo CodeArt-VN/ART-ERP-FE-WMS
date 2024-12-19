@@ -13,9 +13,10 @@ import {
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-item-group-detail',
-  templateUrl: 'item-group-detail.page.html',
-  styleUrls: ['item-group-detail.page.scss'],
+    selector: 'app-item-group-detail',
+    templateUrl: 'item-group-detail.page.html',
+    styleUrls: ['item-group-detail.page.scss'],
+    standalone: false
 })
 export class ItemGroupDetailPage extends PageBase {
   branchList = [];

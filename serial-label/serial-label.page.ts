@@ -10,9 +10,10 @@ import QRCode from 'qrcode';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-serial-label',
-  templateUrl: 'serial-label.page.html',
-  styleUrls: ['serial-label.page.scss'],
+    selector: 'app-serial-label',
+    templateUrl: 'serial-label.page.html',
+    styleUrls: ['serial-label.page.scss'],
+    standalone: false
 })
 export class SerialLabelPage extends PageBase {
   lableConfig = {

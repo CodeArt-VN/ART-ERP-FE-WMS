@@ -14,9 +14,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import QRCode from 'qrcode';
 
 @Component({
-  selector: 'app-batch-picking',
-  templateUrl: 'batch-picking.page.html',
-  styleUrls: ['batch-picking.page.scss'],
+    selector: 'app-batch-picking',
+    templateUrl: 'batch-picking.page.html',
+    styleUrls: ['batch-picking.page.scss'],
+    standalone: false
 })
 export class BatchPickingPage extends PageBase {
   warehouses = [];

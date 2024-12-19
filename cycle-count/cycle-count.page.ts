@@ -9,7 +9,8 @@ import { SortConfig } from 'src/app/models/options-interface';
 @Component({
     selector: 'app-cycle-count',
     templateUrl: 'cycle-count.page.html',
-    styleUrls: ['cycle-count.page.scss']
+    styleUrls: ['cycle-count.page.scss'],
+    standalone: false
 })
 export class CycleCountPage extends PageBase {
     constructor(

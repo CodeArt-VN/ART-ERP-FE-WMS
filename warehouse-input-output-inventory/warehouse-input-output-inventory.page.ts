@@ -19,9 +19,10 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-warehouse-input-output-inventory',
-  templateUrl: './warehouse-input-output-inventory.page.html',
-  styleUrls: ['./warehouse-input-output-inventory.page.scss'],
+    selector: 'app-warehouse-input-output-inventory',
+    templateUrl: './warehouse-input-output-inventory.page.html',
+    styleUrls: ['./warehouse-input-output-inventory.page.scss'],
+    standalone: false
 })
 export class WarehouseInputOutputInventoryPage extends PageBase {
   selectedBranch;

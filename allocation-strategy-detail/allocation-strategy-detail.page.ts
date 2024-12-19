@@ -20,9 +20,10 @@ import { lib } from 'src/app/services/static/global-functions';
 
 
 @Component({
-  selector: 'app-allocation-strategy-detail',
-  templateUrl: 'allocation-strategy-detail.page.html',
-  styleUrls: ['allocation-strategy-detail.page.scss'],
+    selector: 'app-allocation-strategy-detail',
+    templateUrl: 'allocation-strategy-detail.page.html',
+    styleUrls: ['allocation-strategy-detail.page.scss'],
+    standalone: false
 })
 export class AllocationStrategyDetailPage extends PageBase {
   

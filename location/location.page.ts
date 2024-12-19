@@ -9,9 +9,10 @@ import { NavigationExtras } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-  selector: 'app-location',
-  templateUrl: 'location.page.html',
-  styleUrls: ['location.page.scss'],
+    selector: 'app-location',
+    templateUrl: 'location.page.html',
+    styleUrls: ['location.page.scss'],
+    standalone: false
 })
 export class LocationPage extends PageBase {
   _items:any;

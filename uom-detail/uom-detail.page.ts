@@ -7,9 +7,10 @@ import { WMS_UoMProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-uom-detail',
-  templateUrl: './uom-detail.page.html',
-  styleUrls: ['./uom-detail.page.scss'],
+    selector: 'app-uom-detail',
+    templateUrl: './uom-detail.page.html',
+    styleUrls: ['./uom-detail.page.scss'],
+    standalone: false
 })
 export class UoMDetailPage extends PageBase {
   typeList = [{ Name: 'Each' }, { Name: 'Innerpack' }, { Name: 'Case' }, { Name: 'Pallet' }];

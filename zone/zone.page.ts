@@ -6,9 +6,10 @@ import { BRA_BranchProvider, WMS_ZoneProvider } from 'src/app/services/static/se
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-zone',
-  templateUrl: 'zone.page.html',
-  styleUrls: ['zone.page.scss'],
+    selector: 'app-zone',
+    templateUrl: 'zone.page.html',
+    styleUrls: ['zone.page.scss'],
+    standalone: false
 })
 export class ZonePage extends PageBase {
   constructor(

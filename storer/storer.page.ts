@@ -7,9 +7,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 
 @Component({
-  selector: 'app-storer',
-  templateUrl: 'storer.page.html',
-  styleUrls: ['storer.page.scss'],
+    selector: 'app-storer',
+    templateUrl: 'storer.page.html',
+    styleUrls: ['storer.page.scss'],
+    standalone: false
 })
 export class StorerPage extends PageBase {
   branchList = [];

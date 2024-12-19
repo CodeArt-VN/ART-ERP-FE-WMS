@@ -10,7 +10,8 @@ import { NavigationExtras } from '@angular/router';
 @Component({
     selector: 'app-packing-order',
     templateUrl: 'packing-order.page.html',
-    styleUrls: ['packing-order.page.scss']
+    styleUrls: ['packing-order.page.scss'],
+    standalone: false
 })
 export class PackingOrderPage extends PageBase {
     statusList = [];
