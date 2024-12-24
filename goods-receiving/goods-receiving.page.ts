@@ -10,8 +10,8 @@ import {
 } from 'src/app/services/static/services.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
-import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
 import { Capacitor } from '@capacitor/core';
+import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
 
 @Component({
     selector: 'app-goods-receiving',
@@ -24,8 +24,9 @@ export class GoodsReceivingPage extends PageBase {
     public pageProvider: WMS_ReceiptProvider,
     public branchProvider: BRA_BranchProvider,
     public contactProvider: CRM_ContactProvider,
-    public purchaseProvider: PURCHASE_OrderProvider,
-    public modalController: ModalController,
+     public scanner: BarcodeScannerService,
+     public modalController: ModalController,
+     public purchaseProvider: PURCHASE_OrderProvider,
     public popoverCtrl: PopoverController,
     public alertCtrl: AlertController,
     public loadingController: LoadingController,
@@ -303,110 +304,23 @@ export class GoodsReceivingPage extends PageBase {
     });
   }
 
-  scanning = false;
-  scanQRCode() {
-    // if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-    //   this.env.showMessage('This function is only available on phone', 'warning');
-    //   //this.findASNByPOId(2);
-    //   return;
-    // }
-
-    // BarcodeScanner.prepare().then(() => {
-    //   BarcodeScanner.checkPermission({ force: true })
-    //     .then((status) => {
-    //       if (status.granted) {
-    //         this.scanning = true;
-    //         document.querySelector('ion-app').style.backgroundColor = 'transparent';
-    //         BarcodeScanner.startScan().then((result) => {
-    //           console.log(result);
-    //           let close: any = document.querySelector('#closeCamera');
-
-    //           if (!result.hasContent) {
-    //             close.click();
-    //           }
-
-    //           if (result.content.indexOf('O:') == 0) {
-    //             let IDPurchaseOrder = result.content.replace('O:', '');
-    //             //scan IDPO tìm ASN
-    //             this.findASNByPOId(IDPurchaseOrder);
-
-    //             this.closeCamera();
-    //           } else {
-    //             this.env.showMessage(
-    //               'You just scanned: {{value}}, please scanned QR code on paid delivery notes',
-    //               '',
-    //               result.content,
-    //             );
-    //             setTimeout(() => this.scanQRCode(), 0);
-    //           }
-    //         });
-    //       } else {
-    //         this.alertCtrl
-    //           .create({
-    //             header: 'Quét QR code',
-    //             //subHeader: '---',
-    //             message: 'Bạn chưa cho phép sử dụng camera, Xin vui lòng cấp quyền cho ứng dụng.',
-    //             buttons: [
-    //               {
-    //                 text: 'Không',
-    //                 role: 'cancel',
-    //                 handler: () => {},
-    //               },
-    //               {
-    //                 text: 'Đồng ý',
-    //                 cssClass: 'danger-btn',
-    //                 handler: () => {
-    //                   BarcodeScanner.openAppSettings();
-    //                 },
-    //               },
-    //             ],
-    //           })
-    //           .then((alert) => {
-    //             alert.present();
-    //           });
-    //       }
-    //     })
-    //     .catch((e: any) => console.log('Error is', e));
-    // });
-  }
-
-  closeCamera() {
-    // if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-    //   return;
-    // }
-    // this.scanning = false;
-    // this.lighting = false;
-    // this.useFrontCamera = false;
-    // document.querySelector('ion-app').style.backgroundColor = '';
-    // BarcodeScanner.showBackground();
-    // BarcodeScanner.stopScan();
-  }
-
-  lighting = false;
-  lightCamera() {
-    // if (this.lighting) {
-    //     this.qrScanner.disableLight().then(() => {
-    //         this.lighting = false;
-    //     });
-    // }
-    // else {
-    //     this.qrScanner.enableLight().then(() => {
-    //         this.lighting = true;
-    //     });
-    // }
-  }
-
-  useFrontCamera = false;
-  reversalCamera() {
-    // if (this.useFrontCamera) {
-    //     this.qrScanner.useBackCamera().then(() => {
-    //         this.useFrontCamera = false;
-    //     });
-    // }
-    // else {
-    //     this.qrScanner.useFrontCamera().then(() => {
-    //         this.useFrontCamera = true;
-    //     });
-    // }
+  async scanQRCode() {
+    try {
+      let code = await this.scanner.scan();
+      if (code.indexOf('O:') == 0) {
+        let IDPurchaseOrder = code.replace('O:', '');
+        //scan IDPO tìm ASN
+        this.findASNByPOId(IDPurchaseOrder);
+        return;
+      } else {
+        this.env.showPrompt('Please scan valid QR code', 'Invalid QR code', null, 'Retry', 'Cancel')
+          .then(() => {
+            setTimeout(() => this.scanQRCode(), 0);
+          }).catch(() => {});
+      }
+    }
+    catch (error) {
+      console.error(error);
+    }  
   }
 }
