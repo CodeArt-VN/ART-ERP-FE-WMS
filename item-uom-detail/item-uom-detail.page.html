@@ -2,7 +2,7 @@
   <app-detail-toolbar [page]="this" [title]="'#'+product?.Id "></app-detail-toolbar>
 </ion-header>
 
-<ion-content *ngIf="!scanning" appScrollbarTheme class="ion-padding">
+<ion-content appScrollbarTheme class="ion-padding">
   <div class="main-view">
     <ion-grid fixed style="max-width: 500px">
       <ion-row class="hr-group" *ngIf="product">
@@ -259,20 +259,4 @@
       </div>
     </div>
   </div>
-</ion-content>
-
-<ion-content *ngIf="scanning" no-scroll class="cameraFrame">
-  <div class="frame">
-    <div class="blink-line"></div>
-  </div>
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-    <ion-fab-button id="closeCamera" color="secondary" (click)="closeCamera()">
-      <ion-icon name="close"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-  <!-- <ion-fab vertical="bottom" horizontal="start" slot="fixed">
-		<ion-fab-button color="warning" (click)="lightCamera()">
-			<ion-icon name="flashlight"></ion-icon>
-		</ion-fab-button>
-	</ion-fab> -->
 </ion-content>
