@@ -28,7 +28,7 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 export class ReceiptDetailPage extends PageBase {
   @ViewChild('importfile') importfile: any;
   branchList = [];
-  vendorList = [];
+  _vendorDataSource;
   storerList = [];
   carrierList = [];
   statusList = [];
@@ -102,54 +102,27 @@ export class ReceiptDetailPage extends PageBase {
         },
       });
     }
+    this._vendorDataSource =this.buildSelectDataSource((term) => {
+      return this.contactProvider.search({  SkipAddress: true, IsVendor: true,SortBy: ['Id_desc'], Take: 20, Skip: 0, Term: term });
+    });
   }
 
   preLoadData(event) {
-    this.branchProvider
-      .read({
-        Skip: 0,
-        Take: 5000,
-        Type: 'Warehouse',
-        AllParent: true,
-        Id: this.env.selectedBranchAndChildren,
-      })
-      .then((resp) => {
-        lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
-          this.branchList = result;
-          this.branchList.forEach((i) => {
-            i.disabled = true;
-          });
-          this.markNestedNode(this.branchList, this.env.selectedBranch);
-          super.preLoadData(event);
-        });
-      });
+    this.branchList = lib.cloneObject(this.env.branchList);
+    Promise.all([
+      this.contactProvider.read({ IsStorer: true })
+      ,this.contactProvider.read({ IsCarrier: true })
+      , this.env.getStatus('ReceiptStatus')
+      ,this.env.getType('ReceiptType')
+    ]).then((values) => {
+      this.storerList = values[0]['data'];
+      this.carrierList = values[1]['data'];
+      this.statusList = values[2];
+      this.typeList = values[3];
+    super.preLoadData(event);
 
-    this.contactProvider.read({ IsVendor: true }).then((resp) => {
-      this.vendorList = resp['data'];
-    });
-
-    this.contactProvider.read({ IsStorer: true }).then((resp) => {
-      this.storerList = resp['data'];
-    });
-
-    this.contactProvider.read({ IsCarrier: true }).then((resp) => {
-      this.carrierList = resp['data'];
-    });
-
-    this.env.getStatus('ReceiptStatus').then((data) => {
-      this.statusList = data;
-    });
-
-    this.env.getType('ReceiptType').then((data) => {
-      this.typeList = data;
-    });
-  }
-
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
-    });
+    })
+   
   }
 
   loadedData() {
@@ -173,7 +146,10 @@ export class ReceiptDetailPage extends PageBase {
     if (this.id == 0) {
       this.formGroup.controls.Type.markAsDirty();
     }
-
+    if(this.item && this.item._Vendor){
+      this._vendorDataSource.selected = [...this._vendorDataSource.selected ,this.item._Vendor];
+    }
+    this._vendorDataSource.initSearch();
     this.setLines();
   }
 
@@ -442,10 +418,16 @@ export class ReceiptDetailPage extends PageBase {
         .connect('POST', ApiSetting.apiDomain('WMS/Receipt/Palletize'), { Id: this.id })
         .toPromise()
         .then((resp) => {
-          this.item = resp;
-          this.env.publishEvent({ Code: this.pageConfig.pageName });
-          if (loading) loading.dismiss();
-          this.loadedData();
+          if(resp){
+            this.item = resp;
+            this.env.publishEvent({ Code: this.pageConfig.pageName });
+            if (loading) loading.dismiss();
+            this.loadedData();
+          }
+          else{
+            this.env.showMessage('Cannot save, please try again', 'danger');
+            if (loading) loading.dismiss();
+          }
         })
         .catch((ex) => {
           if (ex.error && ex.error.ExceptionMessage) this.env.showMessage(ex.error.ExceptionMessage, 'danger');
