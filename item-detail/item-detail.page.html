@@ -135,6 +135,7 @@
             [title]="selectedOption.Name"
           >
           </app-page-title>
+          <div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
           <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
           <div class="main-view" *ngIf="pageConfig?.showSpinner == false">
             <div class="row-full shadow full-screen ion-padding">
@@ -260,7 +261,7 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id: 'VendorIds', label: 'Select Vendor', type: 'ng-select-bp', form: formGroup,  dataSource: _vendorDataSource,  bindLabel: 'Name',  bindValue: 'Id', multiple: true,clearable:true }"
+                                [field]="{id: 'VendorIds', label: 'Select Vendor', type: 'ng-select-bp', form: formGroup,  dataSource: _vendorDataSource,  bindLabel: 'Name',  bindValue: 'Id', multiple: true,clearable:true, appendTo:'#ng-select-header' }"
                                 (change)="_vendorDataSource.addSelectedItem($event);saveChange()"
                               >
                               </app-form-control>
@@ -274,34 +275,34 @@
                               </ion-list-header>
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                              <app-form-control id="ng-select-holder"
-                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',
+                              <app-form-control
+                                [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header',
                                   treeConfig:{searchFnDefault:true,isTree:true, isCollapsed:true}}"
                                   (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code' ,
+                                [field]="{id: 'ItemType', label: 'Product type', type: 'ng-select', form: formGroup,  dataSource: ItemTypeList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' ,
                                 treeConfig:{searchFnDefault:true,isTree:true,isCollapsed : true}}"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'IDCartonGroup', label: 'Carton group', type: 'ng-select', form: formGroup,  dataSource: cartonGroupList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                [field]="{id: 'IDCartonGroup', label: 'Carton group', type: 'ng-select', form: formGroup,  dataSource: cartonGroupList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'Industry', label: 'Industry', type: 'ng-select', form: formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                [field]="{id: 'Industry', label: 'Industry', type: 'ng-select', form: formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'Division', label: 'Division', type: 'ng-select', form: formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                [field]="{id: 'Division', label: 'Division', type: 'ng-select', form: formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -316,13 +317,13 @@
                             </ion-col>
                             <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
                               <app-form-control
-                                [field]="{id: 'IDSalesTaxDefinition', label: 'Sales Tax', type: 'ng-select', form: formGroup,  dataSource: outputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                [field]="{id: 'IDSalesTaxDefinition', label: 'Sales Tax', type: 'ng-select', form: formGroup,  dataSource: outputTaxList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
 
                               <app-form-control
-                                [field]="{id: 'IDPurchaseTaxDefinition', label: 'Purchase Tax', type: 'ng-select', form: formGroup,  dataSource: inputTaxList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                [field]="{id: 'IDPurchaseTaxDefinition', label: 'Purchase Tax', type: 'ng-select', form: formGroup,  dataSource: inputTaxList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                 (change)="branchSelected ? saveItemInBranch() : saveChange();"
                               >
                               </app-form-control>
@@ -769,7 +770,7 @@
                             size-md="6"
                             size-lg="4"
                             size-xl="3"
-                            *ngFor="let i of UoMs; let j = index;"
+                            *ngFor="let i of item.ItemUoMs; let j = index;"
                           >
                             <div class="image-box">
                               <img
@@ -811,30 +812,30 @@
                                   <app-form-control
                                   [field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id',
                                     branchConfig:{showingType:'Warehouse'},
-                                    treeConfig:{searchFnDefault:true}}"
+                                    treeConfig:{searchFnDefault:true}, appendTo:'#ng-select-header'}"
                                   (controlChange)="changeBranchInWarehouse(config);"
                                   >
                                   </app-form-control>
                                   <app-form-control
-                                    [field]="{id: 'IDStorer', label: 'Goods owner', type: 'ng-select', form: config,  dataSource: storerList,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'IDStorer', label: 'Goods owner', type: 'ng-select', form: config,  dataSource: storerList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'PutawayZone', label: 'Putaway zone', type: 'ng-select', form: config,  dataSource: config.get('_zoneList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'PutawayZone', label: 'Putaway zone', type: 'ng-select', form: config,  dataSource: config.get('_zoneList').value,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'Rotation', label: 'Rotation', type: 'ng-select', form: config,  dataSource: RotationList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                    [field]="{id: 'Rotation', label: 'Rotation', type: 'ng-select', form: config,  dataSource: RotationList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'RotateBy', label: 'RotateBy', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Code' }"
+                                    [field]="{id: 'RotateBy', label: 'RotateBy', type: 'ng-select', form: config,  dataSource: RotateByList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
@@ -852,31 +853,31 @@
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'PutawayStrategy', label: 'Arrange goods into warehouse', type: 'ng-select', form: config,  dataSource:config.get('_putawayStrategyList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'PutawayStrategy', label: 'Arrange goods into warehouse', type: 'ng-select', form: config,  dataSource:config.get('_putawayStrategyList').value,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'AllocationStrategy', label: 'Goods pick-up assignment', type: 'ng-select', form: config,  dataSource: config.get('_allocationStrategyList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'AllocationStrategy', label: 'Goods pick-up assignment', type: 'ng-select', form: config,  dataSource: config.get('_allocationStrategyList').value,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'PutawayLocation', label: 'PutawayLocation', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'PutawayLocation', label: 'PutawayLocation', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'InboundQCLocation', label: 'Inbound QC location', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'InboundQCLocation', label: 'Inbound QC location', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
 
                                   <app-form-control
-                                    [field]="{id: 'ReturnLocation', label: 'Return location', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id' }"
+                                    [field]="{id: 'ReturnLocation', label: 'Return location', type: 'ng-select', form: config,  dataSource: config.get('_locationList').value,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
                                     (change)="saveChange();"
                                   >
                                   </app-form-control>
@@ -954,12 +955,12 @@
                             </ion-col>
                             <ion-col size="12" size-sm size-xl="6">
                               <app-form-control
-                                  [field]="{id: 'PlanningMethod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code', placeholder:'Search'}"
+                                  [field]="{id: 'PlanningMethod', label: 'Planning Method', type: 'ng-select', form: formGroup,  dataSource: PlanningMethodList,  bindLabel: 'Name',  bindValue: 'Code', placeholder:'Search', appendTo:'#ng-select-header'}"
                                   (controlChange)="saveItemInBranch();" >
                               </app-form-control>
 
                               <app-form-control
-                              [field]="{id: 'ProcurementMethod', label: 'Procurement Method', type: 'ng-select', form: formGroup,  dataSource: ProcurementMethodList,  bindLabel: 'Name',  bindValue: 'Code', placeholder:'Search'}"
+                              [field]="{id: 'ProcurementMethod', label: 'Procurement Method', type: 'ng-select', form: formGroup,  dataSource: ProcurementMethodList,  bindLabel: 'Name',  bindValue: 'Code', placeholder:'Search', appendTo:'#ng-select-header'}"
                               (controlChange)="saveItemInBranch();" >
                               </app-form-control>
                               <!-- [readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))" -->

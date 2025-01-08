@@ -976,7 +976,7 @@ export class ItemDetailPage extends PageBase {
           .then((data: any) => {
             data.forEach((i) => {
               if (!i.Prices) i.Prices = [];
-              this.UoMs.forEach((u) => {
+              this.item.ItemUoMs?.forEach((u) => {
                 let p = i.Prices.find((d) => d.IDItemUoM == u.Id);
                 if (!p) {
                   p = {
@@ -997,7 +997,7 @@ export class ItemDetailPage extends PageBase {
 
               i.Prices.sort((a, b) => (a.Sort > b.Sort ? 1 : b.Sort > a.Sort ? -1 : 0));
             });
-            this.priceList = data;
+            this.priceList = [...data];
             this.segmentView.ShowSpinner = false;
           }),
       )
