@@ -10,13 +10,17 @@
     <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
     <div *ngIf="pageConfig.showSpinner==false">
       <div class="ion-padding" style="padding-bottom: 0">
+        <app-form-control (change)="changeFilter()"[field]="{branchConfig:{showingType:'Warehouse',selectedBranch:env.selectedBranch}
+        ,id:'IDBranch',label:'Branch',type:'ng-select-branch', bindLabel:'Name', bindValue:'Id',dataSource:branchList, placeholder:'Select unit',form:formGroup}">
+        </app-form-control>
+<!-- 
         <div class="c-control">
           <label class="c-label" for="IDBranch">
             <ion-text color="primary"> {{'Warehouse' | translate}} </ion-text>
           </label>
           <ng-select
             class="c-input no-check-dirty"
-            (change)="changeFiler()"
+            (change)="changeFilter()"
             appendTo=""
             [(ngModel)]="selectedBranch"
             labelForId="IDBranch"
@@ -34,15 +38,22 @@
               </div>
             </ng-template>
           </ng-select>
-        </div>
+        </div> -->
+        <!-- <app-form-control (change)="changeFilter()" [field]="{id:'IDStorer',label:'Storer', type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:storerList, placeholder:'Select goods owner',form:formGroup}">
+        </app-form-control> -->
 
-        <div class="c-control">
+        <!-- <app-form-control
+        [field]="{id: 'IDStorer', label: 'Storer', type: 'ng-select-bp', form: formGroup,  dataSource: _storerDataSource,  bindLabel: 'Name',  bindValue: 'Id', multiple: true,clearable:true }"
+        (change)="changeFilter()"
+      ></app-form-control>
+       -->
+        <!-- <div class="c-control">
           <label class="c-label" for="Storer">
             <ion-text color="primary"> {{'Goods owner' | translate}} </ion-text>
           </label>
           <ng-select
             class="c-input no-check-dirty"
-            (change)="changeFiler();"
+            (change)="changeFilter();"
             appendTo=""
             [(ngModel)]="selectedStorer"
             labelForId="Storer"
@@ -60,16 +71,19 @@
               </div>
             </ng-template>
           </ng-select>
-        </div>
+        </div> -->
 
-        <div class="c-control">
+        <app-form-control (change)="changePeriod()" [field]="{id:'IDPeriod',label:'Period', type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:periodList, placeholder:'Select Period',form:formGroup}">
+        </app-form-control>
+
+        <!-- <div class="c-control">
           <label class="c-label" for="Location">
             <ion-text color="primary"> {{'Period' | translate}} </ion-text>
           </label>
 
           <ng-select
             class="c-input no-check-dirty"
-            (change)="changeFiler();"
+            (change)="changeFilter();"
             appendTo=""
             [(ngModel)]="selectedPeriod"
             labelForId="Period"
@@ -90,15 +104,28 @@
               </div>
             </ng-template>
           </ng-select>
-        </div>
+        </div> -->
+        <!-- <app-form-control (change)="changeFilter()" [field]="{id:'Period',label:'Period', type:'ng-select', bindLabel:'Name', bindValue:'',dataSource:periodList, placeholder:'Select Period',form:formGroup}">
+        </app-form-control> -->
+        <div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 
-        <div class="c-control">
+        <app-form-control
+        [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',appendTo:'#ng-select-header',multiple:true,clearable:true,
+          treeConfig:{searchFnDefault:true,isTree:true, isCollapsed:true}}"
+          (change)="changeFilter()"
+      >
+      </app-form-control>
+
+        <app-form-control (change)="changeFilter()" [field]="{id:'IDItem',label:'Item', type:'ng-select-item', bindLabel:'Name', bindValue:'Id',dataSource:_IDItemDataSource, placeholder:'Search for name or product code',multiple:true,clearable:true,form:formGroup}">
+        </app-form-control>
+    
+        <!-- <div class="c-control">
           <label class="c-label" for="IDItem">
             <ion-text color="primary"> {{'Item' | translate}} </ion-text>
           </label>
           <ng-select
             class="c-input no-check-dirty"
-            (change)="changeFiler()"
+            (change)="changeFilter()"
             appendTo=""
             [(ngModel)]="selectedItem"
             labelForId="IDItem"
@@ -120,30 +147,35 @@
               </div>
             </ng-template>
           </ng-select>
-        </div>
+        </div> -->
 
-        <div class="c-control">
+        <app-form-control (change)="changeFilter()" [field]="{id:'FromDate',label:'From date', type:'datetime-local', form:formGroup}">
+        </app-form-control>
+
+        <!-- <div class="c-control">
           <label class="c-label" for="ValidFrom">{{'From date' | translate}}</label>
           <input
-            (change)="changeFiler()"
+            (change)="changeFilter()"
             [(ngModel)]="fromDate"
             class="c-input no-check-dirty"
             type="date"
             [disabled]="selectedPeriod && selectedPeriod.Id != 0"
           />
-        </div>
+        </div> -->
 
-        <div class="c-control">
+        <app-form-control (change)="changeFilter()" [field]="{id:'ToDate',label:'To date', type:'datetime-local', form:formGroup}">
+        </app-form-control>
+        <!-- <div class="c-control">
           <label class="c-label" for="ValidTo">{{'To date' | translate}}</label>
           <input
-            (change)="changeFiler()"
+            (change)="changeFilter()"
             [(ngModel)]="toDate"
             class="c-input no-check-dirty"
             [min]="fromDate"
             type="date"
             [disabled]="selectedPeriod && selectedPeriod.Id != 0"
           />
-        </div>
+        </div> -->
       </div>
       <div class="ion-padding" style="padding-bottom: 0"></div>
     </div>
@@ -176,6 +208,7 @@
           <div class="col-checkbox cell"></div>
           <div class="col-name cell"></div>
 
+          <div class="col-number cell"></div>
           <div class="col-number cell"></div>
           <div class="col-number cell"></div>
           <div class="col-number cell"></div>
@@ -215,11 +248,14 @@
         <div class="col-number cell">{{ i.OutputGrossWeight }}</div>
 
         <div class="col-number cell">
-          <b>{{ i.CloseQuantity }}</b>
+          <b>{{ i.Balance }}</b>
+          <!-- <b>{{ i.CloseQuantity }}</b> -->
         </div>
         <div class="col-number cell">{{ i.CloseCube }}</div>
         <div class="col-number cell">{{ i.CloseGrossWeight }}</div>
+      
       </div>
+     
     </section>
   </div>
   <ion-infinite-scroll
