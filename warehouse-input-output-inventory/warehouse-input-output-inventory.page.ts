@@ -59,6 +59,8 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       FromDate: [this.getFormattedDate(new Date())],
       ToDate: [this.getFormattedDate(new Date())], 
     });
+    this.pageConfig.isShowFeature = true;
+    this.pageConfig.isFeatureAsMain = true;
   }
 
   preLoadData(event) {
@@ -78,25 +80,34 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
         });
       }
       this.branchList = lib.cloneObject(this.env.branchList);
-      super.preLoadData(event);
+      this.loadedData(event);
     })
   }
 
   loadData(event) {
-    this.loadedData(event);
-    this.getNearestWarehouse(this.env.selectedBranch);
-      
+    if(this.formGroup.get('FromDate').value> this.formGroup.get('ToDate').value){
+      this.env.showMessage('From date cannot be lower than to date!', 'danger');
+      return;
+    }
+    if(this.formGroup.invalid){
+      return;
+    }
+    this.formGroup.markAsPristine();
+    this.items = [];
+    this.getInputOutputInventory();
+    this.pageConfig.showSpinner = false;
   }
 
   loadedData(event) {
-   
     super.loadedData(event);
+    this.getNearestWarehouse(this.env.selectedBranch);
     if (this.isFristLoaded) {
       this.isFristLoaded = false;
       this._storerDataSource.initSearch();
       this._IDItemDataSource.initSearch();
     }
   }
+
   getFormattedDate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -148,62 +159,33 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       this.formGroup.get('ToDate').setValue(selectedPeriod?.PostingDateTo?.substring(0, 10));
     }
   }
-  changeFilter() {
-    this.formGroup.updateValueAndValidity();
-    if(this.formGroup.get('FromDate').value> this.formGroup.get('ToDate').value){
-      this.env.showMessage('From date cannot be lower than to date!', 'danger');
-      return;
-    }
-    if(this.formGroup.invalid){
-      return;
-    }
-    this.formGroup.markAsPristine();
-    this.items = [];
-
-    this.query = this.formGroup.getRawValue();
-  
-    this.pageConfig.isEndOfData = false;
-    this.getInputOutputInventory();
-  }
+  // changeFilter() {
+  //   // this.formGroup.updateValueAndValidity();
+  //   if(this.formGroup.get('FromDate').value> this.formGroup.get('ToDate').value){
+  //     this.env.showMessage('From date cannot be lower than to date!', 'danger');
+  //     return;
+  //   }
+  //   if(this.formGroup.invalid){
+  //     return;
+  //   }
+  //   this.formGroup.markAsPristine();
+  //   this.items = [];
+  //   this.query = this.formGroup.getRawValue();
+  //   this.getInputOutputInventory();
+  // }
 
   getInputOutputInventory(event=null){
-  let apiPath = {
-      method: 'GET',
-      url: function () {
-        return ApiSetting.apiDomain('WMS/Transaction/InputOutputInventory/');
-      },
-    };
-    if (this.pageProvider && !this.pageConfig.isEndOfData) {
-      if (event == 'search') {
-        this.env.showLoading('Please wait for a few moments', this.pageProvider
-          .connect(apiPath.method, apiPath.url(), this.query)
-          .toPromise())
-          .then((result: any) => {
-            if (result.length == 0 || result.length < this.query.Take) {
-              this.pageConfig.isEndOfData = true;
-            }
-            this.items = result;
-            this.loadedData(null);
-          });
-      } else {
-        this.query.Skip = this.items.length;
-        this.env.showLoading('Please wait for a few moments',  this.pageProvider
-          .connect(apiPath.method, apiPath.url(), this.query)
-          .toPromise())
-          .then((result: any) => {
-            if (result.length == 0 || result.length < this.query.Take) {
-              this.pageConfig.isEndOfData = true;
-            }
-            if (result.length > 0) {
-              this.items = [...this.items, ...result];
-            }
+    let query = this.formGroup.getRawValue();
+    this.env.showLoading('Please wait for a few moments', this.pageProvider
+      .connect('GET','WMS/Transaction/InputOutputInventory/', query)
+      .toPromise())
+      .then((result: any) => {
+        if(result) this.items = result;
+      }).catch(err=>{
+        console.log(err);
+        this.env.showMessage('error!', 'danger');
 
-            this.loadedData(event);
-          });
-      }
-    } else {
-      this.loadedData(event);
-    }
+      });
   }
 
   getNearestWarehouse(IDBranch) {
@@ -223,15 +205,6 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       }
     }
   }
-  // changePeriod() {
-  //   if (this.selectedPeriod && this.selectedPeriod.Id != 0) {
-  //     this.fromDate = this.selectedPeriod.PostingDateFrom.substring(0, 10);
-  //     this.toDate = this.selectedPeriod.PostingDateTo.substring(0, 10);
-  //   } else {
-  //     this.fromDate = null;
-  //     this.toDate = null;
-  //   }
-  // }
 
   IDPeriodDataSource = {
     searchProvider: this.postingPeriodProvider,
