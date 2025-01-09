@@ -12,6 +12,7 @@ import {
   AC_PostingPeriodProvider,
   BRA_BranchProvider,
   CRM_ContactProvider,
+  WMS_ItemGroupProvider,
   WMS_ItemProvider,
 } from 'src/app/services/static/services.service';
 
@@ -28,12 +29,14 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   selectedBranch;
   branchList = [];
   storerList = [];
+  itemGroupList = [];
   periodList = [];
   isFristLoaded = true;
   constructor(
     public pageProvider: CommonService,
     public env: EnvService,
     public route: ActivatedRoute,
+    public itemGroupProvider: WMS_ItemGroupProvider,
     public alertCtrl: AlertController,
     public navCtrl: NavController,
     public formBuilder: FormBuilder,
@@ -46,40 +49,125 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   ) {
     super();
     this.pageConfig.isShowFeature = true;
+    this.formGroup = formBuilder.group({
+      IDBranch: ['',Validators.required],
+      IDStorer:[''],
+      IDItemGroup: [''],
+      IDItem: [''],
+      IDPeriod: [''],
+      IsShowInputOutputHasData:[''],
+      FromDate: [this.getFormattedDate(new Date())],
+      ToDate: [this.getFormattedDate(new Date())], 
+    });
   }
 
   preLoadData(event) {
-    this.branchProvider
-      .read({
-        Skip: 0,
-        Take: 5000,
-        Type: 'Warehouse',
-        AllParent: true,
-        Id: this.env.selectedBranchAndChildren,
-      })
-      .then((resp) => {
-        lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
-          this.branchList = result;
-          this.branchList.forEach((i) => {
-            i.disabled = true;
-          });
-          this.markNestedNode(this.branchList, this.env.selectedBranch);
-          this.loadedData(event);
+    Promise.all([ this.contactProvider.read({ IsStorer: true, Take: 20,
+      Skip: 0, SkipAddress: true }),  this.postingPeriodProvider.read(),this.itemGroupProvider.read()]).then((values:any)=>{
+      if(values[0] && values[0].data){
+        this._storerDataSource.selected.push(...values[0].data);
+      }
+      if(values[1] && values[1].data){
+        this.periodList =  values[1].data;
+        let all = { Code: 'Khác', Id: 0 };
+        this.periodList.unshift(all);
+      }
+      if(values[2] && values[2].data){
+        lib.buildFlatTree(values[2].data, []).then((result: any) => {
+          this.itemGroupList = result;
         });
-      });
-    this.contactProvider.read({ IsStorer: true }).then((resp) => {
-      this.storerList = resp['data'];
-    });
-
-    this.postingPeriodProvider.read().then((resp) => {
-      this.periodList = resp['data'];
-      let all = { Code: 'Khác', Id: 0 };
-      this.periodList.unshift(all);
-    });
+      }
+      this.branchList = lib.cloneObject(this.env.branchList);
+      super.preLoadData(event);
+    })
   }
 
   loadData(event) {
-    let apiPath = {
+    this.loadedData(event);
+    
+  }
+
+  loadedData(event) {
+   
+    super.loadedData(event);
+    if (this.isFristLoaded) {
+      this.isFristLoaded = false;
+      this._storerDataSource.initSearch();
+      this._IDItemDataSource.initSearch();
+    }
+  }
+  getFormattedDate(date: Date): string {
+    // Format the date as yyyy-MM-dd to match the input[type="date"] format
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  _storerDataSource = {
+    searchProvider: this.contactProvider,
+    loading: false,
+    input$: new Subject<string>(),
+    selected: [],
+    items$: null,
+    that: this,
+    initSearch() {
+      this.loading = false;
+      this.items$ = concat(
+        of(this.selected),
+        this.input$.pipe(
+          distinctUntilChanged(),
+          tap(() => (this.loading = true)),
+          switchMap((term) => {
+            if (!term) {
+              this.loading = false;
+              return of(this.selected);
+            } else {
+              return this.searchProvider
+                .search({
+                  Term: term,
+                  SortBy: ['Id_desc'],
+                  Take: 20,
+                  Skip: 0,
+                  IsStorer: true,
+                  SkipAddress: true,
+                })
+                .pipe(
+                  catchError(() => of([])), // empty list on error
+                  tap(() => (this.loading = false)),
+                );
+            }
+          }),
+        ),
+      );
+    },
+  };
+  changePeriod(){
+    if (this.formGroup.get('IDPeriod').value) {
+      let selectedPeriod = this.periodList.find(d=> d.Id ==this.formGroup.get('IDPeriod').value);
+      this.formGroup.get('FromDate').setValue(selectedPeriod?.PostingDateFrom?.substring(0, 10));
+      this.formGroup.get('ToDate').setValue(selectedPeriod?.PostingDateTo?.substring(0, 10));
+    }
+  }
+  changeFilter() {
+    this.formGroup.updateValueAndValidity();
+    if(this.formGroup.get('FromDate').value> this.formGroup.get('ToDate').value){
+      this.env.showMessage('From date cannot be lower than to date!', 'danger');
+      return;
+    }
+    if(this.formGroup.invalid){
+      return;
+    }
+    this.formGroup.markAsPristine();
+    this.items = [];
+
+    this.query = this.formGroup.getRawValue();
+  
+    this.pageConfig.isEndOfData = false;
+    this.getInputOutputInventory();
+  }
+
+  getInputOutputInventory(event=null){
+  let apiPath = {
       method: 'GET',
       url: function () {
         return ApiSetting.apiDomain('WMS/Transaction/InputOutputInventory/');
@@ -87,9 +175,9 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     };
     if (this.pageProvider && !this.pageConfig.isEndOfData) {
       if (event == 'search') {
-        this.pageProvider
+        this.env.showLoading('Please wait for a few moments', this.pageProvider
           .connect(apiPath.method, apiPath.url(), this.query)
-          .toPromise()
+          .toPromise())
           .then((result: any) => {
             if (result.length == 0 || result.length < this.query.Take) {
               this.pageConfig.isEndOfData = true;
@@ -99,9 +187,9 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
           });
       } else {
         this.query.Skip = this.items.length;
-        this.pageProvider
+        this.env.showLoading('Please wait for a few moments',  this.pageProvider
           .connect(apiPath.method, apiPath.url(), this.query)
-          .toPromise()
+          .toPromise())
           .then((result: any) => {
             if (result.length == 0 || result.length < this.query.Take) {
               this.pageConfig.isEndOfData = true;
@@ -118,72 +206,15 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     }
   }
 
-  loadedData(event) {
-    this.items.forEach((i) => {
-      i.OpenQuantity = lib.formatMoney(i.OpenQuantity, 0);
-      i.OpenCube = lib.formatMoney(i.OpenCube / 1000000, 3);
-      i.OpenGrossWeight = lib.formatMoney(i.OpenGrossWeight / 1000, 3);
-      i.OpenNetWeight = lib.formatMoney(i.OpenNetWeight / 1000, 3);
-
-      i.InputQuantity = lib.formatMoney(i.InputQuantity, 0);
-      i.InputCube = lib.formatMoney(i.InputCube / 1000000, 3);
-      i.InputGrossWeight = lib.formatMoney(i.InputGrossWeight / 1000, 3);
-      i.InputNetWeight = lib.formatMoney(i.InputNetWeight / 1000, 3);
-
-      i.OutputQuantity = lib.formatMoney(i.OutputQuantity, 0);
-      i.OutputCube = lib.formatMoney(i.OutputCube / 1000000, 3);
-      i.OutputGrossWeight = lib.formatMoney(i.OutputGrossWeight / 1000, 3);
-      i.OutputNetWeight = lib.formatMoney(i.OutputNetWeight / 1000, 3);
-
-      i.CloseQuantity = lib.formatMoney(i.CloseQuantity, 0);
-      i.CloseCube = lib.formatMoney(i.CloseCube / 1000000, 3);
-      i.CloseGrossWeight = lib.formatMoney(i.CloseGrossWeight / 1000, 3);
-      i.CloseNetWeight = lib.formatMoney(i.CloseNetWeight / 1000, 3);
-    });
-    super.loadedData(event);
-    if (this.isFristLoaded) {
-      this.isFristLoaded = false;
-      this.itemSearch();
-    }
-  }
-
-  selectedStorer = null;
-  selectedItem = null;
-  selectedPeriod = null;
-  fromDate = null;
-  toDate = null;
-  changeFiler() {
-    this.items = [];
-
-    if (this.selectedPeriod && this.selectedPeriod.Id != 0) {
-      this.fromDate = this.selectedPeriod.PostingDateFrom.substring(0, 10);
-      this.toDate = this.selectedPeriod.PostingDateTo.substring(0, 10);
-    } else {
-      this.fromDate = null;
-      this.toDate = null;
-    }
-    this.query.IDBranch = this.selectedBranch?.Id;
-    this.query.IDStorer = this.selectedStorer?.Id;
-    this.query.IDItem = this.selectedItem?.Id;
-    this.query.IDPeriod = this.selectedPeriod?.Id;
-    if (this.fromDate) this.query.CreatedDateFrom = this.fromDate;
-    if (this.toDate) this.query.CreatedDateTo = this.toDate;
-
-    if (this.selectedBranch) {
-      this.pageConfig.isEndOfData = false;
-      this.loadData(null);
-    }
-  }
-
-  changePeriod() {
-    if (this.selectedPeriod && this.selectedPeriod.Id != 0) {
-      this.fromDate = this.selectedPeriod.PostingDateFrom.substring(0, 10);
-      this.toDate = this.selectedPeriod.PostingDateTo.substring(0, 10);
-    } else {
-      this.fromDate = null;
-      this.toDate = null;
-    }
-  }
+  // changePeriod() {
+  //   if (this.selectedPeriod && this.selectedPeriod.Id != 0) {
+  //     this.fromDate = this.selectedPeriod.PostingDateFrom.substring(0, 10);
+  //     this.toDate = this.selectedPeriod.PostingDateTo.substring(0, 10);
+  //   } else {
+  //     this.fromDate = null;
+  //     this.toDate = null;
+  //   }
+  // }
 
   IDPeriodDataSource = {
     searchProvider: this.postingPeriodProvider,
@@ -216,35 +247,37 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     },
   };
 
-  private markNestedNode(ls, Id) {
-    let current = ls.find((d) => d.Id == Id);
-    if (current) {
-      current.disabled = current.Type != 'Warehouse';
-      ls.filter((d) => d.IDParent == Id).forEach((i) => {
-        if (i.Type == 'Warehouse') i.disabled = false;
-        this.markNestedNode(ls, i.Id);
-      });
-    }
-  }
-
-  itemList$;
-  itemListLoading = false;
-  itemListInput$ = new Subject<string>();
-  itemListSelected = [];
-  itemSearch() {
-    this.itemListLoading = false;
-    this.itemList$ = concat(
-      of(this.itemListSelected),
-      this.itemListInput$.pipe(
-        distinctUntilChanged(),
-        tap(() => (this.itemListLoading = true)),
-        switchMap((term) =>
-          this.itemProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
-            catchError(() => of([])), // empty list on error
-            tap(() => (this.itemListLoading = false)),
+  _IDItemDataSource = 
+    {
+      searchProvider: this.itemProvider,
+      loading: false,
+      input$: new Subject<string>(),
+      selected: [],
+      items$: null,
+      that: this,
+      initSearch() {
+        this.loading = false;
+        this.items$ = concat(
+          of(this.selected),
+          this.input$.pipe(
+            distinctUntilChanged(),
+            tap(() => (this.loading = true)),
+            switchMap((term) =>
+              this.searchProvider
+                .search({
+                  Take: 20,
+                  Skip: 0,
+                  AllUoM:true,
+                  IDItemGroup:this.that.formGroup.get('IDItemGroup').value?`[${ this.that.formGroup.get('IDItemGroup').value.join(',')}]`:'[]',
+                  Term: term,
+                })
+                .pipe(
+                  catchError(() => of([])), // empty list on error
+                  tap(() => (this.loading = false)),
+                ),
+            ),
           ),
-        ),
-      ),
-    );
-  }
+        );
+      },
+    };
 }
