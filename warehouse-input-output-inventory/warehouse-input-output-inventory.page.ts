@@ -55,10 +55,9 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       IDItemGroup: [''],
       IDItem: [''],
       IDPeriod: [''],
-      FromDate : [''],
-      ToDate : [''],
-
-    
+      IsShowInputOutputHasData:[''],
+      FromDate: [this.getFormattedDate(new Date())],
+      ToDate: [this.getFormattedDate(new Date())], 
     });
   }
 
@@ -84,81 +83,25 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   }
 
   loadData(event) {
-    // if(this.query.CreatedDateFrom && this.query.CreatedDateTo &&  this.query.IDBranch){
-    //   this.pageConfig.isEndOfData = false;
-    // }
-    this.getInputOutputInventory();
-    // else{
-    //   this.loadedData(event);
-    // }
+    this.loadedData(event);
     
-    // let apiPath = {
-    //   method: 'GET',
-    //   url: function () {
-    //     return ApiSetting.apiDomain('WMS/Transaction/InputOutputInventory/');
-    //   },
-    // };
-    // if (this.pageProvider && !this.pageConfig.isEndOfData) {
-    //   if (event == 'search') {
-    //     this.pageProvider
-    //       .connect(apiPath.method, apiPath.url(), this.query)
-    //       .toPromise()
-    //       .then((result: any) => {
-    //         if (result.length == 0 || result.length < this.query.Take) {
-    //           this.pageConfig.isEndOfData = true;
-    //         }
-    //         this.items = result;
-    //         this.loadedData(null);
-    //       });
-    //   } else {
-    //     this.query.Skip = this.items.length;
-    //     this.pageProvider
-    //       .connect(apiPath.method, apiPath.url(), this.query)
-    //       .toPromise()
-    //       .then((result: any) => {
-    //         if (result.length == 0 || result.length < this.query.Take) {
-    //           this.pageConfig.isEndOfData = true;
-    //         }
-    //         if (result.length > 0) {
-    //           this.items = [...this.items, ...result];
-    //         }
-
-    //         this.loadedData(event);
-    //       });
-    //   }
-    // } else {
-    //   this.loadedData(event);
-    // }
   }
 
   loadedData(event) {
-    this.items?.forEach((i) => {
-      i.OpenQuantity = lib.formatMoney(i.OpenQuantity, 0);
-      i.OpenCube = lib.formatMoney(i.OpenCube / 1000000, 3);
-      i.OpenGrossWeight = lib.formatMoney(i.OpenGrossWeight / 1000, 3);
-      i.OpenNetWeight = lib.formatMoney(i.OpenNetWeight / 1000, 3);
-
-      i.InputQuantity = lib.formatMoney(i.InputQuantity, 0);
-      i.InputCube = lib.formatMoney(i.InputCube / 1000000, 3);
-      i.InputGrossWeight = lib.formatMoney(i.InputGrossWeight / 1000, 3);
-      i.InputNetWeight = lib.formatMoney(i.InputNetWeight / 1000, 3);
-
-      i.OutputQuantity = lib.formatMoney(i.OutputQuantity, 0);
-      i.OutputCube = lib.formatMoney(i.OutputCube / 1000000, 3);
-      i.OutputGrossWeight = lib.formatMoney(i.OutputGrossWeight / 1000, 3);
-      i.OutputNetWeight = lib.formatMoney(i.OutputNetWeight / 1000, 3);
-
-      i.CloseQuantity = lib.formatMoney(i.CloseQuantity, 0);
-      i.CloseCube = lib.formatMoney(i.CloseCube / 1000000, 3);
-      i.CloseGrossWeight = lib.formatMoney(i.CloseGrossWeight / 1000, 3);
-      i.CloseNetWeight = lib.formatMoney(i.CloseNetWeight / 1000, 3);
-    });
+   
     super.loadedData(event);
     if (this.isFristLoaded) {
       this.isFristLoaded = false;
       this._storerDataSource.initSearch();
       this._IDItemDataSource.initSearch();
     }
+  }
+  getFormattedDate(date: Date): string {
+    // Format the date as yyyy-MM-dd to match the input[type="date"] format
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
   _storerDataSource = {
     searchProvider: this.contactProvider,
@@ -204,42 +147,21 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       this.formGroup.get('FromDate').setValue(selectedPeriod?.PostingDateFrom?.substring(0, 10));
       this.formGroup.get('ToDate').setValue(selectedPeriod?.PostingDateTo?.substring(0, 10));
     }
-    this.changeFilter();
   }
   changeFilter() {
     this.formGroup.updateValueAndValidity();
+    if(this.formGroup.get('FromDate').value> this.formGroup.get('ToDate').value){
+      this.env.showMessage('From date cannot be lower than to date!', 'danger');
+      return;
+    }
     if(this.formGroup.invalid){
       return;
     }
     this.formGroup.markAsPristine();
     this.items = [];
 
-    // if (this.formGroup.get('Period').value) {
-    //   let selectedPeriod = this.formGroup.get('Period').value;
-    //   this.formGroup.get('FromDate').setValue(selectedPeriod.PostingDateFrom.substring(0, 10));
-    //   this.formGroup.get('ToDate').setValue(selectedPeriod.PostingDateTo.substring(0, 10));
-    //   //  this.fromDate = selectedPeriod.PostingDateFrom.substring(0, 10);
-    //   // this.toDate = selectedPeriod.PostingDateTo.substring(0, 10);
-    // } else {
-    //   this.formGroup.get('FromDate').setValue(null);
-    //   this.formGroup.get('ToDate').setValue(null);
-    //   // this.fromDate = null;
-    //   // this.toDate = null;
-    // }
-    // this.query.IDBranch =  this.formGroup.get('IDBranch').value;
-    // this.query.IDStorer = this.formGroup.get('IDStorer').value;
-    // this.query.Id = this.formGroup.get('IDItem').value;
-    // this.query.IDPeriod = this.formGroup.get('IDPeriod').value;
-    // this.query.CreatedDateFrom = this.formGroup.get('FromDate').value;
-    // this.query.CreatedDateTo =  this.formGroup.get('ToDate').value;
     this.query = this.formGroup.getRawValue();
-    // if (this.formGroup.get('IDBranch').value) {
-    //   this.pageConfig.isEndOfData = false;
-    //   this.loadData(null);
-    // }
-    // if(this.query.CreatedDateFrom && this.query.CreatedDateTo &&  this.query.IDBranch){
-    
-    // }
+  
     this.pageConfig.isEndOfData = false;
     this.getInputOutputInventory();
   }
@@ -265,9 +187,9 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
           });
       } else {
         this.query.Skip = this.items.length;
-        this.pageProvider
+        this.env.showLoading('Please wait for a few moments',  this.pageProvider
           .connect(apiPath.method, apiPath.url(), this.query)
-          .toPromise()
+          .toPromise())
           .then((result: any) => {
             if (result.length == 0 || result.length < this.query.Take) {
               this.pageConfig.isEndOfData = true;
@@ -345,6 +267,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
                 .search({
                   Take: 20,
                   Skip: 0,
+                  AllUoM:true,
                   IDItemGroup:this.that.formGroup.get('IDItemGroup').value?`[${ this.that.formGroup.get('IDItemGroup').value.join(',')}]`:'[]',
                   Term: term,
                 })
