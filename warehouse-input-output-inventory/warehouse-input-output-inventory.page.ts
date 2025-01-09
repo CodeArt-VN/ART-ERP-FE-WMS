@@ -280,26 +280,4 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
         );
       },
     };
-  
-
-  itemList$;
-  itemListLoading = false;
-  itemListInput$ = new Subject<string>();
-  itemListSelected = [];
-  itemSearch() {
-    this.itemListLoading = false;
-    this.itemList$ = concat(
-      of(this.itemListSelected),
-      this.itemListInput$.pipe(
-        distinctUntilChanged(),
-        tap(() => (this.itemListLoading = true)),
-        switchMap((term) =>
-          this.itemProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
-            catchError(() => of([])), // empty list on error
-            tap(() => (this.itemListLoading = false)),
-          ),
-        ),
-      ),
-    );
-  }
 }
