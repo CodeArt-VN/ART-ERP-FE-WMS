@@ -176,6 +176,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 
   getInputOutputInventory(event=null){
     let query = this.formGroup.getRawValue();
+    this.pageConfig.isSubActive = true;
     this.env.showLoading('Please wait for a few moments', this.pageProvider
       .connect('GET','WMS/Transaction/InputOutputInventory/', query)
       .toPromise())
