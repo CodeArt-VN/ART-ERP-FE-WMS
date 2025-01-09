@@ -84,7 +84,8 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 
   loadData(event) {
     this.loadedData(event);
-    
+    this.getNearestWarehouse(this.env.selectedBranch);
+      
   }
 
   loadedData(event) {
@@ -97,7 +98,6 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     }
   }
   getFormattedDate(date: Date): string {
-    // Format the date as yyyy-MM-dd to match the input[type="date"] format
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -206,6 +206,23 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     }
   }
 
+  getNearestWarehouse(IDBranch) {
+    let currentBranch = this.env.branchList.find((d) => d.Id == IDBranch);
+    if(currentBranch){
+      if(currentBranch.Type == 'Warehouse'){
+        this.formGroup.get('IDBranch').setValue(currentBranch.Id);
+        return true;
+      }
+      else {
+        let childrentWarehouse:any =  this.env.branchList.filter((d) => d.IDParent == IDBranch);
+        for(let child of childrentWarehouse){
+          if(this.getNearestWarehouse(child.Id)){
+            return true;
+          }
+        }
+      }
+    }
+  }
   // changePeriod() {
   //   if (this.selectedPeriod && this.selectedPeriod.Id != 0) {
   //     this.fromDate = this.selectedPeriod.PostingDateFrom.substring(0, 10);

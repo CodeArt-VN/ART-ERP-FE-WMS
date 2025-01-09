@@ -152,6 +152,11 @@
       {{ i.OutputQuantity | number:'1.0-0' }}
     </ng-template>
   </datatable-column>
+  <datatable-column class="col-number" name="Closing Inventory" property="ClosingInventory">
+    <ng-template let-i="row" datatable-cell-template>
+      {{ i.ClosingInventory | number:'1.0-0' }}
+    </ng-template>
+  </datatable-column>
  
   </app-data-table>
   
