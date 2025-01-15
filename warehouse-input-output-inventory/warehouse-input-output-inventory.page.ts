@@ -55,7 +55,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       IDItemGroup: [''],
       IDItem: [''],
       IDPeriod: [''],
-      IsShowInputOutputHasData:[''],
+      IsShowInputOutputHasData:[true],
       FromDate: [this.getFormattedDate(new Date())],
       ToDate: [this.getFormattedDate(new Date())], 
     });
