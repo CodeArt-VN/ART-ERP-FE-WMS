@@ -896,6 +896,10 @@ export class ItemDetailPage extends PageBase {
         i.get('AlternativeQuantity').setValue(1);
         i.get('AlternativeQuantity').markAsDirty();
       }
+      if (!i.get('BaseQuantity').value) {
+        i.get('BaseQuantity').setValue(1);
+        i.get('BaseQuantity').markAsDirty();
+      }
       this.saveMasterDataOrItemInBranch();
       // this.saveChange();
       //return (this.saveChange2(i,null,this.itemUoMProvider))
