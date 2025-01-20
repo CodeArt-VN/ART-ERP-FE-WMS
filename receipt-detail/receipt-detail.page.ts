@@ -30,6 +30,7 @@ export class ReceiptDetailPage extends PageBase {
   branchList = [];
   _vendorDataSource;
   storerList = [];
+  vendorView = false;
   carrierList = [];
   statusList = [];
   typeList = [];
@@ -81,7 +82,7 @@ export class ReceiptDetailPage extends PageBase {
       IsDisabled: new FormControl({ value: '', disabled: true }),
       Lines: this.formBuilder.array([]),
     });
-
+    if(this.env.user.IDBusinessPartner > 0 && this.env.user.SysRoles.includes('VENDOR')) this.vendorView = true;
     if (!pageProvider['importDetail']) {
       Object.assign(pageProvider, {
         importDetail(fileToUpload: File, id) {
