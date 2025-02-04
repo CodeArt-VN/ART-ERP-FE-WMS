@@ -51,13 +51,18 @@ export class ReceiptPage extends PageBase {
         });
       },
     });
+
+
+
+    if(this.env.user.IDBusinessPartner > 0 && this.env.user.SysRoles.includes('VENDOR')) this.vendorView = true;
   }
 
   storerList = [];
   warehouseList = [];
   statusList = [];
   typeList = [];
-
+  vendorView = false;
+  IDBusinessPartner = null;
   preLoadData(event) {
     if (!this.sort.Id) {
       this.sort.Id = 'Id';
@@ -91,6 +96,29 @@ export class ReceiptPage extends PageBase {
     });
 
     super.loadedData(event);
+
+
+    console.log('PAGE CONFIG : ', this.pageConfig);
+  }
+
+  changeSelection(i, e = null) {
+    super.changeSelection(i, e);
+   
+   
+    
+    // const uniqueSellerIDs = new Set(this.selectedItems.map((i) => i.IDVendor));
+    // this.pageConfig.ShowApprove = this.selectedItems.every(i => approveSet.has(i.Status));
+    this.pageConfig.canDelivery = this.selectedItems.every(i =>i.Status == 'Confirmed') && this.vendorView;
+    // this.pageConfig.ShowSubmit = this.selectedItems.every(i => submitSet.has(i.Status));
+    // this.pageConfig.ShowCancel = this.selectedItems.every(i => cancelSet.has(i.Status));
+    this.pageConfig.ShowDelete = this.selectedItems.every(i =>i.Status == 'New');
+
+    // if (uniqueSellerIDs.size > 1) {
+    //   this.IDBusinessPartner = null;
+    // } else {
+    //   this.IDBusinessPartner = [...uniqueSellerIDs][0];
+    // }
+
   }
 
   submitReceipt() {
@@ -325,5 +353,16 @@ export class ReceiptPage extends PageBase {
       console.error('Error scanning QR code:', error);
       this.env.showMessage('Error scanning QR code. Please try again.', 'danger');
     }
+  }
+
+  deliveryReceipt() {
+    let ids = this.selectedItems.map(x=>x.Id);
+    this.pageProvider.commonService
+      .connect('POST', 'WMS/Receipt/ChangeStatus/', { Ids: ids, Status: 'Delivering' })
+      .toPromise()
+      .then((resp) => {
+        this.env.showMessage('Đã chuyển trạng thái thành công', 'success');
+        this.refresh();
+      });
   }
 }
