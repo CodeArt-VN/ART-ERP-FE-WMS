@@ -12,6 +12,10 @@
       <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
     </ion-button>
 
+    <ion-button title="Delivering" *ngIf="pageConfig.canDelivery " (click)="deliveryReceipt()">
+      <ion-icon slot="icon-only" name="shipping-fast"></ion-icon>
+    </ion-button>
+
     <div *ngIf="pageConfig.canEdit">
       <ion-button
         (click)="palletize()"

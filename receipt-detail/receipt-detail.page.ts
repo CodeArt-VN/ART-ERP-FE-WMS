@@ -152,6 +152,8 @@ export class ReceiptDetailPage extends PageBase {
     }
     this._vendorDataSource.initSearch();
     this.setLines();
+
+    this.pageConfig.canDelivery = this.item.Status == 'Confirmed' && this.vendorView;
   }
 
   setLines() {
@@ -632,6 +634,15 @@ export class ReceiptDetailPage extends PageBase {
       })
       .catch((err) => {
         this.env.showMessage(err);
+      });
+  }
+
+  deliveryReceipt(){
+      let ids = [this.formGroup.get('Id').value];
+      this.pageProvider.commonService
+      .connect('POST', 'WMS/Receipt/ChangeStatus/', {Ids: ids,Status:'Delivering'}).toPromise().then((resp) => {
+        this.env.showMessage('Đã chuyển trạng thái thành công', 'success');
+        this.refresh();
       });
   }
 }
