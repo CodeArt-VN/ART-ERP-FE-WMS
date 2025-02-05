@@ -1,6 +1,9 @@
 .cell b {
   color: var(--ion-color-primary);
 }
+
+
+
 @media screen and (max-width: 1164px) {
   :host ::ng-deep {
     app-data-table.responsive .row .col-number, .table.responsive .row .col-number{
