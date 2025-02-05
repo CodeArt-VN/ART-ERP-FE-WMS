@@ -146,19 +146,19 @@
         </span>
       </ng-template>
     </datatable-column>
-    <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column>
-    <datatable-column class="col-number Open-Quantity" name="Open quantity" property="OpenQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i.OpenQuantity | number:'1.0-0' }} </ng-template>
+    <!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
+    <datatable-column class="col-text Open-Quantity" name="Open quantity" property="_OpenQuantity">
+      <ng-template let-i="row" datatable-cell-template> {{ i._OpenQuantity }} </ng-template>
     </datatable-column>
-    <datatable-column class="col-number Input-Quantity" name="Input quantity" property="InputQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i.InputQuantity | number:'1.0-0' }} </ng-template>
+    <datatable-column class="col-text Input-Quantity" name="Input quantity" property="_InputQuantity">
+      <ng-template let-i="row" datatable-cell-template> {{ i._InputQuantity  }} </ng-template>
     </datatable-column>
-    <datatable-column class="col-number Output-Quantity" name="Output quantity" property="OutputQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i.OutputQuantity | number:'1.0-0' }} </ng-template>
+    <datatable-column class="col-text Output-Quantity" name="Output quantity" property="_OutputQuantity">
+      <ng-template let-i="row" datatable-cell-template> {{ i._OutputQuantity  }} </ng-template>
     </datatable-column>
-    <datatable-column class="col-number Closing-Inventory" name="Closing Inventory" property="OutputQuantity">
+    <datatable-column class="col-text Closing-Inventory" name="Closing Inventory" property="_ClosingQuantity">
       <ng-template let-i="row" datatable-cell-template>
-        {{( i.OpenQuantity + i.InputQuantity - i.OutputQuantity)| number:'1.0-0' }}
+        {{( i._ClosingQuantity)}}
       </ng-template>
     </datatable-column>
   </app-data-table>
