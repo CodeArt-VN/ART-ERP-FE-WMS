@@ -170,6 +170,7 @@ export class ItemDetailPage extends PageBase {
     this.pageConfig.isDetailPage = true;
     this.pageConfig.isShowFeature = true;
     this.pageConfig.isFeatureAsMain = true;
+    this.pageConfig.ShowArchive = false;
     this.config.notFoundText = 'Không tìm thấy dữ liệu phù hợp...';
     this.config.clearAllText = 'Xóa';
 
@@ -895,6 +896,10 @@ export class ItemDetailPage extends PageBase {
       if (!i.get('AlternativeQuantity').value) {
         i.get('AlternativeQuantity').setValue(1);
         i.get('AlternativeQuantity').markAsDirty();
+      }
+      if (!i.get('BaseQuantity').value) {
+        i.get('BaseQuantity').setValue(1);
+        i.get('BaseQuantity').markAsDirty();
       }
       this.saveMasterDataOrItemInBranch();
       // this.saveChange();
