@@ -170,6 +170,7 @@ export class ItemDetailPage extends PageBase {
     this.pageConfig.isDetailPage = true;
     this.pageConfig.isShowFeature = true;
     this.pageConfig.isFeatureAsMain = true;
+    this.pageConfig.ShowArchive = false;
     this.config.notFoundText = 'Không tìm thấy dữ liệu phù hợp...';
     this.config.clearAllText = 'Xóa';
 
