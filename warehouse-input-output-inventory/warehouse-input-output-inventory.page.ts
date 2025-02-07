@@ -14,6 +14,7 @@ import {
   CRM_ContactProvider,
   WMS_ItemGroupProvider,
   WMS_ItemProvider,
+  WMS_TransactionProvider,
 } from 'src/app/services/static/services.service';
 
 import { concat, of, Subject } from 'rxjs';
@@ -32,8 +33,10 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   itemGroupList = [];
   periodList = [];
   isFristLoaded = true;
+  itemGroup = [];
+  isAllRowOpened = true;
   constructor(
-    public pageProvider: CommonService,
+    public pageProvider: WMS_TransactionProvider,
     public env: EnvService,
     public route: ActivatedRoute,
     public itemGroupProvider: WMS_ItemGroupProvider,
@@ -56,11 +59,13 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       IDItem: [''],
       IDPeriod: [''],
       IsShowInputOutputHasData: [true],
+      ViewItem : [false],
       FromDate: [this.getFormattedDate(new Date())],
       ToDate: [this.getFormattedDate(new Date())],
     });
     this.pageConfig.isShowFeature = true;
     this.pageConfig.isFeatureAsMain = true;
+    this.pageConfig.canExport = true;
   }
 
   preLoadData(event) {
@@ -110,6 +115,18 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       this._IDItemDataSource.initSearch();
     }
   }
+  
+ async export() {
+  let query = this.formGroup.getRawValue();
+  this.env
+      .showLoading('Please wait for a few moments',  this.pageProvider.commonService.connect('GET', 'WMS/Transaction/ExportInputOutputInventory/', query).toPromise())
+      .then((response: any) => {
+        this.downloadURLContent(response);
+      })
+      .catch((err) => {
+        //this.submitAttempt = false;
+      });
+ }
 
   getFormattedDate(date: Date): string {
     const year = date.getFullYear();
@@ -177,13 +194,31 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   //   this.getInputOutputInventory();
   // }
 
+  recurDifference(resp : any) {
+    this.items = resp.filter((d)=> (d.HasChild && resp.some(s=> d.Id== s.IDParent) )|| d.IDItem)
+    if(this.items.some(d =>!this.items.some(f => f.IDParent == d.Id))){
+     this.recurDifference(this.items);
+   }
+}
+
   getInputOutputInventory(event = null) {
     let query = this.formGroup.getRawValue();
-    this.pageConfig.isSubActive = true;
+    this.pageConfig.isSubActive = true; 
+    this.itemGroup = [];
+    if(query.ViewItem){
+      this.pageProvider.commonService.connect('GET', 'WMS/ItemGroup/', {Take:5000}).toPromise()
+      .then((result: any) => {
+       this.itemGroup = result.map((x) =>{
+        return {IDParent: x.IDParent,Id: x.Id,Code : x.Code ,ItemName: x.Name ,
+          _OpenQuantity:'', _InputQuantity:'', _OutputQuantity:'', _ClosingQuantity:''}
+       });
+      });
+    }
+   
     this.env
       .showLoading(
         'Please wait for a few moments',
-        this.pageProvider.connect('GET', 'WMS/Transaction/InputOutputInventory/', query).toPromise(),
+        this.pageProvider.commonService.connect('GET', 'WMS/Transaction/InputOutputInventory/', query).toPromise(),
       )
       .then((result: any) => {
         if (result) {
@@ -205,8 +240,24 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
               m._ClosingQuantity = m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
             }
           });
-
-          this.items = result;
+          if(query.ViewItem){
+            result = result.map((x) => {return{...x,IDParent : x.IDItemGroup}});
+            this.itemGroup = [...this.itemGroup, ...result];
+            this.buildFlatTree(this.itemGroup, this.items, this.isAllRowOpened).then((resp: any) => {
+              this.items = resp.map((x)=> {
+                if(x.IDItem) return {...x,HasChild: false};
+                else return x
+              }).filter((d)=> d.HasChild || d.IDItem);
+              this.recurDifference(this.items);
+            });
+          }else{
+            // this.buildFlatTree(result, this.items, this.isAllRowOpened).then((resp: any) => {
+            //   this.items = resp;
+            // });
+            this.items = result;
+          }
+         
+          //this.items = this.itemGroup;
         }
       })
       .catch((err) => {
@@ -229,6 +280,25 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
           }
         }
       }
+    }
+  }
+
+  toggleRowAll() {
+    this.isAllRowOpened = !this.isAllRowOpened;
+    this.items.forEach((i) => {
+      i.showdetail = !this.isAllRowOpened;
+      this.toggleRow(this.items, i, true);
+    });
+  }
+  toggleRow(ls, ite, toogle = false) {
+    if (ite && ite.showdetail && toogle) {
+      //hide
+      ite.showdetail = false;
+      this.showHideAllNestedFolder(ls, ite.Id, false, ite.showdetail);
+    } else if (ite && !ite.showdetail && toogle) {
+      //show loaded
+      ite.showdetail = true;
+      this.showHideAllNestedFolder(ls, ite.Id, true, ite.showdetail);
     }
   }
 

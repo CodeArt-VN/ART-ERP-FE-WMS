@@ -1,5 +1,8 @@
 <ion-header>
-  <app-toolbar [page]="this"></app-toolbar>
+  <app-toolbar [page]="this"
+  [ShowExport]="true"
+  >
+  </app-toolbar>
 </ion-header>
 
 <ion-content
@@ -110,6 +113,9 @@
           [field]="{id:'IsShowInputOutputHasData',label:'Only show items with transactions', type:'checkbox', form:formGroup}"
         >
         </app-form-control>
+
+        <app-form-control [field]="{id:'ViewItem',label:'Show item groups', type:'checkbox', form:formGroup}">
+        </app-form-control>
       </div>
 
       <div class="action-buttons sticky-bottom">
@@ -134,16 +140,48 @@
     [(query)]="query"
     (filter)="onDatatableFilter($event)"
     (sort)="onSort($event)"
+    [isTreeList]="true" 
   >
-    <datatable-column class="col-name" name="Item" property="IDItem">
+    <datatable-column class="col-name" name="Item" property="ItemName">
+      <ng-template datatable-header-template>
+        <ion-icon
+          class="min-btn"
+          [name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'"
+          (click)="toggleRowAll()"
+        ></ion-icon>
+        <span (click)="toggleRowAll()">{{'Name' | translate}}</span>
+      </ng-template>
       <ng-template let-i="row" datatable-cell-template>
-        <span [title]="i.ItemName">
-          <a [routerLink]="'/item/' + i.IDItem" class="clickable">
-            <ion-icon color="warning" *ngIf="i.IsDisabled" name="archive"></ion-icon>
-            <span *ngIf="!i.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
+        <ng-container *ngFor="let w of i?.levels; let k = index;"
+          ><span class="spacing" *ngIf="k>0"></span
+        ></ng-container>
+        <ion-icon
+          (click)="toggleRow(items, i, true);"
+          class="min-btn clickable"
+          [name]="!i?.showdetail? 'chevron-forward-outline':'chevron-down-outline'"
+          *ngIf="i?.HasChild"
+        ></ion-icon>
+        <ion-icon class="min-btn clickable" [name]="''" *ngIf="!i?.HasChild"></ion-icon>
+        <ng-container *ngIf="i?.ItemCode && i?.IDItem">
+          <span [title]="i?.ItemName">
+            <a [routerLink]="'/item/' + i?.IDItem" class="clickable">
+              <ion-icon color="warning" *ngIf="i?.IsDisabled" name="archive"></ion-icon>
+              <span *ngIf="!i?.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
+            >
+            <ion-text
+            class="clickable"
+            [ngClass]="i?.HasChild? ('bold ') : ('')"
+            ><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text
           >
-          <b>{{ i.ItemCode }}</b> {{ i.ItemName }}
-        </span>
+          </span>
+        </ng-container>
+        <ng-container *ngIf="!(i?.ItemCode && i?.IDItem)">
+          <ion-text
+          class="clickable"
+          [ngClass]="i?.HasChild? ('bold ') : ('')"
+          >{{i?.ItemName}}</ion-text
+        >
+        </ng-container>
       </ng-template>
     </datatable-column>
     <!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
@@ -151,15 +189,13 @@
       <ng-template let-i="row" datatable-cell-template> {{ i._OpenQuantity }} </ng-template>
     </datatable-column>
     <datatable-column class="col-text Input-Quantity" name="Input quantity" property="_InputQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i._InputQuantity  }} </ng-template>
+      <ng-template let-i="row" datatable-cell-template> {{ i._InputQuantity }} </ng-template>
     </datatable-column>
     <datatable-column class="col-text Output-Quantity" name="Output quantity" property="_OutputQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i._OutputQuantity  }} </ng-template>
+      <ng-template let-i="row" datatable-cell-template> {{ i._OutputQuantity }} </ng-template>
     </datatable-column>
     <datatable-column class="col-text Closing-Inventory" name="Closing Inventory" property="_ClosingQuantity">
-      <ng-template let-i="row" datatable-cell-template>
-        {{( i._ClosingQuantity)}}
-      </ng-template>
+      <ng-template let-i="row" datatable-cell-template> {{( i._ClosingQuantity)}} </ng-template>
     </datatable-column>
   </app-data-table>
 </ion-content>
