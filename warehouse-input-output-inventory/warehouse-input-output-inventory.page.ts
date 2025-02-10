@@ -59,7 +59,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       IDItem: [''],
       IDPeriod: [''],
       IsShowInputOutputHasData: [true],
-      ViewItem : [false],
+      ViewItemGroup : [false],
       FromDate: [this.getFormattedDate(new Date())],
       ToDate: [this.getFormattedDate(new Date())],
     });
@@ -72,7 +72,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     Promise.all([
       this.contactProvider.read({ IsStorer: true, Take: 20, Skip: 0, SkipAddress: true }),
       this.postingPeriodProvider.read(),
-      this.itemGroupProvider.read(),
+      this.itemGroupProvider.read({Take: 5000}),
     ]).then((values: any) => {
       if (values[0] && values[0].data) {
         this._storerDataSource.selected.push(...values[0].data);
@@ -205,7 +205,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     let query = this.formGroup.getRawValue();
     this.pageConfig.isSubActive = true; 
     this.itemGroup = [];
-    if(query.ViewItem){
+    if(query.ViewItemGroup){
       this.pageProvider.commonService.connect('GET', 'WMS/ItemGroup/', {Take:5000}).toPromise()
       .then((result: any) => {
        this.itemGroup = result.map((x) =>{
@@ -240,7 +240,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
               m._ClosingQuantity = m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
             }
           });
-          if(query.ViewItem){
+          if(query.ViewItemGroup){
             result = result.map((x) => {return{...x,IDParent : x.IDItemGroup}});
             this.itemGroup = [...this.itemGroup, ...result];
             this.buildFlatTree(this.itemGroup, this.items, this.isAllRowOpened).then((resp: any) => {

@@ -100,22 +100,23 @@
         >
         </app-form-control>
 
-        <app-form-control
+        <!-- <app-form-control
           [field]="{id:'IDPeriod',label:'Period', type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:periodList, placeholder:'Select Period',form:formGroup}"
         >
-        </app-form-control>
+        </app-form-control> -->
 
         <app-form-control [field]="{id:'FromDate',label:'From date', type:'date', form:formGroup}"> </app-form-control>
 
         <app-form-control [field]="{id:'ToDate',label:'To date', type:'date', form:formGroup}"> </app-form-control>
 
         <app-form-control
-          [field]="{id:'IsShowInputOutputHasData',label:'Only show items with transactions', type:'checkbox', form:formGroup}"
+          [field]="{id:'IsShowInputOutputHasData',label:'Show items with transactions', type:'checkbox', form:formGroup}"
         >
         </app-form-control>
 
-        <app-form-control [field]="{id:'ViewItem',label:'Show item groups', type:'checkbox', form:formGroup}">
+        <app-form-control [field]="{id:'ViewItemGroup',label:'Show item groups', type:'checkbox', form:formGroup}">
         </app-form-control>
+
       </div>
 
       <div class="action-buttons sticky-bottom">
@@ -144,12 +145,12 @@
   >
     <datatable-column class="col-name" name="Item" property="ItemName">
       <ng-template datatable-header-template>
-        <ion-icon
+        <ion-icon *ngIf="formGroup?.controls?.ViewItemGroup?.value"
           class="min-btn"
           [name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'"
           (click)="toggleRowAll()"
         ></ion-icon>
-        <span (click)="toggleRowAll()">{{'Name' | translate}}</span>
+        <span (click)="toggleRowAll()">{{'Items' | translate}}</span>
       </ng-template>
       <ng-template let-i="row" datatable-cell-template>
         <ng-container *ngFor="let w of i?.levels; let k = index;"
@@ -185,16 +186,16 @@
       </ng-template>
     </datatable-column>
     <!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
-    <datatable-column class="col-text Open-Quantity" name="Open quantity" property="_OpenQuantity">
+    <datatable-column class="col-text Open-Quantity" name="Opening stock" property="_OpenQuantity">
       <ng-template let-i="row" datatable-cell-template> {{ i._OpenQuantity }} </ng-template>
     </datatable-column>
-    <datatable-column class="col-text Input-Quantity" name="Input quantity" property="_InputQuantity">
+    <datatable-column class="col-text Input-Quantity" name="Receipt qty" property="_InputQuantity">
       <ng-template let-i="row" datatable-cell-template> {{ i._InputQuantity }} </ng-template>
     </datatable-column>
-    <datatable-column class="col-text Output-Quantity" name="Output quantity" property="_OutputQuantity">
+    <datatable-column class="col-text Output-Quantity" name="Issue qty" property="_OutputQuantity">
       <ng-template let-i="row" datatable-cell-template> {{ i._OutputQuantity }} </ng-template>
     </datatable-column>
-    <datatable-column class="col-text Closing-Inventory" name="Closing Inventory" property="_ClosingQuantity">
+    <datatable-column class="col-text Closing-Inventory" name="Stock qty" property="_ClosingQuantity">
       <ng-template let-i="row" datatable-cell-template> {{( i._ClosingQuantity)}} </ng-template>
     </datatable-column>
   </app-data-table>
