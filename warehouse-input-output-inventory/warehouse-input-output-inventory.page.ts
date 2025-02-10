@@ -59,7 +59,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       IDItem: [''],
       IDPeriod: [''],
       IsShowInputOutputHasData: [true],
-      ViewItem : [false],
+      ViewItemGroup: [false],
       FromDate: [this.getFormattedDate(new Date())],
       ToDate: [this.getFormattedDate(new Date())],
     });
@@ -72,7 +72,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     Promise.all([
       this.contactProvider.read({ IsStorer: true, Take: 20, Skip: 0, SkipAddress: true }),
       this.postingPeriodProvider.read(),
-      this.itemGroupProvider.read(),
+      this.itemGroupProvider.read({ Take: 5000 }),
     ]).then((values: any) => {
       if (values[0] && values[0].data) {
         this._storerDataSource.selected.push(...values[0].data);
@@ -115,18 +115,23 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       this._IDItemDataSource.initSearch();
     }
   }
-  
- async export() {
-  let query = this.formGroup.getRawValue();
-  this.env
-      .showLoading('Please wait for a few moments',  this.pageProvider.commonService.connect('GET', 'WMS/Transaction/ExportInputOutputInventory/', query).toPromise())
+
+  async export() {
+    let query = this.formGroup.getRawValue();
+    this.env
+      .showLoading(
+        'Please wait for a few moments',
+        this.pageProvider.commonService
+          .connect('GET', 'WMS/Transaction/ExportInputOutputInventory/', query)
+          .toPromise(),
+      )
       .then((response: any) => {
         this.downloadURLContent(response);
       })
       .catch((err) => {
         //this.submitAttempt = false;
       });
- }
+  }
 
   getFormattedDate(date: Date): string {
     const year = date.getFullYear();
@@ -194,27 +199,40 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   //   this.getInputOutputInventory();
   // }
 
-  recurDifference(resp : any) {
-    this.items = resp.filter((d)=> (d.HasChild && resp.some(s=> d.Id== s.IDParent) )|| d.IDItem)
-    if(this.items.some(d =>!this.items.some(f => f.IDParent == d.Id))){
-     this.recurDifference(this.items);
-   }
-}
+  recurDifference(resp: any) {
+    this.items = resp.filter((d) => (d.HasChild && resp.some((s) => d.Id == s.IDParent)) || d.IDItem);
+    if (this.items.some((d) => !this.items.some((f) => f.IDParent == d.Id))) {
+      this.recurDifference(this.items);
+    }
+  }
 
   getInputOutputInventory(event = null) {
+    if (this.submitAttempt) return;
+    this.submitAttempt = true;
     let query = this.formGroup.getRawValue();
-    this.pageConfig.isSubActive = true; 
+    // query = {...query,...this.query};
+    this.pageConfig.isSubActive = true;
     this.itemGroup = [];
-    if(query.ViewItem){
-      this.pageProvider.commonService.connect('GET', 'WMS/ItemGroup/', {Take:5000}).toPromise()
-      .then((result: any) => {
-       this.itemGroup = result.map((x) =>{
-        return {IDParent: x.IDParent,Id: x.Id,Code : x.Code ,ItemName: x.Name ,
-          _OpenQuantity:'', _InputQuantity:'', _OutputQuantity:'', _ClosingQuantity:''}
-       });
-      });
+    if (query.ViewItemGroup) {
+      this.pageProvider.commonService
+        .connect('GET', 'WMS/ItemGroup/', { Take: 5000 })
+        .toPromise()
+        .then((result: any) => {
+          this.itemGroup = result.map((x) => {
+            return {
+              IDParent: x.IDParent,
+              Id: x.Id,
+              Code: x.Code,
+              ItemName: x.Name,
+              _OpenQuantity: '',
+              _InputQuantity: '',
+              _OutputQuantity: '',
+              _ClosingQuantity: '',
+            };
+          });
+        });
     }
-   
+
     this.env
       .showLoading(
         'Please wait for a few moments',
@@ -224,45 +242,69 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
         if (result) {
           result.forEach((m) => {
             m._OpenQuantity = 0;
-            m._InputQuantity =0;
+            m._InputQuantity = 0;
             m._OutputQuantity = 0;
             m._ClosingQuantity = 0;
             if (m._SplitUoMs_OpenQuantity.length > 0) {
-              m._OpenQuantity = m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
+                m._OpenQuantity = ' - '  + m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
+              }else{
+                m._OpenQuantity = m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              }
             }
             if (m._SplitUoMs_InputQuantity.length > 0) {
-              m._InputQuantity = m._SplitUoMs_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
+                m._InputQuantity =' - '  +   m._SplitUoMS_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
+              }else{
+                m._InputQuantity = m._SplitUoMS_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              }
             }
             if (m._SplitUoMs_OutputQuantity.length > 0) {
-              m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
+                m._OutputQuantity = ' - '  +  m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
+              }else{
+                m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              }
+              // m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
             }
             if (m._SplitUoMs_ClosingQuantity.length > 0) {
-              m._ClosingQuantity = m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+
+              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
+                m._ClosingQuantity =' - '  +   m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
+              }else{
+                m._ClosingQuantity = m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+              }
             }
           });
-          if(query.ViewItem){
-            result = result.map((x) => {return{...x,IDParent : x.IDItemGroup}});
+          if (query.ViewItemGroup) {
+            result = result.map((x) => {
+              return { ...x, IDParent: x.IDItemGroup, Id: x.IDItem };
+            });
             this.itemGroup = [...this.itemGroup, ...result];
             this.buildFlatTree(this.itemGroup, this.items, this.isAllRowOpened).then((resp: any) => {
-              this.items = resp.map((x)=> {
-                if(x.IDItem) return {...x,HasChild: false};
-                else return x
-              }).filter((d)=> d.HasChild || d.IDItem);
+              this.items = resp
+                .map((x) => {
+                  if (x.IDItem) return { ...x, HasChild: false };
+                  else return x; 
+                })
+                .filter((d) => d.HasChild || d.IDItem);
               this.recurDifference(this.items);
+              // this.items = this.items.map((x) => {if(!x.IDParent) return {...x,show : true,showdetail:this.isAllRowOpened}; else return x});
+              console.log(this.items);
             });
-          }else{
+          } else {
             // this.buildFlatTree(result, this.items, this.isAllRowOpened).then((resp: any) => {
             //   this.items = resp;
             // });
             this.items = result;
           }
-         
-          //this.items = this.itemGroup;
         }
+        this.submitAttempt = false;
       })
       .catch((err) => {
         console.log(err);
         this.env.showMessage('error!', 'danger');
+        this.submitAttempt = false;
       });
   }
 
