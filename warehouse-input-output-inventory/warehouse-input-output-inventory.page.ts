@@ -33,7 +33,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   itemGroupList = [];
   periodList = [];
   isFristLoaded = true;
-  itemGroup = [];
+  itemGroups = [];
   isAllRowOpened = true;
   constructor(
     public pageProvider: WMS_TransactionProvider,
@@ -83,6 +83,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
         this.periodList.unshift(all);
       }
       if (values[2] && values[2].data) {
+        this.itemGroups = values[2].data;
         lib.buildFlatTree(values[2].data, []).then((result: any) => {
           this.itemGroupList = result;
         });
@@ -199,9 +200,21 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   //   this.getInputOutputInventory();
   // }
 
+  // recurDifference(itemGroup: any, listItem: any, listItemGroup: any) {
+  //   if (listItem.some((d) => d.IDItemGroup == itemGroup.Id)) return true;
+  //   let childGroup = listItemGroup.find((d) => d.IDParent == itemGroup.Id);
+  //   if (childGroup) {
+  //     this.recurDifference(childGroup, listItem, listItemGroup);
+  //   } else return false;
+  //   // this.items = resp.filter((d) => (d.HasChild && resp.some((s) => d.Id == s.IDParent)) || d.IDItem);
+  //   // if (this.items.some()) {
+  //   //   this.recurDifference(this.items);
+  //   // }
+  // }
+
   recurDifference(resp: any) {
-    this.items = resp.filter((d) => (d.HasChild && resp.some((s) => d.Id == s.IDParent)) || d.IDItem);
-    if (this.items.some((d) => !this.items.some((f) => f.IDParent == d.Id))) {
+    this.items = resp.filter((d) => d.IDItem || resp.some((s) => d.Id == s.IDParent));
+    if (this.items.some((d) => !d.IDItem && !this.items.some((f) => f.IDParent == d.Id))) {
       this.recurDifference(this.items);
     }
   }
@@ -211,26 +224,21 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     this.submitAttempt = true;
     let query = this.formGroup.getRawValue();
     // query = {...query,...this.query};
+    let groups = [];
     this.pageConfig.isSubActive = true;
-    this.itemGroup = [];
     if (query.ViewItemGroup) {
-      this.pageProvider.commonService
-        .connect('GET', 'WMS/ItemGroup/', { Take: 5000 })
-        .toPromise()
-        .then((result: any) => {
-          this.itemGroup = result.map((x) => {
-            return {
-              IDParent: x.IDParent,
-              Id: x.Id,
-              Code: x.Code,
-              ItemName: x.Name,
-              _OpenQuantity: '',
-              _InputQuantity: '',
-              _OutputQuantity: '',
-              _ClosingQuantity: '',
-            };
-          });
-        });
+      groups = this.itemGroups.map((x) => {
+        return {
+          IDParent: x.IDParent,
+          Id: x.Id,
+          Code: x.Code,
+          ItemName: x.Name,
+          _OpenQuantity: '',
+          _InputQuantity: '',
+          _OutputQuantity: '',
+          _ClosingQuantity: '',
+        };
+      });
     }
 
     this.env
@@ -245,33 +253,25 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
             m._InputQuantity = 0;
             m._OutputQuantity = 0;
             m._ClosingQuantity = 0;
-            if (m._SplitUoMs_OpenQuantity.length > 0) {
-              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
-                m._OpenQuantity = ' - '  + m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
-              }else{
+            if (m._SplitUoMs_OpenQuantity?.length > 0) {
+              if (m.OpenQuantity == 0 || m.OpenQuantity < 0) {
+                m._OpenQuantity =
+                  ' - ' + m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
+              } else {
                 m._OpenQuantity = m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
               }
             }
-            if (m._SplitUoMs_InputQuantity.length > 0) {
-              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
-                m._InputQuantity =' - '  +   m._SplitUoMS_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
-              }else{
-                m._InputQuantity = m._SplitUoMS_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
-              }
+            if (m._SplitUoMs_InputQuantity?.length > 0) {
+              m._InputQuantity = m._SplitUoMs_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
             }
-            if (m._SplitUoMs_OutputQuantity.length > 0) {
-              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
-                m._OutputQuantity = ' - '  +  m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
-              }else{
-                m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
-              }
-              // m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
+            if (m._SplitUoMs_OutputQuantity?.length > 0) {
+              m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
             }
-            if (m._SplitUoMs_ClosingQuantity.length > 0) {
-
-              if(m.OpenQuantity == 0 || m.OpenQuantity < 0){
-                m._ClosingQuantity =' - '  +   m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
-              }else{
+            if (m._SplitUoMs_ClosingQuantity?.length > 0) {
+              if (m.OpenQuantity + m.InputQuantity - m.OutputQuantity < 0) {
+                m._ClosingQuantity =
+                  ' - ' + m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
+              } else {
                 m._ClosingQuantity = m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
               }
             }
@@ -280,23 +280,20 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
             result = result.map((x) => {
               return { ...x, IDParent: x.IDItemGroup, Id: x.IDItem };
             });
-            this.itemGroup = [...this.itemGroup, ...result];
-            this.buildFlatTree(this.itemGroup, this.items, this.isAllRowOpened).then((resp: any) => {
+            let itemView = [...groups, ...result];
+            this.buildFlatTree(itemView, this.items, this.isAllRowOpened).then((resp: any) => {
               this.items = resp
                 .map((x) => {
                   if (x.IDItem) return { ...x, HasChild: false };
-                  else return x; 
+                  else return x;
                 })
                 .filter((d) => d.HasChild || d.IDItem);
               this.recurDifference(this.items);
-              // this.items = this.items.map((x) => {if(!x.IDParent) return {...x,show : true,showdetail:this.isAllRowOpened}; else return x});
-              console.log(this.items);
+              console.log(this.items.filter((d) => d.IDItem));
             });
           } else {
-            // this.buildFlatTree(result, this.items, this.isAllRowOpened).then((resp: any) => {
-            //   this.items = resp;
-            // });
             this.items = result;
+            console.log(this.items);
           }
         }
         this.submitAttempt = false;
