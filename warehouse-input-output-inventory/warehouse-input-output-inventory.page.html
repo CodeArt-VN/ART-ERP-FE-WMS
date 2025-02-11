@@ -1,8 +1,5 @@
 <ion-header>
-  <app-toolbar [page]="this"
-  [ShowExport]="true"
-  >
-  </app-toolbar>
+  <app-toolbar [page]="this" [ShowExport]="true"> </app-toolbar>
 </ion-header>
 
 <ion-content
@@ -116,7 +113,6 @@
 
         <app-form-control [field]="{id:'ViewItemGroup',label:'Show item groups', type:'checkbox', form:formGroup}">
         </app-form-control>
-
       </div>
 
       <div class="action-buttons sticky-bottom">
@@ -141,12 +137,13 @@
     [(query)]="query"
     (filter)="onDatatableFilter($event)"
     (sort)="onSort($event)"
-    [isTreeList]="true" 
+    [isTreeList]="true"
   >
     <datatable-column class="col-name" name="Item" property="ItemName">
       <ng-template datatable-header-template>
         <ion-icon
-          class="min-btn" *ngIf="formGroup?.controls?.ViewItemGroup?.value"
+          class="min-btn"
+          *ngIf="formGroup?.controls?.ViewItemGroup?.value"
           [name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'"
           (click)="toggleRowAll()"
         ></ion-icon>
@@ -169,34 +166,56 @@
               <ion-icon color="warning" *ngIf="i?.IsDisabled" name="archive"></ion-icon>
               <span *ngIf="!i?.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
             >
-            <ion-text
-            class="clickable"
-            [ngClass]="i?.HasChild? ('bold ') : ('')"
-            ><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text
-          >
+            <ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"
+              ><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text
+            >
           </span>
         </ng-container>
         <ng-container *ngIf="!(i?.ItemCode && i?.IDItem)">
-          <ion-text
-          class="clickable"
-          [ngClass]="i?.HasChild? ('bold ') : ('')"
-          >{{i?.ItemName}}</ion-text
-        >
+          <ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')">{{i?.ItemName}}</ion-text>
         </ng-container>
       </ng-template>
     </datatable-column>
     <!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
-    <datatable-column class="col-text Open-Quantity" name="Opening stock" property="_OpenQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i._OpenQuantity }} </ng-template>
+    <datatable-column class="col-text Open-Quantity" name="Opening stock" property="OpenQuantity">
+      <ng-template let-i="row" datatable-cell-template>
+        <span *ngIf="i">
+          <ion-text [color]="i.OpenQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OpenQuantity"
+            ><strong> <span *ngIf="i.OpenQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+            <small>{{u.UoMName}}</small>
+          </ion-text>
+        </span>
+      </ng-template>
     </datatable-column>
-    <datatable-column class="col-text Input-Quantity" name="Receipt qty" property="_InputQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i._InputQuantity }} </ng-template>
+    <datatable-column class="col-text Input-Quantity" name="Receipt qty" property="InputQuantity">
+      <ng-template let-i="row" datatable-cell-template>
+        <span *ngIf="i">
+          <ion-text [color]="i.InputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_InputQuantity"
+            ><strong> <span *ngIf="i.InputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+            <small>{{u.UoMName}}</small>
+          </ion-text>
+        </span>
+      </ng-template>
     </datatable-column>
-    <datatable-column class="col-text Output-Quantity" name="Issue qty" property="_OutputQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{ i._OutputQuantity }} </ng-template>
+    <datatable-column class="col-text Output-Quantity" name="Issue qty" property="OutputQuantity">
+      <ng-template let-i="row" datatable-cell-template>
+        <span *ngIf="i">
+          <ion-text [color]="i.OutputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OutputQuantity"
+            ><strong> <span *ngIf="i.OutputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+            <small>{{u.UoMName}}</small>
+          </ion-text>
+        </span>
+      </ng-template>
     </datatable-column>
-    <datatable-column class="col-text Closing-Inventory" name="Stock qty" property="_ClosingQuantity">
-      <ng-template let-i="row" datatable-cell-template> {{( i._ClosingQuantity)}} </ng-template>
+    <datatable-column class="col-text Closing-Inventory" name="Stock qty" property="ClosingQuantity">
+      <ng-template let-i="row" datatable-cell-template>
+        <span *ngIf="i">
+          <ion-text [color]="i.ClosingQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_ClosingQuantity"
+            ><strong> <span *ngIf="i.ClosingQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+            <small>{{u.UoMName}}</small>
+          </ion-text>
+        </span>
+      </ng-template>
     </datatable-column>
   </app-data-table>
 </ion-content>
