@@ -1,5 +1,5 @@
 <ion-header>
-  <app-list-toolbar
+  <!-- <app-list-toolbar
     pageTitle="{{'Goods receipt' | translate}}"
     [pageConfig]="pageConfig"
     [selectedItems]="selectedItems"
@@ -14,8 +14,23 @@
     (deleteItems)="deleteItems()"
     (changeBranch)="changeBranch($event)"
     (submitReceipt)="submitReceipt()"
-  ></app-list-toolbar>
+  >
+</app-list-toolbar> -->
 
+<app-toolbar [page]="this" [ShowDelete]="pageConfig.ShowDelete">
+  <ion-button tollbarSelected title="Goods receipt" *ngIf="pageConfig.canReceive" (click)="submitReceipt()">
+    <ion-icon color="success" slot="icon-only" name="bag-check-outline"></ion-icon>
+  </ion-button>
+
+  <ion-button tollbarSelected title="Delivering" *ngIf="pageConfig.canDelivery " (click)="deliveryReceipt()">
+    <ion-icon slot="icon-only" name="shipping-fast"></ion-icon>
+  </ion-button>
+</app-toolbar>
+
+ 
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
   <section class="table">
     <header class="bold">
       <div class="col-checkbox cell"></div>
@@ -260,9 +275,7 @@
       </header>
     </form>
   </section>
-</ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
   <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 
   <div *ngIf="items.length && pageConfig.showSpinner==false">
