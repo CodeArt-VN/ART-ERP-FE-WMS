@@ -145,8 +145,8 @@
   >
     <datatable-column class="col-name" name="Item" property="ItemName">
       <ng-template datatable-header-template>
-        <ion-icon *ngIf="formGroup?.controls?.ViewItemGroup?.value"
-          class="min-btn"
+        <ion-icon
+          class="min-btn" *ngIf="formGroup?.controls?.ViewItemGroup?.value"
           [name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'"
           (click)="toggleRowAll()"
         ></ion-icon>
