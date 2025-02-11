@@ -72,7 +72,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     Promise.all([
       this.contactProvider.read({ IsStorer: true, Take: 20, Skip: 0, SkipAddress: true }),
       this.postingPeriodProvider.read(),
-      this.itemGroupProvider.read({ Take: 5000 }),
+      this.itemGroupProvider.read({ Take: 5000 ,IgnoredBranch:true}),
     ]).then((values: any) => {
       if (values[0] && values[0].data) {
         this._storerDataSource.selected.push(...values[0].data);
@@ -278,7 +278,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
           });
           if (query.ViewItemGroup) {
             result = result.map((x) => {
-              return { ...x, IDParent: x.IDItemGroup, Id: x.IDItem };
+              return { ...x, IDParent: x.IDItemGroup, Id: lib.generateUID() };
             });
             let itemView = [...groups, ...result];
             this.buildFlatTree(itemView, this.items, this.isAllRowOpened).then((resp: any) => {
