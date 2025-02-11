@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { AlertController, LoadingController, ModalController, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { PageBase } from 'src/app/page-base';
@@ -60,7 +60,7 @@ export class WarehouseTransactionPage extends PageBase {
   }
 
   preLoadData(event) {
-
+    
     this.branchProvider
       .read({
         Skip: 0,
@@ -203,5 +203,14 @@ export class WarehouseTransactionPage extends PageBase {
     if(lastRenderedDate != lib.dateFormatFriendly(record.CreatedDate)) return lib.dateFormatFriendly(record.CreatedDate);
     return null;
 
+  }
+  createWarehouseCard(){
+      let navigationExtras: NavigationExtras = {
+          state: {
+            IDBranch : this.selectedBranch.Id,
+            Item : this.selectedItem,
+          },
+        };
+        this.nav('/warehouse-card', 'forward', navigationExtras);
   }
 }

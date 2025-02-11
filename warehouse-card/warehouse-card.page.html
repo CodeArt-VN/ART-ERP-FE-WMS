@@ -1,0 +1,191 @@
+<app-toolbar [page]="this"></app-toolbar>
+
+<ion-content
+  appScrollbarTheme
+  class="A4 left withFeature"
+  [ngClass]="{withFeature: pageConfig.isShowFeature}"
+  forceOverscroll="false"
+
+>
+  <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+    <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+    <div *ngIf="pageConfig.showSpinner==false">
+      <div class="ion-padding" style="padding-bottom: 0">
+        <app-form-control  [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
+        ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
+       }"  (change)="changeFilter()"></app-form-control>
+
+         <app-form-control  [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id', form : formGroup}" 
+         (controlChange)="changeFilter()"></app-form-control>
+         <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
+         (change)="changeFilter()"></app-form-control>
+         <app-form-control  [field]="{id:'CreatedDateFrom', label: 'From date', type : 'date',form : formGroup, clearable:true}" 
+         (change)="changeFilter()"></app-form-control>
+         <app-form-control  [field]="{id:'CreatedDateTo', label: 'To date', type : 'date', form : formGroup, clearable:true}" 
+         (change)="changeFilter()"></app-form-control>
+      </div>
+    </div>
+  </ion-fab>
+
+  <div *ngIf="item && sheets?.length>0" style="overflow: auto;">
+    <div class="giao-nhan" *ngFor="let o of sheets;let sdx = index">
+      <section class="sheet padding-10mm rpt p1" style="break-after: page; min-height: 295mm; break-before: page;">
+        <table >
+          <thead>
+            <tr>
+              <td>
+                <div class="page-header-space"></div>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="top-zone">
+                  <table class="rpt-header" cellpadding="0" cellspacing="0">
+                    <tbody>
+                      <tr>
+                        <td rowspan="6" class="logo">
+                          <img [src]="item?._Branch.LogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
+                        </td>
+                        <td colspan="2" class="bol title cen">{{'Warehouse card' | translate}}</td>
+                        <td class="bol num" colspan="2">{{item.Code? item.Code : 'Item: '+item.Id}}</td>
+                        <td rowspan="6" class="topQR">
+                          <div *ngIf="item?.Code">{{'Item' | translate}}:{{item?.Id}}</div>
+                          <a [href]="'#/'+'item/'+item?.Id" (click)="nav('item/'+item?.Id,'forward')">
+                            <img class="qrc" [src]="item?.QRC" />
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="cen" colspan="2">
+                          <span>
+                            {{'Warehouse' | translate}}: {{item?._Branch?.Name}}<br>
+                            {{'Item' | translate}}: {{item?._Item?.Name}} - {{item?._Item?.Code}}
+                            <ng-container *ngIf="formGroup.get('CreatedDateFrom').value ||formGroup.get('CreatedDateTo').value">
+                              <br>
+                              {{'From date' | translate}}: {{formGroup.get('CreatedDateFrom').value | date:'dd/MM/yyyy'}}
+                             </ng-container>
+                             <ng-container *ngIf="formGroup.get('CreatedDateTo').value ">
+                              {{'To date' | translate}}: {{formGroup.get('CreatedDateTo').value | date:'dd/MM/yyyy'}}
+                             </ng-container>
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+        
+                  <div class="ds-san-pham">
+                    <table cellpadding="0" cellspacing="0">
+                      <tbody>
+                        <tr class="head">
+                          <td class="cen">{{'No.' | translate}}</td>
+                          <td class="ngay-hd">{{'Book date' | translate}}</td>
+                          <td class="ngay-hd">{{'D.Date' | translate}}</td>
+                          <td>{{'D.Type' | translate}}</td>
+                          <td class="num">{{'D.Num' | translate}}</td>
+                          <td class="ghi-chu">{{'Description' | translate}}</td>
+                          <td class="">{{'Opening stock' | translate}}</td> 
+                          <td class="cen">{{'Qty input' | translate}}</td> 
+                          <td class="cen">{{'Qty output' | translate}}</td>
+                          <!-- <td class="num">VAT</td>
+                          <td class="num">T.GTGT</td>
+                          <td class="num">TT sau thuế</td> -->
+                        </tr>
+                          <tr *ngFor="let i of o.data; let gdx = index; " class="tr-dash">
+                            <td class="cen"> {{getContinuousIndex(sdx, gdx)}}</td>
+                            <td class="ngay-hd"></td>
+                            <td class="ngay-hd">{{i.TransactionDate |date:'dd/MM/yyyy'}}</td>
+                            <td class="">{{i.SourceType}}</td>
+                            <td class="num">{{i.SourceKey}}</td>
+                            <td class="ghi-chu"></td>
+                            <td class="">
+                            <ng-container *ngFor="let sto of i._SplitOpeningStock;let stoIdx = index">
+                              <ng-container *ngIf="stoIdx==0 && i.OpeningStock <0">-</ng-container> 
+                              <ng-container *ngIf="stoIdx!=0 && i.OpeningStock>=0">
+                                <br>+</ng-container> 
+                              <ng-container *ngIf="stoIdx!=0 && i.OpeningStock<0">
+                                <br>-</ng-container> 
+                              {{sto.Quantity}} {{sto.UoMName}}
+                              </ng-container>
+                            </td>
+                            <ng-container *ngIf="!i._FromLocation && i._ToLocation">
+                              <td class="cen">
+                                <ng-container *ngFor="let j of i._SplitQuantity;let jdx = index">
+                                  {{j.Quantity}} {{j.UoMName}}
+                                  <ng-container *ngIf="jdx%2==0"><br></ng-container>
+                                </ng-container> 
+                              </td>
+                            </ng-container>
+                            <ng-container *ngIf="!i._ToLocation ">
+                              <td class="cen">  </td>
+                            </ng-container>
+                          <ng-container *ngIf="i._FromLocation && !i._ToLocation">
+                            <td class="cen">
+                              <ng-container *ngFor="let j of i._SplitQuantity;let jdx = index">
+                                {{j.Quantity}} - {{j.UoMName}}
+                                <ng-container *ngIf="jdx%2==0"><br></ng-container>
+                              </ng-container> 
+                            </td>
+                              <!-- <td class="cen"></td> -->
+                          </ng-container>
+                          <ng-container *ngIf="!i._FromLocation ">
+                              <td class="cen">  </td>
+                            </ng-container>
+                          </tr>
+                          <tr></tr>
+                 
+                      </tbody>
+                    </table>
+                  </div>
+                  {{'Sổ này có '}}{{sheets.length}}{{' trang, đánh số từ trang số '}}{{sdx+1}}{{' đến trang số '}}{{sheets.length}}<br>
+                  {{'Ngày mở sổ'}}: {{currentDate | date:'dd/MM/yyyy'}}<br>
+                  <table class="chu-ky" cellpadding="0" cellspacing="0">
+                    <tbody>
+                      <tr>
+                        <td style="width: 33%">
+                          {{'Bookmaker' | translate}}
+                          <div class="line2">
+                            <i>{{'(Sign and write full name)' | translate}}</i>
+                          </div>
+                        </td>
+                        <td style="width: 33%">
+                          {{'Chief accountant' | translate}}
+                          <div class="line2">
+                            <i>{{'(Sign and write full name)' | translate}}</i>
+                          </div>
+                        </td>
+                        <td style="width: 33%">
+                          <span class="line2">{{"Day .... month .... year ...."|translate}}</span><br>
+                          {{'Legal representative' | translate}}
+                          <div class="line2">
+                            <i>{{'(Sign and write full name)' | translate}}</i>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+             
+              </td>
+            </tr>
+          </tbody>
+        
+          <tfoot>
+            <tr>
+              <td>
+                <div class="page-footer-space"></div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        </section>
+    </div>
+  
+  </div>
+  
+</ion-content>

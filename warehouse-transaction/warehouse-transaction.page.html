@@ -1,4 +1,8 @@
-<app-toolbar [page]="this"></app-toolbar>
+<app-toolbar [page]="this">
+  <ion-button title="Create warehouse card" *ngIf="selectedBranch && selectedItem" (click)="createWarehouseCard()">
+    <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
+  </ion-button>
+</app-toolbar>
 
 <ion-content
   appScrollbarTheme
