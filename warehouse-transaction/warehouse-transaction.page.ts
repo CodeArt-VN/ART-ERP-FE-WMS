@@ -62,7 +62,7 @@ export class WarehouseTransactionPage extends PageBase {
       IDBranch:['',Validators.required],
       IDStorer:[''],
       IDZone:[''],
-      TransactionDateFrom:[this.dateMinusMonths(1),Validators.required],
+      TransactionDateFrom:[this.dateMinusDay(1),Validators.required],
       TransactionDateTo:[this.getCurrentDate(),Validators.required],
       IsExcludeInternalTransaction:[false],
       _IDItemDataSource:this.buildSelectDataSource((term) => {
@@ -143,9 +143,7 @@ export class WarehouseTransactionPage extends PageBase {
       this.env.showMessage('The difference between From Date and To Date should not exceed 3 months.', 'danger');
       return;
     }
-    this.items = [];
-    this.pageConfig.isEndOfData = false;
-    this.loadData(null);
+    super.preLoadData(event);
    }
 
   changeIDBranch() {
@@ -220,9 +218,9 @@ export class WarehouseTransactionPage extends PageBase {
     }
     
   }
-  dateMinusMonths(months: number): string {
+  dateMinusDay(day: number): string {
     const date = new Date();
-    date.setMonth(date.getMonth() - months);
+    date.setDate(date.getDate() - day);
     return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
   }
   

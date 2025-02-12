@@ -65,6 +65,8 @@ export class WarehouseCardPage extends PageBase {
         this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
         this.formGroup.get('_IDItemDataSource').value.initSearch();
         this.patchValue(this.router.getCurrentNavigation()?.extras.state.items);
+        this.fromDate = this.query.TransactionDateFrom;
+        this.toDate = this.query.TransactionDateTo;
         // if(this.formGroup.valid)  this.changeFilter();
         // this.formGroup.get('IDBranch').setValue(this.router.getCurrentNavigation().extras.state.IDBranch);
         // this.formGroup.get('IDItem').setValue(this.router.getCurrentNavigation().extras.state.Item?.Id);
@@ -86,7 +88,8 @@ export class WarehouseCardPage extends PageBase {
       this.getNearestWarehouse(this.env.selectedBranch);
     }
   }
-
+  fromDate;
+  toDate;
   changeFilter() {
     if(this.formGroup.invalid) return;
     const fromDate = new Date(this.formGroup.controls.TransactionDateFrom.value);
@@ -104,24 +107,25 @@ export class WarehouseCardPage extends PageBase {
       return;
     }
     this.query = this.formGroup.getRawValue();
+    this.fromDate = this.query.TransactionDateFrom;
+    this.toDate = this.query.TransactionDateTo;
     delete this.query._IDItemDataSource;
     this.pageConfig.isEndOfData = false;
+    this.currentDate = new Date();
+    this.item={};
     this.env.showLoading('Please wait for a few moments',this.pageProvider.read(this.query)).then((res:any) => {
       if (res && res.data?.length > 0) {
         // Filter data
         this.patchValue(res.data);
-    }else{
-      this.item={};
-      this.sheets = [];
     }
+      
     }).catch(err=>{
-      this.item={};
-      this.sheets = [];
+      this.env.showMessage(err.error?.InnerException?.ExceptionMessage || err,'danger')
     });
   }
   patchValue(data){
     this.item={};
-    this.sheets = [];
+//    this.sheets = [];
     this.totalItem = data[data.length-1];
     this.firstItem = data[0];
     this.firstItem.SplitOpeningQuantity = this.firstItem._SplitOpeningQuantity
@@ -130,43 +134,11 @@ export class WarehouseCardPage extends PageBase {
     .filter(i => (!i._FromLocation && i._ToLocation) || (i._FromLocation && !i._ToLocation))
     .sort((a, b) => new Date(a.TransactionDate).getTime() - new Date(b.TransactionDate).getTime()).map(i => ({ ...i }))]
         // Initialize sheets
-        let currentSheet = { data: [] };//,TotalInput:0,TotalOutput:0,TotalOpenQuantity:0
-        let splitCount = 0;
-        
+      
         if(this.item.data?.length>0){
           this.item._Branch = this.item.data[0]._Branch;
         }else this.item._Branch = this.env.branchList.find(x => x.Id == this.formGroup.get('IDBranch').value);
-        for (let i of this.item.data) {
-            let itemSplitCount =  i._SplitQuantity?.length > i._SplitStock?.length? i._SplitQuantity?.length : i._SplitStock?.length;
-
-            if (splitCount + itemSplitCount > 40) {
-                // Start a new sheet if adding this item exceeds 40 SplitQuantity
-                this.sheets.push(currentSheet);
-                currentSheet = { data: [] };
-                splitCount = 0;
-            }
-            
-            currentSheet.data.push(i);
-            splitCount += itemSplitCount;
-        }
-    
-        // Push the last sheet if it has data
-        if (currentSheet.data.length > 0) {
-            // currentSheet.TotalInput = currentSheet.data.filter(d=> !d.FromLocation && d.ToLocation).reduce((acc,v)=> +acc+v,0);
-            // currentSheet.TotalOutput = currentSheet.data.filter(d=> d.FromLocation && !d.ToLocation).reduce((acc,v)=> +acc+v,0);
-            // currentSheet.TotalOpenQuantity = currentSheet.data.filter(d=> d.FromLocation && !d.ToLocation).reduce((acc,v)=> +acc+v,0);
-            this.sheets.push(currentSheet);
-        }
-        for(let i = 0; i<this.sheets.length;i++){
-          this.env.translateResource({
-            code:"This document has {{value}} page(s), numbered from page {{value1}} to page {{value}}",
-            value1:i+1,
-            value:this.sheets.length
-          }).then(v=> {
-            this.sheets[i].CountPageText = v;
-
-          })
-        }
+      
         // Assign other properties
         this.item._Item = this.item.data[0]._Item;
         this.item.Id = this.formGroup.get('IDItem').value;
@@ -221,6 +193,7 @@ export class WarehouseCardPage extends PageBase {
     }
     
     getCurrentDate(): string {
+      console.log('getnewdate');
       return new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     }
 }

@@ -11,8 +11,6 @@
   forceOverscroll="false"
 >
   <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
-    <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-    <div *ngIf="pageConfig.showSpinner==false">
       <div class="ion-padding" style="padding-bottom: 0">
         <app-form-control  [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
         ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
@@ -32,10 +30,10 @@
     (change)="changeFilter()" >
   </app-form-control>
       </div>
-    </div>
   </ion-fab>
 
 
+  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
   
   <div style="min-width: 300px; height: calc(100vh - 65px)">
     <section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
@@ -147,4 +145,5 @@
   >
     <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
   </ion-infinite-scroll>
+
 </ion-content>
