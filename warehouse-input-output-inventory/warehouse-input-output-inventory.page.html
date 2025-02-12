@@ -166,7 +166,7 @@
               <ion-icon color="warning" *ngIf="i?.IsDisabled" name="archive"></ion-icon>
               <span *ngIf="!i?.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
             >
-            <ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"
+            <ion-text  (click)="navWarehouseTransaction(i)"  class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"
               ><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text
             >
           </span>

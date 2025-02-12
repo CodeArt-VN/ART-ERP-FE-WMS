@@ -1,11 +1,16 @@
-<app-toolbar [page]="this"></app-toolbar>
-
+<ion-header>
+<app-toolbar [page]="this">
+  <ion-button (click)="print()" title="{{'Form printing' | translate}}">
+    <ion-icon slot="icon-only" name="print"></ion-icon>
+  </ion-button>
+</app-toolbar>
+</ion-header>
 <ion-content
   appScrollbarTheme
   class="A4 left withFeature"
   [ngClass]="{withFeature: pageConfig.isShowFeature}"
   forceOverscroll="false"
-
+  appPrintFix 
 >
   <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
     <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
@@ -19,9 +24,9 @@
          (controlChange)="changeFilter()"></app-form-control>
          <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
          (change)="changeFilter()"></app-form-control>
-         <app-form-control  [field]="{id:'CreatedDateFrom', label: 'From date', type : 'date',form : formGroup, clearable:true}" 
+         <app-form-control  [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup, clearable:true}" 
          (change)="changeFilter()"></app-form-control>
-         <app-form-control  [field]="{id:'CreatedDateTo', label: 'To date', type : 'date', form : formGroup, clearable:true}" 
+         <app-form-control  [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup, clearable:true}" 
          (change)="changeFilter()"></app-form-control>
       </div>
     </div>
@@ -49,9 +54,8 @@
                           <img [src]="item?._Branch.LogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
                         </td>
                         <td colspan="2" class="bol title cen">{{'Warehouse card' | translate}}</td>
-                        <td class="bol num" colspan="2">{{item.Code? item.Code : 'Item: '+item.Id}}</td>
                         <td rowspan="6" class="topQR">
-                          <div *ngIf="item?.Code">{{'Item' | translate}}:{{item?.Id}}</div>
+                          <div >{{'Item' | translate}}:{{item._Item?.Id}}</div>
                           <a [href]="'#/'+'item/'+item?.Id" (click)="nav('item/'+item?.Id,'forward')">
                             <img class="qrc" [src]="item?.QRC" />
                           </a>
@@ -61,54 +65,46 @@
                         <td class="cen" colspan="2">
                           <span>
                             {{'Warehouse' | translate}}: {{item?._Branch?.Name}}<br>
-                            {{'Item' | translate}}: {{item?._Item?.Name}} - {{item?._Item?.Code}}
-                            <ng-container *ngIf="formGroup.get('CreatedDateFrom').value ||formGroup.get('CreatedDateTo').value">
+                            {{'Product' | translate}}: {{item?._Item?.Name}} - {{item?._Item?.Code}}
+                            <ng-container *ngIf="formGroup.get('TransactionDateFrom').value ||formGroup.get('TransactionDateTo').value">
                               <br>
-                              {{'From date' | translate}}: {{formGroup.get('CreatedDateFrom').value | date:'dd/MM/yyyy'}}
+                              {{'From date' | translate}}: {{formGroup.get('TransactionDateFrom').value | date:'dd/MM/yyyy'}}
                              </ng-container>
-                             <ng-container *ngIf="formGroup.get('CreatedDateTo').value ">
-                              {{'To date' | translate}}: {{formGroup.get('CreatedDateTo').value | date:'dd/MM/yyyy'}}
+                             <ng-container *ngIf="formGroup.get('TransactionDateTo').value ">
+                              {{'To date' | translate}}: {{formGroup.get('TransactionDateTo').value | date:'dd/MM/yyyy'}}
                              </ng-container>
                           </span>
                         </td>
                       </tr>
                     </tbody>
                   </table>
-        
+                  <div *ngIf="sdx == 0 && o.data?.length && firstItem.OpeningQuantity != 0" style=" float: right; ">
+                     {{'Opening stock'}}: {{firstItem.SplitOpeningQuantity || 0}}
+                  </div>
                   <div class="ds-san-pham">
                     <table cellpadding="0" cellspacing="0">
                       <tbody>
+                     
                         <tr class="head">
                           <td class="cen">{{'No.' | translate}}</td>
                           <td class="ngay-hd">{{'Book date' | translate}}</td>
-                          <td class="ngay-hd">{{'D.Date' | translate}}</td>
                           <td>{{'D.Type' | translate}}</td>
                           <td class="num">{{'D.Num' | translate}}</td>
                           <td class="ghi-chu">{{'Description' | translate}}</td>
-                          <td class="">{{'Opening stock' | translate}}</td> 
-                          <td class="cen">{{'Qty input' | translate}}</td> 
-                          <td class="cen">{{'Qty output' | translate}}</td>
+                          <td class="cen">{{'Receipt qty' | translate}}</td> 
+                          <td class="cen">{{'Issue qty' | translate}}</td>
+                          <td class="cen">{{'Stock qty' | translate}}</td> 
                           <!-- <td class="num">VAT</td>
                           <td class="num">T.GTGT</td>
                           <td class="num">TT sau thuế</td> -->
                         </tr>
                           <tr *ngFor="let i of o.data; let gdx = index; " class="tr-dash">
                             <td class="cen"> {{getContinuousIndex(sdx, gdx)}}</td>
-                            <td class="ngay-hd"></td>
                             <td class="ngay-hd">{{i.TransactionDate |date:'dd/MM/yyyy'}}</td>
-                            <td class="">{{i.SourceType}}</td>
+                            <td class="">{{i.SourceType | translate}}</td>
                             <td class="num">{{i.SourceKey}}</td>
                             <td class="ghi-chu"></td>
-                            <td class="">
-                            <ng-container *ngFor="let sto of i._SplitOpeningStock;let stoIdx = index">
-                              <ng-container *ngIf="stoIdx==0 && i.OpeningStock <0">-</ng-container> 
-                              <ng-container *ngIf="stoIdx!=0 && i.OpeningStock>=0">
-                                <br>+</ng-container> 
-                              <ng-container *ngIf="stoIdx!=0 && i.OpeningStock<0">
-                                <br>-</ng-container> 
-                              {{sto.Quantity}} {{sto.UoMName}}
-                              </ng-container>
-                            </td>
+                       
                             <ng-container *ngIf="!i._FromLocation && i._ToLocation">
                               <td class="cen">
                                 <ng-container *ngFor="let j of i._SplitQuantity;let jdx = index">
@@ -132,14 +128,51 @@
                           <ng-container *ngIf="!i._FromLocation ">
                               <td class="cen">  </td>
                             </ng-container>
+                            <td class="cen">
+                            
+                              <ng-container *ngFor="let sto of i?._SplitStock;let stoIdx = index">
+                                <ng-container *ngIf="stoIdx==0 && i.Stock <0">-</ng-container> 
+                                <ng-container *ngIf="stoIdx!=0 && i.Stock>=0">
+                                  <br>+</ng-container> 
+                                <ng-container *ngIf="stoIdx!=0 && i.Stock<0">
+                                  <br>-</ng-container> 
+                                {{sto.Quantity}} {{sto.UoMName}}
+                                </ng-container>
+                              </td>
                           </tr>
-                          <tr></tr>
+                         <tr *ngIf="sdx+1 == sheets.length ">
+                          <td class="cen non-border-right"></td>
+                          <td class="ngay-hd non-border-right"></td>
+                          <td class="non-border-right"></td>
+                          <td class="num non-border-right"></td>
+                          <td class="ghi-chu num">{{'Total' | translate}}:</td>
+                          <td class="cen">
+                            <ng-container *ngFor="let j of totalItem._SplitInputTotalQuantity;let jdx = index">
+                              {{j.Quantity}} {{j.UoMName}}
+                              <ng-container *ngIf="jdx%2==0"><br></ng-container>
+                            </ng-container> 
+                          </td> 
+                          <td class="cen">
+                            <ng-container *ngFor="let j of totalItem._SplitOutputTotalQuantity;let jdx = index">
+                              {{j.Quantity}} {{j.UoMName}}
+                              <ng-container *ngIf="jdx%2==0"><br></ng-container>
+                            </ng-container> 
+                          
+                          </td>
+                          <td class="cen">
+                            <ng-container *ngFor="let j of totalItem._SplitStockTotalQuantity;let jdx = index">
+                              {{j.Quantity}} {{j.UoMName}}
+                              <ng-container *ngIf="jdx%2==0"><br></ng-container>
+                            </ng-container> 
+                           </td> 
+                         </tr>
                  
                       </tbody>
                     </table>
                   </div>
-                  {{'Sổ này có '}}{{sheets.length}}{{' trang, đánh số từ trang số '}}{{sdx+1}}{{' đến trang số '}}{{sheets.length}}<br>
-                  {{'Ngày mở sổ'}}: {{currentDate | date:'dd/MM/yyyy'}}<br>
+                  {{o.CountPageText}}<br>
+                  <!-- {{'Sổ này có'}} {{sheets.length}} {{'trang, đánh số từ trang số'}} {{sdx+1}} {{'đến trang số'}}{{sheets.length}}<br> -->
+                  {{'Document date'}}: {{currentDate | date:'dd/MM/yyyy'}}<br>
                   <table class="chu-ky" cellpadding="0" cellspacing="0">
                     <tbody>
                       <tr>

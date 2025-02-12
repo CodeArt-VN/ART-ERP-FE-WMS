@@ -20,6 +20,8 @@ export class WarehouseCardPage extends PageBase {
   branchList;
   printMode = 'Ruy96';
   sheets=[];
+  totalItem : any = {};
+  firstItem:any = {};
   constructor(
     //public pageProvider: WMS_WarehouseCardProvider,
     public pageProvider: WMS_TransactionProvider,
@@ -43,8 +45,8 @@ export class WarehouseCardPage extends PageBase {
       IDItem:['',Validators.required],
       IDBranch:['',Validators.required],
       IDStorer:[''],
-      CreatedDateFrom:[''],
-      CreatedDateTo:[''],
+      TransactionDateFrom:[this.dateMinusMonths(3),Validators.required],
+      TransactionDateTo:[this.getCurrentDate(),Validators.required],
       _IDItemDataSource:this.buildSelectDataSource((term) => {
         return this.itemProvider.search({ 
            SortBy: ['Id_desc'],Take: 200, Skip: 0, Term: term });
@@ -57,15 +59,16 @@ export class WarehouseCardPage extends PageBase {
 
   preLoadData(event?: any): void {
     this.route.queryParams.subscribe((params) => {
-      if(this.router.getCurrentNavigation()?.extras.state?.IDBranch && this.router.getCurrentNavigation()?.extras.state?.Item){
-        this.formGroup.get('IDBranch').setValue(this.router.getCurrentNavigation().extras.state.IDBranch);
-        this.formGroup.get('IDItem').setValue(this.router.getCurrentNavigation().extras.state.Item?.Id);
+      if(this.router.getCurrentNavigation()?.extras.state){
+        this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state.query);
+        
         this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
         this.formGroup.get('_IDItemDataSource').value.initSearch();
-        this.changeFilter();
+        this.patchValue(this.router.getCurrentNavigation()?.extras.state.items);
+        // if(this.formGroup.valid)  this.changeFilter();
+        // this.formGroup.get('IDBranch').setValue(this.router.getCurrentNavigation().extras.state.IDBranch);
+        // this.formGroup.get('IDItem').setValue(this.router.getCurrentNavigation().extras.state.Item?.Id);
       };
-
-      console.log(params);
       this.loadedData(event);
     });
     this.branchList = [...this.env.branchList];
@@ -79,26 +82,53 @@ export class WarehouseCardPage extends PageBase {
    
     this.formGroup.get('_IDItemDataSource').value.initSearch();
     this.formGroup.enable();
+    if(!this.formGroup.get('IDBranch').value){
+      this.getNearestWarehouse(this.env.selectedBranch);
+    }
   }
 
   changeFilter() {
     if(this.formGroup.invalid) return;
-    if((this.formGroup.controls.CreatedDateFrom.value && !this.formGroup.controls.CreatedDateTo.value)
-      || (!this.formGroup.controls.CreatedDateFrom.value && this.formGroup.controls.CreatedDateTo.value)) {
-      this.env.showMessage('Please select both From and To date');
+    const fromDate = new Date(this.formGroup.controls.TransactionDateFrom.value);
+    const toDate = new Date(this.formGroup.controls.TransactionDateTo.value);
+    if(fromDate > toDate )
+    {
+      this.env.showMessage('From date must be earlier than or equal to the To date!','danger');
       return;
     }
-    this.item={};
-    this.sheets = [];
+    const maxAllowedDate = new Date(fromDate);
+    maxAllowedDate.setMonth(maxAllowedDate.getMonth() + 3);
+    
+    if (toDate > maxAllowedDate) {
+      this.env.showMessage('The difference between From Date and To Date should not exceed 3 months.', 'danger');
+      return;
+    }
     this.query = this.formGroup.getRawValue();
-    this.query.SplitUoM = true;
     delete this.query._IDItemDataSource;
     this.pageConfig.isEndOfData = false;
     this.env.showLoading('Please wait for a few moments',this.pageProvider.read(this.query)).then((res:any) => {
       if (res && res.data?.length > 0) {
         // Filter data
-        this.item.data = res.data.filter(i => (!i._FromLocation && i._ToLocation) || (i._FromLocation && !i._ToLocation));
-    
+        this.patchValue(res.data);
+    }else{
+      this.item={};
+      this.sheets = [];
+    }
+    }).catch(err=>{
+      this.item={};
+      this.sheets = [];
+    });
+  }
+  patchValue(data){
+    this.item={};
+    this.sheets = [];
+    this.totalItem = data[data.length-1];
+    this.firstItem = data[0];
+    this.firstItem.SplitOpeningQuantity = this.firstItem._SplitOpeningQuantity
+    .map(s=> s.Quantity+' '+s.UoMName).join(this.firstItem.OpeningQuantity<0? ' - ' : ' + ');
+    this.item.data = [...data
+    .filter(i => (!i._FromLocation && i._ToLocation) || (i._FromLocation && !i._ToLocation))
+    .sort((a, b) => new Date(a.TransactionDate).getTime() - new Date(b.TransactionDate).getTime()).map(i => ({ ...i }))]
         // Initialize sheets
         let currentSheet = { data: [] };//,TotalInput:0,TotalOutput:0,TotalOpenQuantity:0
         let splitCount = 0;
@@ -107,7 +137,7 @@ export class WarehouseCardPage extends PageBase {
           this.item._Branch = this.item.data[0]._Branch;
         }else this.item._Branch = this.env.branchList.find(x => x.Id == this.formGroup.get('IDBranch').value);
         for (let i of this.item.data) {
-            let itemSplitCount =  i._SplitQuantity?.length > i._SplitOpeningStock?.length? i._SplitQuantity?.length : i._SplitOpeningStock?.length;
+            let itemSplitCount =  i._SplitQuantity?.length > i._SplitStock?.length? i._SplitQuantity?.length : i._SplitStock?.length;
 
             if (splitCount + itemSplitCount > 40) {
                 // Start a new sheet if adding this item exceeds 40 SplitQuantity
@@ -127,7 +157,16 @@ export class WarehouseCardPage extends PageBase {
             // currentSheet.TotalOpenQuantity = currentSheet.data.filter(d=> d.FromLocation && !d.ToLocation).reduce((acc,v)=> +acc+v,0);
             this.sheets.push(currentSheet);
         }
-        
+        for(let i = 0; i<this.sheets.length;i++){
+          this.env.translateResource({
+            code:"This document has {{value}} page(s), numbered from page {{value1}} to page {{value}}",
+            value1:i+1,
+            value:this.sheets.length
+          }).then(v=> {
+            this.sheets[i].CountPageText = v;
+
+          })
+        }
         // Assign other properties
         this.item._Item = this.item.data[0]._Item;
         this.item.Id = this.formGroup.get('IDItem').value;
@@ -148,17 +187,40 @@ export class WarehouseCardPage extends PageBase {
             }
           }
         );
-    }
-    });
   }
   getContinuousIndex(sheetIndex: number, rowIndex: number): number {
     let previousCount = 0;
-    
     // Sum up the number of items from all previous sheets
     for (let i = 0; i < sheetIndex; i++) {
       previousCount += this.sheets[i]?.data.length || 0;
     }
-    
     return previousCount + rowIndex + 1;
   }
+
+  getNearestWarehouse(IDBranch) {
+    let currentBranch = this.env.branchList.find((d) => d.Id == IDBranch);
+    if(currentBranch){
+      if(currentBranch.Type == 'Warehouse'){
+        this.formGroup.get('IDBranch').setValue(currentBranch.Id);
+        return true;
+      }
+      else {
+        let childrentWarehouse:any =  this.env.branchList.filter((d) => d.IDParent == IDBranch);
+        for(let child of childrentWarehouse){
+          if(this.getNearestWarehouse(child.Id)){
+            return true;
+          }
+        }
+      }
+    }
+  }
+    dateMinusMonths(months: number): string {
+      const date = new Date();
+      date.setMonth(date.getMonth() - months);
+      return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    }
+    
+    getCurrentDate(): string {
+      return new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    }
 }

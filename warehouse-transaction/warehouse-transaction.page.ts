@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
-import { ActivatedRoute, NavigationExtras } from '@angular/router';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { AlertController, LoadingController, ModalController, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { PageBase } from 'src/app/page-base';
@@ -45,7 +45,7 @@ export class WarehouseTransactionPage extends PageBase {
     public formBuilder: FormBuilder,
     public cdr: ChangeDetectorRef,
     public loadingController: LoadingController,
-
+    public router: Router,
     public branchProvider: BRA_BranchProvider,
     public contactProvider: CRM_ContactProvider,
     public zoneProvider: WMS_ZoneProvider,
@@ -57,31 +57,38 @@ export class WarehouseTransactionPage extends PageBase {
   ) {
     super();
     this.pageConfig.isShowFeature = true;
+    this.formGroup = this.formBuilder.group({
+      IDItem:['',Validators.required],
+      IDBranch:['',Validators.required],
+      IDStorer:[''],
+      IDZone:[''],
+      TransactionDateFrom:[this.dateMinusMonths(3),Validators.required],
+      TransactionDateTo:[this.getCurrentDate(),Validators.required],
+      _IDItemDataSource:this.buildSelectDataSource((term) => {
+        return this.itemProvider.search({ 
+           SortBy: ['Id_desc'],Take: 200, Skip: 0, Term: term });
+      }),
+    });
   }
 
   preLoadData(event) {
-    
-    this.branchProvider
-      .read({
-        Skip: 0,
-        Take: 5000,
-        Type: 'Warehouse',
-        AllParent: true,
-        Id: this.env.selectedBranchAndChildren,
-      })
-      .then((resp) => {
-        lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
-          this.branchList = result;
-          this.branchList.forEach((i) => {
-            i.disabled = true;
-          });
-          this.markNestedNode(this.branchList, this.env.selectedBranch);
-          this.loadedData(event);
-        });
-      });
+    this.branchList = [...this.env.branchList];
     this.contactProvider.read({ IsStorer: true }).then((resp) => {
       this.storerList = resp['data'];
-    });
+    })
+    this.route.queryParams.subscribe((params) => {
+      if(this.router.getCurrentNavigation()?.extras.state){
+        this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state);
+        this.query = this.formGroup.getRawValue();
+        this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
+        this.formGroup.get('_IDItemDataSource').value.initSearch();
+        this.selectedItem = this.router.getCurrentNavigation().extras.state.Item;
+        delete this.query._IDItemDataSource;
+        this.loadData(event);
+      } else{
+        this.loadedData(event);
+      };
+    })
   }
 
   loadData(event) {
@@ -89,62 +96,67 @@ export class WarehouseTransactionPage extends PageBase {
     super.loadData(event);
   }
 
-  loadedData(event) {
-    this.items.forEach((i) => {
-      i.CreatedTimeText = i.CreatedDate ? lib.dateFormat(i.CreatedDate, 'hh:MM') : '';
-      i.CreatedDateText = i.CreatedDate ? lib.dateFormat(i.CreatedDate, 'dd/mm/yy') : '';
-      i.CubeText = lib.formatMoney(i.Cube / 1000000, 3);
-      i.GrossWeightText = lib.formatMoney(i.GrossWeight / 1000, 3);
-    });
-    super.loadedData(event);
+  loadedData(event?: any, ignoredFromGroup?: boolean): void {
+    super.loadedData(event, ignoredFromGroup);
+   
+    this.formGroup.get('_IDItemDataSource').value.initSearch();
+    this.formGroup.enable();
+    if(!this.formGroup.get('IDBranch').value){
+      this.getNearestWarehouse(this.env.selectedBranch);
+    }
     if (this.isFristLoaded) {
       this.isFristLoaded = false;
-      this.itemSearch();
+    }
+ 
+  }
+  
+  getNearestWarehouse(IDBranch) {
+    let currentBranch = this.env.branchList.find((d) => d.Id == IDBranch);
+    if(currentBranch){
+      if(currentBranch.Type == 'Warehouse'){
+        this.formGroup.get('IDBranch').setValue(currentBranch.Id);
+        return true;
+      }
+      else {
+        let childrentWarehouse:any =  this.env.branchList.filter((d) => d.IDParent == IDBranch);
+        for(let child of childrentWarehouse){
+          if(this.getNearestWarehouse(child.Id)){
+            return true;
+          }
+        }
+      }
     }
   }
-
-  itemList$;
-  itemListLoading = false;
-  itemListInput$ = new Subject<string>();
-  itemListSelected = [];
-
-  itemSearch() {
-    this.itemListLoading = false;
-    this.itemList$ = concat(
-      of(this.itemListSelected),
-      this.itemListInput$.pipe(
-        distinctUntilChanged(),
-        tap(() => (this.itemListLoading = true)),
-        switchMap((term) =>
-          this.itemProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
-            catchError(() => of([])), // empty list on error
-            tap(() => (this.itemListLoading = false)),
-          ),
-        ),
-      ),
-    );
-  }
-
+  
   changeFilter() {
-    this.items = [];
-    if (this.selectedBranch) {
-      this.query.IDBranch = this.selectedBranch?.Id;
-      this.query.IDStorer = this.selectedStorer?.Id;
-      this.query.IDZone = this.selectedZone?.Id;
-      this.query.IDLocation = this.selectedLocation?.Id;
-      this.query.IDItem = this.selectedItem?.Id;
-      if (this.fromDate) this.query.CreatedDateFrom = this.fromDate;
-      if (this.toDate) this.query.CreatedDateTo = this.toDate;
-      this.pageConfig.isEndOfData = false;
-      this.loadData(null);
+    if(this.formGroup.invalid) return;
+    const fromDate = new Date(this.formGroup.controls.TransactionDateFrom.value);
+    const toDate = new Date(this.formGroup.controls.TransactionDateTo.value);
+    if(fromDate > toDate )
+    {
+      this.env.showMessage('From date must be earlier than or equal to the To date!','danger');
+      return;
     }
-  }
+    const maxAllowedDate = new Date(fromDate);
+    maxAllowedDate.setMonth(maxAllowedDate.getMonth() + 3);
+    
+    if (toDate > maxAllowedDate) {
+      this.env.showMessage('The difference between From Date and To Date should not exceed 3 months.', 'danger');
+      return;
+    }
+    this.items = [];
+    this.query = this.formGroup.getRawValue();
+    delete this.query._IDItemDataSource;
+    this.pageConfig.isEndOfData = false;
+    this.loadData(null);
+   }
 
-  selectBranch() {
-    if (!this.selectedBranch) {
-      this.changeFilter();
+  changeIDBranch() {
+    if (!this.formGroup.get('IDBranch').value) {
+      this.zoneList = [];
+      this.formGroup.get('');
     } else {
-      this.zoneProvider.read({ IDBranch: this.selectedBranch.Id }).then((resp) => {
+      this.zoneProvider.read({ IDBranch:this.formGroup.get('IDBranch').value }).then((resp) => {
         this.zoneList = resp['data'];
         let translateResult;
         this.translate.get('all').subscribe((message: string) => {
@@ -156,13 +168,14 @@ export class WarehouseTransactionPage extends PageBase {
   }
 
   selectZone() {
-    if (!this.selectedZone) {
+    if (!this.formGroup.get('IDZone').value) {
       this.changeFilter();
-    } else {
+    } 
+    else {
       this.locationProvider
         .read({
-          IDBranch: this.selectedBranch.Id,
-          IDZone: this.selectedZone.Id,
+          IDBranch: this.formGroup.get('IDBranch').value,
+          IDZone: this.formGroup.get('IDZone').value,
         })
         .then((resp) => {
           this.locationList = resp['data'];
@@ -172,17 +185,6 @@ export class WarehouseTransactionPage extends PageBase {
           });
           this.changeFilter();
         });
-    }
-  }
-
-  private markNestedNode(ls, Id) {
-    let current = ls.find((d) => d.Id == Id);
-    if (current) {
-      current.disabled = current.Type != 'Warehouse';
-      ls.filter((d) => d.IDParent == Id).forEach((i) => {
-        if (i.Type == 'Warehouse') i.disabled = false;
-        this.markNestedNode(ls, i.Id);
-      });
     }
   }
 
@@ -204,13 +206,30 @@ export class WarehouseTransactionPage extends PageBase {
     return null;
 
   }
+  changeItem(ev){
+    this.selectedItem = ev;
+    this.changeFilter();
+  }
   createWarehouseCard(){
+    if(this.selectedItem && this.formGroup.valid){
       let navigationExtras: NavigationExtras = {
-          state: {
-            IDBranch : this.selectedBranch.Id,
-            Item : this.selectedItem,
-          },
-        };
-        this.nav('/warehouse-card', 'forward', navigationExtras);
+        state: {
+          items: this.items,
+          query:this.query,
+          Item : this.selectedItem
+        },
+      };
+      this.nav('/warehouse-card', 'forward', navigationExtras);
+    }
+    
+  }
+  dateMinusMonths(months: number): string {
+    const date = new Date();
+    date.setMonth(date.getMonth() - months);
+    return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  }
+  
+  getCurrentDate(): string {
+    return new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
   }
 }
