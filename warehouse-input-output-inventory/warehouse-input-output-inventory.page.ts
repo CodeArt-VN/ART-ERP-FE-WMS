@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { AlertController, LoadingController, NavController } from '@ionic/angular';
 
 import { PageBase } from 'src/app/page-base';
@@ -49,6 +49,8 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     public branchProvider: BRA_BranchProvider,
     public contactProvider: CRM_ContactProvider,
     public itemProvider: WMS_ItemProvider,
+    public router: Router,
+    
   ) {
     super();
     this.pageConfig.isShowFeature = true;
@@ -96,6 +98,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
   loadData(event) {
     if (this.formGroup.get('FromDate').value > this.formGroup.get('ToDate').value) {
       this.env.showMessage('From date cannot be lower than to date!', 'danger');
+      this.loadedData(event);
       return;
     }
     if (this.formGroup.invalid) {
@@ -315,7 +318,20 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       this.showHideAllNestedFolder(ls, ite.Id, true, ite.showdetail);
     }
   }
-
+  
+  navWarehouseTransaction(i){
+    let navigationExtras: NavigationExtras = {
+      state: {
+        IDBranch: this.formGroup.get('IDBranch').value,
+        Item : {Id:i.IDItem,Code:i.ItemCode,Name:i.ItemName},
+        IDItem: i.IDItem,
+        TransactionDateFrom:this.formGroup.get('FromDate').value,
+        TransactionDateTo: this.formGroup.get('ToDate').value,
+      },
+    }
+      this.nav('/warehouse-transaction', 'forward', navigationExtras);
+   
+  }
   IDPeriodDataSource = {
     searchProvider: this.postingPeriodProvider,
     loading: false,

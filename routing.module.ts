@@ -75,8 +75,9 @@ export const WMSRoutes: Routes = [
      { path: 'allocation-strategy', loadChildren: () => import('./allocation-strategy/allocation-strategy.module').then(m => m.AllocationStrategyPageModule), canActivate: [AuthGuard]},
      { path: 'allocation-strategy/:id', loadChildren: () => import('./allocation-strategy-detail/allocation-strategy-detail.module').then(m => m.AllocationStrategyDetailPageModule), canActivate: [AuthGuard]},
 
-
      { path: 'storer', loadChildren: () => import('./storer/storer.module').then(m => m.StorerPageModule), canActivate: [AuthGuard]},
      { path: 'storer/:id', loadChildren: () => import('./storer-detail/storer-detail.module').then(m => m.StorerDetailPageModule), canActivate: [AuthGuard]},
+
+     { path: 'warehouse-card', loadChildren: () => import('./warehouse-card/warehouse-card.module').then(m => m.WarehouseCardPageModule), canActivate: [AuthGuard]},
 
 ];

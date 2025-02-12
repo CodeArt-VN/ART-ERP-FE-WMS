@@ -1,4 +1,8 @@
-<app-toolbar [page]="this"></app-toolbar>
+<app-toolbar [page]="this">
+  <ion-button title="Create warehouse card" *ngIf="formGroup.valid && formGroup.get('IDItem').value" (click)="createWarehouseCard()">
+    <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
+  </ion-button>
+</app-toolbar>
 
 <ion-content
   appScrollbarTheme
@@ -7,163 +11,31 @@
   forceOverscroll="false"
 >
   <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
-    <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-    <div *ngIf="pageConfig.showSpinner==false">
       <div class="ion-padding" style="padding-bottom: 0">
-        <div class="c-control">
-          <label class="c-label" for="IDBranch">
-            <ion-text color="primary"> {{'Warehouse' | translate}} </ion-text>
-          </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            (change)="selectBranch();"
-            appendTo=""
-            [(ngModel)]="selectedBranch"
-            labelForId="IDBranch"
-            [items]="branchList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select unit' | translate}}"
-          >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-
-        <div class="c-control">
-          <label class="c-label" for="Storer">
-            <ion-text color="primary"> {{'Goods owner' | translate}} </ion-text>
-          </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            (change)="changeFilter();"
-            appendTo=""
-            [(ngModel)]="selectedStorer"
-            labelForId="Storer"
-            [items]="storerList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select goods owner' | translate}}"
-          >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-
-        <div class="c-control">
-          <label class="c-label" for="Zone">
-            <ion-text color="primary"> {{'Zone' | translate}} </ion-text>
-          </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            (change)="selectZone();"
-            appendTo=""
-            [(ngModel)]="selectedZone"
-            labelForId="Zone"
-            [items]="zoneList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select unit' | translate}}"
-          >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-
-        <div class="c-control">
-          <label class="c-label" for="Location">
-            <ion-text color="primary"> {{'Location' | translate}} </ion-text>
-          </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            (change)="changeFilter();"
-            appendTo=""
-            [(ngModel)]="selectedLocation"
-            labelForId="Location"
-            [items]="locationList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select unit' | translate}}"
-          >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-
-        <div class="c-control">
-          <label class="c-label" for="IDItem">
-            <ion-text color="primary"> {{'Item' | translate}} </ion-text>
-          </label>
-          <ng-select
-            class="c-input no-check-dirty"
-            (change)="changeFilter();"
-            appendTo=""
-            [(ngModel)]="selectedItem"
-            labelForId="IDItem"
-            [items]="itemList$ | async"
-            [typeahead]="itemListInput$"
-            [virtualScroll]="true"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Search for name or product code' | translate}}"
-          >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
-                <small
-                  >#<b><span class="important" [ngOptionHighlight]="search">{{i.Id}} - {{i.Code}}</span></b></small
-                >
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-
-        <div class="c-control">
-          <label class="c-label" for="ValidFrom">{{'From date' | translate}}</label>
-          <input (change)="changeFilter()" [(ngModel)]="fromDate" class="c-input no-check-dirty" type="date" />
-        </div>
-
-        <div class="c-control">
-          <label class="c-label" for="ValidTo">{{'To date' | translate}}</label>
-          <input
-            (change)="changeFilter()"
-            [(ngModel)]="toDate"
-            class="c-input no-check-dirty"
-            [min]="fromDate"
-            type="date"
-          />
-        </div>
+        <app-form-control  [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
+        ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
+       }"  (change)="changeFilter()"></app-form-control>
+    <app-form-control  [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id', form : formGroup}" 
+    (controlChange)="changeItem($event)"></app-form-control>
+    <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
+    (change)="changeFilter()"></app-form-control>
+    <app-form-control  [field]="{id:'IDZone', label: 'Zone', type : 'ng-select',dataSource:zoneList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
+    (change)="changeFilter()"></app-form-control>
+    <app-form-control  [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}" 
+    (change)="changeFilter()"></app-form-control>
+    <app-form-control  [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}" 
+    (change)="changeFilter()"></app-form-control>
+    <app-form-control
+    [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"
+    (change)="changeFilter()" >
+  </app-form-control>
       </div>
-    </div>
   </ion-fab>
 
-  <div *ngIf="selectedBranch" style="min-width: 300px; height: calc(100vh - 65px)">
+
+  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+  
+  <div style="min-width: 300px; height: calc(100vh - 65px)">
     <section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
       <div class="sticky-header">
         <header class="bold">
@@ -197,9 +69,9 @@
             <div class="col-date cell">
               <input
                 [ngModelOptions]="{ standalone: true }"
-                [(ngModel)]="query.CreatedDate"
+                [(ngModel)]="query.TransactionDate"
                 class="c-input"
-                [ngClass]="{ active: query.CreatedDate }"
+                [ngClass]="{ active: query.TransactionDate }"
                 type="date"
               />
               <ion-icon
@@ -236,8 +108,8 @@
             <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
           </div>
           <div class="col-date cell">
-            {{ i.CreatedDateText }}
-            <small *ngIf="i.CreatedTimeText != '00:00'">{{ i.CreatedTimeText }}</small>
+            {{ i.TransactionDate|date:'dd/MM/yyyy' }}
+            <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
           </div>
 
           <div class="col-name cell">
@@ -273,118 +145,5 @@
   >
     <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
   </ion-infinite-scroll>
+
 </ion-content>
-
-<!-- <ion-content appScrollbarTheme class="header-table">
-  <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-  <div *ngIf="items.length && pageConfig.showSpinner==false">
-    <section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
-      <div class="sticky-header">
-        <header class="bold">
-          <div class="col-checkbox cell"></div>
-          <div class="col-date cell" (click)="sortToggle('CreatedDate')">
-            CreatedDate
-            <ion-icon
-              class="min-btn"
-              *ngIf="sort.CreatedDate"
-              [name]="sort.CreatedDate == 'CreatedDate' ? 'arrow-down' : 'arrow-up'"
-            ></ion-icon>
-            <ion-icon
-              class="min-btn"
-              (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
-              *ngIf="query.CreatedDate"
-              name="search"
-              color="primary"
-            ></ion-icon>
-          </div>
-          <div class="col-name cell">Item</div>
-          <div class="col-code cell">Lot</div>
-          <div class="col-code cell">Location</div>
-          <div class="col-code cell">LPN</div>
-          <div class="col-number cell">{{'Quantity' | translate}}</div>
-          <div class="col-number cell">Số khối</div>
-          <div class="col-number cell">Số tấn</div>
-        </header>
-        <form (submit)="refresh()" action="#">
-          <header class="filter" *ngIf="pageConfig.isShowSearch">
-            <div class="col-checkbox cell"></div>
-            <div class="col-date cell">
-              <input
-                [ngModelOptions]="{ standalone: true }"
-                [(ngModel)]="query.CreatedDate"
-                class="c-input"
-                [ngClass]="{ active: query.CreatedDate }"
-                type="date"
-              />
-              <ion-icon
-                class="min-btn"
-                (click)="query.CreatedDate = ''; refresh()"
-                *ngIf="query.CreatedDate"
-                name="close-circle-outline"
-              ></ion-icon>
-            </div>
-            <div class="col-name cell"></div>
-            <div class="col-code cell"></div>
-            <div class="col-code cell"></div>
-            <div class="col-code cell"></div>
-            <div class="col-number cell"></div>
-            <div class="col-number cell"></div>
-            <div class="col-number cell"></div>
-            <button mat-raised-button type="submit" style="display: none">Search</button>
-          </header>
-        </form>
-      </div>
-
-      <ng-container *ngFor="let i of items; let j = index">
-        <div class="row" *ngIf="myHeaderFn(i, j, items); let header">
-          <div class="col-checkbox cell"></div>
-          <div class="col-name cell">
-            <ion-text color="primary">
-              <b> {{ header }} </b>
-            </ion-text>
-          </div>
-        </div>
-
-        <div class="row" [ngClass]="{ odd: j % 2 != 0 }" [ngClass]="{ selected: i.checked }">
-          <div class="col-checkbox cell">
-            <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-          </div>
-          <div class="col-date cell">
-            {{ i.CreatedDateText }}
-            <small *ngIf="i.CreatedTimeText != '00:00'">{{ i.CreatedTimeText }}</small>
-          </div>
-
-          <div class="col-name cell">
-            <span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>
-          </div>
-          <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>
-
-          <div class="col-code cell">
-            <span *ngIf="i._FromLocation">{{ i._FromLocation.Name }}</span>
-            <ion-icon name="arrow-forward"></ion-icon>
-            <span *ngIf="i._ToLocation">{{ i._ToLocation.Name }}</span>
-          </div>
-          <div class="col-code cell">
-            <span *ngIf="i._FromLPN">{{ i._FromLPN.Id }}</span>
-            <ion-icon name="arrow-forward"></ion-icon>
-            <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
-          </div>
-          <div class="col-number cell">
-            <small>{{ i._UoM.Name }}</small>
-            {{ i.UoMQuantity }}
-          </div>
-          <div class="col-number cell">{{ i.CubeText }}</div>
-          <div class="col-number cell">{{ i.GrossWeightText }}</div>
-        </div>
-      </ng-container>
-    </section>
-  </div>
-  <ion-infinite-scroll
-    color="primary"
-    threshold="20%"
-    (ionInfinite)="loadData($event)"
-    [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData"
-  >
-    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-</ion-content> -->
