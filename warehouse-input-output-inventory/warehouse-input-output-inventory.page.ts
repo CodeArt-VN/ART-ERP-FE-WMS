@@ -72,7 +72,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     Promise.all([
       this.contactProvider.read({ IsStorer: true, Take: 20, Skip: 0, SkipAddress: true }),
       this.postingPeriodProvider.read(),
-      this.itemGroupProvider.read({ Take: 5000 ,IgnoredBranch:true}),
+      this.itemGroupProvider.read({ Take: 5000, IgnoredBranch: true }),
     ]).then((values: any) => {
       if (values[0] && values[0].data) {
         this._storerDataSource.selected.push(...values[0].data);
@@ -249,32 +249,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       .then((result: any) => {
         if (result) {
           result.forEach((m) => {
-            m._OpenQuantity = 0;
-            m._InputQuantity = 0;
-            m._OutputQuantity = 0;
-            m._ClosingQuantity = 0;
-            if (m._SplitUoMs_OpenQuantity?.length > 0) {
-              if (m.OpenQuantity == 0 || m.OpenQuantity < 0) {
-                m._OpenQuantity =
-                  ' - ' + m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
-              } else {
-                m._OpenQuantity = m._SplitUoMs_OpenQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
-              }
-            }
-            if (m._SplitUoMs_InputQuantity?.length > 0) {
-              m._InputQuantity = m._SplitUoMs_InputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
-            }
-            if (m._SplitUoMs_OutputQuantity?.length > 0) {
-              m._OutputQuantity = m._SplitUoMs_OutputQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
-            }
-            if (m._SplitUoMs_ClosingQuantity?.length > 0) {
-              if (m.OpenQuantity + m.InputQuantity - m.OutputQuantity < 0) {
-                m._ClosingQuantity =
-                  ' - ' + m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' - ');
-              } else {
-                m._ClosingQuantity = m._SplitUoMs_ClosingQuantity.map((x) => x.Quantity + ' ' + x.UoMName).join(' + ');
-              }
-            }
+            m.ClosingQuantity = m.OpenQuantity + m.InputQuantity - m.OutputQuantity;
           });
           if (query.ViewItemGroup) {
             result = result.map((x) => {
