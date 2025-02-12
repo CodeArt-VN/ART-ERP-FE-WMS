@@ -58,12 +58,13 @@ export class WarehouseTransactionPage extends PageBase {
     super();
     this.pageConfig.isShowFeature = true;
     this.formGroup = this.formBuilder.group({
-      IDItem:['',Validators.required],
+      IDItem:[''],
       IDBranch:['',Validators.required],
       IDStorer:[''],
       IDZone:[''],
-      TransactionDateFrom:[this.dateMinusMonths(3),Validators.required],
+      TransactionDateFrom:[this.dateMinusMonths(1),Validators.required],
       TransactionDateTo:[this.getCurrentDate(),Validators.required],
+      IsExcludeInternalTransaction:[false],
       _IDItemDataSource:this.buildSelectDataSource((term) => {
         return this.itemProvider.search({ 
            SortBy: ['Id_desc'],Take: 200, Skip: 0, Term: term });
@@ -79,19 +80,17 @@ export class WarehouseTransactionPage extends PageBase {
     this.route.queryParams.subscribe((params) => {
       if(this.router.getCurrentNavigation()?.extras.state){
         this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state);
-        this.query = this.formGroup.getRawValue();
         this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
         this.formGroup.get('_IDItemDataSource').value.initSearch();
         this.selectedItem = this.router.getCurrentNavigation().extras.state.Item;
-        delete this.query._IDItemDataSource;
-        this.loadData(event);
-      } else{
-        this.loadedData(event);
-      };
+      } 
+      super.preLoadData(event);
     })
   }
 
   loadData(event) {
+    this.query = this.formGroup.getRawValue();
+    delete this.query._IDItemDataSource;
     this.query.SortBy = 'Id_desc';
     super.loadData(event);
   }
@@ -145,8 +144,6 @@ export class WarehouseTransactionPage extends PageBase {
       return;
     }
     this.items = [];
-    this.query = this.formGroup.getRawValue();
-    delete this.query._IDItemDataSource;
     this.pageConfig.isEndOfData = false;
     this.loadData(null);
    }

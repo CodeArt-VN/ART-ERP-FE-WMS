@@ -1,5 +1,5 @@
 <app-toolbar [page]="this">
-  <ion-button title="Create warehouse card" *ngIf="formGroup.valid" (click)="createWarehouseCard()">
+  <ion-button title="Create warehouse card" *ngIf="formGroup.valid && formGroup.get('IDItem').value" (click)="createWarehouseCard()">
     <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
   </ion-button>
 </app-toolbar>
@@ -27,6 +27,10 @@
     (change)="changeFilter()"></app-form-control>
     <app-form-control  [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}" 
     (change)="changeFilter()"></app-form-control>
+    <app-form-control
+    [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"
+    (change)="changeFilter()" >
+  </app-form-control>
       </div>
     </div>
   </ion-fab>
