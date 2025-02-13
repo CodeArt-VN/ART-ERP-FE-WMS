@@ -8,12 +8,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
-    selector: 'app-warehouse-card',
-    templateUrl: 'warehouse-card.page.html',
-    styleUrls: ['warehouse-card.page.scss'],
+    selector: 'app-stock-card',
+    templateUrl: 'stock-card.page.html',
+    styleUrls: ['stock-card.page.scss'],
     standalone: false
 })
-export class WarehouseCardPage extends PageBase {
+export class StockCardPage extends PageBase {
   currentDate = new Date();
   selectedBranch;
   storerList;
@@ -23,7 +23,7 @@ export class WarehouseCardPage extends PageBase {
   totalItem : any = {};
   firstItem:any = {};
   constructor(
-    //public pageProvider: WMS_WarehouseCardProvider,
+    //public pageProvider: WMS_StockCardProvider,
     public pageProvider: WMS_TransactionProvider,
     public itemProvider: WMS_ItemProvider,
     public contactProvider: CRM_ContactProvider,
