@@ -58,6 +58,8 @@ export class WarehouseCardPage extends PageBase {
   }
 
   preLoadData(event?: any): void {
+    this.fromDate =this.formGroup.get('TransactionDateFrom').value;
+    this.toDate = this.formGroup.get('TransactionDateTo').value;
     this.route.queryParams.subscribe((params) => {
       if(this.router.getCurrentNavigation()?.extras.state){
         this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state.query);
@@ -193,7 +195,6 @@ export class WarehouseCardPage extends PageBase {
     }
     
     getCurrentDate(): string {
-      console.log('getnewdate');
       return new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     }
 }
