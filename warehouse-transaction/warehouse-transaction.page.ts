@@ -14,8 +14,6 @@ import {
   WMS_TransactionProvider,
   WMS_ZoneProvider,
 } from 'src/app/services/static/services.service';
-import { concat, of, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-warehouse-transaction',
@@ -33,9 +31,6 @@ export class WarehouseTransactionPage extends PageBase {
   selectedZone = null;
   selectedLocation = null;
   selectedItem = null;
-  fromDate = '';
-  toDate = '';
-  isFristLoaded = true;
   constructor(
     public pageProvider: WMS_TransactionProvider,
     public env: EnvService,
@@ -82,31 +77,52 @@ export class WarehouseTransactionPage extends PageBase {
         this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state);
         this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
         this.formGroup.get('_IDItemDataSource').value.initSearch();
-        this.selectedItem = this.router.getCurrentNavigation().extras.state.Item;
+        this.firstLoad = false;
       } 
+      if(!this.formGroup.get('IDBranch').value){
+        this.getNearestWarehouse(this.env.selectedBranch);
+      }
       super.preLoadData(event);
     })
   }
-
+  subItem:any ={};
+  firstLoad = true;
   loadData(event) {
+    if(this.firstLoad){
+      this.loadedData(event);
+      return;
+    } 
     this.query = this.formGroup.getRawValue();
     delete this.query._IDItemDataSource;
     this.query.SortBy = 'Id_desc';
-    super.loadData(event);
+    this.pageProvider.commonService.connect('GET','WMS/Transaction',this.query).toPromise()
+    .then((rs:any)=>{
+      if(rs._RefList){
+        const { _RefList, ...SubData } = rs;
+
+        this.items = _RefList
+        .sort((a, b) => new Date(b.TransactionDate).getTime() - new Date(a.TransactionDate).getTime())
+        .map(i => ({ ...i }));
+    
+//        this.items = _RefList.sort((a, b) => new Date(a.TransactionDate).getTime() - new Date(b.TransactionDate).getTime()).map(i => ({ ...i }));
+        this.subItem = SubData;
+        this.items.forEach(i=>{
+          let item = this.subItem._Items?.find(d=> d.Id == i.IDItem);
+          console.log(item);
+          i._Item = item;
+        })
+        this.loadedData(event);
+      }
+    }).catch(err=>{
+      this.loadedData(event);
+    })
   }
 
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
     super.loadedData(event, ignoredFromGroup);
-   
+    
     this.formGroup.get('_IDItemDataSource').value.initSearch();
     this.formGroup.enable();
-    if(!this.formGroup.get('IDBranch').value){
-      this.getNearestWarehouse(this.env.selectedBranch);
-    }
-    if (this.isFristLoaded) {
-      this.isFristLoaded = false;
-    }
- 
   }
   
   getNearestWarehouse(IDBranch) {
@@ -143,6 +159,7 @@ export class WarehouseTransactionPage extends PageBase {
       this.env.showMessage('The difference between From Date and To Date should not exceed 3 months.', 'danger');
       return;
     }
+    this.firstLoad = false;
     super.preLoadData(event);
    }
 
@@ -185,33 +202,30 @@ export class WarehouseTransactionPage extends PageBase {
 
   myHeaderFn(record, recordIndex, records) {
     if(recordIndex == 0){
-      return lib.dateFormatFriendly(record.CreatedDate);
+      return lib.dateFormatFriendly(record.TransactionDate);
     }
-    let b: any = recordIndex == 0 ? new Date() : new Date(records[recordIndex - 1].CreatedDate);//'2000-01-01'
-    let a: any = new Date(record.CreatedDate);
+    let b: any = recordIndex == 0 ? new Date() : new Date(records[recordIndex - 1].TransactionDate);//'2000-01-01'
+    let a: any = new Date(record.TransactionDate);
     let mins = Math.floor((b - a) / 1000 / 60);
     
     
     if (mins < 30 ) {
       return null;
     }
-    let lastRenderedDate =  lib.dateFormatFriendly(records[recordIndex - 1]?.CreatedDate)
+    let lastRenderedDate =  lib.dateFormatFriendly(records[recordIndex - 1]?.TransactionDate)
 
-    if(lastRenderedDate != lib.dateFormatFriendly(record.CreatedDate)) return lib.dateFormatFriendly(record.CreatedDate);
+    if(lastRenderedDate != lib.dateFormatFriendly(record.TransactionDate)) return lib.dateFormatFriendly(record.TransactionDate);
     return null;
 
   }
-  changeItem(ev){
-    this.selectedItem = ev;
-    this.changeFilter();
-  }
+  
   createWarehouseCard(){
-    if(this.selectedItem && this.formGroup.valid){
+    if(this.subItem._Items?.length>0 && this.formGroup.valid){
       let navigationExtras: NavigationExtras = {
         state: {
           items: this.items,
           query:this.query,
-          Item : this.selectedItem
+          subItem : this.subItem
         },
       };
       this.nav('/warehouse-card', 'forward', navigationExtras);

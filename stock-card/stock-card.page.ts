@@ -20,8 +20,6 @@ export class StockCardPage extends PageBase {
   branchList;
   printMode = 'Ruy96';
   sheets=[];
-  totalItem : any = {};
-  firstItem:any = {};
   constructor(
     //public pageProvider: WMS_StockCardProvider,
     public pageProvider: WMS_TransactionProvider,
@@ -63,8 +61,9 @@ export class StockCardPage extends PageBase {
     this.route.queryParams.subscribe((params) => {
       if(this.router.getCurrentNavigation()?.extras.state){
         this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state.query);
+        this.subItem = this.router.getCurrentNavigation()?.extras.state.subItem;
         
-        this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
+        this.formGroup.get('_IDItemDataSource').value.selected = [...this.subItem._Items];
         this.formGroup.get('_IDItemDataSource').value.initSearch();
         this.patchValue(this.router.getCurrentNavigation()?.extras.state.items);
         this.fromDate = this.query.TransactionDateFrom;
@@ -80,7 +79,29 @@ export class StockCardPage extends PageBase {
       this.storerList = resp['data'];
     });
   }
-
+  subItem:any = {};
+  loadData(event?: any): void {
+      this.query = this.formGroup.getRawValue();
+      delete this.query._IDItemDataSource;
+      this.query.SortBy = 'Id_desc';
+      this.pageProvider.commonService.connect('GET','WMS/Transaction',this.query).toPromise()
+      .then((rs:any)=>{
+        if(rs._RefList){
+          const { _RefList, ...SubData } = rs;
+          this.items = _RefList;
+          this.subItem = SubData;
+          this.items.forEach(i=>{
+            let item = this.subItem._Items?.find(d=> d.Id == i.IDItem);
+            console.log(item);
+            i._Item = item;
+          })
+          this.loadedData(event);
+        }
+      }).catch(err=>{
+        this.loadedData(event);
+      })
+    }
+  
   loadedData(event?: any, ignoredFromGroup?: boolean): void {
     super.loadedData(event, ignoredFromGroup);
    
@@ -115,34 +136,43 @@ export class StockCardPage extends PageBase {
     this.pageConfig.isEndOfData = false;
     this.currentDate = new Date();
     this.item={};
-    this.env.showLoading('Please wait for a few moments',this.pageProvider.read(this.query)).then((res:any) => {
-      if (res && res.data?.length > 0) {
-        // Filter data
-        this.patchValue(res.data);
-    }
+    this.pageProvider.commonService.connect('GET','WMS/Transaction',this.query).toPromise()
+    .then((rs:any)=>{
+      if(rs._RefList){
+        const { _RefList, ...SubData } = rs;
+        this.items = _RefList;
+        this.subItem = SubData;
+        this.items.forEach(i=>{
+          let item = this.subItem._Items?.find(d=> d.Id == i.IDItem);
+          console.log(item);
+          i._Item = item;
+        })
+        this.patchValue(this.items);
+
+        this.loadedData(event);
+      }
       
     }).catch(err=>{
       this.env.showMessage(err.error?.InnerException?.ExceptionMessage || err,'danger')
     });
-  }
+  
+   }
   patchValue(data){
     this.item={};
 //    this.sheets = [];
-    this.totalItem = data[data.length-1];
-    this.firstItem = data[0];
-    this.firstItem.SplitOpeningQuantity = this.firstItem._SplitOpeningQuantity
-    .map(s=> s.Quantity+' '+s.UoMName).join(this.firstItem.OpeningQuantity<0? ' - ' : ' + ');
+    this.subItem.SplitOpeningQuantity = this.subItem._SplitOpeningQuantity
+    .map(s=> s.Quantity+' '+s.UoMName).join(this.subItem.OpeningQuantity<0? ' - ' : ' + ');
     this.item.data = [...data
-    .filter(i => (!i._FromLocation && i._ToLocation) || (i._FromLocation && !i._ToLocation))
+    // .filter(i => (!i._FromLocation && i._ToLocation) || (i._FromLocation && !i._ToLocation))
     .sort((a, b) => new Date(a.TransactionDate).getTime() - new Date(b.TransactionDate).getTime()).map(i => ({ ...i }))]
         // Initialize sheets
       
         if(this.item.data?.length>0){
-          this.item._Branch = this.item.data[0]._Branch;
+          this.item._Branch = this.subItem._Branch;
         }else this.item._Branch = this.env.branchList.find(x => x.Id == this.formGroup.get('IDBranch').value);
       
         // Assign other properties
-        this.item._Item = this.item.data[0]._Item;
+        this.item._Item = this.subItem._Items.find(d=> d.Id == data[0].IDItem);
         this.item.Id = this.formGroup.get('IDItem').value;
         QRCode.toDataURL(
           'Id:' + this.item.Id,

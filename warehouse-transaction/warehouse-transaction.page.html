@@ -1,6 +1,6 @@
 <app-toolbar [page]="this">
-  <ion-button title="Create warehouse card" *ngIf="formGroup.valid && formGroup.get('IDItem').value" (click)="createWarehouseCard()">
-    <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
+  <ion-button title="Create warehouse card" *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0" (click)="createWarehouseCard()">
+    <ion-icon slot="icon-only" name="card-outline"></ion-icon>
   </ion-button>
 </app-toolbar>
 
@@ -14,54 +14,108 @@
       <div class="ion-padding" style="padding-bottom: 0">
         <app-form-control  [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
         ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-       }"  (change)="changeFilter()"></app-form-control>
-    <app-form-control  [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id', form : formGroup}" 
-    (controlChange)="changeItem($event)"></app-form-control>
-    <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
-    (change)="changeFilter()"></app-form-control>
+       }"></app-form-control>
+    <app-form-control  [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
+     form : formGroup,clearable:true}" 
+  ></app-form-control>
+    <!-- <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
+    ></app-form-control>
     <app-form-control  [field]="{id:'IDZone', label: 'Zone', type : 'ng-select',dataSource:zoneList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
-    (change)="changeFilter()"></app-form-control>
+    ></app-form-control> -->
     <app-form-control  [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}" 
-    (change)="changeFilter()"></app-form-control>
+    ></app-form-control>
     <app-form-control  [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}" 
-    (change)="changeFilter()"></app-form-control>
+    ></app-form-control>
     <app-form-control
     [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"
-    (change)="changeFilter()" >
+     >
   </app-form-control>
       </div>
-  </ion-fab>
-
-
-  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+      <div class="action-buttons sticky-bottom">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12">
+              <ion-button (click)="changeFilter()" color="success" expand="block">
+                {{ 'View item list' | translate }}
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
   
+  </ion-fab>
+<!-- 
+  <app-data-table
+    class="box-shadow"
+    [rows]="items"
+    [trackBy]="'IDItem'"
+    [showSpinner]="pageConfig.showSpinner"
+    [showFilter]="pageConfig.isShowSearch"
+    [(query)]="query"
+    (filter)="onDatatableFilter($event)"
+    (sort)="onSort($event)"
+    [isTreeList]="true"
+  >
+  
+  <datatable-column class="col-date" name="Transaction date" property="TransactionDate">
+    <ng-template let-i="row" datatable-cell-template>
+      {{ i.TransactionDate|date:'dd/MM/yyyy' }}
+      <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
+    </ng-template>
+  </datatable-column>
+
+  <datatable-column class="col-code" name="Source" property="SourceKey">
+    <ng-template let-i="row" datatable-cell-template>
+      {{i.SourceType}}: {{i.SourceKey}}
+    </ng-template>
+  </datatable-column>
+
+    <datatable-column class="col-name" name="Item" property="IDItem">
+      <ng-template let-i="row" datatable-cell-template>
+        {{i._Item.Code}} - 
+        {{i._Item.Name}}
+      </ng-template>
+    </datatable-column>
+    
+    <datatable-column class="col-code" name="Quantity" property="UoMQuantity">
+      <ng-template let-i="row" datatable-cell-template>
+       <ng-container>
+        <ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
+        ><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+        <small>{{u.UoMName}}</small>
+   </ion-text>
+   </ng-container>
+      </ng-template>
+    </datatable-column>
+    
+  </app-data-table> -->
+
+  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message> 
   <div style="min-width: 300px; height: calc(100vh - 65px)">
     <section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
       <div class="sticky-header">
         <header class="bold">
-          <div class="col-checkbox cell"></div>
-          <div class="col-date cell" (click)="sortToggle('CreatedDate')">
-            {{'CreatedDate' | translate}}
-            <ion-icon
+          <!-- <div class="col-checkbox cell"></div> -->
+          <div class="col-date cell">
+            {{'TransactionDate' | translate}}
+            <!-- <ion-icon
               class="min-btn"
-              *ngIf="sort.CreatedDate"
-              [name]="sort.CreatedDate == 'CreatedDate' ? 'arrow-down' : 'arrow-up'"
+              *ngIf="sort.TransactionDate"
+              [name]="sort.TransactionDate == 'TransactionDate' ? 'arrow-down' : 'arrow-up'"
             ></ion-icon>
             <ion-icon
               class="min-btn"
               (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
-              *ngIf="query.CreatedDate"
+              *ngIf="query.TransactionDate"
               name="search"
               color="primary"
-            ></ion-icon>
+            ></ion-icon> -->
           </div>
+          <div class="col-code cell">{{'Source' | translate}}</div>
           <div class="col-name cell">{{'Item' | translate}}</div>
-          <div class="col-code cell">{{'Lot' | translate}}</div>
-          <div class="col-code cell">{{'Location' | translate}}</div>
-          <div class="col-code cell">{{'LPN' | translate}}</div>
+
+   
           <div class="col-number cell">{{'Quantity' | translate}}</div>
-          <div class="col-number cell">{{'Số khối' | translate}}</div>
-          <div class="col-number cell">{{'Số tấn' | translate}}</div>
         </header>
         <form (submit)="refresh()" action="#">
           <header class="filter" *ngIf="pageConfig.isShowSearch">
@@ -76,8 +130,8 @@
               />
               <ion-icon
                 class="min-btn"
-                (click)="query.CreatedDate = ''; refresh()"
-                *ngIf="query.CreatedDate"
+                (click)="query.TransactionDate = ''; refresh()"
+                *ngIf="query.TransactionDate"
                 name="close-circle-outline"
               ></ion-icon>
             </div>
@@ -95,7 +149,7 @@
 
       <ng-container *ngFor="let i of items; let j = index">
         <div class="row" *ngIf="myHeaderFn(i, j, items); let header">
-          <div class="col-checkbox cell"></div>
+          <!-- <div class="col-checkbox cell"></div> -->
           <div class="col-name cell">
             <ion-text color="primary">
               <b> {{ header }} </b>
@@ -104,18 +158,23 @@
         </div>
 
         <div class="row" [ngClass]="{ odd: j % 2 != 0 }" [ngClass]="{ selected: i.checked }">
-          <div class="col-checkbox cell">
+          <!-- <div class="col-checkbox cell">
             <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-          </div>
+          </div> -->
           <div class="col-date cell">
             {{ i.TransactionDate|date:'dd/MM/yyyy' }}
             <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
           </div>
 
+          <div class="col-code cell">
+            {{i.SourceType}}: {{i.SourceKey}}
+          </div>
+
           <div class="col-name cell">
             <span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>
           </div>
-          <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>
+          
+          <!-- <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>
 
           <div class="col-code cell">
             <span *ngIf="i._FromLocation">{{ i._FromLocation.Name }}</span>
@@ -126,13 +185,15 @@
             <span *ngIf="i._FromLPN">{{ i._FromLPN.Id }}</span>
             <ion-icon name="arrow-forward"></ion-icon>
             <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
-          </div>
+          </div> -->
           <div class="col-number cell">
-            <small>{{ i._UoM.Name }}</small>
-            {{ i.UoMQuantity }}
+            <ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
+            ><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+            <small>{{u.UoMName}}</small>
+          </ion-text>
           </div>
-          <div class="col-number cell">{{ i.CubeText }}</div>
-          <div class="col-number cell">{{ i.GrossWeightText }}</div>
+          <!-- <div class="col-number cell">{{ i.CubeText }}</div>
+          <div class="col-number cell">{{ i.GrossWeightText }}</div> -->
         </div>
       </ng-container>
     </section>
