@@ -78,6 +78,6 @@ export const WMSRoutes: Routes = [
      { path: 'storer', loadChildren: () => import('./storer/storer.module').then(m => m.StorerPageModule), canActivate: [AuthGuard]},
      { path: 'storer/:id', loadChildren: () => import('./storer-detail/storer-detail.module').then(m => m.StorerDetailPageModule), canActivate: [AuthGuard]},
 
-     { path: 'warehouse-card', loadChildren: () => import('./stock-card/stock-card.module').then(m => m.StockCardPageModule), canActivate: [AuthGuard]},
+     { path: 'stock-card', loadChildren: () => import('./stock-card/stock-card.module').then(m => m.StockCardPageModule), canActivate: [AuthGuard]},
 
 ];

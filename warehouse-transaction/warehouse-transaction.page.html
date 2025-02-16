@@ -1,11 +1,12 @@
 <ion-header>
   <app-toolbar [page]="this">
     <ion-button
-      title="Create warehouse card"
+      title="Stock card"
       *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0"
       (click)="createWarehouseCard()"
     >
-      <ion-icon slot="icon-only" name="card-outline"></ion-icon>
+      {{ 'Stock card' | translate }}
+      <!-- <ion-icon slot="icon-only" name="card-outline"></ion-icon> -->
     </ion-button>
   </app-toolbar>
 </ion-header>
@@ -174,7 +175,14 @@
             <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
           </div>
 
-          <div class="col-code cell">{{i.SourceType}}: {{i.SourceKey}}</div>
+          <div class="col-code cell">
+            {{ i.SourceType | translate }}:
+            <a
+              [routerLink]="['/' + (i.SourceType === 'SO' ? 'sale-order' : i.SourceType === 'Receipt' ? 'receipt' : pageConfig.pageName) + '/' + i.SourceKey]"
+            >
+              <span class="show-small-inline">{{ i.SourceKey }}</span>
+            </a>
+          </div>
 
           <div class="col-name cell">
             <span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>

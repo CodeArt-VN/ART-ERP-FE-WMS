@@ -228,7 +228,7 @@ export class WarehouseTransactionPage extends PageBase {
           subItem : this.subItem
         },
       };
-      this.nav('/warehouse-card', 'forward', navigationExtras);
+      this.nav('/stock-card', 'forward', navigationExtras);
     }
     
   }
