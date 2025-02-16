@@ -1,9 +1,14 @@
-<app-toolbar [page]="this">
-  <ion-button title="Create warehouse card" *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0" (click)="createWarehouseCard()">
-    <ion-icon slot="icon-only" name="card-outline"></ion-icon>
-  </ion-button>
-</app-toolbar>
-
+<ion-header>
+  <app-toolbar [page]="this">
+    <ion-button
+      title="Create warehouse card"
+      *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0"
+      (click)="createWarehouseCard()"
+    >
+      <ion-icon slot="icon-only" name="card-outline"></ion-icon>
+    </ion-button>
+  </app-toolbar>
+</ion-header>
 <ion-content
   appScrollbarTheme
   class="left scrollx"
@@ -11,40 +16,44 @@
   forceOverscroll="false"
 >
   <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
-      <div class="ion-padding" style="padding-bottom: 0">
-        <app-form-control  [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
+    <div class="ion-padding" style="padding-bottom: 0">
+      <app-form-control
+        [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
         ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-       }"></app-form-control>
-    <app-form-control  [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
-     form : formGroup,clearable:true}" 
-  ></app-form-control>
-    <!-- <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
+       }"
+      ></app-form-control>
+      <app-form-control
+        [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
+     form : formGroup,clearable:true}"
+      ></app-form-control>
+      <!-- <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
     ></app-form-control>
     <app-form-control  [field]="{id:'IDZone', label: 'Zone', type : 'ng-select',dataSource:zoneList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
     ></app-form-control> -->
-    <app-form-control  [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}" 
-    ></app-form-control>
-    <app-form-control  [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}" 
-    ></app-form-control>
-    <app-form-control
-    [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"
-     >
-  </app-form-control>
-      </div>
-      <div class="action-buttons sticky-bottom">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="12">
-              <ion-button (click)="changeFilter()" color="success" expand="block">
-                {{ 'View item list' | translate }}
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-  
+      <app-form-control
+        [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}"
+      ></app-form-control>
+      <app-form-control
+        [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}"
+      ></app-form-control>
+      <app-form-control
+        [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"
+      >
+      </app-form-control>
+    </div>
+    <div class="action-buttons sticky-bottom">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12">
+            <ion-button (click)="changeFilter()" color="success" expand="block">
+              {{ 'View item list' | translate }}
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
   </ion-fab>
-<!-- 
+  <!-- 
   <app-data-table
     class="box-shadow"
     [rows]="items"
@@ -90,7 +99,7 @@
     
   </app-data-table> -->
 
-  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message> 
+  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
   <div style="min-width: 300px; height: calc(100vh - 65px)">
     <section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
       <div class="sticky-header">
@@ -114,7 +123,6 @@
           <div class="col-code cell">{{'Source' | translate}}</div>
           <div class="col-name cell">{{'Item' | translate}}</div>
 
-   
           <div class="col-number cell">{{'Quantity' | translate}}</div>
         </header>
         <form (submit)="refresh()" action="#">
@@ -166,14 +174,12 @@
             <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
           </div>
 
-          <div class="col-code cell">
-            {{i.SourceType}}: {{i.SourceKey}}
-          </div>
+          <div class="col-code cell">{{i.SourceType}}: {{i.SourceKey}}</div>
 
           <div class="col-name cell">
             <span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>
           </div>
-          
+
           <!-- <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>
 
           <div class="col-code cell">
@@ -188,9 +194,9 @@
           </div> -->
           <div class="col-number cell">
             <ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
-            ><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-            <small>{{u.UoMName}}</small>
-          </ion-text>
+              ><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+              <small>{{u.UoMName}}</small>
+            </ion-text>
           </div>
           <!-- <div class="col-number cell">{{ i.CubeText }}</div>
           <div class="col-number cell">{{ i.GrossWeightText }}</div> -->
@@ -206,5 +212,4 @@
   >
     <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
   </ion-infinite-scroll>
-
 </ion-content>

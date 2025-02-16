@@ -50,7 +50,6 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
     public contactProvider: CRM_ContactProvider,
     public itemProvider: WMS_ItemProvider,
     public router: Router,
-    
   ) {
     super();
     this.pageConfig.isShowFeature = true;
@@ -163,14 +162,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
               return of(this.selected);
             } else {
               return this.searchProvider
-                .search({
-                  Term: term,
-                  SortBy: ['Id_desc'],
-                  Take: 20,
-                  Skip: 0,
-                  IsStorer: true,
-                  SkipAddress: true,
-                })
+                .search({ Term: term, SortBy: ['Id_desc'], Take: 20, Skip: 0, IsStorer: true, SkipAddress: true })
                 .pipe(
                   catchError(() => of([])), // empty list on error
                   tap(() => (this.loading = false)),
@@ -318,19 +310,18 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
       this.showHideAllNestedFolder(ls, ite.Id, true, ite.showdetail);
     }
   }
-  
-  navWarehouseTransaction(i){
+
+  navWarehouseTransaction(i) {
     let navigationExtras: NavigationExtras = {
       state: {
         IDBranch: this.formGroup.get('IDBranch').value,
-        Item : {Id:i.IDItem,Code:i.ItemCode,Name:i.ItemName},
+        Item: { Id: i.IDItem, Code: i.ItemCode, Name: i.ItemName },
         IDItem: i.IDItem,
-        TransactionDateFrom:this.formGroup.get('FromDate').value,
+        TransactionDateFrom: this.formGroup.get('FromDate').value,
         TransactionDateTo: this.formGroup.get('ToDate').value,
       },
-    }
-      this.nav('/warehouse-transaction', 'forward', navigationExtras);
-   
+    };
+    this.nav('/warehouse-transaction', 'forward', navigationExtras);
   }
   IDPeriodDataSource = {
     searchProvider: this.postingPeriodProvider,
@@ -346,17 +337,10 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
           distinctUntilChanged(),
           tap(() => (this.loading = true)),
           switchMap((term) =>
-            this.searchProvider
-              .search({
-                SortBy: ['Id_desc'],
-                Take: 20,
-                Skip: 0,
-                Term: term,
-              })
-              .pipe(
-                catchError(() => of([])), // empty list on error
-                tap(() => (this.loading = false)),
-              ),
+            this.searchProvider.search({ SortBy: ['Id_desc'], Take: 20, Skip: 0, Term: term }).pipe(
+              catchError(() => of([])), // empty list on error
+              tap(() => (this.loading = false)),
+            ),
           ),
         ),
       );

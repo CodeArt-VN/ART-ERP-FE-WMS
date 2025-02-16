@@ -139,6 +139,15 @@
     (sort)="onSort($event)"
     [isTreeList]="true"
   >
+    <datatable-column class="col-icon" name="" property="ItemName">
+      <ng-template let-i="row" datatable-cell-template>
+        <div class="text-center">
+          <ion-button (click)="navWarehouseTransaction(i)" size="small" title="{{'Warehouse transaction' | translate}}" fill="clear">
+            <ion-icon slot="icon-only" name="time-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </ng-template>
+    </datatable-column>
     <datatable-column class="col-name" name="Item" property="ItemName">
       <ng-template datatable-header-template>
         <ion-icon
@@ -159,14 +168,14 @@
           [name]="!i?.showdetail? 'chevron-forward-outline':'chevron-down-outline'"
           *ngIf="i?.HasChild"
         ></ion-icon>
-        <ion-icon class="min-btn clickable" [name]="''" *ngIf="!i?.HasChild"></ion-icon>
+        <ion-icon class="min-btn clickable" [name]="''" *ngIf="!i?.HasChild && formGroup?.controls?.ViewItemGroup?.value" ></ion-icon>
         <ng-container *ngIf="i?.ItemCode && i?.IDItem">
           <span [title]="i?.ItemName">
             <a [routerLink]="'/item/' + i?.IDItem" class="clickable">
               <ion-icon color="warning" *ngIf="i?.IsDisabled" name="archive"></ion-icon>
               <span *ngIf="!i?.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
             >
-            <ion-text  (click)="navWarehouseTransaction(i)"  class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"
+            <ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"
               ><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text
             >
           </span>
