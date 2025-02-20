@@ -8,7 +8,7 @@
       <ion-icon slot="icon-only" name="print"></ion-icon>
     </ion-button>
 
-    <ion-button title="Tạo hóa đơn" *ngIf="pageConfig.canCreateInvoice" (click)="createInvoice()">
+    <ion-button title="{{'Copy to A/P invoice' | translate}}" *ngIf="pageConfig.canCopyToAPInvoice" (click)="createInvoice()">
       <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
     </ion-button>
 
@@ -356,7 +356,7 @@
                     <ng-container *ngIf="g.controls._IsShowPallets.value">
                       <div class="row sub-row" *ngFor="let p of g.get('Pallets')['controls']; let jdx = index;">
                         <ng-container [formGroup]="p">
-                          <div class="col-id cell">{{idx+1}}.{{jdx+1}}</div>
+                          <div class="col-id cell"> <span class="spacing"></span><span class="spacing"></span> {{idx+1}}.{{jdx+1}}</div>
                           <div class="col-name cell" style="justify-content: flex-end">
                             {{'LPN' | translate}}: {{p.controls._LPN.value.Id}} LOT: {{p.controls.ToLot.value}}
                           </div>

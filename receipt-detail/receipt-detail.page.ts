@@ -1,8 +1,13 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { NavController, LoadingController, AlertController } from '@ionic/angular';
-import { PageBase } from 'src/app/page-base';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AlertController, LoadingController, NavController } from '@ionic/angular';
+import { of, Subject } from 'rxjs';
+import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
+import { ApiSetting } from 'src/app/services/static/api-setting';
+import { lib } from 'src/app/services/static/global-functions';
 import {
   BRA_BranchProvider,
   CRM_ContactProvider,
@@ -12,12 +17,6 @@ import {
   WMS_ReceiptPalletizationProvider,
   WMS_ReceiptProvider,
 } from 'src/app/services/static/services.service';
-import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
-import { CommonService } from 'src/app/services/core/common.service';
-import { lib } from 'src/app/services/static/global-functions';
-import { concat, of, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
-import { ApiSetting } from 'src/app/services/static/api-setting';
 
 @Component({
     selector: 'app-receipt-detail',
