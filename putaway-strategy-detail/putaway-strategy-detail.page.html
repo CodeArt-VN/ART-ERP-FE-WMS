@@ -25,27 +25,40 @@
 										</ion-list-header>
 									</ion-col>
 									<ion-col size="12" size-sm="8" size-xl="8">
-
 										<app-form-control [field]="{id:'Name', label: 'Name', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'Code', label: 'Code', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<div class="c-control">
-											<label class="c-label" for="IDBranch">{{'Warehouse' | translate}}
-											  <span *ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+											<label class="c-label" for="IDBranch"
+												>{{'Warehouse' | translate}}
+												<span
+													*ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)"
+													ion-text
+													color="danger"
+													>(*)</span
+												>
 											</label>
-											<ng-select class="c-input" (change)="IDBranchChange();" labelForId="IDBranch" formControlName="IDBranch" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}">
-											  <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-												<div *ngIf="i">
-												  <div>
-													<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-													<span [ngOptionHighlight]="search">{{i.Name}}</span>
-												  </div>
-												</div>
-											  </ng-template>
+											<ng-select
+												class="c-input"
+												(change)="IDBranchChange();"
+												labelForId="IDBranch"
+												formControlName="IDBranch"
+												[items]="branchList"
+												[virtualScroll]="true"
+												bindLabel="Name"
+												bindValue="Id"
+												placeholder="{{'Search...' | translate}}"
+											>
+												<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+													<div *ngIf="i">
+														<div>
+															<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+															<span [ngOptionHighlight]="search">{{i.Name}}</span>
+														</div>
+													</div>
+												</ng-template>
 											</ng-select>
-										  </div>
-
+										</div>
 									</ion-col>
-
 								</ion-row>
 								<ion-row class="hr-group">
 									<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
@@ -65,68 +78,104 @@
 												</ion-button>
 											</ion-list-header>
 
-											<ion-accordion-group [multiple]="true"  [value]="openedFields"  (ionChange)="accordionGroupChange($event)">
+											<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
 												<ion-reorder-group (ionItemReorder)="doReorder($event, formGroup.get('PutawayStrategyDetails')['controls'])" [disabled]="false">
 													<ng-container *ngFor="let g of formGroup.get('PutawayStrategyDetails')['controls']; let idx = index;">
 														<ion-accordion [value]="g.get('Id').value">
 															<ion-item slot="header" [style.order]="g.get('Sort').value" lines="full">
 																<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
 																	<ion-text color="primary"> {{g.get('Id').value}} -</ion-text>
-																	<ion-text [ngClass]="{'bold': isAccordionExpanded(g.get('Id').value)}" color="dark">{{g.get('Name').value}}</ion-text>
-																
+																	<ion-text [ngClass]="{'bold': isAccordionExpanded(g.get('Id').value)}" color="dark"
+																		>{{g.get('Name').value}}</ion-text
+																	>
 																</ion-label>
 
-																<ion-button  *ngIf="pageConfig.canEdit" color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
+																<ion-button
+																	*ngIf="pageConfig.canEdit"
+																	color="danger"
+																	(click)="$event.stopPropagation();removeField(g,idx)"
+																	fill="clear"
+																	slot="end"
+																>
 																	<ion-icon slot="icon-only" name="trash"></ion-icon>
 																</ion-button>
 																<ion-reorder slot="end"></ion-reorder>
-														
 															</ion-item>
-															<div class="ion-padding" slot="content" [ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"  >
+															<div
+																class="ion-padding"
+																slot="content"
+																[ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
+															>
 																<ion-grid fixed>
 																	<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
 																		<ion-row>
 																			<ion-col size="12" size-xl="12">
-																				<app-form-control [field]="{id:'Name', label: 'Name', type : 'text', form : g }" (change)="saveChange()"></app-form-control>
-																				<app-form-control [field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:typeDataSource, bindLabel:'Name', bindValue:'Code', form : g }" (change)="saveChange()"></app-form-control>
+																				<app-form-control
+																					[field]="{id:'Name', label: 'Name', type : 'text', form : g }"
+																					(change)="saveChange()"
+																				></app-form-control>
+																				<app-form-control
+																					[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:typeDataSource, bindLabel:'Name', bindValue:'Code', form : g }"
+																					(change)="saveChange()"
+																				></app-form-control>
 																			</ion-col>
 																			<ion-col size="12" size-xl="6">
 																				<!-- <app-form-control [field]="{id:'IDStorer', label: 'Storer', type :'ng-select-bp', dataSource:g.controls._storerDataSource.value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
 																				<app-form-control [field]="{id:'IDItem', label: 'Item', type :'ng-select-item', dataSource: g.controls._itemDataSource.value, bindLabel:'Name', bindValue:'Code' ,clearable:true,form : g}" (change)="saveChange()"></app-form-control> -->
-																				<app-form-control [field]="{id:'FromZone', label: 'From zone', type :'ng-select', dataSource:  g.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
-																				<app-form-control [field]="{id:'FromLocation', label: 'From location', type :'ng-select', dataSource:  g.get('_locationDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
+																				<app-form-control
+																					[field]="{id:'FromZone', label: 'From zone', type :'ng-select', dataSource:  g.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}"
+																					(change)="saveChange()"
+																				></app-form-control>
+																				<app-form-control
+																					[field]="{id:'FromLocation', label: 'From location', type :'ng-select', dataSource:  g.get('_locationDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}"
+																					(change)="saveChange()"
+																				></app-form-control>
 
-																				<app-form-control [field]="{id:'IsSinglePutawayForMultiplePallets', label: 'single putaway/pallets', type :'checkbox',  form : g}" (change)="saveChange()"></app-form-control>
-																				
+																				<app-form-control
+																					[field]="{id:'IsSinglePutawayForMultiplePallets', label: 'single putaway/pallets', type :'checkbox',  form : g}"
+																					(change)="saveChange()"
+																				></app-form-control>
 																			</ion-col>
 																			<ion-col size="12" size-xl="6">
-																					<app-form-control [field]="{id:'ToZone', label: 'To zone', type :'ng-select', dataSource:  g.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
-																					<app-form-control [field]="{id:'ToLocation', label: 'To location', type :'ng-select', dataSource:  g.get('_locationDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}" (change)="saveChange()"></app-form-control>
-																					<app-form-control [field]="{id:'IsChecksRestrictions', label: 'Checks restrictions', type :'checkbox',  form : g}" (change)="saveChange()"></app-form-control>
-
+																				<app-form-control
+																					[field]="{id:'ToZone', label: 'To zone', type :'ng-select', dataSource:  g.get('_zoneDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}"
+																					(change)="saveChange()"
+																				></app-form-control>
+																				<app-form-control
+																					[field]="{id:'ToLocation', label: 'To location', type :'ng-select', dataSource:  g.get('_locationDataSource').value, bindLabel:'Name', bindValue:'Id' ,clearable:true, form : g}"
+																					(change)="saveChange()"
+																				></app-form-control>
+																				<app-form-control
+																					[field]="{id:'IsChecksRestrictions', label: 'Checks restrictions', type :'checkbox',  form : g}"
+																					(change)="saveChange()"
+																				></app-form-control>
 																			</ion-col>
 
 																			<ion-col size="12" size-xl="12">
-																				<app-form-control [field]="{id:'DimensionRestriction', label: 'Dimension restriction', type : 'text', form : g }" (change)="saveChange()"></app-form-control>
-																				<app-form-control [field]="{id:'LocationSortType', label: 'Location sort type', type : 'ng-select', dataSource: locationSortTypeDataSource, bindValue:'Code', bindLabel:'Name', form : g }" (change)="saveChange()"></app-form-control>
-																				<app-form-control [field]="{id:'AreaTypeRestrictions', label: 'Area type restrictions', type : 'text', form : g }" (change)="saveChange()"></app-form-control>
+																				<app-form-control
+																					[field]="{id:'DimensionRestriction', label: 'Dimension restriction', type : 'text', form : g }"
+																					(change)="saveChange()"
+																				></app-form-control>
+																				<app-form-control
+																					[field]="{id:'LocationSortType', label: 'Location sort type', type : 'ng-select', dataSource: locationSortTypeDataSource, bindValue:'Code', bindLabel:'Name', form : g }"
+																					(change)="saveChange()"
+																				></app-form-control>
+																				<app-form-control
+																					[field]="{id:'AreaTypeRestrictions', label: 'Area type restrictions', type : 'text', form : g }"
+																					(change)="saveChange()"
+																				></app-form-control>
 																			</ion-col>
 																			<!-- <ion-col size="12" size-xl="6"> </ion-col> -->
 																		</ion-row>
-																
-																		
 																	</form>
 																</ion-grid>
 															</div>
-
 														</ion-accordion>
 													</ng-container>
 												</ion-reorder-group>
 											</ion-accordion-group>
 										</ion-list>
-
 									</ion-col>
-
 								</ion-row>
 								<ion-row class="hr-group" *ngIf="item?.Id">
 									<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
@@ -144,10 +193,11 @@
 										<app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
 									</ion-col>
 									<ion-col size="12" size-sm size-xl="4">
-										<app-form-control [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
+										<app-form-control
+											[field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"
+										></app-form-control>
 										<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
 									</ion-col>
-
 								</ion-row>
 							</form>
 						</ion-grid>

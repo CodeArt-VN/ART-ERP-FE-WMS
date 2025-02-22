@@ -4,23 +4,23 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CartonDetailPage } from './carton-detail.page';
 
 describe('CartonDetailPage', () => {
-  let component: CartonDetailPage;
-  let fixture: ComponentFixture<CartonDetailPage>;
+	let component: CartonDetailPage;
+	let fixture: ComponentFixture<CartonDetailPage>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [CartonDetailPage],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-  }));
+	beforeEach(async(() => {
+		TestBed.configureTestingModule({
+			declarations: [CartonDetailPage],
+			schemas: [CUSTOM_ELEMENTS_SCHEMA],
+		}).compileComponents();
+	}));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CartonDetailPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(CartonDetailPage);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

@@ -1,30 +1,30 @@
 ::ng-deep app-data-table .row {
-  min-height: 52px;
+	min-height: 52px;
 }
 .row-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 ::ng-deep app-data-table .col-number {
-  padding-right: 20px !important;
+	padding-right: 20px !important;
 }
 
-app-data-table{
-  height:100%;
+app-data-table {
+	height: 100%;
 }
 
 :host ::ng-deep {
-  @media screen and (max-width: 1164px) {
-    .row-status {
-      align-items: unset;
-      text-align: right;
-    }
+	@media screen and (max-width: 1164px) {
+		.row-status {
+			align-items: unset;
+			text-align: right;
+		}
 
-    app-data-table.responsive .row .col-status {
-      top: 4px;
-    }
-  }
+		app-data-table.responsive .row .col-status {
+			top: 4px;
+		}
+	}
 }

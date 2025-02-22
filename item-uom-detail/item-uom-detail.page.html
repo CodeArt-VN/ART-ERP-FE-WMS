@@ -1,262 +1,235 @@
 <ion-header>
-  <app-detail-toolbar [page]="this" [title]="'#'+product?.Id "></app-detail-toolbar>
+	<app-detail-toolbar [page]="this" [title]="'#'+product?.Id "></app-detail-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding">
-  <div class="main-view">
-    <ion-grid fixed style="max-width: 500px">
-      <ion-row class="hr-group" *ngIf="product">
-        <ion-col size="12">
-          <div class="c-control">
-            <label class="c-label" for="OriginalTotalAfterTax">
-              <ion-text color="primary"
-                >{{'Item' | translate}} #{{product.Id}} {{product.Code? ' - '+ product.Code: ''}}
-              </ion-text>
-            </label>
-            <input
-              [readonly]="true"
-              class="c-input"
-              id="OriginalTotalAfterTax"
-              [(ngModel)]="product.Name"
-              type="text"
-            />
-          </div>
+	<div class="main-view">
+		<ion-grid fixed style="max-width: 500px">
+			<ion-row class="hr-group" *ngIf="product">
+				<ion-col size="12">
+					<div class="c-control">
+						<label class="c-label" for="OriginalTotalAfterTax">
+							<ion-text color="primary">{{'Item' | translate}} #{{product.Id}} {{product.Code? ' - '+ product.Code: ''}} </ion-text>
+						</label>
+						<input [readonly]="true" class="c-input" id="OriginalTotalAfterTax" [(ngModel)]="product.Name" type="text" />
+					</div>
 
-          <div class="c-control ion-text-right" *ngIf="pageConfig.canEditUoMQty">
-            <ion-button
-              (click)="disableProduct()"
-              size="small"
-              [disabled]="!(pageConfig.canEdit) || submitAttempt"
-              [fill]=" product.IsDisabled? 'solid' : 'outline' "
-            >
-              {{'Disabled' | translate}}
-            </ion-button>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+					<div class="c-control ion-text-right" *ngIf="pageConfig.canEditUoMQty">
+						<ion-button (click)="disableProduct()" size="small" [disabled]="!(pageConfig.canEdit) || submitAttempt" [fill]=" product.IsDisabled? 'solid' : 'outline' ">
+							{{'Disabled' | translate}}
+						</ion-button>
+					</div>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
 
-    <div class="row-full shadow full-screen">
-      <ion-toolbar color="primary">
-        <ion-segment scrollable="true" (ionChange)="changeUoM($event)" [value]="id">
-          <ion-segment-button [value]="u.Id" *ngFor="let u of items">
-            <ion-label>{{u.Name}} <span *ngIf="u.IsBaseUoM">(*)</span></ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </ion-toolbar>
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="changeUoM($event)" [value]="id">
+					<ion-segment-button [value]="u.Id" *ngFor="let u of items">
+						<ion-label>{{u.Name}} <span *ngIf="u.IsBaseUoM">(*)</span></ion-label>
+					</ion-segment-button>
+				</ion-segment>
+			</ion-toolbar>
 
-      <div>
-        <div style="min-height: calc(100vh - 315px)">
-          <div class="table-contain">
-            <form [formGroup]="formGroup">
-              <section class="table" *ngIf="item">
-                <div class="row">
-                  <div class="col-name cell">
-                    <div style="min-width: 100%; max-width: 100%">
-                      <table style="max-width: 100%; min-width: 100%">
-                        <ng-container *ngIf="pageConfig.canEditUoMQty">
-                          <tr *ngIf="showAlterQty">
-                            <td class="label">
-                              <span>
-                                {{'Specification' | translate}}
-                                <ion-text color="primary"
-                                  ><b>{{item.Name}}</b>
-                                  <span *ngIf="item.IsBaseUoM">&nbsp; {{'(Original unit)' | translate}}</span>
-                                </ion-text>
-                              </span>
-                              <ion-button
-                                class="right-btn"
-                                size="small"
-                                fill="clear"
-                                color="danger"
-                                (click)="showAlterQty = !showAlterQty"
-                              >
-                                <ion-icon slot="icon-only" name="chevron-down"></ion-icon>
-                              </ion-button>
-                            </td>
-                            <td style="min-width: 150px; width: 150px; max-width: 150px">
-                              <input
-                                formControlName="BaseQuantity"
-                                [readonly]="!pageConfig.canEdit || item.IsBaseUoM"
-                                type="tel"
-                                (focus)="$event.target.select()"
-                                (blur)="saveChange()"
-                                class="c-input"
-                                mask="separator.2"
-                                thousandSeparator=","
-                              />
-                            </td>
-                          </tr>
+			<div>
+				<div style="min-height: calc(100vh - 315px)">
+					<div class="table-contain">
+						<form [formGroup]="formGroup">
+							<section class="table" *ngIf="item">
+								<div class="row">
+									<div class="col-name cell">
+										<div style="min-width: 100%; max-width: 100%">
+											<table style="max-width: 100%; min-width: 100%">
+												<ng-container *ngIf="pageConfig.canEditUoMQty">
+													<tr *ngIf="showAlterQty">
+														<td class="label">
+															<span>
+																{{'Specification' | translate}}
+																<ion-text color="primary"
+																	><b>{{item.Name}}</b>
+																	<span *ngIf="item.IsBaseUoM">&nbsp; {{'(Original unit)' | translate}}</span>
+																</ion-text>
+															</span>
+															<ion-button class="right-btn" size="small" fill="clear" color="danger" (click)="showAlterQty = !showAlterQty">
+																<ion-icon slot="icon-only" name="chevron-down"></ion-icon>
+															</ion-button>
+														</td>
+														<td style="min-width: 150px; width: 150px; max-width: 150px">
+															<input
+																formControlName="BaseQuantity"
+																[readonly]="!pageConfig.canEdit || item.IsBaseUoM"
+																type="tel"
+																(focus)="$event.target.select()"
+																(blur)="saveChange()"
+																class="c-input"
+																mask="separator.2"
+																thousandSeparator=","
+															/>
+														</td>
+													</tr>
 
-                          <tr *ngIf="!showAlterQty">
-                            <td class="label">
-                              {{'Cứ' | translate}} {{item.AlternativeQuantity}} {{item.Name}}
-                              <ion-button
-                                class="right-btn"
-                                size="small"
-                                fill="clear"
-                                color="danger"
-                                (click)="showAlterQty = !showAlterQty"
-                              >
-                                <ion-icon slot="icon-only" name="chevron-up"></ion-icon>
-                              </ion-button>
-                            </td>
-                            <td>
-                              <input
-                                formControlName="AlternativeQuantity"
-                                [readonly]="!pageConfig.canEdit || item.IsBaseUoM"
-                                type="tel"
-                                (focus)="$event.target.select()"
-                                (blur)="saveChange()"
-                                class="c-input"
-                                mask="separator.2"
-                                thousandSeparator=","
-                              />
-                            </td>
-                          </tr>
-                          <tr *ngIf="!showAlterQty">
-                            <td class="label">
-                              <span> = {{item.BaseQuantity}} {{baseUoM.Name}} </span>
-                            </td>
-                            <td style="min-width: 150px; width: 150px; max-width: 150px">
-                              <input
-                                formControlName="BaseQuantity"
-                                [readonly]="!pageConfig.canEdit || item.IsBaseUoM"
-                                type="tel"
-                                (focus)="$event.target.select()"
-                                (blur)="saveChange()"
-                                class="c-input"
-                                mask="separator.2"
-                                thousandSeparator=","
-                              />
-                            </td>
-                          </tr>
-                        </ng-container>
+													<tr *ngIf="!showAlterQty">
+														<td class="label">
+															{{'Cứ' | translate}} {{item.AlternativeQuantity}} {{item.Name}}
+															<ion-button class="right-btn" size="small" fill="clear" color="danger" (click)="showAlterQty = !showAlterQty">
+																<ion-icon slot="icon-only" name="chevron-up"></ion-icon>
+															</ion-button>
+														</td>
+														<td>
+															<input
+																formControlName="AlternativeQuantity"
+																[readonly]="!pageConfig.canEdit || item.IsBaseUoM"
+																type="tel"
+																(focus)="$event.target.select()"
+																(blur)="saveChange()"
+																class="c-input"
+																mask="separator.2"
+																thousandSeparator=","
+															/>
+														</td>
+													</tr>
+													<tr *ngIf="!showAlterQty">
+														<td class="label">
+															<span> = {{item.BaseQuantity}} {{baseUoM.Name}} </span>
+														</td>
+														<td style="min-width: 150px; width: 150px; max-width: 150px">
+															<input
+																formControlName="BaseQuantity"
+																[readonly]="!pageConfig.canEdit || item.IsBaseUoM"
+																type="tel"
+																(focus)="$event.target.select()"
+																(blur)="saveChange()"
+																class="c-input"
+																mask="separator.2"
+																thousandSeparator=","
+															/>
+														</td>
+													</tr>
+												</ng-container>
 
-                        <tr>
-                          <td class="label">{{'Length (cm)' | translate}}</td>
-                          <td>
-                            <input
-                              formControlName="Length"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (blur)="saveChange()"
-                              class="c-input"
-                              mask="separator.2"
-                              thousandSeparator=","
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="label">{{'Width' | translate}}</td>
-                          <td>
-                            <input
-                              formControlName="Width"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (blur)="saveChange()"
-                              class="c-input"
-                              mask="separator.2"
-                              thousandSeparator=","
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="label">{{'Height' | translate}}</td>
-                          <td>
-                            <input
-                              formControlName="Height"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (blur)="saveChange()"
-                              class="c-input"
-                              mask="separator.2"
-                              thousandSeparator=","
-                            />
-                          </td>
-                        </tr>
+												<tr>
+													<td class="label">{{'Length (cm)' | translate}}</td>
+													<td>
+														<input
+															formControlName="Length"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(blur)="saveChange()"
+															class="c-input"
+															mask="separator.2"
+															thousandSeparator=","
+														/>
+													</td>
+												</tr>
+												<tr>
+													<td class="label">{{'Width' | translate}}</td>
+													<td>
+														<input
+															formControlName="Width"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(blur)="saveChange()"
+															class="c-input"
+															mask="separator.2"
+															thousandSeparator=","
+														/>
+													</td>
+												</tr>
+												<tr>
+													<td class="label">{{'Height' | translate}}</td>
+													<td>
+														<input
+															formControlName="Height"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(blur)="saveChange()"
+															class="c-input"
+															mask="separator.2"
+															thousandSeparator=","
+														/>
+													</td>
+												</tr>
 
-                        <tr>
-                          <td class="label">{{'Weight (kg)' | translate}}</td>
-                          <td>
-                            <input
-                              formControlName="Weight"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (blur)="saveChange()"
-                              class="c-input"
-                              mask="separator.2"
-                              thousandSeparator=","
-                            />
-                          </td>
-                        </tr>
+												<tr>
+													<td class="label">{{'Weight (kg)' | translate}}</td>
+													<td>
+														<input
+															formControlName="Weight"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(blur)="saveChange()"
+															class="c-input"
+															mask="separator.2"
+															thousandSeparator=","
+														/>
+													</td>
+												</tr>
 
-                        <tr *ngIf="item.Name=='Pallet'">
-                          <td class="label">{{'Number of boxes/ Ties' | translate}}</td>
-                          <td>
-                            <input
-                              [(ngModel)]="product.TI"
-                              [ngModelOptions]="{standalone: true}"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (change)="saveProduct()"
-                              class="c-input no-check-dirty"
-                            />
-                          </td>
-                        </tr>
+												<tr *ngIf="item.Name=='Pallet'">
+													<td class="label">{{'Number of boxes/ Ties' | translate}}</td>
+													<td>
+														<input
+															[(ngModel)]="product.TI"
+															[ngModelOptions]="{standalone: true}"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(change)="saveProduct()"
+															class="c-input no-check-dirty"
+														/>
+													</td>
+												</tr>
 
-                        <tr *ngIf="item.Name=='Pallet'">
-                          <td class="label">{{'Number of ties' | translate}}</td>
-                          <td>
-                            <input
-                              [(ngModel)]="product.HI"
-                              [ngModelOptions]="{standalone: true}"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (change)="saveProduct()"
-                              class="c-input no-check-dirty"
-                            />
-                          </td>
-                        </tr>
+												<tr *ngIf="item.Name=='Pallet'">
+													<td class="label">{{'Number of ties' | translate}}</td>
+													<td>
+														<input
+															[(ngModel)]="product.HI"
+															[ngModelOptions]="{standalone: true}"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(change)="saveProduct()"
+															class="c-input no-check-dirty"
+														/>
+													</td>
+												</tr>
 
-                        <tr>
-                          <td class="label">{{'Barcode' | translate}}</td>
-                          <td>
-                            <input
-                              formControlName="Barcode"
-                              [readonly]="!pageConfig.canEdit"
-                              type="tel"
-                              (focus)="$event.target.select()"
-                              (blur)="saveChange()"
-                              class="c-input"
-                            />
-                          </td>
-                        </tr>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </form>
-          </div>
-          <div class="table-contain">
-            <div class="row">
-              <div class="cell">
-                <ion-button class="ion-margin" size="block" (click)="scanQRCode()">
-                  {{'Scan barcode' | translate}}
-                </ion-button>
-              </div>
-            </div>
-          </div>
-          <div class="ion-padding"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+												<tr>
+													<td class="label">{{'Barcode' | translate}}</td>
+													<td>
+														<input
+															formControlName="Barcode"
+															[readonly]="!pageConfig.canEdit"
+															type="tel"
+															(focus)="$event.target.select()"
+															(blur)="saveChange()"
+															class="c-input"
+														/>
+													</td>
+												</tr>
+											</table>
+										</div>
+									</div>
+								</div>
+							</section>
+						</form>
+					</div>
+					<div class="table-contain">
+						<div class="row">
+							<div class="cell">
+								<ion-button class="ion-margin" size="block" (click)="scanQRCode()"> {{'Scan barcode' | translate}} </ion-button>
+							</div>
+						</div>
+					</div>
+					<div class="ion-padding"></div>
+				</div>
+			</div>
+		</div>
+	</div>
 </ion-content>

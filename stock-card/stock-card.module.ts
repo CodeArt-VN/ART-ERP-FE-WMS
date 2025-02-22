@@ -7,14 +7,7 @@ import { StockCardPage } from './stock-card.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: StockCardPage }]),
-  ],
-  declarations: [StockCardPage],
+	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, ShareModule, RouterModule.forChild([{ path: '', component: StockCardPage }])],
+	declarations: [StockCardPage],
 })
 export class StockCardPageModule {}

@@ -1,30 +1,18 @@
 <ion-header>
-  <app-toolbar [page]="this" [ShowExport]="true"> </app-toolbar>
+	<app-toolbar [page]="this" [ShowExport]="true"> </app-toolbar>
 </ion-header>
 
-<ion-content
-  appScrollbarTheme
-  class="left scrollx"
-  [ngClass]="{withFeature: pageConfig.isShowFeature}"
-  forceOverscroll="false"
->
-  <ion-fab
-    *ngIf="pageConfig.isShowFeature"
-    [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}"
-    class="feature no-print"
-    vertical="bottom"
-    horizontal="start"
-    slot="fixed"
-  >
-    <app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-    <div *ngIf="pageConfig.showSpinner==false">
-      <div class="ion-padding" style="padding-bottom: 0; min-height: 100vh">
-        <app-form-control
-          [field]="{branchConfig:{showingType:'Warehouse',selectedBranch:env.selectedBranch}
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+		<app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+		<div *ngIf="pageConfig.showSpinner==false">
+			<div class="ion-padding" style="padding-bottom: 0; min-height: 100vh">
+				<app-form-control
+					[field]="{branchConfig:{showingType:'Warehouse',selectedBranch:env.selectedBranch}
         ,id:'IDBranch',label:'Branch',type:'ng-select-branch', bindLabel:'Name', bindValue:'Id',dataSource:branchList, placeholder:'Select unit',form:formGroup}"
-        >
-        </app-form-control>
-        <!-- 
+				>
+				</app-form-control>
+				<!-- 
         <div class="c-control">
           <label class="c-label" for="IDBranch">
             <ion-text color="primary"> {{'Warehouse' | translate}} </ion-text>
@@ -50,15 +38,15 @@
             </ng-template>
           </ng-select>
         </div> -->
-        <!-- <app-form-control (change)="changeFilter()" [field]="{id:'IDStorer',label:'Storer', type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:storerList, placeholder:'Select goods owner',form:formGroup}">
+				<!-- <app-form-control (change)="changeFilter()" [field]="{id:'IDStorer',label:'Storer', type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:storerList, placeholder:'Select goods owner',form:formGroup}">
         </app-form-control> -->
 
-        <!-- <app-form-control
+				<!-- <app-form-control
         [field]="{id: 'IDStorer', label: 'Storer', type: 'ng-select-bp', form: formGroup,  dataSource: _storerDataSource,  bindLabel: 'Name',  bindValue: 'Id', multiple: true,clearable:true }"
         (change)="changeFilter()"
       ></app-form-control>
        -->
-        <!-- <div class="c-control">
+				<!-- <div class="c-control">
           <label class="c-label" for="Storer">
             <ion-text color="primary"> {{'Goods owner' | translate}} </ion-text>
           </label>
@@ -84,147 +72,137 @@
           </ng-select>
         </div> -->
 
-        <div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+				<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 
-        <app-form-control
-          [field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',appendTo:'#ng-select-header',multiple:true,clearable:true,
+				<app-form-control
+					[field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',appendTo:'#ng-select-header',multiple:true,clearable:true,
           treeConfig:{searchFnDefault:true,isTree:true, isCollapsed:true}}"
-        >
-        </app-form-control>
+				>
+				</app-form-control>
 
-        <app-form-control
-          [field]="{id:'IDItem',label:'Item', type:'ng-select-item', bindLabel:'Name', bindValue:'Id',dataSource:_IDItemDataSource, placeholder:'Search for name or product code',multiple:true,clearable:true,form:formGroup}"
-        >
-        </app-form-control>
+				<app-form-control
+					[field]="{id:'IDItem',label:'Item', type:'ng-select-item', bindLabel:'Name', bindValue:'Id',dataSource:_IDItemDataSource, placeholder:'Search for name or product code',multiple:true,clearable:true,form:formGroup}"
+				>
+				</app-form-control>
 
-        <!-- <app-form-control
+				<!-- <app-form-control
           [field]="{id:'IDPeriod',label:'Period', type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:periodList, placeholder:'Select Period',form:formGroup}"
         >
         </app-form-control> -->
 
-        <app-form-control [field]="{id:'FromDate',label:'From date', type:'date', form:formGroup}"> </app-form-control>
+				<app-form-control [field]="{id:'FromDate',label:'From date', type:'date', form:formGroup}"> </app-form-control>
 
-        <app-form-control [field]="{id:'ToDate',label:'To date', type:'date', form:formGroup}"> </app-form-control>
+				<app-form-control [field]="{id:'ToDate',label:'To date', type:'date', form:formGroup}"> </app-form-control>
 
-        <app-form-control
-          [field]="{id:'IsShowInputOutputHasData',label:'Show items with transactions', type:'checkbox', form:formGroup}"
-        >
-        </app-form-control>
+				<app-form-control [field]="{id:'IsShowInputOutputHasData',label:'Show items with transactions', type:'checkbox', form:formGroup}"> </app-form-control>
 
-        <app-form-control [field]="{id:'ViewItemGroup',label:'Show item groups', type:'checkbox', form:formGroup}">
-        </app-form-control>
-      </div>
+				<app-form-control [field]="{id:'ViewItemGroup',label:'Show item groups', type:'checkbox', form:formGroup}"> </app-form-control>
+			</div>
 
-      <div class="action-buttons sticky-bottom">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="12">
-              <ion-button (click)="refresh()" color="success" expand="block">
-                {{ 'View item list' | translate }}
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-    </div>
-  </ion-fab>
-  <app-data-table
-    class="box-shadow"
-    [rows]="items"
-    [trackBy]="'IDItem'"
-    [showSpinner]="pageConfig.showSpinner"
-    [showFilter]="pageConfig.isShowSearch"
-    [(query)]="query"
-    (filter)="onDatatableFilter($event)"
-    (sort)="onSort($event)"
-    [isTreeList]="true"
-  >
-    <datatable-column class="col-icon" name="" property="ItemName">
-      <ng-template let-i="row" datatable-cell-template>
-        <div class="text-center">
-          <ion-button (click)="navWarehouseTransaction(i)" size="small" title="{{'Warehouse transaction' | translate}}" fill="clear">
-            <ion-icon slot="icon-only" name="time-outline"></ion-icon>
-          </ion-button>
-        </div>
-      </ng-template>
-    </datatable-column>
-    <datatable-column class="col-name" name="Item" property="ItemName">
-      <ng-template datatable-header-template>
-        <ion-icon
-          class="min-btn"
-          *ngIf="formGroup?.controls?.ViewItemGroup?.value"
-          [name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'"
-          (click)="toggleRowAll()"
-        ></ion-icon>
-        <span (click)="toggleRowAll()">{{'Items' | translate}}</span>
-      </ng-template>
-      <ng-template let-i="row" datatable-cell-template>
-        <ng-container *ngFor="let w of i?.levels; let k = index;"
-          ><span class="spacing" *ngIf="k>0"></span
-        ></ng-container>
-        <ion-icon
-          (click)="toggleRow(items, i, true);"
-          class="min-btn clickable"
-          [name]="!i?.showdetail? 'chevron-forward-outline':'chevron-down-outline'"
-          *ngIf="i?.HasChild"
-        ></ion-icon>
-        <ion-icon class="min-btn clickable" [name]="''" *ngIf="!i?.HasChild && formGroup?.controls?.ViewItemGroup?.value" ></ion-icon>
-        <ng-container *ngIf="i?.ItemCode && i?.IDItem">
-          <span [title]="i?.ItemName">
-            <a [routerLink]="'/item/' + i?.IDItem" class="clickable">
-              <ion-icon color="warning" *ngIf="i?.IsDisabled" name="archive"></ion-icon>
-              <span *ngIf="!i?.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
-            >
-            <ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"
-              ><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text
-            >
-          </span>
-        </ng-container>
-        <ng-container *ngIf="!(i?.ItemCode && i?.IDItem)">
-          <ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')">{{i?.ItemName}}</ion-text>
-        </ng-container>
-      </ng-template>
-    </datatable-column>
-    <!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
-    <datatable-column class="col-text Open-Quantity" name="Opening stock" property="OpenQuantity">
-      <ng-template let-i="row" datatable-cell-template>
-        <span *ngIf="i">
-          <ion-text [color]="i.OpenQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OpenQuantity"
-            ><strong> <span *ngIf="i.OpenQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-            <small>{{u.UoMName}}</small>
-          </ion-text>
-        </span>
-      </ng-template>
-    </datatable-column>
-    <datatable-column class="col-text Input-Quantity" name="Receipt qty" property="InputQuantity">
-      <ng-template let-i="row" datatable-cell-template>
-        <span *ngIf="i">
-          <ion-text [color]="i.InputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_InputQuantity"
-            ><strong> <span *ngIf="i.InputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-            <small>{{u.UoMName}}</small>
-          </ion-text>
-        </span>
-      </ng-template>
-    </datatable-column>
-    <datatable-column class="col-text Output-Quantity" name="Issue qty" property="OutputQuantity">
-      <ng-template let-i="row" datatable-cell-template>
-        <span *ngIf="i">
-          <ion-text [color]="i.OutputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OutputQuantity"
-            ><strong> <span *ngIf="i.OutputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-            <small>{{u.UoMName}}</small>
-          </ion-text>
-        </span>
-      </ng-template>
-    </datatable-column>
-    <datatable-column class="col-text Closing-Inventory" name="Stock qty" property="ClosingQuantity">
-      <ng-template let-i="row" datatable-cell-template>
-        <span *ngIf="i">
-          <ion-text [color]="i.ClosingQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_ClosingQuantity"
-            ><strong> <span *ngIf="i.ClosingQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-            <small>{{u.UoMName}}</small>
-          </ion-text>
-        </span>
-      </ng-template>
-    </datatable-column>
-  </app-data-table>
+			<div class="action-buttons sticky-bottom">
+				<ion-grid>
+					<ion-row>
+						<ion-col size="12">
+							<ion-button (click)="refresh()" color="success" expand="block"> {{ 'View item list' | translate }} </ion-button>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+		</div>
+	</ion-fab>
+	<app-data-table
+		class="box-shadow"
+		[rows]="items"
+		[trackBy]="'IDItem'"
+		[showSpinner]="pageConfig.showSpinner"
+		[showFilter]="pageConfig.isShowSearch"
+		[(query)]="query"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+		[isTreeList]="true"
+	>
+		<datatable-column class="col-icon" name="" property="ItemName">
+			<ng-template let-i="row" datatable-cell-template>
+				<div class="text-center">
+					<ion-button (click)="navWarehouseTransaction(i)" size="small" title="{{'Warehouse transaction' | translate}}" fill="clear">
+						<ion-icon slot="icon-only" name="time-outline"></ion-icon>
+					</ion-button>
+				</div>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-name" name="Item" property="ItemName">
+			<ng-template datatable-header-template>
+				<ion-icon
+					class="min-btn"
+					*ngIf="formGroup?.controls?.ViewItemGroup?.value"
+					[name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'"
+					(click)="toggleRowAll()"
+				></ion-icon>
+				<span (click)="toggleRowAll()">{{'Items' | translate}}</span>
+			</ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				<ng-container *ngFor="let w of i?.levels; let k = index;"><span class="spacing" *ngIf="k>0"></span></ng-container>
+				<ion-icon
+					(click)="toggleRow(items, i, true);"
+					class="min-btn clickable"
+					[name]="!i?.showdetail? 'chevron-forward-outline':'chevron-down-outline'"
+					*ngIf="i?.HasChild"
+				></ion-icon>
+				<ion-icon class="min-btn clickable" [name]="''" *ngIf="!i?.HasChild && formGroup?.controls?.ViewItemGroup?.value"></ion-icon>
+				<ng-container *ngIf="i?.ItemCode && i?.IDItem">
+					<span [title]="i?.ItemName">
+						<a [routerLink]="'/item/' + i?.IDItem" class="clickable">
+							<ion-icon color="warning" *ngIf="i?.IsDisabled" name="archive"></ion-icon>
+							<span *ngIf="!i?.IsDisabled">#</span>{{ i.IDItem }}&nbsp;</a
+						>
+						<ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')"><b>{{ i?.ItemCode }}</b> {{ i?.ItemName }}</ion-text>
+					</span>
+				</ng-container>
+				<ng-container *ngIf="!(i?.ItemCode && i?.IDItem)">
+					<ion-text class="clickable" [ngClass]="i?.HasChild? ('bold ') : ('')">{{i?.ItemName}}</ion-text>
+				</ng-container>
+			</ng-template>
+		</datatable-column>
+		<!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
+		<datatable-column class="col-text Open-Quantity" name="Opening stock" property="OpenQuantity">
+			<ng-template let-i="row" datatable-cell-template>
+				<span *ngIf="i">
+					<ion-text [color]="i.OpenQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OpenQuantity"
+						><strong> <span *ngIf="i.OpenQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+						<small>{{u.UoMName}}</small>
+					</ion-text>
+				</span>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-text Input-Quantity" name="Receipt qty" property="InputQuantity">
+			<ng-template let-i="row" datatable-cell-template>
+				<span *ngIf="i">
+					<ion-text [color]="i.InputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_InputQuantity"
+						><strong> <span *ngIf="i.InputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+						<small>{{u.UoMName}}</small>
+					</ion-text>
+				</span>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-text Output-Quantity" name="Issue qty" property="OutputQuantity">
+			<ng-template let-i="row" datatable-cell-template>
+				<span *ngIf="i">
+					<ion-text [color]="i.OutputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OutputQuantity"
+						><strong> <span *ngIf="i.OutputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+						<small>{{u.UoMName}}</small>
+					</ion-text>
+				</span>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-text Closing-Inventory" name="Stock qty" property="ClosingQuantity">
+			<ng-template let-i="row" datatable-cell-template>
+				<span *ngIf="i">
+					<ion-text [color]="i.ClosingQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_ClosingQuantity"
+						><strong> <span *ngIf="i.ClosingQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+						<small>{{u.UoMName}}</small>
+					</ion-text>
+				</span>
+			</ng-template>
+		</datatable-column>
+	</app-data-table>
 </ion-content>

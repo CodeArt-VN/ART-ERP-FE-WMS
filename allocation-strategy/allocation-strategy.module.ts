@@ -7,13 +7,7 @@ import { ShareModule } from 'src/app/share.module';
 import { AllocationStrategyPage } from './allocation-strategy.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: AllocationStrategyPage }])
-  ],
-  declarations: [AllocationStrategyPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: AllocationStrategyPage }])],
+	declarations: [AllocationStrategyPage],
 })
 export class AllocationStrategyPageModule {}

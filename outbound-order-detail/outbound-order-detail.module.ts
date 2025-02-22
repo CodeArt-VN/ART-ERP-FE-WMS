@@ -7,13 +7,7 @@ import { ShareModule } from 'src/app/share.module';
 import { OutboundOrderDetailPage } from './outbound-order-detail.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: OutboundOrderDetailPage }])
-  ],
-  declarations: [OutboundOrderDetailPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: OutboundOrderDetailPage }])],
+	declarations: [OutboundOrderDetailPage],
 })
 export class OutboundOrderDetailPageModule {}

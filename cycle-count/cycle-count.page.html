@@ -1,5 +1,19 @@
 <ion-header>
-	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.cycle-count.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" (changeBranch)="changeBranch($event)"></app-list-toolbar>
+	<app-list-toolbar
+		pageTitle="{{'erp.app.pages.wms.cycle-count.page-title' | translate}}"
+		[pageConfig]="pageConfig"
+		[selectedItems]="selectedItems"
+		[query]="query"
+		(add)="add()"
+		(refresh)="refresh()"
+		(export)="export()"
+		(import)="import($event)"
+		(help)="help()"
+		(unselect)="unselect()"
+		(archiveItems)="archiveItems()"
+		(deleteItems)="deleteItems()"
+		(changeBranch)="changeBranch($event)"
+	></app-list-toolbar>
 	<section class="table">
 		<header class="bold">
 			<div class="col-checkbox cell"></div>
@@ -31,24 +45,15 @@
 	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 	<div *ngIf="items.length && pageConfig.showSpinner==false">
 		<section class="table">
-					<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-						<div class="col-checkbox cell">
-							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-						</div>
-						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-id cell">
-							{{i.Id}}
-						</div>
-						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">
-							{{i.WarehouseName}}
-						</div>
-						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">
-							{{i.CountDate | date:'dd/MM/yyyy HH:mm'}}
-						</div>
-						<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-status cell">
-							{{i.Status}}
-						</div>
-					</div>
-				
+			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+				<div class="col-checkbox cell">
+					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
+				</div>
+				<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
+				<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">{{i.WarehouseName}}</div>
+				<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-name cell">{{i.CountDate | date:'dd/MM/yyyy HH:mm'}}</div>
+				<div (click)="nav('cycle-count/'+i.Id,'forward')" class="col-status cell">{{i.Status}}</div>
+			</div>
 		</section>
 	</div>
 	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">

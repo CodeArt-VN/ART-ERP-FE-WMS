@@ -7,22 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { UoMDetailPage } from './uom-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: UoMDetailPage,
-  },
+	{
+		path: '',
+		component: UoMDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    IonicModule,
-    ReactiveFormsModule,
-    ShareModule,
-    RouterModule.forChild(routes),
-  ],
-  declarations: [UoMDetailPage],
+	imports: [CommonModule, FormsModule, ShareModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [UoMDetailPage],
 })
 export class UoMDetailPageModule {}

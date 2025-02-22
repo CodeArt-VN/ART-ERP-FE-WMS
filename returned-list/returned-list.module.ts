@@ -7,14 +7,7 @@ import { ReturnedLlistPage } from './returned-list.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: ReturnedLlistPage }]),
-  ],
-  declarations: [ReturnedLlistPage],
+	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, ShareModule, RouterModule.forChild([{ path: '', component: ReturnedLlistPage }])],
+	declarations: [ReturnedLlistPage],
 })
 export class ReturnedLlistPageModule {}

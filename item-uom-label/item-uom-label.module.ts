@@ -7,14 +7,7 @@ import { ItemUomLabelPage } from './item-uom-label.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: ItemUomLabelPage }]),
-  ],
-  declarations: [ItemUomLabelPage],
+	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, ShareModule, RouterModule.forChild([{ path: '', component: ItemUomLabelPage }])],
+	declarations: [ItemUomLabelPage],
 })
 export class ItemUomLabelPageModule {}

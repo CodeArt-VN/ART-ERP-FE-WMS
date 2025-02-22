@@ -1,370 +1,422 @@
 <ion-header>
-  <app-detail-toolbar [page]="this">
-      <ion-button *ngIf="formGroup.get('Status').value == 'New'" title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
-        <ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
-      </ion-button>
-  </app-detail-toolbar>
+	<app-detail-toolbar [page]="this">
+		<ion-button *ngIf="formGroup.get('Status').value == 'New'" title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
+			<ion-icon color="success" slot="icon-only" name="layers-outline"></ion-icon>
+		</ion-button>
+	</app-detail-toolbar>
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
 <ion-content appScrollbarTheme class="ion-padding">
-  <div class="main-view" id="outbound-detail-page">
-    <ion-grid fixed>
-      <form [formGroup]="formGroup">
-        <ion-row class="hr-group">
-          <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
-            <ion-list-header class="ion-no-padding">
-              <ion-label color="primary">{{'Outbound order' | translate}}</ion-label>
-            </ion-list-header>
-          </ion-col>
+	<div class="main-view" id="outbound-detail-page">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Outbound order' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
 
-          <ion-col size="12" size-sm size-xl="4">
-            <div class="c-control">
-              <label class="c-label" for="IDWarehouse">{{'Warehouse' | translate}}
-                <span *ngIf="!formGroup.controls.IDWarehouse.valid && !formGroup.controls.IDWarehouse.pending && (formGroup.controls.IDWarehouse.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-              </label>
-              <ng-select class="c-input" (change)="saveChange();" labelForId="IDWarehouse" formControlName="IDWarehouse" [items]="branchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Search...' | translate}}">
-                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                  <div *ngIf="i">
-                    <div>
-                      <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                      <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                    </div>
-                  </div>
-                </ng-template>
-              </ng-select>
-            </div>
-            <div class="c-control">
-              <app-form-control [field]="{id:'IDStorer', label: 'Storer', type : 'ng-select-bp', dataSource: _contactDataSource, bindValue:'Id', bindLabel:'Name', clearable:true, form : formGroup }" (change)="saveChange()"></app-form-control>
-            </div>
-            <div class="c-control">
-              <app-form-control [field]="{id:'PackingTag', label: 'Packing tag', type : 'ng-select', dataSource: packingTypeDatasource, bindValue:'Code', bindLabel:'Name', form : formGroup }" (change)="saveChange()"></app-form-control>
-            </div>
-          </ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<div class="c-control">
+							<label class="c-label" for="IDWarehouse"
+								>{{'Warehouse' | translate}}
+								<span
+									*ngIf="!formGroup.controls.IDWarehouse.valid && !formGroup.controls.IDWarehouse.pending && (formGroup.controls.IDWarehouse.dirty || submitAttempt)"
+									ion-text
+									color="danger"
+									>(*)</span
+								>
+							</label>
+							<ng-select
+								class="c-input"
+								(change)="saveChange();"
+								labelForId="IDWarehouse"
+								formControlName="IDWarehouse"
+								[items]="branchList"
+								[virtualScroll]="true"
+								bindLabel="Name"
+								bindValue="Id"
+								placeholder="{{'Search...' | translate}}"
+							>
+								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+									<div *ngIf="i">
+										<div>
+											<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+											<span [ngOptionHighlight]="search">{{i.Name}}</span>
+										</div>
+									</div>
+								</ng-template>
+							</ng-select>
+						</div>
+						<div class="c-control">
+							<app-form-control
+								[field]="{id:'IDStorer', label: 'Storer', type : 'ng-select-bp', dataSource: _contactDataSource, bindValue:'Id', bindLabel:'Name', clearable:true, form : formGroup }"
+								(change)="saveChange()"
+							></app-form-control>
+						</div>
+						<div class="c-control">
+							<app-form-control
+								[field]="{id:'PackingTag', label: 'Packing tag', type : 'ng-select', dataSource: packingTypeDatasource, bindValue:'Code', bindLabel:'Name', form : formGroup }"
+								(change)="saveChange()"
+							></app-form-control>
+						</div>
+					</ion-col>
 
-          <ion-col size="12" size-sm size-xl="4">
-            <app-form-control [field]="{id:'OrderDate', label: 'Order date', type : 'datetime-local', form : formGroup }" (change)="saveChange()"></app-form-control>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'OrderDate', label: 'Order date', type : 'datetime-local', form : formGroup }" (change)="saveChange()"></app-form-control>
 
-            <app-form-control [field]="{id:'DeliveryDate', label: 'Delivery date', type : 'datetime-local', form : formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control
+							[field]="{id:'DeliveryDate', label: 'Delivery date', type : 'datetime-local', form : formGroup }"
+							(change)="saveChange()"
+						></app-form-control>
 
-            <app-form-control [field]="{id:'ShippedDate', label: 'Shipped date', type : 'datetime-local', form : formGroup }" (change)="saveChange()"></app-form-control>
-          </ion-col>
-        </ion-row>
-      </form>
-    </ion-grid>
+						<app-form-control
+							[field]="{id:'ShippedDate', label: 'Shipped date', type : 'datetime-local', form : formGroup }"
+							(change)="saveChange()"
+						></app-form-control>
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
 
-    <div class="row-full shadow full-screen">
-      <ion-toolbar color="primary">
-        <ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
-          <ion-segment-button value="s1">
-            <ion-label>{{'List' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="s2">
-            <ion-label>{{'Picking order' | translate}}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="s3">
-            <ion-label>{{'Packing order' | translate}}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="s4">
-            <ion-label>{{'Shipping' | translate}}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="s5">
-            <ion-label>{{'Other information' | translate}}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'List' | translate }}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Picking order' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s3">
+						<ion-label>{{'Packing order' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s4">
+						<ion-label>{{'Shipping' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s5">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				</ion-segment>
 
-        <ion-buttons slot="end">
-            <ion-button  (click)="printQRCode()" 
-            class="ion-hide-sm-down" *ngIf="selectedItems.length>0 && segmentView=='s3'"  title="{{'Print QR code' | translate}}">
-              <ion-icon name="qr-code-outline"></ion-icon>
-            </ion-button>
-          <!-- <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'" title="{{'Create shipping' | translate}}">
+				<ion-buttons slot="end">
+					<ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0 && segmentView=='s3'" title="{{'Print QR code' | translate}}">
+						<ion-icon name="qr-code-outline"></ion-icon>
+					</ion-button>
+					<!-- <ion-button (click)="CreateShippingFromPacking()"class="ion-hide-sm-down" *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'" title="{{'Create shipping' | translate}}">
             <ion-icon slot="icon-only" name="truck"></ion-icon>
           </ion-button> -->
-          <ion-button title="{{ 'Refresh' | translate }}" *ngIf="segmentView != 's1'"  (click)="refreshSegmentView()" > 
-            <ion-icon slot="icon-only" name="reload-outline"></ion-icon> 
-          </ion-button>
-          <ion-button (click)="presentModal()"  *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'">
+					<ion-button title="{{ 'Refresh' | translate }}" *ngIf="segmentView != 's1'" (click)="refreshSegmentView()">
+						<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+					</ion-button>
+					<ion-button (click)="presentModal()" *ngIf="selectedItems?.length>0 && isShowCreateShipping && segmentView=='s3'">
 						<ion-icon slot="start" name="truck"></ion-icon>
 					</ion-button>
-        </ion-buttons>
-        
-      </ion-toolbar>
+				</ion-buttons>
+			</ion-toolbar>
 
-      <div class="table table-contain responsive" *ngIf="segmentView == 's1'">
-        <section class="table-contain">
-          <header class="bold">
-            <div class="col-checkbox cell">
-              <input *ngIf="pageConfig.canEdit" (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox" />
-            </div>
-            <div class="col-id cell">#</div>
-            <div class="col-name cell" (click)="sortToggle('ItemName')">
-              {{'Item name' | translate}}
-              <ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
-              <!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
+			<div class="table table-contain responsive" *ngIf="segmentView == 's1'">
+				<section class="table-contain">
+					<header class="bold">
+						<div class="col-checkbox cell">
+							<input *ngIf="pageConfig.canEdit" (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox" />
+						</div>
+						<div class="col-id cell">#</div>
+						<div class="col-name cell" (click)="sortToggle('ItemName')">
+							{{'Item name' | translate}}
+							<ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
+							<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
 										name="search" color="primary"></ion-icon> -->
-            </div>
-            <div class="col-uom cell" (click)="sortToggle('UoMName')">
-              {{'UoM' | translate}}
-              <ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
-            </div>
+						</div>
+						<div class="col-uom cell" (click)="sortToggle('UoMName')">
+							{{'UoM' | translate}}
+							<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.ItemName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
+						</div>
 
-            <div class="col-qty cell" (click)="sortToggle('QuantityAdjusted')">
-              {{'Quantity' | translate}}
-              <ion-icon class="min-btn" *ngIf="sortDetail.QuantityAdjusted" [name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"></ion-icon>
-            </div>
+						<div class="col-qty cell" (click)="sortToggle('QuantityAdjusted')">
+							{{'Quantity' | translate}}
+							<ion-icon
+								class="min-btn"
+								*ngIf="sortDetail.QuantityAdjusted"
+								[name]="sortDetail.QuantityAdjusted == 'QuantityAdjusted'?'arrow-down': 'arrow-up'"
+							></ion-icon>
+						</div>
 
-            <div class="col-qty cell" (click)="sortToggle('Cube')">{{'Picked quantity' | translate}}</div>
-            <div class="col-qty cell" (click)="sortToggle('GrossWeight')">{{'Packed quantity' | translate}}</div>
-            <div class="col-qty cell" (click)="sortToggle('NetWeight')">{{'Shipped quantity' | translate}}</div>
-            <div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
-              <ion-icon *ngIf="checkedOutboundOrderDetails.controls.length>0" (click)="deleteItems()" color="danger" slot="icon-only" size="large" name="trash" slot="start"></ion-icon>
-            </div>
-          </header>
-          <app-page-message [itemsLength]="formGroup.get('OutboundOrderDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-          <ng-container *ngIf="!pageConfig.showSpinner">
-            <ng-container *ngFor="let c of formGroup.get('OutboundOrderDetails')['controls'] ;let j = index">
-              <div class="row" [ngClass]="{odd: j % 2 != 0}" *ngIf="c.get('Showing').value">
-                <div class="col-checkbox cell" style="text-align: center">
-                  <app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
-                </div>
-                <div class="col-id cell">
-                  <ng-container *ngFor="let w of c.get('Levels').value; let k = index;"><span class="spacing" [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" *ngIf="k>0"></span></ng-container>
-                  <ion-icon (click)="toggleRow(c, $event);" class="min-btn clickable" [name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"></ion-icon>
-                  {{j+1}}
-                </div>
+						<div class="col-qty cell" (click)="sortToggle('Cube')">{{'Picked quantity' | translate}}</div>
+						<div class="col-qty cell" (click)="sortToggle('GrossWeight')">{{'Packed quantity' | translate}}</div>
+						<div class="col-qty cell" (click)="sortToggle('NetWeight')">{{'Shipped quantity' | translate}}</div>
+						<div class="col-icon cell" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
+							<ion-icon
+								*ngIf="checkedOutboundOrderDetails.controls.length>0"
+								(click)="deleteItems()"
+								color="danger"
+								slot="icon-only"
+								size="large"
+								name="trash"
+								slot="start"
+							></ion-icon>
+						</div>
+					</header>
+					<app-page-message [itemsLength]="formGroup.get('OutboundOrderDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+					<ng-container *ngIf="!pageConfig.showSpinner">
+						<ng-container *ngFor="let c of formGroup.get('OutboundOrderDetails')['controls'] ;let j = index">
+							<div class="row" [ngClass]="{odd: j % 2 != 0}" *ngIf="c.get('Showing').value">
+								<div class="col-checkbox cell" style="text-align: center">
+									<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (inputChange)="changeSelection(c, $event)"></app-input-control>
+								</div>
+								<div class="col-id cell">
+									<ng-container *ngFor="let w of c.get('Levels').value; let k = index;"
+										><span class="spacing" [ngStyle]="{ 'padding-left': (10 * k) + 'px' }" *ngIf="k>0"></span
+									></ng-container>
+									<ion-icon
+										(click)="toggleRow(c, $event);"
+										class="min-btn clickable"
+										[name]="c.get('HasChild').value? (!c.get('ShowDetail').value? 'chevron-forward-outline':'chevron-down-outline') : ''"
+									></ion-icon>
+									{{j+1}}
+								</div>
 
-                <div class="col-name cell">
-                  <app-input-control [field]="{id:'IDItem', label: 'Product', type : 'ng-select-item', form : c,  dataSource: c.get('_IDItemDataSource').value,  bindValue: 'Id', clearable: true, placeholder: 'Type to search...' }" (change)="IDItemChange($event, c);" (nav)="nav($event)"></app-input-control>
-                </div>
-                <div class="col-uom cell">
-                  <app-input-control [field]="{id:'IDUoM',label: 'UoM', type : 'ng-select', dataSource: c.get('UoMs').value, bindValue:'Id', bindLabel:'Name', form : c }" (change)="saveChangeDetail(c)"></app-input-control>
-                </div>
+								<div class="col-name cell">
+									<app-input-control
+										[field]="{id:'IDItem', label: 'Product', type : 'ng-select-item', form : c,  dataSource: c.get('_IDItemDataSource').value,  bindValue: 'Id', clearable: true, placeholder: 'Type to search...' }"
+										(change)="IDItemChange($event, c);"
+										(nav)="nav($event)"
+									></app-input-control>
+								</div>
+								<div class="col-uom cell">
+									<app-input-control
+										[field]="{id:'IDUoM',label: 'UoM', type : 'ng-select', dataSource: c.get('UoMs').value, bindValue:'Id', bindLabel:'Name', form : c }"
+										(change)="saveChangeDetail(c)"
+									></app-input-control>
+								</div>
 
-                <div class="col-qty cell">
-                  <app-input-control [field]="{id:'Quantity',label:'Quantity', type : 'number', form : c }" (change)="saveChangeDetail(c,index)"></app-input-control>
-                </div>
+								<div class="col-qty cell">
+									<app-input-control
+										[field]="{id:'Quantity',label:'Quantity', type : 'number', form : c }"
+										(change)="saveChangeDetail(c,index)"
+									></app-input-control>
+								</div>
 
-                <div class="col-qty cell">
-                  <app-input-control [field]="{id:'QuantityPicked',label:'Quantity picked', type : 'span-text', form : c }"></app-input-control>
-                </div>
+								<div class="col-qty cell">
+									<app-input-control [field]="{id:'QuantityPicked',label:'Quantity picked', type : 'span-text', form : c }"></app-input-control>
+								</div>
 
-                <div class="col-qty cell">
-                  <app-input-control [field]="{id:'QuantityPacked',label:'Quantity packed', type : 'span-text', form : c }"></app-input-control>
-                </div>
+								<div class="col-qty cell">
+									<app-input-control [field]="{id:'QuantityPacked',label:'Quantity packed', type : 'span-text', form : c }"></app-input-control>
+								</div>
 
-                <div class="col-qty cell">
-                  <app-input-control [field]="{id:'QuantityShipped',label:'Quantity shipped', type : 'span-text', form : c }"></app-input-control>
-                </div>
+								<div class="col-qty cell">
+									<app-input-control [field]="{id:'QuantityShipped',label:'Quantity shipped', type : 'span-text', form : c }"></app-input-control>
+								</div>
 
-                <div class="col-icon cell clickable" (click)="removeField(c,j)" *ngIf="pageConfig.canEdit && pageConfig.canDelete" >
-                  <ion-icon color="danger" name="trash" *ngIf="c.get('IsChecked').value && c.get('IDParent').value == null"></ion-icon>
-                </div>
-              </div>
-            </ng-container>
-          </ng-container>
-        </section>
-        <div class="row" *ngIf="pageConfig.canEdit && pageConfig.canAdd && item?.Id >0 ">
-          <div class="cell">
-            <ion-button fill="clear" size="small" (click)="addField({  show: true },true)">
-              <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-              {{'Add product' | translate}}
-            </ion-button>
-          </div>
-        </div>
-      </div>
-      <!-- Picking List -->
-      <div class="table responsive" *ngIf="segmentView == 's2'">
-        <app-data-table class="box-shadow responsive" *ngIf ="item?.PickingList" [rows]="item?.PickingList" [(selectedRows)]="selectedItems" [showSpinner]="pageConfig.showSpinner" >
-          <!-- <datatable-column [checkbox]="true"></datatable-column> -->
-          <datatable-column class="col-id" name="Id" property="Id">
-            <ng-template let-i="row" datatable-cell-template>
-              <a [routerLink]="['/picking-order/'+i.Id]">{{i.Id}}</a>
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-name" name="Warehouse" property="WarehouseName">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.WarehouseName}}
-              <small class="address" *ngIf="i.WarehouseCode">
-                <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
-              </small>
-            </ng-template>
-          </datatable-column>
-         
-          <datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
-              </ng-template>
-          </datatable-column>
-          <datatable-column class="col-date" filterControlType="date" name="Picked date" property="PickedDate">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.PickedDate | date:'dd/MM/yyyy HH:mm'}}
-              </ng-template>
-          </datatable-column>
-         
-          <datatable-column class="col-status" name="Status" property="Status">
-            <ng-template let-i="row" datatable-cell-template>
-            <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-              {{i._Status?.Name}}
-            </ion-badge>
-            </ng-template>
-          </datatable-column>
-        </app-data-table>
-      </div>
-      <!-- Packing List -->
-      <div class="table responsive" *ngIf="segmentView == 's3'">
-        <app-data-table class="box-shadow responsive" *ngIf ="item?.PackingList" [rows]="item?.PackingList" [(selectedRows)]="selectedItems" (activate) ="changeSelectionPacking($event)"  (onSelectedRowsChange)="changeSelectionPacking($event)" [showSpinner]="pageConfig.showSpinner" >
-          <datatable-column [checkbox]="true"></datatable-column>
-          <datatable-column class="col-id" name="Id" property="Id">
-            <ng-template let-i="row" datatable-cell-template>
-              <a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-name" name="Warehouse" property="WarehouseName">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.WarehouseName}}
-              <small class="address" *ngIf="i.WarehouseCode">
-                <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
-              </small>
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-name" name="Tag" property="_Tag">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i._Tag?.Code}}
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
-              </ng-template>
-          </datatable-column>
-          <datatable-column class="col-date" filterControlType="date" name="Packaged date" property="PackagedDate">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.PackagedDate | date:'dd/MM/yyyy HH:mm'}}
-              </ng-template>
-          </datatable-column>
-         
-          <datatable-column class="col-status" name="Status" property="Status">
-            <ng-template let-i="row" datatable-cell-template>
-            <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-              {{i._Status?.Name}}
-            </ion-badge>
-            </ng-template>
-          </datatable-column>
-        </app-data-table>
+								<div class="col-icon cell clickable" (click)="removeField(c,j)" *ngIf="pageConfig.canEdit && pageConfig.canDelete">
+									<ion-icon color="danger" name="trash" *ngIf="c.get('IsChecked').value && c.get('IDParent').value == null"></ion-icon>
+								</div>
+							</div>
+						</ng-container>
+					</ng-container>
+				</section>
+				<div class="row" *ngIf="pageConfig.canEdit && pageConfig.canAdd && item?.Id >0 ">
+					<div class="cell">
+						<ion-button fill="clear" size="small" (click)="addField({  show: true },true)">
+							<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+							{{'Add product' | translate}}
+						</ion-button>
+					</div>
+				</div>
+			</div>
+			<!-- Picking List -->
+			<div class="table responsive" *ngIf="segmentView == 's2'">
+				<app-data-table
+					class="box-shadow responsive"
+					*ngIf="item?.PickingList"
+					[rows]="item?.PickingList"
+					[(selectedRows)]="selectedItems"
+					[showSpinner]="pageConfig.showSpinner"
+				>
+					<!-- <datatable-column [checkbox]="true"></datatable-column> -->
+					<datatable-column class="col-id" name="Id" property="Id">
+						<ng-template let-i="row" datatable-cell-template>
+							<a [routerLink]="['/picking-order/'+i.Id]">{{i.Id}}</a>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
+						<ng-template let-i="row" datatable-cell-template>
+							{{i.WarehouseName}}
+							<small class="address" *ngIf="i.WarehouseCode">
+								<ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+							</small>
+						</ng-template>
+					</datatable-column>
 
-        <ion-modal [isOpen]="isModalOpen"(willDismiss)="dismissModal()" >
-          <ng-template>
-            <ion-header>
-              <ion-toolbar>
-                <ion-title>{{'Filter' | translate}} </ion-title>
-                <ion-buttons slot="end">
-                  <ion-button (click)="dismissModal()">
-                    <ion-icon name="close"></ion-icon>
-                  </ion-button>
-                </ion-buttons>
-              </ion-toolbar>
-            </ion-header>
-  
-            <ion-content class="ion-padding">
-              <app-data-table class="box-shadow responsive" *ngIf ="vehicleList" [rows]="vehicleList" [(selectedRows)]="selectedVehicles"(onSelectedRowsChange)="changeSelectionPacking($event)" [showSpinner]="pageConfig.showSpinner" >
-                <datatable-column [checkbox]="true"></datatable-column>
-                <datatable-column class="col-id" name="Id" property="Id">
-                  <!-- <ng-template let-i="row" datatable-cell-template>
+					<datatable-column class="col-date" filterControlType="date" name="Expected date" property="ExpectedDate">
+						<ng-template let-i="row" datatable-cell-template> {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+					</datatable-column>
+					<datatable-column class="col-date" filterControlType="date" name="Picked date" property="PickedDate">
+						<ng-template let-i="row" datatable-cell-template> {{i.PickedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+					</datatable-column>
+
+					<datatable-column class="col-status" name="Status" property="Status">
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
+						</ng-template>
+					</datatable-column>
+				</app-data-table>
+			</div>
+			<!-- Packing List -->
+			<div class="table responsive" *ngIf="segmentView == 's3'">
+				<app-data-table
+					class="box-shadow responsive"
+					*ngIf="item?.PackingList"
+					[rows]="item?.PackingList"
+					[(selectedRows)]="selectedItems"
+					(activate)="changeSelectionPacking($event)"
+					(onSelectedRowsChange)="changeSelectionPacking($event)"
+					[showSpinner]="pageConfig.showSpinner"
+				>
+					<datatable-column [checkbox]="true"></datatable-column>
+					<datatable-column class="col-id" name="Id" property="Id">
+						<ng-template let-i="row" datatable-cell-template>
+							<a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
+						<ng-template let-i="row" datatable-cell-template>
+							{{i.WarehouseName}}
+							<small class="address" *ngIf="i.WarehouseCode">
+								<ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+							</small>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-name" name="Tag" property="_Tag">
+						<ng-template let-i="row" datatable-cell-template> {{i._Tag?.Code}} </ng-template>
+					</datatable-column>
+					<datatable-column class="col-date" filterControlType="date" name="Expected date" property="ExpectedDate">
+						<ng-template let-i="row" datatable-cell-template> {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+					</datatable-column>
+					<datatable-column class="col-date" filterControlType="date" name="Packaged date" property="PackagedDate">
+						<ng-template let-i="row" datatable-cell-template> {{i.PackagedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+					</datatable-column>
+
+					<datatable-column class="col-status" name="Status" property="Status">
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
+						</ng-template>
+					</datatable-column>
+				</app-data-table>
+
+				<ion-modal [isOpen]="isModalOpen" (willDismiss)="dismissModal()">
+					<ng-template>
+						<ion-header>
+							<ion-toolbar>
+								<ion-title>{{'Filter' | translate}} </ion-title>
+								<ion-buttons slot="end">
+									<ion-button (click)="dismissModal()">
+										<ion-icon name="close"></ion-icon>
+									</ion-button>
+								</ion-buttons>
+							</ion-toolbar>
+						</ion-header>
+
+						<ion-content class="ion-padding">
+							<app-data-table
+								class="box-shadow responsive"
+								*ngIf="vehicleList"
+								[rows]="vehicleList"
+								[(selectedRows)]="selectedVehicles"
+								(onSelectedRowsChange)="changeSelectionPacking($event)"
+								[showSpinner]="pageConfig.showSpinner"
+							>
+								<datatable-column [checkbox]="true"></datatable-column>
+								<datatable-column class="col-id" name="Id" property="Id">
+									<!-- <ng-template let-i="row" datatable-cell-template>
                     <a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
                   </ng-template> -->
-                </datatable-column>
-                <datatable-column class="col-name" name="Truck" property="Name">
-                  
-                </datatable-column>
+								</datatable-column>
+								<datatable-column class="col-name" name="Truck" property="Name"> </datatable-column>
 
-                <datatable-column class="col-name" name="Shipper name" property="ShipperName">
-                  
-                </datatable-column>
+								<datatable-column class="col-name" name="Shipper name" property="ShipperName"> </datatable-column>
 
-                <datatable-column class="col-number" name="Volumn" property="VolumeRecommend">
-                  
-                </datatable-column>
-                <datatable-column class="col-number" name="Weight" property="WeightRecommend">
-                  
-                </datatable-column>
-              </app-data-table>
-            </ion-content>
-            
-            <ion-footer>
-              <ion-toolbar>
-                <ion-button  size="large" slot="end"(click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
-              </ion-toolbar>
-              
-            </ion-footer>
-          </ng-template>
-        </ion-modal>
-      </div>
+								<datatable-column class="col-number" name="Volumn" property="VolumeRecommend"> </datatable-column>
+								<datatable-column class="col-number" name="Weight" property="WeightRecommend"> </datatable-column>
+							</app-data-table>
+						</ion-content>
 
-      <div class="table responsive" *ngIf="segmentView == 's4'">
+						<ion-footer>
+							<ion-toolbar>
+								<ion-button size="large" slot="end" (click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
+							</ion-toolbar>
+						</ion-footer>
+					</ng-template>
+				</ion-modal>
+			</div>
 
-        <app-data-table class="box-shadow responsive" *ngIf ="item?.ShippingList" [rows]="item?.ShippingList" [(selectedRows)]="selectedItems" [showSpinner]="pageConfig.showSpinner" >
-          <!-- <datatable-column [checkbox]="true"></datatable-column> -->
-          <datatable-column class="col-id" name="Id" property="Id">
-            <ng-template let-i="row" datatable-cell-template>
-              <a [routerLink]="['/shipping/'+i.Id]">{{i.Id}}</a>
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-name" name="Warehouse" property="WarehouseName">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.WarehouseName}}
-              <small class="address" *ngIf="i.WarehouseCode">
-                <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
-              </small>
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-name" name="Truck" property="Vehicle">
-            <ng-template let-i="row" datatable-cell-template>
-              <span>{{i.Vehicle}}</span>
-              <small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')">{{i.Shipper}}</small>
-            </ng-template>
-          </datatable-column>
-          <datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
-              </ng-template>
-          </datatable-column>
-          <datatable-column class="col-date" filterControlType="date" name="Shipped date" property="ShippedDate">
-            <ng-template let-i="row" datatable-cell-template>
-              {{i.ShippedDate | date:'dd/MM/yyyy HH:mm'}}
-              </ng-template>
-          </datatable-column>
-         
-          <datatable-column class="col-status" name="Status" property="Status">
-            <ng-template let-i="row" datatable-cell-template>
-            <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-              {{i._Status?.Name}}
-            </ion-badge>
-            </ng-template>
-          </datatable-column>
-        </app-data-table>
-     
-      </div>
-      <div *ngIf="segmentView == 's5'">
-        <ion-row class="hr-group" *ngIf="item.Id">
-          <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
-            <ion-list-header class="ion-no-padding">
-              <ion-label color="primary">{{'Other information' | translate}}</ion-label>
-            </ion-list-header>
-          </ion-col>
-          <ion-col size="12" size-sm size-xl="4">
-            <app-form-control [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"></app-form-control>
-            <app-form-control [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
-            <app-form-control [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"></app-form-control>
-            <app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
-          </ion-col>
-          <ion-col size="12" size-sm size-xl="4">
-            <app-form-control [field]="{id:'IDWarehouse', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"></app-form-control>
-            <app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
-          </ion-col>
-        </ion-row>
-      </div>
-      <!-- Order information -->
-    </div>
-  </div>
-  <!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
+			<div class="table responsive" *ngIf="segmentView == 's4'">
+				<app-data-table
+					class="box-shadow responsive"
+					*ngIf="item?.ShippingList"
+					[rows]="item?.ShippingList"
+					[(selectedRows)]="selectedItems"
+					[showSpinner]="pageConfig.showSpinner"
+				>
+					<!-- <datatable-column [checkbox]="true"></datatable-column> -->
+					<datatable-column class="col-id" name="Id" property="Id">
+						<ng-template let-i="row" datatable-cell-template>
+							<a [routerLink]="['/shipping/'+i.Id]">{{i.Id}}</a>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
+						<ng-template let-i="row" datatable-cell-template>
+							{{i.WarehouseName}}
+							<small class="address" *ngIf="i.WarehouseCode">
+								<ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+							</small>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-name" name="Truck" property="Vehicle">
+						<ng-template let-i="row" datatable-cell-template>
+							<span>{{i.Vehicle}}</span>
+							<small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')">{{i.Shipper}}</small>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-date" filterControlType="date" name="Expected date" property="ExpectedDate">
+						<ng-template let-i="row" datatable-cell-template> {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+					</datatable-column>
+					<datatable-column class="col-date" filterControlType="date" name="Shipped date" property="ShippedDate">
+						<ng-template let-i="row" datatable-cell-template> {{i.ShippedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+					</datatable-column>
+
+					<datatable-column class="col-status" name="Status" property="Status">
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
+						</ng-template>
+					</datatable-column>
+				</app-data-table>
+			</div>
+			<div *ngIf="segmentView == 's5'">
+				<ion-row class="hr-group" *ngIf="item.Id">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control
+							[field]="{id:'IDWarehouse', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"
+						></app-form-control>
+						<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
+					</ion-col>
+				</ion-row>
+			</div>
+			<!-- Order information -->
+		</div>
+	</div>
+	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
 </ion-content>

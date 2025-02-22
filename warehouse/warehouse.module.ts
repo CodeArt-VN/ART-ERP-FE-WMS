@@ -8,15 +8,7 @@ import { ShareModule } from 'src/app/share.module';
 import { WarehouseComponentsModule } from './components/warehouse-components.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    WarehouseComponentsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: WarehousePage }]),
-  ],
-  declarations: [WarehousePage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, WarehouseComponentsModule, ShareModule, RouterModule.forChild([{ path: '', component: WarehousePage }])],
+	declarations: [WarehousePage],
 })
 export class WarehousePageModule {}

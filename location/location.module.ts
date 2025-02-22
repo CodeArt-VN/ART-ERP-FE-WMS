@@ -7,13 +7,7 @@ import { LocationPage } from './location.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: LocationPage }]),
-  ],
-  declarations: [LocationPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: LocationPage }])],
+	declarations: [LocationPage],
 })
 export class LocationPageModule {}

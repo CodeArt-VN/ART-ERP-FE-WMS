@@ -7,13 +7,7 @@ import { ShareModule } from 'src/app/share.module';
 import { CycleCountDetailPage } from './cycle-count-detail.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: CycleCountDetailPage }])
-  ],
-  declarations: [CycleCountDetailPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: CycleCountDetailPage }])],
+	declarations: [CycleCountDetailPage],
 })
 export class CycleCountDetailPageModule {}

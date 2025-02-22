@@ -8,22 +8,14 @@ import { StorerDetailPage } from './storer-detail.page';
 import { MapCompsModule } from 'src/app/components/map-comps/map-comps.module';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: StorerDetailPage,
-  },
+	{
+		path: '',
+		component: StorerDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    ShareModule,
-    MapCompsModule,
-    RouterModule.forChild(routes),
-  ],
-  declarations: [StorerDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, MapCompsModule, RouterModule.forChild(routes)],
+	declarations: [StorerDetailPage],
 })
 export class StorerDetailPageModule {}

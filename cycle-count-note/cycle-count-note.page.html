@@ -1,9 +1,7 @@
 <ion-header>
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
-			<ion-button color="dark" class="ion-hide-sm-down">
-				{{'erp.app.pages.wms.cycle-count-note.page-detail' | translate}}
-			</ion-button>
+			<ion-button color="dark" class="ion-hide-sm-down"> {{'erp.app.pages.wms.cycle-count-note.page-detail' | translate}} </ion-button>
 		</ion-buttons>
 		<ion-buttons slot="end">
 			<ion-button (click)="changePrintMode()" title="{{'Print mode' | translate}}">
@@ -17,16 +15,14 @@
 				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
 			</ion-button>
 			<ion-button title="{{'erp.app.components.detail-toolbar.show-feature' | translate}}" (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;">
-				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'">
-				</ion-icon>
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'"> </ion-icon>
 			</ion-button>
 		</ion-buttons>
 	</ion-toolbar>
 </ion-header>
 
-
 <ion-content appScrollbarTheme appPrintFix class="A4 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
-	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print " vertical="top" horizontal="start" slot="fixed">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print" vertical="top" horizontal="start" slot="fixed">
 		<ion-list>
 			<ion-list-header lines="full">
 				<ion-label color="dark">{{'Date filter' | translate}}</ion-label>
@@ -35,42 +31,48 @@
 					<ion-icon slot="icon-only" [name]="query.IDStatus=='[301]' ? 'calendar-outline' : 'calendar'"></ion-icon>
 				</ion-button>
 			</ion-list-header>
-
 		</ion-list>
 
 		<ion-list>
-			<ion-item lines="full" >
+			<ion-item lines="full">
 				<div class="c-control">
 					<label class="c-label" for="CycleCountDate">{{'Count date' | translate}}</label>
-					<input class="c-input" (change)="refresh()" id="CycleCountDate" type="date" [(ngModel)]="query.CountDate">
+					<input class="c-input" (change)="refresh()" id="CycleCountDate" type="date" [(ngModel)]="query.CountDate" />
 				</div>
 			</ion-item>
 
-			<ion-item [color]="i.Id == selectedCycleCount? 'primary': '' " button detail="true" lines="full" class="clickable" *ngFor="let i of items" (click)="loadCycleCountNote(i)">
+			<ion-item
+				[color]="i.Id == selectedCycleCount? 'primary': '' "
+				button
+				detail="true"
+				lines="full"
+				class="clickable"
+				*ngFor="let i of items"
+				(click)="loadCycleCountNote(i)"
+			>
 				<ion-label class="ion-text-wrap">
 					<ion-text>
 						<h3>{{i.WarehouseCode}} - {{i.WarehouseName}}</h3>
 					</ion-text>
 					<p>
-						<b style="display:flex">
+						<b style="display: flex">
 							<div class="col-status cell">
 								<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
-							  </div>
-							  
-								<ion-text [color]="i.Id != selectedCycleCount? 'primary': 'dark'" style="line-height: 20px;"> - {{'Id' | translate}}:{{i.Id}}</ion-text>
-						
-							<ion-text [color]="'dark'" *ngIf="i.CountDateText" style="line-height: 20px;"> - {{i.CountDateText}}</ion-text>
+							</div>
+
+							<ion-text [color]="i.Id != selectedCycleCount? 'primary': 'dark'" style="line-height: 20px"> - {{'Id' | translate}}:{{i.Id}}</ion-text>
+
+							<ion-text [color]="'dark'" *ngIf="i.CountDateText" style="line-height: 20px"> - {{i.CountDateText}}</ion-text>
 						</b>
 					</p>
 				</ion-label>
 			</ion-item>
 		</ion-list>
 
-		<img style="width: 1px; height: 1px; opacity: 0;" src="assets/RPT-Logo-ART.png">
-
+		<img style="width: 1px; height: 1px; opacity: 0" src="assets/RPT-Logo-ART.png" />
 	</ion-fab>
 
-	<div style="overflow: auto;">
+	<div style="overflow: auto">
 		<section class="sheet rpt" *ngFor="let s of sheets">
 			<table>
 				<thead>
@@ -86,53 +88,53 @@
 							<div class="top-zone">
 								<table class="rpt-header" cellpadding="0" cellspacing="0">
 									<tbody>
-									  <tr>
-										<td rowspan="7" class="logo">
-										  <img [src]="s.BranchLogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
-										</td>
-										<td colspan="2" class="bol title">{{'Cycle count detail listings' | translate}}</td>
-				
-										<td class="bol num" colspan="2">{{s.WarehouseCode? s.WarehouseCode : '#'+s.Id}}</td>
-										<td rowspan="7" class="topQR">
-										  <div>CC:{{s.Id}}</div>
-										  <a [href]="'#/'+'cycle-count/'+s.Id" (click)="nav('cycle-count/'+s.Id,'forward')">
-											<img class="qrc" [src]="s.QRC" />
-										  </a>
-										</td>
-									  </tr>
-				
-									  <tr>
-										<td class="head-c1">{{'Warehouse' | translate}}:</td>
-										<td class="bol">{{s.WarehouseName}}</td>
-										<td class="bol num" colspan="2">{{s.OrderDateText}}</td>
-									  </tr>
-									  <tr  *ngIf="s.WarehouseAddress">
-										<td>{{'Address' | translate}}:</td>
-										<td colspan="2">
-										  <span class="bol">{{s.WarehouseAddress}} </span>
-										</td>
-									  </tr>
-									  
-									  <tr *ngIf="s.WarehousePhone">
-										<td>{{'Phone number' | translate}}:</td>
-										<td class="bol" colspan="2">{{s.WarehousePhone}}</td>
-									  </tr>
-									  <tr>
-										<td>{{'Count date' | translate}}:</td>
-										<td colspan="2">
-											<span class="bol">  {{s.CycleCountDateText}}</span>
-										  </td>
-									  </tr>
-									  <tr>
-										<td>{{'Counters' | translate}}:</td>
-										<td colspan="2">
-									<span class="bol" *ngFor="let c of s.Counters ; let j = index">{{j == s.Counters.length-1? c.FullName : c.FullName+' - '}}  </span>
-									<!-- <span class="bol">{{s.WarehouseAddress}} </span> -->
-										</td>
-									  </tr>
+										<tr>
+											<td rowspan="7" class="logo">
+												<img [src]="s.BranchLogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
+											</td>
+											<td colspan="2" class="bol title">{{'Cycle count detail listings' | translate}}</td>
+
+											<td class="bol num" colspan="2">{{s.WarehouseCode? s.WarehouseCode : '#'+s.Id}}</td>
+											<td rowspan="7" class="topQR">
+												<div>CC:{{s.Id}}</div>
+												<a [href]="'#/'+'cycle-count/'+s.Id" (click)="nav('cycle-count/'+s.Id,'forward')">
+													<img class="qrc" [src]="s.QRC" />
+												</a>
+											</td>
+										</tr>
+
+										<tr>
+											<td class="head-c1">{{'Warehouse' | translate}}:</td>
+											<td class="bol">{{s.WarehouseName}}</td>
+											<td class="bol num" colspan="2">{{s.OrderDateText}}</td>
+										</tr>
+										<tr *ngIf="s.WarehouseAddress">
+											<td>{{'Address' | translate}}:</td>
+											<td colspan="2">
+												<span class="bol">{{s.WarehouseAddress}} </span>
+											</td>
+										</tr>
+
+										<tr *ngIf="s.WarehousePhone">
+											<td>{{'Phone number' | translate}}:</td>
+											<td class="bol" colspan="2">{{s.WarehousePhone}}</td>
+										</tr>
+										<tr>
+											<td>{{'Count date' | translate}}:</td>
+											<td colspan="2">
+												<span class="bol"> {{s.CycleCountDateText}}</span>
+											</td>
+										</tr>
+										<tr>
+											<td>{{'Counters' | translate}}:</td>
+											<td colspan="2">
+												<span class="bol" *ngFor="let c of s.Counters ; let j = index">{{j == s.Counters.length-1? c.FullName : c.FullName+' - '}} </span>
+												<!-- <span class="bol">{{s.WarehouseAddress}} </span> -->
+											</td>
+										</tr>
 									</tbody>
-								  </table>
-								
+								</table>
+
 								<div class="ds-san-pham">
 									<table cellpadding="0" cellspacing="0">
 										<tbody>
@@ -142,80 +144,55 @@
 												<td>{{'Unit' | translate}}</td>
 												<td *ngIf="s.IsShowSysQty">{{'Current quantity' | translate}}</td>
 												<!-- <td class="num tien">Bù giá</td> -->
-												<td *ngFor="let a of s.Counters ; let j = index">
-													{{'Counter' | translate}} {{ j+1}}
-												</td>
-												<td *ngIf="!s.Counters || s.Counters.length ==0">
-													{{'Counter' | translate}}
-												</td>
+												<td *ngFor="let a of s.Counters ; let j = index">{{'Counter' | translate}} {{ j+1}}</td>
+												<td *ngIf="!s.Counters || s.Counters.length ==0">{{'Counter' | translate}}</td>
 												<td class="num tien">{{'Remark' | translate}}</td>
 											</tr>
-
 
 											<ng-container>
 												<tr *ngFor="let c of s.CycleCountDetails; let idx = index; ">
 													<td class="cen">{{idx+1}}</td>
-													<td >
-														<div class="ten-kh">
-															<b>{{c.ItemCode? c.ItemCode : c.Id }} - {{c.ItemName}} </b> <br>
-														</div>
+													<td>
+														<div class="ten-kh"><b>{{c.ItemCode? c.ItemCode : c.Id }} - {{c.ItemName}} </b> <br /></div>
 													</td>
 													<td>
-														<div >
-															{{c.UoMName}}
-														</div>
+														<div>{{c.UoMName}}</div>
 													</td>
-													<td *ngIf="s.IsShowSysQty">
-															{{c.CurrentQuantity? c.CurrentQuantity: ''}}
-													</td>
-													<td *ngFor="let a of s.Counters ; let j = index">
-													</td>
-													<td *ngIf="!s.Counters || s.Counters.length ==0">
-													</td>
+													<td *ngIf="s.IsShowSysQty">{{c.CurrentQuantity? c.CurrentQuantity: ''}}</td>
+													<td *ngFor="let a of s.Counters ; let j = index"></td>
+													<td *ngIf="!s.Counters || s.Counters.length ==0"></td>
 													<td>
-														<div>
-															{{c.Remark}}
-														</div>
+														<div>{{c.Remark}}</div>
 													</td>
 													<!-- <td class="num "> <span *ngIf="s.OriginalDiscountFromSalesman">{{s.OriginalDiscountFromSalesmanText}}</span></td>
 													 -->
 												</tr>
 											</ng-container>
-
 										</tbody>
 									</table>
 								</div>
 
 								<div class="no-break-page">
-
 									<table class="chu-ky" cellpadding="0" cellspacing="0">
 										<tbody>
 											<tr>
 												<td>
 													{{'Stocker' | translate}}
-													<div class="line2">
-														{{'erp.app.pages.purchase.purchase-order-note.sign-full-name' | translate}}
-													</div>
+													<div class="line2">{{'erp.app.pages.purchase.purchase-order-note.sign-full-name' | translate}}</div>
 												</td>
 												<td *ngFor="let c of s.Counters ; let j = index">
 													{{'Counter' | translate}} {{ j+1}}
-													<div class="line2">
-														{{'erp.app.pages.purchase.purchase-order-note.sign-full-name' | translate}}
-													</div>
+													<div class="line2">{{'erp.app.pages.purchase.purchase-order-note.sign-full-name' | translate}}</div>
 												</td>
 												<td *ngIf="!s.Counters || s.Counters.length==0">
 													{{'Counter' | translate}}
-													<div class="line2">
-														{{'erp.app.pages.purchase.purchase-order-note.sign-full-name' | translate}}
-													</div>
+													<div class="line2">{{'erp.app.pages.purchase.purchase-order-note.sign-full-name' | translate}}</div>
 												</td>
 											</tr>
-
 										</tbody>
 									</table>
 								</div>
 							</div>
-
 						</td>
 					</tr>
 				</tbody>
@@ -229,7 +206,5 @@
 				</tfoot>
 			</table>
 		</section>
-
 	</div>
-
 </ion-content>

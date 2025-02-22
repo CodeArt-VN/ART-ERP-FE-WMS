@@ -7,13 +7,7 @@ import { ShareModule } from 'src/app/share.module';
 import { PutawayStrategyPage } from './putaway-strategy.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: PutawayStrategyPage }])
-  ],
-  declarations: [PutawayStrategyPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: PutawayStrategyPage }])],
+	declarations: [PutawayStrategyPage],
 })
 export class PutawayStrategyPageModule {}

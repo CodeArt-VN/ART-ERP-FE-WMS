@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { GoodReceivingDetailPage } from './goods-receiving-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: GoodReceivingDetailPage,
-  },
+	{
+		path: '',
+		component: GoodReceivingDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [GoodReceivingDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [GoodReceivingDetailPage],
 })
 export class GoodReceivingDetailPageModule {}

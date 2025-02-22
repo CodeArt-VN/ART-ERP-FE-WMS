@@ -1,60 +1,42 @@
 <ion-header>
-  <app-toolbar [page]="this">
-    <ion-button
-      title="Stock card"
-      *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0"
-      (click)="createWarehouseCard()"
-    >
-      {{ 'Stock card' | translate }}
-      <!-- <ion-icon slot="icon-only" name="card-outline"></ion-icon> -->
-    </ion-button>
-  </app-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button title="Stock card" *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0" (click)="createWarehouseCard()">
+			{{ 'Stock card' | translate }}
+			<!-- <ion-icon slot="icon-only" name="card-outline"></ion-icon> -->
+		</ion-button>
+	</app-toolbar>
 </ion-header>
-<ion-content
-  appScrollbarTheme
-  class="left scrollx"
-  [ngClass]="{withFeature: pageConfig.isShowFeature}"
-  forceOverscroll="false"
->
-  <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
-    <div class="ion-padding" style="padding-bottom: 0">
-      <app-form-control
-        [field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+		<div class="ion-padding" style="padding-bottom: 0">
+			<app-form-control
+				[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
         ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
        }"
-      ></app-form-control>
-      <app-form-control
-        [field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
+			></app-form-control>
+			<app-form-control
+				[field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
      form : formGroup,clearable:true}"
-      ></app-form-control>
-      <!-- <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
+			></app-form-control>
+			<!-- <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
     ></app-form-control>
     <app-form-control  [field]="{id:'IDZone', label: 'Zone', type : 'ng-select',dataSource:zoneList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
     ></app-form-control> -->
-      <app-form-control
-        [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}"
-      ></app-form-control>
-      <app-form-control
-        [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}"
-      ></app-form-control>
-      <app-form-control
-        [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"
-      >
-      </app-form-control>
-    </div>
-    <div class="action-buttons sticky-bottom">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12">
-            <ion-button (click)="changeFilter()" color="success" expand="block">
-              {{ 'View item list' | translate }}
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-  </ion-fab>
-  <!-- 
+			<app-form-control [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}"></app-form-control>
+			<app-form-control [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}"></app-form-control>
+			<app-form-control [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"> </app-form-control>
+		</div>
+		<div class="action-buttons sticky-bottom">
+			<ion-grid>
+				<ion-row>
+					<ion-col size="12">
+						<ion-button (click)="changeFilter()" color="success" expand="block"> {{ 'View item list' | translate }} </ion-button>
+					</ion-col>
+				</ion-row>
+			</ion-grid>
+		</div>
+	</ion-fab>
+	<!-- 
   <app-data-table
     class="box-shadow"
     [rows]="items"
@@ -100,15 +82,15 @@
     
   </app-data-table> -->
 
-  <app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-  <div style="min-width: 300px; height: calc(100vh - 65px)">
-    <section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
-      <div class="sticky-header">
-        <header class="bold">
-          <!-- <div class="col-checkbox cell"></div> -->
-          <div class="col-date cell">
-            {{'TransactionDate' | translate}}
-            <!-- <ion-icon
+	<app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	<div style="min-width: 300px; height: calc(100vh - 65px)">
+		<section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
+			<div class="sticky-header">
+				<header class="bold">
+					<!-- <div class="col-checkbox cell"></div> -->
+					<div class="col-date cell">
+						{{'TransactionDate' | translate}}
+						<!-- <ion-icon
               class="min-btn"
               *ngIf="sort.TransactionDate"
               [name]="sort.TransactionDate == 'TransactionDate' ? 'arrow-down' : 'arrow-up'"
@@ -120,75 +102,68 @@
               name="search"
               color="primary"
             ></ion-icon> -->
-          </div>
-          <div class="col-code cell">{{'Source' | translate}}</div>
-          <div class="col-name cell">{{'Item' | translate}}</div>
+					</div>
+					<div class="col-code cell">{{'Source' | translate}}</div>
+					<div class="col-name cell">{{'Item' | translate}}</div>
 
-          <div class="col-number cell">{{'Quantity' | translate}}</div>
-        </header>
-        <form (submit)="refresh()" action="#">
-          <header class="filter" *ngIf="pageConfig.isShowSearch">
-            <div class="col-checkbox cell"></div>
-            <div class="col-date cell">
-              <input
-                [ngModelOptions]="{ standalone: true }"
-                [(ngModel)]="query.TransactionDate"
-                class="c-input"
-                [ngClass]="{ active: query.TransactionDate }"
-                type="date"
-              />
-              <ion-icon
-                class="min-btn"
-                (click)="query.TransactionDate = ''; refresh()"
-                *ngIf="query.TransactionDate"
-                name="close-circle-outline"
-              ></ion-icon>
-            </div>
-            <div class="col-name cell"></div>
-            <div class="col-code cell"></div>
-            <div class="col-code cell"></div>
-            <div class="col-code cell"></div>
-            <div class="col-number cell"></div>
-            <div class="col-number cell"></div>
-            <div class="col-number cell"></div>
-            <button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
-          </header>
-        </form>
-      </div>
+					<div class="col-number cell">{{'Quantity' | translate}}</div>
+				</header>
+				<form (submit)="refresh()" action="#">
+					<header class="filter" *ngIf="pageConfig.isShowSearch">
+						<div class="col-checkbox cell"></div>
+						<div class="col-date cell">
+							<input
+								[ngModelOptions]="{ standalone: true }"
+								[(ngModel)]="query.TransactionDate"
+								class="c-input"
+								[ngClass]="{ active: query.TransactionDate }"
+								type="date"
+							/>
+							<ion-icon class="min-btn" (click)="query.TransactionDate = ''; refresh()" *ngIf="query.TransactionDate" name="close-circle-outline"></ion-icon>
+						</div>
+						<div class="col-name cell"></div>
+						<div class="col-code cell"></div>
+						<div class="col-code cell"></div>
+						<div class="col-code cell"></div>
+						<div class="col-number cell"></div>
+						<div class="col-number cell"></div>
+						<div class="col-number cell"></div>
+						<button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
+					</header>
+				</form>
+			</div>
 
-      <ng-container *ngFor="let i of items; let j = index">
-        <div class="row" *ngIf="myHeaderFn(i, j, items); let header">
-          <!-- <div class="col-checkbox cell"></div> -->
-          <div class="col-name cell">
-            <ion-text color="primary">
-              <b> {{ header }} </b>
-            </ion-text>
-          </div>
-        </div>
+			<ng-container *ngFor="let i of items; let j = index">
+				<div class="row" *ngIf="myHeaderFn(i, j, items); let header">
+					<!-- <div class="col-checkbox cell"></div> -->
+					<div class="col-name cell">
+						<ion-text color="primary">
+							<b> {{ header }} </b>
+						</ion-text>
+					</div>
+				</div>
 
-        <div class="row" [ngClass]="{ odd: j % 2 != 0 }" [ngClass]="{ selected: i.checked }">
-          <!-- <div class="col-checkbox cell">
+				<div class="row" [ngClass]="{ odd: j % 2 != 0 }" [ngClass]="{ selected: i.checked }">
+					<!-- <div class="col-checkbox cell">
             <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
           </div> -->
-          <div class="col-date cell">
-            {{ i.TransactionDate|date:'dd/MM/yyyy' }}
-            <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
-          </div>
+					<div class="col-date cell">
+						{{ i.TransactionDate|date:'dd/MM/yyyy' }}
+						<small>{{ i.TransactionDate|date:'hh:mm' }}</small>
+					</div>
 
-          <div class="col-code cell">
-            {{ i.SourceType | translate }}:
-            <a
-              [routerLink]="['/' + (i.SourceType === 'SO' ? 'sale-order' : i.SourceType === 'Receipt' ? 'receipt' : pageConfig.pageName) + '/' + i.SourceKey]"
-            >
-              <span class="show-small-inline">{{ i.SourceKey }}</span>
-            </a>
-          </div>
+					<div class="col-code cell">
+						{{ i.SourceType | translate }}:
+						<a [routerLink]="['/' + (i.SourceType === 'SO' ? 'sale-order' : i.SourceType === 'Receipt' ? 'receipt' : pageConfig.pageName) + '/' + i.SourceKey]">
+							<span class="show-small-inline">{{ i.SourceKey }}</span>
+						</a>
+					</div>
 
-          <div class="col-name cell">
-            <span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>
-          </div>
+					<div class="col-name cell">
+						<span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>
+					</div>
 
-          <!-- <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>
+					<!-- <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>
 
           <div class="col-code cell">
             <span *ngIf="i._FromLocation">{{ i._FromLocation.Name }}</span>
@@ -200,24 +175,19 @@
             <ion-icon name="arrow-forward"></ion-icon>
             <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
           </div> -->
-          <div class="col-number cell">
-            <ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
-              ><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-              <small>{{u.UoMName}}</small>
-            </ion-text>
-          </div>
-          <!-- <div class="col-number cell">{{ i.CubeText }}</div>
+					<div class="col-number cell">
+						<ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
+							><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
+							<small>{{u.UoMName}}</small>
+						</ion-text>
+					</div>
+					<!-- <div class="col-number cell">{{ i.CubeText }}</div>
           <div class="col-number cell">{{ i.GrossWeightText }}</div> -->
-        </div>
-      </ng-container>
-    </section>
-  </div>
-  <ion-infinite-scroll
-    color="primary"
-    threshold="20%"
-    (ionInfinite)="loadData($event)"
-    [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData"
-  >
-    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+				</div>
+			</ng-container>
+		</section>
+	</div>
+	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
 </ion-content>

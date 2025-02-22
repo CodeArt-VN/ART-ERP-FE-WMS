@@ -1,63 +1,62 @@
 .A4 .sheet {
-    width: 210mm;
-    height: auto;
-    min-height: auto;//295mm;
-    padding: 0 10mm;
+	width: 210mm;
+	height: auto;
+	min-height: auto; //295mm;
+	padding: 0 10mm;
 }
 
 .A5.landscape .sheet {
-    width: 210mm;
-    height: auto;
-    min-height: 147mm;
-    padding: 0 10mm;
+	width: 210mm;
+	height: auto;
+	min-height: 147mm;
+	padding: 0 10mm;
 }
 
 .sheet {
-    &.huong-dan {
-        padding: 10mm !important;
-        height: auto !important;
-        min-height: auto !important;
-        color: #af305a;
+	&.huong-dan {
+		padding: 10mm !important;
+		height: auto !important;
+		min-height: auto !important;
+		color: #af305a;
 
-        a {
-            color: #af305a;
-        }
-    }
-
+		a {
+			color: #af305a;
+		}
+	}
 }
 .logo {
-    vertical-align: top;
-    width: 90px;
-    max-width: 90px;
-    padding: 0;
+	vertical-align: top;
+	width: 90px;
+	max-width: 90px;
+	padding: 0;
 }
 
 .logo img {
-    width: 70px;
-    height: auto;
+	width: 70px;
+	height: auto;
 }
 
 .topQR {
-    vertical-align: top;
-    padding: 0;
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
+	vertical-align: top;
+	padding: 0;
+	width: 100px;
+	min-width: 100px;
+	max-width: 100px;
 }
 
 .topQR div {
-    position: absolute;
-    width: 100px;
-    text-align: center;
-    margin-top: 80px;
-    font-size: 10px;
-    padding-left: 10px;
+	position: absolute;
+	width: 100px;
+	text-align: center;
+	margin-top: 80px;
+	font-size: 10px;
+	padding-left: 10px;
 }
 
 .topQR img {
-    width: 90px;
-    height: 90px;
-    border: solid 1px #CCC;
-    display: block;
-    float: right;
+	width: 90px;
+	height: 90px;
+	border: solid 1px #ccc;
+	display: block;
+	float: right;
 }

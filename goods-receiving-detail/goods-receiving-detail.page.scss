@@ -1,234 +1,234 @@
 ion-card.booking {
-  color: var(--ion-color-dark);
-  box-shadow: none;
-  padding-top: 30px;
-  line-height: 20px;
+	color: var(--ion-color-dark);
+	box-shadow: none;
+	padding-top: 30px;
+	line-height: 20px;
 
-  cursor: pointer;
-  // height: 290px;
+	cursor: pointer;
+	// height: 290px;
 
-  @media (min-width: 1024px) {
-    margin: auto;
-    max-width: 500px;
-  }
+	@media (min-width: 1024px) {
+		margin: auto;
+		max-width: 500px;
+	}
 
-  .logo {
-    position: absolute;
-    z-index: 1;
-    left: calc(50% - 25px);
-    margin-top: -16px;
-    display: inline-block;
-    width: 50px;
-    height: 50px;
-    background-color: white;
-    border-radius: 100px;
-    background-image: url('../../../../assets/icons/icon-256.webp');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 30px;
-    border: 2px solid var(--main-background-bottom);
-  }
+	.logo {
+		position: absolute;
+		z-index: 1;
+		left: calc(50% - 25px);
+		margin-top: -16px;
+		display: inline-block;
+		width: 50px;
+		height: 50px;
+		background-color: white;
+		border-radius: 100px;
+		background-image: url('../../../../assets/icons/icon-256.webp');
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 30px;
+		border: 2px solid var(--main-background-bottom);
+	}
 
-  ion-card-header {
-    // padding-top: 45px;
-    padding-top: 10px;
-    background: var(--table-row-background);
-    border-radius: 10px 10px 0 0;
-    .ngay-hd {
-      font-size: 11px;
-      font-weight: bold;
-      vertical-align: text-top;
-      line-height: 24px;
-    }
-  }
+	ion-card-header {
+		// padding-top: 45px;
+		padding-top: 10px;
+		background: var(--table-row-background);
+		border-radius: 10px 10px 0 0;
+		.ngay-hd {
+			font-size: 11px;
+			font-weight: bold;
+			vertical-align: text-top;
+			line-height: 24px;
+		}
+	}
 
-  ion-card-content {
-    background: var(--table-row-background);
-    color: var(--ion-color-dark);
-    padding-bottom: 0;
-    // padding-top: 20px;
-    // border-top: 2px var(--main-background-bottom) dashed;
-    // border-bottom: 2px var(--main-background-bottom) dashed;
-  }
+	ion-card-content {
+		background: var(--table-row-background);
+		color: var(--ion-color-dark);
+		padding-bottom: 0;
+		// padding-top: 20px;
+		// border-top: 2px var(--main-background-bottom) dashed;
+		// border-bottom: 2px var(--main-background-bottom) dashed;
+	}
 
-  ion-card-title {
-    text-align: center;
-    font-size: 26px !important;
-    padding-top: 0 !important;
-    font-weight: normal !important;
-  }
+	ion-card-title {
+		text-align: center;
+		font-size: 26px !important;
+		padding-top: 0 !important;
+		font-weight: normal !important;
+	}
 
-  .card-footer {
-    background: var(--table-row-background);
-    border-radius: 0 0 10px 10px;
-  }
+	.card-footer {
+		background: var(--table-row-background);
+		border-radius: 0 0 10px 10px;
+	}
 
-  .info {
-    padding: 20px;
-    padding-top: 0;
+	.info {
+		padding: 20px;
+		padding-top: 0;
 
-    .field {
-      font-size: 12px;
-      padding-top: 16px;
-      text-transform: uppercase;
-    }
+		.field {
+			font-size: 12px;
+			padding-top: 16px;
+			text-transform: uppercase;
+		}
 
-    .field-value {
-      font-weight: bold;
-      line-height: 30px;
-    }
+		.field-value {
+			font-weight: bold;
+			line-height: 30px;
+		}
 
-    .address {
-      font-size: 12px;
-    }
-  }
+		.address {
+			font-size: 12px;
+		}
+	}
 
-  .barcode {
-    border-top: dashed 4px var(--menu-right-border-color);
-  }
+	.barcode {
+		border-top: dashed 4px var(--menu-right-border-color);
+	}
 
-  table.card {
-    td {
-      vertical-align: top;
-      padding: 2px 5px;
-    }
+	table.card {
+		td {
+			vertical-align: top;
+			padding: 2px 5px;
+		}
 
-    td:first-child {
-      width: 10px;
-    }
+		td:first-child {
+			width: 10px;
+		}
 
-    .td-address {
-    }
-  }
+		.td-address {
+		}
+	}
 }
 
 .main-view {
-  ion-range {
-    pointer-events: none;
-  }
+	ion-range {
+		pointer-events: none;
+	}
 
-  ion-range::part(bar) {
-    pointer-events: none;
-  }
-  ion-range::part(bar-active) {
-    pointer-events: none;
-  }
+	ion-range::part(bar) {
+		pointer-events: none;
+	}
+	ion-range::part(bar-active) {
+		pointer-events: none;
+	}
 
-  ion-range::part(knob) {
-    pointer-events: auto;
-  }
+	ion-range::part(knob) {
+		pointer-events: auto;
+	}
 
-  ion-range::part(tick) {
-    pointer-events: none;
-  }
-  ion-range::part(tick-active) {
-    pointer-events: none;
-  }
+	ion-range::part(tick) {
+		pointer-events: none;
+	}
+	ion-range::part(tick-active) {
+		pointer-events: none;
+	}
 
-  .summary {
-    text-align: center;
-    margin: 20px 0;
-    padding: 0 32px;
-    text-transform: uppercase;
+	.summary {
+		text-align: center;
+		margin: 20px 0;
+		padding: 0 32px;
+		text-transform: uppercase;
 
-    @media (min-width: 1024px) {
-      margin: auto;
-      max-width: 500px;
-    }
+		@media (min-width: 1024px) {
+			margin: auto;
+			max-width: 500px;
+		}
 
-    .edit {
-      position: absolute;
-      right: 16px;
-      margin-top: 4px;
-    }
+		.edit {
+			position: absolute;
+			right: 16px;
+			margin-top: 4px;
+		}
 
-    .time {
-      font-size: 28px;
-      font-weight: bold;
-      line-height: 30px;
-    }
+		.time {
+			font-size: 28px;
+			font-weight: bold;
+			line-height: 30px;
+		}
 
-    .date {
-      line-height: 20px;
-      font-size: 14px;
-      margin: 10px;
-    }
-  }
+		.date {
+			line-height: 20px;
+			font-size: 14px;
+			margin: 10px;
+		}
+	}
 
-  .barcode {
-    &.warning {
-      background-color: var(--ion-color-warning);
-    }
+	.barcode {
+		&.warning {
+			background-color: var(--ion-color-warning);
+		}
 
-    &.danger {
-      background-color: var(--ion-color-danger);
+		&.danger {
+			background-color: var(--ion-color-danger);
 
-      ion-range {
-        //--ion-text-color: #fff;
-      }
-    }
+			ion-range {
+				//--ion-text-color: #fff;
+			}
+		}
 
-    &.secondary {
-      background-color: var(--ion-color-primary);
-      .txtTienInput {
-        color: var(--ion-color-primary-contrast);
-      }
-      ion-range {
-        //--ion-text-color: #fff;
-      }
-    }
-  }
+		&.secondary {
+			background-color: var(--ion-color-primary);
+			.txtTienInput {
+				color: var(--ion-color-primary-contrast);
+			}
+			ion-range {
+				//--ion-text-color: #fff;
+			}
+		}
+	}
 
-  .tbl-cong-no {
-    width: 100%;
-    min-width: 100%;
+	.tbl-cong-no {
+		width: 100%;
+		min-width: 100%;
 
-    tr {
-      td {
-        border: solid 1px #fff;
-        text-align: right;
-        padding: 2px 5px;
-      }
-    }
-  }
+		tr {
+			td {
+				border: solid 1px #fff;
+				text-align: right;
+				padding: 2px 5px;
+			}
+		}
+	}
 
-  .txtTienInput {
-    background-color: rgba(255, 255, 255, 0.2);
-    text-align: right;
-    font-weight: bold;
-  }
+	.txtTienInput {
+		background-color: rgba(255, 255, 255, 0.2);
+		text-align: right;
+		font-weight: bold;
+	}
 
-  .txtCKInput {
-    background: var(--ion-color-warning);
-    color: var(--ion-color-warning-contrast);
-  }
+	.txtCKInput {
+		background: var(--ion-color-warning);
+		color: var(--ion-color-warning-contrast);
+	}
 
-  .txtQtyInput {
-    position: absolute;
-    left: 0;
-    width: 100px;
-    text-align: center;
-    background-color: transparent;
-    border: none;
-    opacity: 1;
-    color: transparent;
-    pointer-events: auto;
-    outline: none;
-    margin-top: -3px;
+	.txtQtyInput {
+		position: absolute;
+		left: 0;
+		width: 100px;
+		text-align: center;
+		background-color: transparent;
+		border: none;
+		opacity: 1;
+		color: transparent;
+		pointer-events: auto;
+		outline: none;
+		margin-top: -3px;
 
-    &:focus {
-      color: #333;
-      background-color: #ffffffdd;
-    }
-  }
+		&:focus {
+			color: #333;
+			background-color: #ffffffdd;
+		}
+	}
 
-  .card-background-image {
-    position: absolute;
-    z-index: 0;
-    opacity: 0.1;
-    width: 64%;
-    max-height: 100%;
-    right: 0;
-    bottom: 0;
-  }
+	.card-background-image {
+		position: absolute;
+		z-index: 0;
+		opacity: 0.1;
+		width: 64%;
+		max-height: 100%;
+		right: 0;
+		bottom: 0;
+	}
 }

@@ -3,14 +3,14 @@ import { NavController, ModalController, AlertController, LoadingController, Pop
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import {
-  BRA_BranchProvider,
-  HRM_StaffProvider,
-  SYS_SchemaProvider,
-  WMS_AdjustmentProvider,
-  WMS_CycleCountDetailProvider,
-  WMS_CycleCountProvider,
-  WMS_CycleCountTaskProvider,
-  WMS_ItemProvider,
+	BRA_BranchProvider,
+	HRM_StaffProvider,
+	SYS_SchemaProvider,
+	WMS_AdjustmentProvider,
+	WMS_CycleCountDetailProvider,
+	WMS_CycleCountProvider,
+	WMS_CycleCountTaskProvider,
+	WMS_ItemProvider,
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
@@ -21,969 +21,913 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 
 @Component({
-    selector: 'app-cycle-count-detail',
-    templateUrl: 'cycle-count-detail.page.html',
-    styleUrls: ['cycle-count-detail.page.scss'],
-    standalone: false
+	selector: 'app-cycle-count-detail',
+	templateUrl: 'cycle-count-detail.page.html',
+	styleUrls: ['cycle-count-detail.page.scss'],
+	standalone: false,
 })
 export class CycleCountDetailPage extends PageBase {
-  countTypeDataSource: any;
-  statusDataSource: any;
-  schema: Schema;
-  config: any = null;
-  itemList: any;
-  tempItemList: any;
-  countItem: number = 0;
-  isHideEqualityTask: boolean = false;
-  filterItems: any;
-  branchList = [];
-  isShowRowTaskStatus: boolean = false;
-  constructor(
-    public pageProvider: WMS_CycleCountProvider,
-    public cycleCountDetailService: WMS_CycleCountDetailProvider,
-    public cycleCountTaskService: WMS_CycleCountTaskProvider,
-    public adjustmentService: WMS_AdjustmentProvider,
-    public staffService: HRM_StaffProvider,
-    public schemaService: SYS_SchemaProvider,
-    public itemService: WMS_ItemProvider,
-    public commonService: CommonService,
-    public branchProvider: BRA_BranchProvider,
-    public route: ActivatedRoute,
-    public modalController: ModalController,
-    public formBuilder: FormBuilder,
-    public cdr: ChangeDetectorRef,
-    public popoverCtrl: PopoverController,
-    public alertCtrl: AlertController,
-    public loadingController: LoadingController,
-    public env: EnvService,
-    public navCtrl: NavController,
-    public location: Location,
-    public router: Router,
-  ) {
-    super();
-    //temp
-    this.pageConfig.isDetailPage = true;
+	countTypeDataSource: any;
+	statusDataSource: any;
+	schema: Schema;
+	config: any = null;
+	itemList: any;
+	tempItemList: any;
+	countItem: number = 0;
+	isHideEqualityTask: boolean = false;
+	filterItems: any;
+	branchList = [];
+	isShowRowTaskStatus: boolean = false;
+	constructor(
+		public pageProvider: WMS_CycleCountProvider,
+		public cycleCountDetailService: WMS_CycleCountDetailProvider,
+		public cycleCountTaskService: WMS_CycleCountTaskProvider,
+		public adjustmentService: WMS_AdjustmentProvider,
+		public staffService: HRM_StaffProvider,
+		public schemaService: SYS_SchemaProvider,
+		public itemService: WMS_ItemProvider,
+		public commonService: CommonService,
+		public branchProvider: BRA_BranchProvider,
+		public route: ActivatedRoute,
+		public modalController: ModalController,
+		public formBuilder: FormBuilder,
+		public cdr: ChangeDetectorRef,
+		public popoverCtrl: PopoverController,
+		public alertCtrl: AlertController,
+		public loadingController: LoadingController,
+		public env: EnvService,
+		public navCtrl: NavController,
+		public location: Location,
+		public router: Router
+	) {
+		super();
+		//temp
+		this.pageConfig.isDetailPage = true;
 
-    this.formGroup = this.formBuilder.group({
-      Id: new FormControl({ value: '', disabled: true }),
-      IDBranch: ['', Validators.required],
-      Code: [''],
-      Name: [''],
-      Remark: [''],
-      Sort: [''],
-      CountType: ['Simple', Validators.required],
-      CountDate: [''],
-      Status: ['Draft', Validators.required],
-      Counters: [''],
-      _Counters: [''],
-      IsPrintAllCounterPerSheet: [false],
-      IsShowSysQty: [false],
-      IsCountByLocation: [false],
-      IsCountByLot: [false],
-      CycleCountDetails: this.formBuilder.array([]),
-      IDAdjustment: [0],
-      IsDisabled: new FormControl({ value: '', disabled: true }),
-      IsDeleted: new FormControl({ value: '', disabled: true }),
-      CreatedBy: new FormControl({ value: '', disabled: true }),
-      CreatedDate: new FormControl({ value: '', disabled: true }),
-      ModifiedBy: new FormControl({ value: '', disabled: true }),
-      ModifiedDate: new FormControl({ value: '', disabled: true }),
-      DeletedFields: [[]],
-    });
-  }
+		this.formGroup = this.formBuilder.group({
+			Id: new FormControl({ value: '', disabled: true }),
+			IDBranch: ['', Validators.required],
+			Code: [''],
+			Name: [''],
+			Remark: [''],
+			Sort: [''],
+			CountType: ['Simple', Validators.required],
+			CountDate: [''],
+			Status: ['Draft', Validators.required],
+			Counters: [''],
+			_Counters: [''],
+			IsPrintAllCounterPerSheet: [false],
+			IsShowSysQty: [false],
+			IsCountByLocation: [false],
+			IsCountByLot: [false],
+			CycleCountDetails: this.formBuilder.array([]),
+			IDAdjustment: [0],
+			IsDisabled: new FormControl({ value: '', disabled: true }),
+			IsDeleted: new FormControl({ value: '', disabled: true }),
+			CreatedBy: new FormControl({ value: '', disabled: true }),
+			CreatedDate: new FormControl({ value: '', disabled: true }),
+			ModifiedBy: new FormControl({ value: '', disabled: true }),
+			ModifiedDate: new FormControl({ value: '', disabled: true }),
+			DeletedFields: [[]],
+		});
+	}
 
-  preLoadData(event) {
-    this.countTypeDataSource = [
-      { Name: 'Kiểm đơn giản', Code: 'Simple' },
-      { Name: 'Kiểm thẩm định', Code: 'Validation' },
-    ];
+	preLoadData(event) {
+		this.countTypeDataSource = [
+			{ Name: 'Kiểm đơn giản', Code: 'Simple' },
+			{ Name: 'Kiểm thẩm định', Code: 'Validation' },
+		];
 
-    this.branchList = [...this.env.branchList];
-    this.schemaService.getAnItem(13).then((value: any) => {
-      if (value) this.schema = value;
-      super.preLoadData(event);
-    }).catch(err=>{
-      super.preLoadData(event);
-    });
-   
-  }
+		this.branchList = [...this.env.branchList];
+		this.schemaService
+			.getAnItem(13)
+			.then((value: any) => {
+				if (value) this.schema = value;
+				super.preLoadData(event);
+			})
+			.catch((err) => {
+				super.preLoadData(event);
+			});
+	}
 
-  loadedData(event?: any, ignoredFromGroup?: boolean): void {
-    if (this.item?.Status == 'Open') {
-      this.pageConfig.canEdit = false;
-    }
-    super.loadedData(event, ignoredFromGroup);
-    this.query.IDCycleCount = this.item.Id;
-    this.query.Id = undefined;
-    this.cycleCountDetailService.read(this.query, false).then((listCCDetail: any) => {
-      if (listCCDetail != null && listCCDetail.data.length > 0) {
-        const cycleCountDetailsArray = this.formGroup.get('CycleCountDetails') as FormArray;
-        cycleCountDetailsArray.clear();
-        this.item.CycleCountDetails = listCCDetail.data;
-        this.patchFieldsValue();
-      }
-    });
+	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		if (this.item?.Status == 'Open') {
+			this.pageConfig.canEdit = false;
+		}
+		super.loadedData(event, ignoredFromGroup);
+		this.query.IDCycleCount = this.item.Id;
+		this.query.Id = undefined;
+		this.cycleCountDetailService.read(this.query, false).then((listCCDetail: any) => {
+			if (listCCDetail != null && listCCDetail.data.length > 0) {
+				const cycleCountDetailsArray = this.formGroup.get('CycleCountDetails') as FormArray;
+				cycleCountDetailsArray.clear();
+				this.item.CycleCountDetails = listCCDetail.data;
+				this.patchFieldsValue();
+			}
+		});
 
-    // this._itemDataSource.initSearch();
+		// this._itemDataSource.initSearch();
 
-    if (this.item.Counters) {
-      var counters = JSON.parse(this.item.Counters);
-      if (counters) {
-        this.formGroup.get('_Counters').setValue(counters.map((d) => d.Id));
-      }
-      this._staffDataSource.selected = counters;
-    }
-    this._staffDataSource.initSearch();
-    this.sortDetail = {};
-    if (this.pageConfig.canUpdateQuantity && !this.pageConfig.canEdit) {
-      let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-      groups.controls.forEach((fg) => {
-        fg.get('CountedQuantity').enable();
-      });
-    }
+		if (this.item.Counters) {
+			var counters = JSON.parse(this.item.Counters);
+			if (counters) {
+				this.formGroup.get('_Counters').setValue(counters.map((d) => d.Id));
+			}
+			this._staffDataSource.selected = counters;
+		}
+		this._staffDataSource.initSearch();
+		this.sortDetail = {};
+		if (this.pageConfig.canUpdateQuantity && !this.pageConfig.canEdit) {
+			let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+			groups.controls.forEach((fg) => {
+				fg.get('CountedQuantity').enable();
+			});
+		}
 
-    if(!this.item.Id){
-      this.formGroup.get('Status').markAsDirty();
-      this.formGroup.get('CountType').markAsDirty();
-    }
-    console.log(this.formGroup);
-    this.removeSelectedItems();
-    this.isAllChecked = false;
-    this.isAllCheckedModal = false;
-    this.toggleSelectAllInModal();
-    this.toggleSelectAll();
+		if (!this.item.Id) {
+			this.formGroup.get('Status').markAsDirty();
+			this.formGroup.get('CountType').markAsDirty();
+		}
+		console.log(this.formGroup);
+		this.removeSelectedItems();
+		this.isAllChecked = false;
+		this.isAllCheckedModal = false;
+		this.toggleSelectAllInModal();
+		this.toggleSelectAll();
 
-    if (this.item?.CycleCountTasks?.some((d) => d.Status == 'New')) {
-      this.isShowRowTaskStatus = true;
-    }
+		if (this.item?.CycleCountTasks?.some((d) => d.Status == 'New')) {
+			this.isShowRowTaskStatus = true;
+		}
 
-    if (!this.isHideEqualityTask) {
-      this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
-        if (
-          c.controls.CycleCountTaskDetails?.value.every((e) => e.CountedQuantity === c.get('CurrentQuantity').value) ||
-          c.get('Status').value == 'Closed'
-        ) {
-          c.get('IsShowInModal').setValue(false);
-          console.log(c.get('IsShowInModal').value);
-        }
-      });
-    } else {
-      this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
-        c.get('IsShowInModal').setValue(true);
-        console.log(c.get('IsShowInModal').value);
-      });
-    }
-    //  this.patchFormValue();
-  }
+		if (!this.isHideEqualityTask) {
+			this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
+				if (c.controls.CycleCountTaskDetails?.value.every((e) => e.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
+					c.get('IsShowInModal').setValue(false);
+					console.log(c.get('IsShowInModal').value);
+				}
+			});
+		} else {
+			this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
+				c.get('IsShowInModal').setValue(true);
+				console.log(c.get('IsShowInModal').value);
+			});
+		}
+		//  this.patchFormValue();
+	}
 
-  _staffDataSource = {
-    searchProvider: this.staffService,
-    loading: false,
-    input$: new Subject<string>(),
-    selected: [],
-    items$: null,
-    initSearch() {
-      this.loading = false;
-      this.items$ = concat(
-        of(this.selected),
-        this.input$.pipe(
-          distinctUntilChanged(),
-          tap(() => (this.loading = true)),
-          switchMap((term) =>
-            this.searchProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
-              catchError(() => of([])), // empty list on error
-              tap(() => (this.loading = false)),
-            ),
-          ),
-        ),
-      );
-    },
-  };
+	_staffDataSource = {
+		searchProvider: this.staffService,
+		loading: false,
+		input$: new Subject<string>(),
+		selected: [],
+		items$: null,
+		initSearch() {
+			this.loading = false;
+			this.items$ = concat(
+				of(this.selected),
+				this.input$.pipe(
+					distinctUntilChanged(),
+					tap(() => (this.loading = true)),
+					switchMap((term) =>
+						this.searchProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
+							catchError(() => of([])), // empty list on error
+							tap(() => (this.loading = false))
+						)
+					)
+				)
+			);
+		},
+	};
 
-  private patchFieldsValue() {
-    this.pageConfig.showSpinner = true;
-    this.formGroup.controls.CycleCountDetails = new FormArray([]);
-    if (this.item.CycleCountDetails?.length) {
-      this.item.CycleCountDetails.forEach((i) => this.addField(i));
-    }
+	private patchFieldsValue() {
+		this.pageConfig.showSpinner = true;
+		this.formGroup.controls.CycleCountDetails = new FormArray([]);
+		if (this.item.CycleCountDetails?.length) {
+			this.item.CycleCountDetails.forEach((i) => this.addField(i));
+		}
 
-    if (!this.pageConfig.canEdit) {
-      this.formGroup.controls.CycleCountDetails.disable();
-      let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-      groups.controls.forEach((s) => {
-        if (
-          s.get('CycleCountTaskDetails').value?.length > 0 &&
-          s.get('Status').value != 'Closed' &&
-          s.get('IsCounted').value
-        ) {
-          s.get('IsCheckedModal').enable();
-        }
-      });
-    }
-    this.pageConfig.showSpinner = false;
-  }
+		if (!this.pageConfig.canEdit) {
+			this.formGroup.controls.CycleCountDetails.disable();
+			let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+			groups.controls.forEach((s) => {
+				if (s.get('CycleCountTaskDetails').value?.length > 0 && s.get('Status').value != 'Closed' && s.get('IsCounted').value) {
+					s.get('IsCheckedModal').enable();
+				}
+			});
+		}
+		this.pageConfig.showSpinner = false;
+	}
 
-  addField(field: any, markAsDirty = false) {
-    let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-    let group = this.formBuilder.group({
-      IDCycleCount: [this.item.Id],
-      Id: new FormControl({ value: field.Id, disabled: true }),
-      IDItem: new FormControl({ value: field.IDItem, disabled: false }),
-      IDUoM: new FormControl({ value: field.IDUoM, disabled: false }),
-      IDCycleCountTask: new FormControl({ value: field.IDCycleCountTask, disabled: true }),
+	addField(field: any, markAsDirty = false) {
+		let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+		let group = this.formBuilder.group({
+			IDCycleCount: [this.item.Id],
+			Id: new FormControl({ value: field.Id, disabled: true }),
+			IDItem: new FormControl({ value: field.IDItem, disabled: false }),
+			IDUoM: new FormControl({ value: field.IDUoM, disabled: false }),
+			IDCycleCountTask: new FormControl({ value: field.IDCycleCountTask, disabled: true }),
 
-      CycleCountTaskDetails: [field.CycleCountTaskDetails],
-      Status: [field.Status || 'New'],
-      CurrentQuantity: [field.CurrentQuantity],
-      IsCounted: [field.IsCounted],
-      CountedQuantity: new FormControl({ value: field.CountedQuantity, disabled: false }),
-      ZoneName: [field.ZoneName],
-      IDLocation: [field.IDLocation],
-      LocationName: [field.LocationName],
-      IDLot: [field.IDLot],
-      LotName: [field.LotName],
+			CycleCountTaskDetails: [field.CycleCountTaskDetails],
+			Status: [field.Status || 'New'],
+			CurrentQuantity: [field.CurrentQuantity],
+			IsCounted: [field.IsCounted],
+			CountedQuantity: new FormControl({ value: field.CountedQuantity, disabled: false }),
+			ZoneName: [field.ZoneName],
+			IDLocation: [field.IDLocation],
+			LocationName: [field.LocationName],
+			IDLot: [field.IDLot],
+			LotName: [field.LotName],
 
-      UoMName: new FormControl({ value: field.UoMName, disabled: true }), //de hien thi
-      ItemName: new FormControl({ value: field.ItemName, disabled: true }), //de hien thi
+			UoMName: new FormControl({ value: field.UoMName, disabled: true }), //de hien thi
+			ItemName: new FormControl({ value: field.ItemName, disabled: true }), //de hien thi
 
-      IsChecked: new FormControl({ value: false, disabled: false }),
-      IsCheckedModal: new FormControl({ value: false, disabled: field.Status == 'Closed' }),
-      IsShowInModal: new FormControl({ value: true, disabled: false }),
+			IsChecked: new FormControl({ value: false, disabled: false }),
+			IsCheckedModal: new FormControl({ value: false, disabled: field.Status == 'Closed' }),
+			IsShowInModal: new FormControl({ value: true, disabled: false }),
 
-      QuantityAdjusted: new FormControl({ value: 0, disabled: false }),
+			QuantityAdjusted: new FormControl({ value: 0, disabled: false }),
 
-      Sort: [field.Sort],
-      IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
-      IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
-      CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
-      CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
-      ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
-      ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
-    });
-    // field.DetailCounters?.forEach(d=>d.)
-    if (field.CycleCountTaskDetails?.length <= 0 || !field.IsCounted) {
-      group.get('IsCheckedModal').disable();
-    }
+			Sort: [field.Sort],
+			IsDisabled: new FormControl({ value: field.IsDisabled, disabled: true }),
+			IsDeleted: new FormControl({ value: field.IsDeleted, disabled: true }),
+			CreatedBy: new FormControl({ value: field.CreatedBy, disabled: true }),
+			CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
+			ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
+			ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
+		});
+		// field.DetailCounters?.forEach(d=>d.)
+		if (field.CycleCountTaskDetails?.length <= 0 || !field.IsCounted) {
+			group.get('IsCheckedModal').disable();
+		}
 
-    groups.push(group);
-  }
+		groups.push(group);
+	}
 
-  filterConfig(e) {
-    e.Logicals?.unshift({
-      Dimension: 'IDBranch',
-      Logicals: [],
-      Operator: '=',
-      Value: this.formGroup.get('IDBranch').value,
-    });
+	filterConfig(e) {
+		e.Logicals?.unshift({
+			Dimension: 'IDBranch',
+			Logicals: [],
+			Operator: '=',
+			Value: this.formGroup.get('IDBranch').value,
+		});
 
-    let config = {
-      Schema: { Id: 13, Type: 'DBView', Code: 'WMS_LotLocLPN', Name: 'Báo cáo tồn kho' },
-      CompareBy: [{ Property: 'ItemId' }, { Property: 'ItemName' }, { Property: 'UoMId' }],
-      MeasureBy: [{ Property: 'QuantityOnHand', Method: 'sum', Title: 'CurrentQuantity' }],
-      Transform: { Filter: e },
-    };
-    if (this.formGroup.get('IsCountByLocation').value) {
-      config.CompareBy.push({ Property: 'LocationId' }, { Property: 'LocationName' });
-    }
-    if (this.formGroup.get('IsCountByLot').value) {
-      config.CompareBy.push({ Property: 'LotId' });
-    }
-    this.env
-      .showLoading(
-        'Please wait for a few moments',
-        this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise(),
-      )
-      .then((data: any) => {
-        if (data) {
-          this.tempItemList = data.Data;
-          this.countItem = data.Data.length;
-          this.env
-            .showPrompt('Bạn có muốn áp dụng?', null, {
-              code: 'Tìm thấy {{value}} dòng dữ liệu',
-              value: this.countItem,
-            })
-            .then((_) => {
-              let obj: any = {
-                id: this.formGroup.get('Id').value,
-                items: this.tempItemList,
-              };
-              this.isModalAddRangesOpen = false;
-              this.env
-                .showLoading(
-                  'Please wait for a few moments',
-                  this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise(),
-                )
-                .then((result: any) => {
-                  if (result > 0) {
-                    this.refresh();
-                  }
-                });
-            })
-            .catch((err) => {});
-        }
-      });
-  }
+		let config = {
+			Schema: { Id: 13, Type: 'DBView', Code: 'WMS_LotLocLPN', Name: 'Báo cáo tồn kho' },
+			CompareBy: [{ Property: 'ItemId' }, { Property: 'ItemName' }, { Property: 'UoMId' }],
+			MeasureBy: [{ Property: 'QuantityOnHand', Method: 'sum', Title: 'CurrentQuantity' }],
+			Transform: { Filter: e },
+		};
+		if (this.formGroup.get('IsCountByLocation').value) {
+			config.CompareBy.push({ Property: 'LocationId' }, { Property: 'LocationName' });
+		}
+		if (this.formGroup.get('IsCountByLot').value) {
+			config.CompareBy.push({ Property: 'LotId' });
+		}
+		this.env
+			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
+			.then((data: any) => {
+				if (data) {
+					this.tempItemList = data.Data;
+					this.countItem = data.Data.length;
+					this.env
+						.showPrompt('Bạn có muốn áp dụng?', null, {
+							code: 'Tìm thấy {{value}} dòng dữ liệu',
+							value: this.countItem,
+						})
+						.then((_) => {
+							let obj: any = {
+								id: this.formGroup.get('Id').value,
+								items: this.tempItemList,
+							};
+							this.isModalAddRangesOpen = false;
+							this.env
+								.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise())
+								.then((result: any) => {
+									if (result > 0) {
+										this.refresh();
+									}
+								});
+						})
+						.catch((err) => {});
+				}
+			});
+	}
 
-  changeCountType(e) {
-    if (e.Code == 'Simple') {
-      //kiểm đơn
-      this.formGroup.get('Counters').setValue(null);
-      this.formGroup.get('_Counters').setValue(null);
-    }
-    this.formGroup.get('Counters').markAsDirty();
-    this.saveChange();
-  }
-  changeCounters(e) {
-    this.formGroup.get('Counters').setValue(JSON.stringify(e));
-    this.formGroup.get('Counters').markAsDirty();
-    this.saveChange();
-  }
+	changeCountType(e) {
+		if (e.Code == 'Simple') {
+			//kiểm đơn
+			this.formGroup.get('Counters').setValue(null);
+			this.formGroup.get('_Counters').setValue(null);
+		}
+		this.formGroup.get('Counters').markAsDirty();
+		this.saveChange();
+	}
+	changeCounters(e) {
+		this.formGroup.get('Counters').setValue(JSON.stringify(e));
+		this.formGroup.get('Counters').markAsDirty();
+		this.saveChange();
+	}
 
-  changeWarehouse(ev) {
-    this.formGroup.get('IDBranch').setValue(ev.Id);
-    this.formGroup.get('IDBranch').markAsDirty();
-    this.saveChange();
-  }
+	changeWarehouse(ev) {
+		this.formGroup.get('IDBranch').setValue(ev.Id);
+		this.formGroup.get('IDBranch').markAsDirty();
+		this.saveChange();
+	}
 
-  changeStatus() {
-    this.query.ToStatus = 'Open';
-    this.query.Id = this.formGroup.get('Id').value;
-    this.env
-      .showLoading(
-        'Please wait for a few moments',
-        this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeStatus/', this.query).toPromise(),
-      )
-      .then((result: any) => {
-        this.refresh();
-        this.env.showMessage('success', 'success');
+	changeStatus() {
+		this.query.ToStatus = 'Open';
+		this.query.Id = this.formGroup.get('Id').value;
+		this.env
+			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeStatus/', this.query).toPromise())
+			.then((result: any) => {
+				this.refresh();
+				this.env.showMessage('success', 'success');
+			})
+			.catch((err) => {
+				this.env.showMessage(err.error?.ExceptionMessage || err, 'danger');
+			});
+		this.query.Id = undefined;
+	}
+	changeShowTaskDetail() {
+		this.isHideEqualityTask = !this.isHideEqualityTask;
+		if (this.isHideEqualityTask) {
+			this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
+				if (c.controls.CycleCountTaskDetails?.value.every((e) => e.CountedQuantity === c.get('CurrentQuantity').value) || c.get('Status').value == 'Closed') {
+					c.get('IsShowInModal').setValue(false);
+					console.log(c.get('IsShowInModal').value);
+				}
+			});
+		} else {
+			this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
+				c.get('IsShowInModal').setValue(true);
+				console.log(c.get('IsShowInModal').value);
+			});
+		}
+	}
 
-      })
-      .catch(err=>{
-        this.env.showMessage(err.error?.ExceptionMessage || err, 'danger');
+	changeLocationAndLot(e, type) {
+		if (this.submitAttempt) {
+			this.formGroup.get('IsCountBy' + type).setValue(!this.formGroup.get('IsCountBy' + type).value);
+			return;
+		}
+		this.submitAttempt = true;
+		let detailLength = this.formGroup.getRawValue().CycleCountDetails.length;
+		if (detailLength > 0) {
+			this.env
+				.showPrompt(
+					{
+						code: 'Thay đổi {{value}} sẽ xoá hết chi tiết hàng kiểm hiện tại, bạn có tiếp tục?',
+						value: { value: type },
+					},
+					null,
+					{ code: 'Xóa {{value1}} dòng', value: { value1: detailLength } }
+				)
+				.then((_) => {
+					this.cycleCountDetailService
+						.delete(this.formGroup.getRawValue().CycleCountDetails)
+						.then((rs) => {
+							this.removeSelectedItems();
+							this.formGroup.get('IsCountBy' + type).markAsDirty();
+							this.submitAttempt = false;
+							this.saveChange();
+							this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+							this.isAllChecked = false;
+							let value = this.formGroup
+								.get('CycleCountDetails')
+								.value.map((d) => d.IDItem)
+								.join(',');
+							let filter = {
+								Dimension: 'logical',
+								Logicals: [
+									{
+										Dimension: 'ItemId',
+										Logicals: [],
+										Operator: 'IN',
+										Value: value,
+									},
+									{
+										Dimension: 'IDBranch',
+										Logicals: [],
+										Operator: '=',
+										Value: this.formGroup.get('IDBranch').value,
+									},
+								],
+								Operator: 'AND',
+								Value: null,
+							};
 
-      });
-    this.query.Id = undefined;
-  }
-  changeShowTaskDetail() {
-    this.isHideEqualityTask = !this.isHideEqualityTask;
-    if (this.isHideEqualityTask) {
-      this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
-        if (
-          c.controls.CycleCountTaskDetails?.value.every((e) => e.CountedQuantity === c.get('CurrentQuantity').value) ||
-          c.get('Status').value == 'Closed'
-        ) {
-          c.get('IsShowInModal').setValue(false);
-          console.log(c.get('IsShowInModal').value);
-        }
-      });
-    } else {
-      this.formGroup.get('CycleCountDetails')['controls'].forEach((c) => {
-        c.get('IsShowInModal').setValue(true);
-        console.log(c.get('IsShowInModal').value);
-      });
-    }
-  }
+							let config = {
+								Schema: { Id: 13, Type: 'DBView', Code: 'WMS_LotLocLPN', Name: 'Báo cáo tồn kho' },
+								CompareBy: [{ Property: 'ItemId' }, { Property: 'ItemName' }, { Property: 'UoMId' }],
+								MeasureBy: [{ Property: 'QuantityOnHand', Method: 'sum', Title: 'CurrentQuantity' }],
+								Transform: { Filter: filter },
+							};
+							if (this.formGroup.get('IsCountByLocation').value) {
+								config.CompareBy.push({ Property: 'LocationId' }, { Property: 'LocationName' });
+							}
+							if (this.formGroup.get('IsCountByLot').value) {
+								config.CompareBy.push({ Property: 'LotId' });
+							}
+							let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+							groups.clear();
+							this.env
+								.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise())
+								.then((data: any) => {
+									if (data) {
+										let obj: any = {
+											id: this.formGroup.get('Id').value,
+											items: data.Data,
+										};
+										this.env
+											.showLoading(
+												'Please wait for a few moments',
+												this.pageProvider.commonService.connect('POST', 'WMS/CycleCount/PostListDetail', obj).toPromise()
+											)
+											.then((result: any) => {
+												this.submitAttempt = false;
+												this.refresh();
+											});
+									}
+								});
+						})
+						.catch((err) => {
+							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+							this.submitAttempt = false;
+						});
+				})
+				.catch((er) => {
+					let formControlName = '';
+					if (type == 'Location') formControlName = 'IsCountByLocation';
+					if (type == 'Lot') formControlName = 'IsCountByLot';
+					this.formGroup.get(formControlName).setValue(!this.formGroup.get(formControlName).value);
+					this.submitAttempt = false;
+				});
+		} else {
+			this.submitAttempt = false;
+			this.formGroup.get('IsCountBy' + type).markAsDirty();
+			this.saveChange();
+		}
+	}
 
-  changeLocationAndLot(e, type) {
-    if (this.submitAttempt) {
-      this.formGroup.get('IsCountBy' + type).setValue(!this.formGroup.get('IsCountBy' + type).value);
-      return;
-    }
-    this.submitAttempt = true;
-    let detailLength = this.formGroup.getRawValue().CycleCountDetails.length;
-    if (detailLength > 0) {
-      this.env
-        .showPrompt(
-          {
-            code: 'Thay đổi {{value}} sẽ xoá hết chi tiết hàng kiểm hiện tại, bạn có tiếp tục?',
-            value: { value: type },
-          },
-          null,
-          { code: 'Xóa {{value1}} dòng', value: { value1: detailLength } },
-        )
-        .then((_) => {
-          this.cycleCountDetailService
-            .delete(this.formGroup.getRawValue().CycleCountDetails)
-            .then((rs) => {
-              this.removeSelectedItems();
-              this.formGroup.get('IsCountBy' + type).markAsDirty();
-              this.submitAttempt = false;
-              this.saveChange();
-              this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
-              this.isAllChecked = false;
-              let value = this.formGroup
-                .get('CycleCountDetails')
-                .value.map((d) => d.IDItem)
-                .join(',');
-              let filter = {
-                Dimension: 'logical',
-                Logicals: [
-                  {
-                    Dimension: 'ItemId',
-                    Logicals: [],
-                    Operator: 'IN',
-                    Value: value,
-                  },
-                  {
-                    Dimension: 'IDBranch',
-                    Logicals: [],
-                    Operator: '=',
-                    Value: this.formGroup.get('IDBranch').value,
-                  },
-                ],
-                Operator: 'AND',
-                Value: null,
-              };
+	trackChangeCountedFormGroup: any = new FormArray([]);
+	isSubmitUpdateButton = false;
+	setCounterForCycleCountDetail(fg, task) {
+		if (fg.get('IDCycleCountTask').value == task.IDTask) {
+			return;
+		}
+		fg.get('CountedQuantity').setValue(task.CountedQuantity);
+		fg.get('IsCounted').setValue(true);
+		fg.get('IDCycleCountTask').setValue(task.IDTask);
 
-              let config = {
-                Schema: { Id: 13, Type: 'DBView', Code: 'WMS_LotLocLPN', Name: 'Báo cáo tồn kho' },
-                CompareBy: [{ Property: 'ItemId' }, { Property: 'ItemName' }, { Property: 'UoMId' }],
-                MeasureBy: [{ Property: 'QuantityOnHand', Method: 'sum', Title: 'CurrentQuantity' }],
-                Transform: { Filter: filter },
-              };
-              if (this.formGroup.get('IsCountByLocation').value) {
-                config.CompareBy.push({ Property: 'LocationId' }, { Property: 'LocationName' });
-              }
-              if (this.formGroup.get('IsCountByLot').value) {
-                config.CompareBy.push({ Property: 'LotId' });
-              }
-              let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-              groups.clear();
-              this.env
-                .showLoading(
-                  'Please wait for a few moments',
-                  this.pageProvider.commonService.connect('POST', 'BI/Schema/QueryReportData', config).toPromise(),
-                )
-                .then((data: any) => {
-                  if (data) {
-                    let obj: any = {
-                      id: this.formGroup.get('Id').value,
-                      items: data.Data,
-                    };
-                    this.env
-                      .showLoading(
-                        'Please wait for a few moments',
-                        this.pageProvider.commonService
-                          .connect('POST', 'WMS/CycleCount/PostListDetail', obj)
-                          .toPromise(),
-                      )
-                      .then((result: any) => {
-                        this.submitAttempt = false;
-                        this.refresh();
-                      });
-                  }
-                });
-            })
-            .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-              this.submitAttempt = false;
-            });
-        })
-        .catch((er) => {
-          let formControlName = '';
-          if (type == 'Location') formControlName = 'IsCountByLocation';
-          if (type == 'Lot') formControlName = 'IsCountByLot';
-          this.formGroup.get(formControlName).setValue(!this.formGroup.get(formControlName).value);
-          this.submitAttempt = false;
-        });
-    } else {
-      this.submitAttempt = false;
-      this.formGroup.get('IsCountBy' + type).markAsDirty();
-      this.saveChange();
-    }
-  }
+		fg.get('CountedQuantity').markAsDirty();
+		fg.get('IsCounted').markAsDirty();
+		fg.get('IDCycleCountTask').markAsDirty();
+		this.isSubmitUpdateButton = false;
+		this.trackChangeCountedFormGroup.push(fg);
+	}
+	createAdjustment() {
+		if (this.checkCycleCountDetailsInModal.controls.some((d) => d.get('CountedQuantity').value == d.get('CurrentQuantity').value)) {
+			this.env.showMessage('Counted quantity and current quantity are equally ', 'danger');
+			return;
+		}
+		let idsCycleCountDetail = this.checkCycleCountDetailsInModal.getRawValue().map((m) => m.Id);
+		let obj = {
+			id: this.item.Id,
+			idsCycleCountDetail: idsCycleCountDetail,
+		};
+		// this.isModalMergeOpen = false;
+		this.pageProvider.commonService
+			.connect('POST', 'WMS/CycleCount/PostAdjustment/', obj)
+			.toPromise()
+			.then((result: any) => {
+				if (result) {
+					let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+					idsCycleCountDetail.forEach((id) => {
+						let fg = groups.controls.find((d) => d.get('Id').value == id);
+						fg?.get('Status').setValue('Closed');
 
-  trackChangeCountedFormGroup: any = new FormArray([]);
-  isSubmitUpdateButton = false;
-  setCounterForCycleCountDetail(fg, task) {
-    if (fg.get('IDCycleCountTask').value == task.IDTask) {
-      return;
-    }
-    fg.get('CountedQuantity').setValue(task.CountedQuantity);
-    fg.get('IsCounted').setValue(true);
-    fg.get('IDCycleCountTask').setValue(task.IDTask);
+						fg?.get('IsCheckedModal').setValue(false);
+						fg?.disable();
+						let controlsInModel = <FormArray>this.formGroup.controls.checkCycleCountDetailsInModal;
+						this.checkCycleCountDetails.controls.forEach((fg) => {
+							const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
+							controlsInModel.removeAt(indexToRemove);
+						});
+						this.checkCycleCountDetailsInModal.removeAt(fg);
+					});
+					this.env.showMessage('Saving completed!', 'success');
+				}
+			})
+			.catch((err) => {
+				this.env.showMessage('Cannot save, please try again', 'danger');
+				console.log(err);
+			});
+	}
+	updateCountedQuantity() {
+		this.isSubmitUpdateButton = true;
+		let filteredCycleCountDetails = this.formGroup
+			.getRawValue()
+			.CycleCountDetails.filter((detail) => {
+				if (detail.CycleCountTaskDetails && detail.CycleCountTaskDetails.length > 0 && !detail.IsCounted) {
+					return detail.CycleCountTaskDetails.every((task) => task.CountedQuantity === detail.CurrentQuantity);
+				} else {
+					return false;
+				}
+			})
+			.map((detail) => ({
+				Id: detail.Id,
+				CountedQuantity: detail.CurrentQuantity,
+				IDCycleCountTask: null,
+			}));
+		let obj = filteredCycleCountDetails.concat(
+			this.trackChangeCountedFormGroup.getRawValue().map((m) => ({
+				Id: m.Id,
+				CountedQuantity: m.CountedQuantity,
+				IDCycleCountTask: m.IDCycleCountTask,
+			}))
+		);
+		if (obj.length == 0) return;
+		this.env.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('PUT', 'WMS/CycleCount/PutCustomListDetail', obj).toPromise()).then((rs) => {
+			if (rs) {
+				this.isSubmitUpdateButton = true;
+				// this.trackChangeCountedFormGroup.controls.forEach(s=>{
+				//     if(s.get('Status').value != 'Closed'){
+				//         s.get('IsCheckedModal').enable();
+				//     }
+				// })
+				this.trackChangeCountedFormGroup = new FormArray([]);
+				this.loadedData();
+				this.env.showMessage('Saving completed!', 'success');
+				// this.dismissModal();
+			} else {
+				this.env.showMessage('Cannot save, please try again', 'danger');
+			}
+		});
+	}
 
-    fg.get('CountedQuantity').markAsDirty();
-    fg.get('IsCounted').markAsDirty();
-    fg.get('IDCycleCountTask').markAsDirty();
-    this.isSubmitUpdateButton = false;
-    this.trackChangeCountedFormGroup.push(fg);
-  }
-  createAdjustment() {
-    if (
-      this.checkCycleCountDetailsInModal.controls.some(
-        (d) => d.get('CountedQuantity').value == d.get('CurrentQuantity').value,
-      )
-    ) {
-      this.env.showMessage('Counted quantity and current quantity are equally ', 'danger');
-      return;
-    }
-    let idsCycleCountDetail = this.checkCycleCountDetailsInModal.getRawValue().map((m) => m.Id);
-    let obj = {
-      id: this.item.Id,
-      idsCycleCountDetail: idsCycleCountDetail,
-    };
-    // this.isModalMergeOpen = false;
-    this.pageProvider.commonService
-      .connect('POST', 'WMS/CycleCount/PostAdjustment/', obj)
-      .toPromise()
-      .then((result: any) => {
-        if (result) {
-          let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-          idsCycleCountDetail.forEach((id) => {
-            let fg = groups.controls.find((d) => d.get('Id').value == id);
-            fg?.get('Status').setValue('Closed');
+	isModalAddRangesOpen = false;
+	isModalMergeOpen = false;
+	presentModal(modal) {
+		if (modal == 'addRanges') {
+			this.isModalAddRangesOpen = true;
+			this.isModalMergeOpen = false;
+		}
+		if (modal == 'merge') {
+			this.isModalMergeOpen = true;
+			this.isModalAddRangesOpen = false;
+		}
+	}
 
-            fg?.get('IsCheckedModal').setValue(false);
-            fg?.disable();
-            let controlsInModel = <FormArray>this.formGroup.controls.checkCycleCountDetailsInModal;
-            this.checkCycleCountDetails.controls.forEach((fg) => {
-              const indexToRemove = groups.controls.findIndex(
-                (control) => control.get('Id').value === fg.get('Id').value,
-              );
-              controlsInModel.removeAt(indexToRemove);
-            });
-            this.checkCycleCountDetailsInModal.removeAt(fg);
-          });
-          this.env.showMessage('Saving completed!', 'success');
-        }
-      })
-      .catch((err) => {
-        this.env.showMessage('Cannot save, please try again', 'danger');
-        console.log(err);
-      });
-  }
-  updateCountedQuantity() {
-    this.isSubmitUpdateButton = true;
-    let filteredCycleCountDetails = this.formGroup
-      .getRawValue()
-      .CycleCountDetails.filter((detail) => {
-        if (detail.CycleCountTaskDetails && detail.CycleCountTaskDetails.length > 0 && !detail.IsCounted) {
-          return detail.CycleCountTaskDetails.every((task) => task.CountedQuantity === detail.CurrentQuantity);
-        } else {
-          return false;
-        }
-      })
-      .map((detail) => ({
-        Id: detail.Id,
-        CountedQuantity: detail.CurrentQuantity,
-        IDCycleCountTask: null,
-      }));
-    let obj = filteredCycleCountDetails.concat(
-      this.trackChangeCountedFormGroup.getRawValue().map((m) => ({
-        Id: m.Id,
-        CountedQuantity: m.CountedQuantity,
-        IDCycleCountTask: m.IDCycleCountTask,
-      })),
-    );
-    if (obj.length == 0) return;
-    this.env
-      .showLoading(
-        'Please wait for a few moments',
-        this.pageProvider.commonService.connect('PUT', 'WMS/CycleCount/PutCustomListDetail', obj).toPromise(),
-      )
-      .then((rs) => {
-        if (rs) {
-          this.isSubmitUpdateButton = true;
-          // this.trackChangeCountedFormGroup.controls.forEach(s=>{
-          //     if(s.get('Status').value != 'Closed'){
-          //         s.get('IsCheckedModal').enable();
-          //     }
-          // })
-          this.trackChangeCountedFormGroup = new FormArray([]);
-          this.loadedData();
-          this.env.showMessage('Saving completed!', 'success');
-          // this.dismissModal();
-        } else {
-          this.env.showMessage('Cannot save, please try again', 'danger');
-        }
-      });
-  }
+	dismissModal(type) {
+		this.isModalAddRangesOpen = false;
+		this.isModalMergeOpen = false;
+		this.isSubmitUpdateButton = false;
+	}
 
-  isModalAddRangesOpen = false;
-  isModalMergeOpen = false;
-  presentModal(modal) {
-    if (modal == 'addRanges') {
-      this.isModalAddRangesOpen = true;
-      this.isModalMergeOpen = false;
-    }
-    if (modal == 'merge') {
-      this.isModalMergeOpen = true;
-      this.isModalAddRangesOpen = false;
-    }
-  }
+	removeField(fg, j) {
+		let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+		let itemToDelete = fg.getRawValue();
+		this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+			this.cycleCountDetailService.delete(itemToDelete).then((result) => {
+				groups.removeAt(j);
+			});
+		});
+	}
 
-  dismissModal(type) {
-    this.isModalAddRangesOpen = false;
-    this.isModalMergeOpen = false;
-    this.isSubmitUpdateButton = false;
-  }
+	checkCycleCountDetails: any = new FormArray([]);
+	checkCycleCountDetailsInModal: any = new FormArray([]);
 
-  removeField(fg, j) {
-    let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-    let itemToDelete = fg.getRawValue();
-    this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
-      this.cycleCountDetailService.delete(itemToDelete).then((result) => {
-        groups.removeAt(j);
-      });
-    });
-  }
+	changeSelection(i, view, e = null) {
+		if (view == 'main') {
+			if (i.get('IsChecked').value) {
+				this.checkCycleCountDetails.push(i);
+			} else {
+				let index = this.checkCycleCountDetails.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
+				this.checkCycleCountDetails.removeAt(index);
+			}
+		}
+		if (view == 'modal') {
+			if (i.get('IsCheckedModal').value) {
+				this.checkCycleCountDetailsInModal.push(i);
+			} else {
+				let index = this.checkCycleCountDetailsInModal.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
+				this.checkCycleCountDetailsInModal.removeAt(index);
+			}
+		}
+	}
 
-  checkCycleCountDetails: any = new FormArray([]);
-  checkCycleCountDetailsInModal: any = new FormArray([]);
+	deleteItems() {
+		if (this.pageConfig.canDelete) {
+			let itemsToDelete = this.checkCycleCountDetails.getRawValue();
+			this.env
+				.showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Xóa {{value1}} đang chọn?',
+					value: { value1: itemsToDelete.length },
+				})
+				.then((_) => {
+					this.env
+						.showLoading('Please wait for a few moments', this.cycleCountDetailService.delete(itemsToDelete))
+						.then((_) => {
+							this.removeSelectedItems();
+							this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
+							this.isAllChecked = false;
+						})
+						.catch((err) => {
+							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+						});
+				});
+		}
+	}
 
-  changeSelection(i, view, e = null) {
-    if (view == 'main') {
-      if (i.get('IsChecked').value) {
-        this.checkCycleCountDetails.push(i);
-      } else {
-        let index = this.checkCycleCountDetails.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
-        this.checkCycleCountDetails.removeAt(index);
-      }
-    }
-    if (view == 'modal') {
-      if (i.get('IsCheckedModal').value) {
-        this.checkCycleCountDetailsInModal.push(i);
-      } else {
-        let index = this.checkCycleCountDetailsInModal.getRawValue().findIndex((d) => d.Id == i.get('Id').value);
-        this.checkCycleCountDetailsInModal.removeAt(index);
-      }
-    }
-  }
+	removeSelectedItems() {
+		let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+		this.checkCycleCountDetails.controls.forEach((fg) => {
+			const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
+			groups.removeAt(indexToRemove);
+		});
 
-  deleteItems() {
-    if (this.pageConfig.canDelete) {
-      let itemsToDelete = this.checkCycleCountDetails.getRawValue();
-      this.env
-        .showPrompt(
-          { code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: { value: itemsToDelete.length } },
-          null,
-          { code: 'Xóa {{value1}} đang chọn?', value: { value1: itemsToDelete.length } },
-        )
-        .then((_) => {
-          this.env
-            .showLoading('Please wait for a few moments', this.cycleCountDetailService.delete(itemsToDelete))
-            .then((_) => {
-              this.removeSelectedItems();
-              this.env.showMessage('erp.app.app-component.page-bage.delete-complete', 'success');
-              this.isAllChecked = false;
-            })
-            .catch((err) => {
-              this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
-            });
-        });
-    }
-  }
+		this.checkCycleCountDetails = new FormArray([]);
+	}
 
-  removeSelectedItems() {
-    let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-    this.checkCycleCountDetails.controls.forEach((fg) => {
-      const indexToRemove = groups.controls.findIndex((control) => control.get('Id').value === fg.get('Id').value);
-      groups.removeAt(indexToRemove);
-    });
+	sortDetail: any = {};
+	sortToggle(field) {
+		if (!this.sortDetail[field]) {
+			this.sortDetail[field] = field;
+		} else if (this.sortDetail[field] == field) {
+			this.sortDetail[field] = field + '_desc';
+		} else {
+			delete this.sortDetail[field];
+		}
+		// let s = Object.keys(sortTerms).reduce(function (res, v) {
+		//     return res.concat(sortTerms[v]);
+		// }, []);
+		if (Object.keys(this.sortDetail).length === 0) {
+			this.refresh();
+		} else {
+			this.reInitCycleCountDetails();
+		}
+	}
 
-    this.checkCycleCountDetails = new FormArray([]);
-  }
+	reInitCycleCountDetails() {
+		const cycleCountDetailsArray = this.formGroup.get('CycleCountDetails') as FormArray;
+		this.item.CycleCountDetails = cycleCountDetailsArray.getRawValue();
+		for (const key in this.sortDetail) {
+			if (this.sortDetail.hasOwnProperty(key)) {
+				const value = this.sortDetail[key];
+				this.sortByKey(value);
+			}
+		}
+		cycleCountDetailsArray.clear();
+		this.item.CycleCountDetails.forEach((s) => this.addField(s));
+	}
 
-  sortDetail: any = {};
-  sortToggle(field) {
-    if (!this.sortDetail[field]) {
-      this.sortDetail[field] = field;
-    } else if (this.sortDetail[field] == field) {
-      this.sortDetail[field] = field + '_desc';
-    } else {
-      delete this.sortDetail[field];
-    }
-    // let s = Object.keys(sortTerms).reduce(function (res, v) {
-    //     return res.concat(sortTerms[v]);
-    // }, []);
-    if (Object.keys(this.sortDetail).length === 0) {
-      this.refresh();
-    } else {
-      this.reInitCycleCountDetails();
-    }
-  }
+	sortByKey(key: string, desc: boolean = false) {
+		if (key.includes('_desc')) {
+			key = key.replace('_desc', '');
+			desc = true;
+		}
+		this.item.CycleCountDetails.sort((a, b) => {
+			const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+			return desc ? -comparison : comparison;
+		});
+	}
 
-  reInitCycleCountDetails() {
-    const cycleCountDetailsArray = this.formGroup.get('CycleCountDetails') as FormArray;
-    this.item.CycleCountDetails = cycleCountDetailsArray.getRawValue();
-    for (const key in this.sortDetail) {
-      if (this.sortDetail.hasOwnProperty(key)) {
-        const value = this.sortDetail[key];
-        this.sortByKey(value);
-      }
-    }
-    cycleCountDetailsArray.clear();
-    this.item.CycleCountDetails.forEach((s) => this.addField(s));
-  }
+	markNestedNode(ls, Id) {
+		ls.filter((d) => d.IDParent == Id).forEach((i) => {
+			if (i.Type == 'Warehouse') i.disabled = false;
+			this.markNestedNode(ls, i.Id);
+		});
+	}
 
-  sortByKey(key: string, desc: boolean = false) {
-    if (key.includes('_desc')) {
-      key = key.replace('_desc', '');
-      desc = true;
-    }
-    this.item.CycleCountDetails.sort((a, b) => {
-      const comparison = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
-      return desc ? -comparison : comparison;
-    });
-  }
+	isAllChecked: boolean = false;
+	isAllCheckedModal: boolean = false;
+	toggleSelectAllInModal() {
+		let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+		if (!this.isAllCheckedModal) {
+			this.checkCycleCountDetailsInModal = new FormArray([]);
+		}
+		groups.controls.forEach((i) => {
+			if (!i.get('IsCheckedModal').disabled && i.get('Status').value != 'Closed' && i.get('IsShowInModal').value && i.getRawValue().CycleCountTaskDetails?.length > 0) {
+				i.get('IsCheckedModal').setValue(this.isAllCheckedModal);
+				if (this.isAllCheckedModal) this.checkCycleCountDetailsInModal.push(i);
+			}
+		});
+		console.log(this.checkCycleCountDetailsInModal);
+	}
+	toggleSelectAll() {
+		if (!this.pageConfig.canEdit) return;
+		let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
+		if (!this.isAllChecked) {
+			this.checkCycleCountDetails = new FormArray([]);
+		}
+		groups.controls.forEach((i) => {
+			i.get('IsChecked').setValue(this.isAllChecked);
+			if (this.isAllChecked) this.checkCycleCountDetails.push(i);
+		});
+	}
 
-  markNestedNode(ls, Id) {
-    ls.filter((d) => d.IDParent == Id).forEach((i) => {
-      if (i.Type == 'Warehouse') i.disabled = false;
-      this.markNestedNode(ls, i.Id);
-    });
-  }
+	@ViewChild('importfile') importfile: any;
+	onClickImport() {
+		this.importfile.nativeElement.value = '';
+		this.importfile.nativeElement.click();
+	}
 
-  isAllChecked: boolean = false;
-  isAllCheckedModal: boolean = false;
-  toggleSelectAllInModal() {
-    let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-    if (!this.isAllCheckedModal) {
-      this.checkCycleCountDetailsInModal = new FormArray([]);
-    }
-    groups.controls.forEach((i) => {
-      if (
-        !i.get('IsCheckedModal').disabled &&
-        i.get('Status').value != 'Closed' &&
-        i.get('IsShowInModal').value &&
-        i.getRawValue().CycleCountTaskDetails?.length > 0
-      ) {
-        i.get('IsCheckedModal').setValue(this.isAllCheckedModal);
-        if (this.isAllCheckedModal) this.checkCycleCountDetailsInModal.push(i);
-      }
-    });
-    console.log(this.checkCycleCountDetailsInModal);
-  }
-  toggleSelectAll() {
-    if (!this.pageConfig.canEdit) return;
-    let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
-    if (!this.isAllChecked) {
-      this.checkCycleCountDetails = new FormArray([]);
-    }
-    groups.controls.forEach((i) => {
-      i.get('IsChecked').setValue(this.isAllChecked);
-      if (this.isAllChecked) this.checkCycleCountDetails.push(i);
-    });
-  }
+	async import(event) {
+		if (this.submitAttempt) {
+			this.env.showMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
+			return;
+		}
+		this.submitAttempt = true;
+		this.env.publishEvent({
+			Code: 'app:ShowAppMessage',
+			IsShow: true,
+			Id: 'FileImport',
+			Icon: 'flash',
+			IsBlink: true,
+			Color: 'danger',
+			Message: 'đang import',
+		});
+		const formData: FormData = new FormData();
+		formData.append('fileKey', event.target.files[0], event.target.files[0].name);
+		this.env
+			.showLoading(
+				'Please wait for a few moments',
+				this.commonService.connect('UPLOAD', ApiSetting.apiDomain('WMS/CycleCount/ImportExcel/' + this.formGroup.get('Id').value), formData).toPromise()
+			)
+			.then((resp: any) => {
+				this.submitAttempt = false;
+				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
+				this.refresh();
+				if (resp.ErrorList && resp.ErrorList.length) {
+					let message = '';
+					for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
+						if (i == 5) message += '<br> Còn nữa...';
+						else {
+							const e = resp.ErrorList[i];
+							message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
+						}
+					this.env
+						.showPrompt(
+							{
+								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								value: { value: resp.ErrorList.length, value1: message },
+							},
+							'Bạn có muốn xem lại các mục bị lỗi?',
+							'Có lỗi import dữ liệu'
+						)
+						.then((_) => {
+							this.downloadURLContent(resp.FileUrl);
+						})
+						.catch((e) => {});
+				} else {
+					this.env.showMessage('Import completed!', 'success');
+				}
+				// this.download(data);
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
+				this.refresh();
+				this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
+			});
+	}
 
-  @ViewChild('importfile') importfile: any;
-  onClickImport() {
-    this.importfile.nativeElement.value = '';
-    this.importfile.nativeElement.click();
-  }
+	async export() {
+		if (this.submitAttempt) return;
+		this.query.IDCycleCount = this.formGroup.get('Id').value;
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.cycleCountDetailService.export(this.query))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+	}
+	///////// Tá
+	@ViewChild('importfileTask') importfileTask: any;
+	onClickImportTask() {
+		this.importfileTask.nativeElement.value = '';
+		this.importfileTask.nativeElement.click();
+	}
 
-  async import(event) {
-    if (this.submitAttempt) {
-      this.env.showMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
-      return;
-    }
-    this.submitAttempt = true;
-    this.env.publishEvent({
-      Code: 'app:ShowAppMessage',
-      IsShow: true,
-      Id: 'FileImport',
-      Icon: 'flash',
-      IsBlink: true,
-      Color: 'danger',
-      Message: 'đang import',
-    });
-    const formData: FormData = new FormData();
-    formData.append('fileKey', event.target.files[0], event.target.files[0].name);
-    this.env
-      .showLoading(
-        'Please wait for a few moments',
-        this.commonService
-          .connect(
-            'UPLOAD',
-            ApiSetting.apiDomain('WMS/CycleCount/ImportExcel/' + this.formGroup.get('Id').value),
-            formData,
-          )
-          .toPromise(),
-      )
-      .then((resp: any) => {
-        this.submitAttempt = false;
-        this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
-        this.refresh();
-        if (resp.ErrorList && resp.ErrorList.length) {
-          let message = '';
-          for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
-            if (i == 5) message += '<br> Còn nữa...';
-            else {
-              const e = resp.ErrorList[i];
-              message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
-            }
-          this.env
-            .showPrompt(
-              {
-                code: 'Có {{value}} lỗi khi import: {{value1}}',
-                value: { value: resp.ErrorList.length, value1: message },
-              },
-              'Bạn có muốn xem lại các mục bị lỗi?',
-              'Có lỗi import dữ liệu',
-            )
-            .then((_) => {
-              this.downloadURLContent(resp.FileUrl);
-            })
-            .catch((e) => {});
-        } else {
-          this.env.showMessage('Import completed!', 'success');
-        }
-        // this.download(data);
-      })
-      .catch((err) => {
-        this.submitAttempt = false;
-        this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
-        this.refresh();
-        this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
-      });
-  }
+	async importTask(event) {
+		if (this.submitAttempt) {
+			this.env.showMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
+			return;
+		}
+		this.submitAttempt = true;
 
-  async export() {
-    if (this.submitAttempt) return;
-    this.query.IDCycleCount = this.formGroup.get('Id').value;
-    this.submitAttempt = true;
-    this.env
-      .showLoading('Please wait for a few moments', this.cycleCountDetailService.export(this.query))
-      .then((response: any) => {
-        this.downloadURLContent(response);
-        this.submitAttempt = false;
-      })
-      .catch((err) => {
-        this.submitAttempt = false;
-      });
-  }
-  ///////// Tá
-  @ViewChild('importfileTask') importfileTask: any;
-  onClickImportTask() {
-    this.importfileTask.nativeElement.value = '';
-    this.importfileTask.nativeElement.click();
-  }
+		this.dismissModal('merge');
+		this.env.publishEvent({
+			Code: 'app:ShowAppMessage',
+			IsShow: true,
+			Id: 'FileImport',
+			Icon: 'flash',
+			IsBlink: true,
+			Color: 'danger',
+			Message: 'đang import',
+		});
+		const formData: FormData = new FormData();
+		formData.append('fileKey', event.target.files[0], event.target.files[0].name);
+		this.env
+			.showLoading(
+				'Please wait for a few moments',
+				this.commonService.connect('UPLOAD', ApiSetting.apiDomain('WMS/CycleCount/ImportTaskDetail/' + this.formGroup.get('Id').value), formData).toPromise()
+			)
+			.then((resp: any) => {
+				this.submitAttempt = false;
+				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
+				if (resp.ErrorList && resp.ErrorList.length) {
+					let message = '';
+					for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
+						if (i == 5) message += '<br> Còn nữa...';
+						else {
+							const e = resp.ErrorList[i];
+							message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
+						}
+					this.env
+						.showPrompt(
+							{
+								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								value: { value: resp.ErrorList.length, value1: message },
+							},
+							'Bạn có muốn xem lại các mục bị lỗi?',
+							'Có lỗi import dữ liệu'
+						)
+						.then((_) => {
+							this.downloadURLContent(resp.FileUrl);
+						})
+						.catch((e) => {});
+				} else {
+					this.env.showMessage('Import completed!', 'success');
+				}
 
-  async importTask(event) {
-    if (this.submitAttempt) {
-      this.env.showMessage('erp.app.pages.sale.sale-order.message.importing', 'primary');
-      return;
-    }
-    this.submitAttempt = true;
+				this.loadedData();
+				this.isModalMergeOpen = true;
+				// this.download(data);
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
+				this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
+			});
+	}
 
-    this.dismissModal('merge');
-    this.env.publishEvent({
-      Code: 'app:ShowAppMessage',
-      IsShow: true,
-      Id: 'FileImport',
-      Icon: 'flash',
-      IsBlink: true,
-      Color: 'danger',
-      Message: 'đang import',
-    });
-    const formData: FormData = new FormData();
-    formData.append('fileKey', event.target.files[0], event.target.files[0].name);
-    this.env
-      .showLoading(
-        'Please wait for a few moments',
-        this.commonService
-          .connect(
-            'UPLOAD',
-            ApiSetting.apiDomain('WMS/CycleCount/ImportTaskDetail/' + this.formGroup.get('Id').value),
-            formData,
-          )
-          .toPromise(),
-      )
-      .then((resp: any) => {
-        this.submitAttempt = false;
-        this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
-        if (resp.ErrorList && resp.ErrorList.length) {
-          let message = '';
-          for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
-            if (i == 5) message += '<br> Còn nữa...';
-            else {
-              const e = resp.ErrorList[i];
-              message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
-            }
-          this.env
-            .showPrompt(
-              {
-                code: 'Có {{value}} lỗi khi import: {{value1}}',
-                value: { value: resp.ErrorList.length, value1: message },
-              },
-              'Bạn có muốn xem lại các mục bị lỗi?',
-              'Có lỗi import dữ liệu',
-            )
-            .then((_) => {
-              this.downloadURLContent(resp.FileUrl);
-            })
-            .catch((e) => {});
-        } else {
-          this.env.showMessage('Import completed!', 'success');
-        }
+	async exportTask() {
+		if (this.submitAttempt) return;
+		this.query.Id = this.formGroup.get('Id').value;
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.cycleCountTaskService.export(this.query))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+	}
 
-        this.loadedData();
-        this.isModalMergeOpen = true;
-        // this.download(data);
-      })
-      .catch((err) => {
-        this.submitAttempt = false;
-        this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
-        this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
-      });
-  }
+	saveChangeDetail(fg: FormGroup) {
+		this.saveChange2(fg, null, this.cycleCountDetailService);
+	}
 
-  async exportTask() {
-    if (this.submitAttempt) return;
-    this.query.Id = this.formGroup.get('Id').value;
-    this.submitAttempt = true;
-    this.env
-      .showLoading('Please wait for a few moments', this.cycleCountTaskService.export(this.query))
-      .then((response: any) => {
-        this.downloadURLContent(response);
-        this.submitAttempt = false;
-      })
-      .catch((err) => {
-        this.submitAttempt = false;
-      });
-  }
+	segmentView = 's1';
+	segmentChanged(ev: any) {
+		this.segmentView = ev.detail.value;
+	}
 
-  saveChangeDetail(fg: FormGroup) {
-    this.saveChange2(fg, null, this.cycleCountDetailService);
-  }
+	async saveChange() {
+		let submitItem = this.getDirtyValues(this.formGroup);
+		super.saveChange2();
+	}
+	changeStatusTask(i, e = null) {
+		if (this.submitAttempt) return;
 
-  segmentView = 's1';
-  segmentChanged(ev: any) {
-    this.segmentView = ev.detail.value;
-  }
-
-  async saveChange() {
-    let submitItem = this.getDirtyValues(this.formGroup);
-    super.saveChange2();
-  }
-  changeStatusTask(i, e = null) {
-    if (this.submitAttempt) return;
-
-    this.submitAttempt = true;
-    this.query.IDTask = i.Id;
-    this.env
-      .showLoading(
-        'Please wait for a few moments',
-        this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeTaskStatus/', this.query).toPromise(),
-      )
-      .then((response: boolean) => {
-        if (response) {
-          i.Status = 'Closed';
-          this.submitAttempt = false;
-          this.loadedData();
-          if (this.item?.CycleCountTasks.some((d) => d.Status == 'New')) {
-            this.isShowRowTaskStatus = true;
-          } else {
-            this.isShowRowTaskStatus = false;
-          }
-        }
-      })
-      .catch((err) => {
-        this.submitAttempt = false;
-      });
-    this.query.IDTask = undefined;
-  }
+		this.submitAttempt = true;
+		this.query.IDTask = i.Id;
+		this.env
+			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeTaskStatus/', this.query).toPromise())
+			.then((response: boolean) => {
+				if (response) {
+					i.Status = 'Closed';
+					this.submitAttempt = false;
+					this.loadedData();
+					if (this.item?.CycleCountTasks.some((d) => d.Status == 'New')) {
+						this.isShowRowTaskStatus = true;
+					} else {
+						this.isShowRowTaskStatus = false;
+					}
+				}
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+		this.query.IDTask = undefined;
+	}
 }
 
 //Search Item

@@ -7,13 +7,7 @@ import { ShareModule } from 'src/app/share.module';
 import { PickingOrderDetailPage } from './picking-order-detail.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: PickingOrderDetailPage }])
-  ],
-  declarations: [PickingOrderDetailPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: PickingOrderDetailPage }])],
+	declarations: [PickingOrderDetailPage],
 })
 export class PickingOrderDetailPageModule {}

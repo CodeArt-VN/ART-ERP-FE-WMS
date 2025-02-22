@@ -20,9 +20,6 @@ Area restrictions (exclude specific areas)
 Define location sorting logic (name or route sequence).
 Overall, creating a putaway strategy involves defining a series of rules that determine how to find the most suitable location for storing received items.
 
-
-
-
 1. Ưu tiên lựa chọn vị trí được chỉ định, sau đó hợp nhất hàng tồn kho theo khu vực trước khi chọn vị trí mới.
 2. Ưu tiên lựa chọn vị trí được chỉ định, sau đó tìm vị trí mới theo khu vực.
 3. Ưu tiên kiểm soát chất lượng (QC), sau đó tìm vị trí mới theo khu vực.

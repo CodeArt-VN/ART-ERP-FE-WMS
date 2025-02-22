@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { LocationDetailPage } from './location-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: LocationDetailPage,
-  },
+	{
+		path: '',
+		component: LocationDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [LocationDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [LocationDetailPage],
 })
 export class LocationDetailPageModule {}

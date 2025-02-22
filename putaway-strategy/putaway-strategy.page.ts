@@ -7,32 +7,30 @@ import { Location } from '@angular/common';
 import { SortConfig } from 'src/app/models/options-interface';
 
 @Component({
-    selector: 'app-putaway-strategy',
-    templateUrl: 'putaway-strategy.page.html',
-    styleUrls: ['putaway-strategy.page.scss'],
-    standalone: false
+	selector: 'app-putaway-strategy',
+	templateUrl: 'putaway-strategy.page.html',
+	styleUrls: ['putaway-strategy.page.scss'],
+	standalone: false,
 })
 export class PutawayStrategyPage extends PageBase {
-    
-    statusList = [];
-    constructor(
-        public pageProvider: WMS_PutawayStrategyProvider,
-        public branchProvider: BRA_BranchProvider,
-        public contactProvider: CRM_ContactProvider,
-        public modalController: ModalController,
-        public sysConfigProvider: SYS_ConfigProvider,
-        public popoverCtrl: PopoverController,
-        public alertCtrl: AlertController,
-        public loadingController: LoadingController,
-        public env: EnvService,
-        public navCtrl: NavController,
-        public location: Location,
-    ) {
-        super();
-    }
- 
-    preLoadData(event?: any): void {
-    
-        super.preLoadData(event);
-    }
+	statusList = [];
+	constructor(
+		public pageProvider: WMS_PutawayStrategyProvider,
+		public branchProvider: BRA_BranchProvider,
+		public contactProvider: CRM_ContactProvider,
+		public modalController: ModalController,
+		public sysConfigProvider: SYS_ConfigProvider,
+		public popoverCtrl: PopoverController,
+		public alertCtrl: AlertController,
+		public loadingController: LoadingController,
+		public env: EnvService,
+		public navCtrl: NavController,
+		public location: Location
+	) {
+		super();
+	}
+
+	preLoadData(event?: any): void {
+		super.preLoadData(event);
+	}
 }

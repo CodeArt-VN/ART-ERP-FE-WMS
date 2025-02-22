@@ -7,13 +7,7 @@ import { UoMPage } from './uom.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: UoMPage }]),
-  ],
-  declarations: [UoMPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: UoMPage }])],
+	declarations: [UoMPage],
 })
 export class UoMPageModule {}

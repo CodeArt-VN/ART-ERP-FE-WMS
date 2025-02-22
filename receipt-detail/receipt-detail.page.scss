@@ -1,99 +1,99 @@
 .full-screen {
-  min-height: calc(100vh - 385px);
+	min-height: calc(100vh - 385px);
 }
 
 .table-contain {
-  max-width: 1440px;
-  margin: auto;
+	max-width: 1440px;
+	margin: auto;
 
-  section.table header {
-    height: 45px;
-  }
-  .row {
-    width: unset;
+	section.table header {
+		height: 45px;
+	}
+	.row {
+		width: unset;
 
-    &.sub-header {
-      background-color: rgba(var(--ion-color-light-rgb, 0, 0, 0), 0.5);
-    }
-  }
+		&.sub-header {
+			background-color: rgba(var(--ion-color-light-rgb, 0, 0, 0), 0.5);
+		}
+	}
 
-  .col-id {
-    max-width: 60px;
-    min-width: 60px;
-    text-align: left !important;
-    font-weight: bold;
-  }
-  .col-code,
-  .col-date {
-    .c-input {
-      text-align: left;
-    }
-  }
-  .col-name {
-    min-width: 150px;
-    b {
-      color: var(--ion-color-primary);
-    }
-  }
-  .col-uom {
-    max-width: 90px;
-    min-width: 90px;
-    justify-content: center;
-    .c-input {
-      text-align: center;
-    }
-  }
+	.col-id {
+		max-width: 60px;
+		min-width: 60px;
+		text-align: left !important;
+		font-weight: bold;
+	}
+	.col-code,
+	.col-date {
+		.c-input {
+			text-align: left;
+		}
+	}
+	.col-name {
+		min-width: 150px;
+		b {
+			color: var(--ion-color-primary);
+		}
+	}
+	.col-uom {
+		max-width: 90px;
+		min-width: 90px;
+		justify-content: center;
+		.c-input {
+			text-align: center;
+		}
+	}
 
-  .col-qty {
-    min-width: 90px;
-    max-width: 90px;
-    justify-content: flex-end;
-    .c-input {
-      text-align: right;
-      font-weight: bold;
-      color: var(--ion-color-primary);
-    }
-  }
+	.col-qty {
+		min-width: 90px;
+		max-width: 90px;
+		justify-content: flex-end;
+		.c-input {
+			text-align: right;
+			font-weight: bold;
+			color: var(--ion-color-primary);
+		}
+	}
 
-  .col-total {
-    min-width: 110px;
-    max-width: 110px;
-    text-align: right;
-    justify-content: flex-end;
-    .c-input {
-      text-align: right;
-      font-weight: bold;
-      color: var(--ion-color-primary);
-    }
-  }
-  .col-del {
-    max-width: 40px;
-    min-width: 40px;
-    justify-content: center;
-    cursor: pointer;
-  }
-  .c-input {
-    text-align: right;
-  }
+	.col-total {
+		min-width: 110px;
+		max-width: 110px;
+		text-align: right;
+		justify-content: flex-end;
+		.c-input {
+			text-align: right;
+			font-weight: bold;
+			color: var(--ion-color-primary);
+		}
+	}
+	.col-del {
+		max-width: 40px;
+		min-width: 40px;
+		justify-content: center;
+		cursor: pointer;
+	}
+	.c-input {
+		text-align: right;
+	}
 
-  .cell {
-    padding: 2px 2px;
+	.cell {
+		padding: 2px 2px;
 
-    .min-btn {
-      height: 1.8rem !important;
-      min-width: 1.8rem !important;
-    }
-  }
+		.min-btn {
+			height: 1.8rem !important;
+			min-width: 1.8rem !important;
+		}
+	}
 
-  .row.header {
-    height: 38px !important;
-  }
+	.row.header {
+		height: 38px !important;
+	}
 
-  .disable.cell,
-  input[disabled],
-  input[readonly],
-  select[disabled],
-  .c-input.disabled {
-    background: linear-gradient(180deg, var(--main-background-top), var(--main-background-top));
-  }
+	.disable.cell,
+	input[disabled],
+	input[readonly],
+	select[disabled],
+	.c-input.disabled {
+		background: linear-gradient(180deg, var(--main-background-top), var(--main-background-top));
+	}
 }

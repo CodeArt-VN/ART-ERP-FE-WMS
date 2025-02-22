@@ -1,75 +1,64 @@
 <ion-header>
-
-  <app-toolbar [page]="this">
-    <ion-toolbar>
-      <ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">
-        <ion-icon name="qr-code-outline"></ion-icon>
-      </ion-button>
-      <ion-button (click)="isShowModal = true" class="ion-hide-sm-down" title="{{'Sort route sequence' | translate}}">
-        <ion-icon name="reorder-three-outline"></ion-icon>
-      </ion-button>
-    </ion-toolbar>
-  
-  </app-toolbar>
-
-
-  
-   
+	<app-toolbar [page]="this">
+		<ion-toolbar>
+			<ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">
+				<ion-icon name="qr-code-outline"></ion-icon>
+			</ion-button>
+			<ion-button (click)="isShowModal = true" class="ion-hide-sm-down" title="{{'Sort route sequence' | translate}}">
+				<ion-icon name="reorder-three-outline"></ion-icon>
+			</ion-button>
+		</ion-toolbar>
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-  <app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems" (dataInfinite)="loadData($event)"
-  [(query)]="query"
-  (filter)="onDatatableFilter($event)"
-  (sort)="onSort($event)" 
-  [showFilter]="pageConfig.isShowSearch"
-  [showSpinner]="pageConfig.showSpinner" >
+	<app-data-table
+		class="box-shadow responsive"
+		*ngIf="items"
+		[rows]="items"
+		[(selectedRows)]="selectedItems"
+		(dataInfinite)="loadData($event)"
+		[(query)]="query"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+		[showFilter]="pageConfig.isShowSearch"
+		[showSpinner]="pageConfig.showSpinner"
+	>
+		<datatable-column [checkbox]="true"></datatable-column>
+		<datatable-column class="col-id" name="Id" property="Id">
+			<ng-template let-i="row" datatable-cell-template>
+				<a [routerLink]="['/location/'+i.Id]">{{i.Id}}</a>
+			</ng-template>
+		</datatable-column>
 
-  <datatable-column [checkbox]="true"></datatable-column>
-  <datatable-column class="col-id" name="Id" property="Id">
-    <ng-template let-i="row" datatable-cell-template>
-      <a [routerLink]="['/location/'+i.Id]">{{i.Id}}</a>
-    </ng-template>
-  </datatable-column>
+		<datatable-column class="col-name" name="Location" property="Name"> </datatable-column>
 
-  <datatable-column class="col-name" name="Location" property="Name">
-  </datatable-column>
+		<datatable-column class="col-name" name="Zone" property="Zone"> </datatable-column>
+		<datatable-column class="col-name" name="Route sequence" property="RouteSequence"> </datatable-column>
+	</app-data-table>
 
-  <datatable-column class="col-name" name="Zone" property="Zone">
-   
-  </datatable-column>
-  <datatable-column class="col-name" name="Route sequence" property="RouteSequence">
-   
-  </datatable-column>
-
- </app-data-table>
- 
- <ion-modal [isOpen]="isShowModal"(willDismiss)="dismissModal()" >
-  <ng-template>
-     <ion-header>
-       <ion-toolbar>
-         <ion-title>{{'Reorder route sequence' | translate}} </ion-title>
-         <ion-buttons slot="end">
-           <ion-button (click)="dismissModal()">
-             <ion-icon name="close"></ion-icon>
-           </ion-button>
-         </ion-buttons>
-       </ion-toolbar>
-     </ion-header>
-     <ion-content class="ion-padding">
-       <section class="table table-contain responsive">
-       <app-reorder *ngIf="items.length>0"[items]="items" sortProperty="RouteSequence" (reoder)="doReorder($event)"> </app-reorder>
-     </section>
-     </ion-content>
-     <ion-footer>
-       <ion-toolbar>
-         <ion-button color="warning" size="default" slot="end" (click)="dismissModal(true)">
-           {{'Apply' | translate}}
-         </ion-button>
-       </ion-toolbar>
-     
-     </ion-footer>
- </ng-template>
-</ion-modal>
- 
+	<ion-modal [isOpen]="isShowModal" (willDismiss)="dismissModal()">
+		<ng-template>
+			<ion-header>
+				<ion-toolbar>
+					<ion-title>{{'Reorder route sequence' | translate}} </ion-title>
+					<ion-buttons slot="end">
+						<ion-button (click)="dismissModal()">
+							<ion-icon name="close"></ion-icon>
+						</ion-button>
+					</ion-buttons>
+				</ion-toolbar>
+			</ion-header>
+			<ion-content class="ion-padding">
+				<section class="table table-contain responsive">
+					<app-reorder *ngIf="items.length>0" [items]="items" sortProperty="RouteSequence" (reoder)="doReorder($event)"> </app-reorder>
+				</section>
+			</ion-content>
+			<ion-footer>
+				<ion-toolbar>
+					<ion-button color="warning" size="default" slot="end" (click)="dismissModal(true)"> {{'Apply' | translate}} </ion-button>
+				</ion-toolbar>
+			</ion-footer>
+		</ng-template>
+	</ion-modal>
 </ion-content>

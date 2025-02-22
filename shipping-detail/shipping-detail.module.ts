@@ -8,13 +8,7 @@ import { ShippingDetailPage } from './shipping-detail.page';
 import { TransactionModalPage } from '../transaction-modal/transaction-modal.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: ShippingDetailPage }])
-  ],
-  declarations: [ShippingDetailPage, TransactionModalPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: ShippingDetailPage }])],
+	declarations: [ShippingDetailPage, TransactionModalPage],
 })
 export class ShippingDetailPageModule {}

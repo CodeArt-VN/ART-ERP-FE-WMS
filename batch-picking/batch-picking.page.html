@@ -1,369 +1,333 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start" class="ion-hide-sm-down_">
-      <ion-button color="dark" class="ion-hide-sm-down"> {{'Goods for pick - up list' | translate}} </ion-button>
-    </ion-buttons>
+	<ion-toolbar>
+		<ion-buttons slot="start" class="ion-hide-sm-down_">
+			<ion-button color="dark" class="ion-hide-sm-down"> {{'Goods for pick - up list' | translate}} </ion-button>
+		</ion-buttons>
 
+		<ion-buttons slot="end">
+			<ion-button *ngIf="pageConfig.canCreateOutbound && selectedItems.length>0" (click)="createOutbound()" title="{{'Create outbound order' | translate}}">
+				<ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
+			</ion-button>
 
-    <ion-buttons slot="end">
+			<ion-button (click)="print()" title="{{'Form printing' | translate}}">
+				<ion-icon slot="icon-only" name="print"></ion-icon>
+			</ion-button>
 
-      <ion-button *ngIf="pageConfig.canCreateOutbound && selectedItems.length>0" (click)="createOutbound()" title="{{'Create outbound order' | translate}}">
-        <ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
-      </ion-button>
+			<ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
+				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+			</ion-button>
 
-      <ion-button (click)="print()" title="{{'Form printing' | translate}}">
-        <ion-icon slot="icon-only" name="print"></ion-icon>
-      </ion-button>
-
-      <ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
-        <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
-      </ion-button>
-
-      <ion-button
-        title="{{'Expanded function' | translate}}"
-        (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;"
-      >
-        <ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'"> </ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar> 
+			<ion-button title="{{'Expanded function' | translate}}" (click)="pageConfig.isShowFeature = !pageConfig.isShowFeature;">
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'close-outline':'list-circle-outline'"> </ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme appPrintFix class="A4 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
-  <ion-fab
-    *ngIf="pageConfig.isShowFeature"
-    [ngClass]="{withSearch: pageConfig.isShowSearch}"
-    class="feature no-print"
-    vertical="top"
-    horizontal="start"
-    slot="fixed"
-  >
-    <ion-list>
-      <ion-list-header lines="full">
-        <ion-label color="dark">{{'Trucks waiting to pick up' | translate}}</ion-label>
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print" vertical="top" horizontal="start" slot="fixed">
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'Trucks waiting to pick up' | translate}}</ion-label>
 
-        <ion-button size="small" (click)="toggleDateFilter()">
-          <ion-icon slot="icon-only" [name]="query.IDStatus=='[301]' ? 'calendar-outline' : 'calendar'"></ion-icon>
-        </ion-button>
-      </ion-list-header>
+				<ion-button size="small" (click)="toggleDateFilter()">
+					<ion-icon slot="icon-only" [name]="query.IDStatus=='[301]' ? 'calendar-outline' : 'calendar'"></ion-icon>
+				</ion-button>
+			</ion-list-header>
 
-      <ion-item lines="full" *ngIf="query.IDStatus!='[301]'">
-        <div class="c-control">
-          <label class="c-label" for="DeliveryDate">{{'Delivery date' | translate}}</label>
-          <input class="c-input" (change)="refresh()" id="DeliveryDate" type="date" [(ngModel)]="query.DeliveryDate" />
-        </div>
-      </ion-item>
-    </ion-list>
+			<ion-item lines="full" *ngIf="query.IDStatus!='[301]'">
+				<div class="c-control">
+					<label class="c-label" for="DeliveryDate">{{'Delivery date' | translate}}</label>
+					<input class="c-input" (change)="refresh()" id="DeliveryDate" type="date" [(ngModel)]="query.DeliveryDate" />
+				</div>
+			</ion-item>
+		</ion-list>
 
-    <ion-list>
-      <ion-item lines="full" *ngFor="let i of items">
-        <ion-checkbox slot="start" (click)="i.checked =!i.checked; changeSelection(i)"></ion-checkbox>
+		<ion-list>
+			<ion-item lines="full" *ngFor="let i of items">
+				<ion-checkbox slot="start" (click)="i.checked =!i.checked; changeSelection(i)"></ion-checkbox>
 
-        <ion-label class="ion-text-wrap">
-          <ion-text>
-            <h3>{{i.VehicleName}} - {{i.ShipperName}}</h3>
-          </ion-text>
-          <p>
-            <b>
-              <small>
-                <ion-text color="primary">SH:{{i.Id}}</ion-text>
-              </small>
-              <ion-text color="dark"> - {{i.DeliveryDateText}}</ion-text>
-            </b>
-          </p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
+				<ion-label class="ion-text-wrap">
+					<ion-text>
+						<h3>{{i.VehicleName}} - {{i.ShipperName}}</h3>
+					</ion-text>
+					<p>
+						<b>
+							<small>
+								<ion-text color="primary">SH:{{i.Id}}</ion-text>
+							</small>
+							<ion-text color="dark"> - {{i.DeliveryDateText}}</ion-text>
+						</b>
+					</p>
+				</ion-label>
+			</ion-item>
+		</ion-list>
 
-    <div class="action-buttons sticky-bottom">
-      <ion-grid>
-        <ion-row>
-            <ion-col size="6" *ngIf="pageConfig.canExport">
-     
+		<div class="action-buttons sticky-bottom">
+			<ion-grid>
+				<ion-row>
+					<ion-col size="6" *ngIf="pageConfig.canExport">
+						<ion-button (click)="loadBatchPicking()" expand="block" [disabled]="submitAttempt"> {{'Create list' | translate}} </ion-button>
+					</ion-col>
+					<ion-col size="6" *ngIf="pageConfig.canExport">
+						<ion-button (click)="exportPicking()" [disabled]="submitAttempt" color="primary" expand="block"> {{'Export' | translate}} </ion-button>
+					</ion-col>
+					<ion-col size="12" *ngIf="!pageConfig.canExport">
+						<ion-button (click)="loadBatchPicking()" expand="block" shape="round" [disabled]="submitAttempt"> {{'Create list' | translate}} </ion-button>
+					</ion-col>
+				</ion-row>
+			</ion-grid>
+		</div>
+	</ion-fab>
 
-              <ion-button (click)="loadBatchPicking()" expand="block" [disabled]="submitAttempt">
-                {{'Create list' | translate}}
-              </ion-button>
+	<div style="overflow: auto">
+		<ng-container *ngFor="let s of warehouses">
+			<section class="sheet rpt" *ngIf="s.count > 1">
+				<table>
+					<thead>
+						<tr>
+							<td>
+								<div class="page-header-space"></div>
+							</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="top-zone">
+									<table class="rpt-header" cellpadding="0" cellspacing="0">
+										<tr>
+											<td class="head-c1">{{'Pick - up warehouse' | translate}}:</td>
+											<td class="bol">{{s.Name}} ({{s.Phone}})</td>
+											<td class="num"></td>
+											<td class="bol"></td>
+											<td class="num">{{'Printing date' | translate}}:</td>
+											<td class="num bol ngay-hd">{{ ngayIn }}</td>
+										</tr>
+										<tr>
+											<td colspan="6" class="bol title">
+												{{'Picked - up goods list - Warehouse' | translate}} ({{'for' | translate}} {{s.count}} {{'Truck' | translate}})
+											</td>
+										</tr>
+									</table>
 
-            </ion-col>
-            <ion-col size="6" *ngIf="pageConfig.canExport">
-              
+									<div class="ds-san-pham">
+										<table cellpadding="0" cellspacing="0">
+											<tr class="head">
+												<td class="cen">{{'No.' | translate}}</td>
+												<td>
+													<div class="ten-sp">{{'Product name' | translate}}</div>
+												</td>
 
-              <ion-button (click)="exportPicking()" [disabled]="submitAttempt"  color="primary" expand="block">
-                {{'Export' | translate}}
-              </ion-button>
+												<td class="num">{{'Box' | translate}}</td>
+												<td class="num">{{'LCL' | translate}}</td>
+												<td class="ghi-chu cen">{{'Remark' | translate}}</td>
+											</tr>
 
-            </ion-col>
-            <ion-col size="12" *ngIf="!pageConfig.canExport"> 
-              
+											<ng-container *ngFor="let i of s.itemList; let idx = index; ">
+												<tr *ngIf="i.isShowGroup" class="head">
+													<td colspan="5">
+														<div class="ten-sp">{{i.ItemGroupName}}</div>
+													</td>
+												</tr>
+												<ng-container *ngFor="let uom of i.UoMs; let gdx = index; ">
+													<tr>
+														<td class="cen" [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">{{idx+1}}</td>
+														<td [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">
+															<div class="ten-sp">
+																<b *ngIf="i.ItemCode">{{i.ItemCode}}</b><b *ngIf="!i.ItemCode">{{i.IDItem}}</b>
+																- {{i.ItemName}}
+															</div>
+														</td>
 
-              <ion-button (click)="loadBatchPicking()" expand="block" shape="round" [disabled]="submitAttempt">
-                {{'Create list' | translate}}
-              </ion-button>
+														<td class="num big" *ngIf="uom.IDUoM == 0">
+															<span *ngIf="uom.InventoryQuantity">{{uom.InventoryQuantity}}</span>
+														</td>
+														<td class="num big" *ngIf="uom.IDUoM == 0">
+															<span *ngIf="uom.BaseQuantity"> {{uom.BaseQuantity}} </span>
+														</td>
 
+														<td colspan="2" class="ion-text-center big" *ngIf="uom.IDUoM != 0">{{uom.Quantity}} {{uom.UoMName}}</td>
 
-            </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
+														<td></td>
+													</tr>
+												</ng-container>
+											</ng-container>
+										</table>
+									</div>
 
-  </ion-fab>
-  
-  <div style="overflow: auto">
-    <ng-container *ngFor="let s of warehouses">
-      <section class="sheet rpt" *ngIf="s.count > 1">
-        <table>
-          <thead>
-            <tr>
-              <td>
-                <div class="page-header-space"></div>
-              </td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="top-zone">
-                  <table class="rpt-header" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td class="head-c1">{{'Pick - up warehouse' | translate}}:</td>
-                      <td class="bol">{{s.Name}} ({{s.Phone}})</td>
-                      <td class="num"></td>
-                      <td class="bol"></td>
-                      <td class="num">{{'Printing date' | translate}}:</td>
-                      <td class="num bol ngay-hd">{{ ngayIn }}</td>
-                    </tr>
-                    <tr>
-                      <td colspan="6" class="bol title">
-                        {{'Picked - up goods list - Warehouse' | translate}} ({{'for' | translate}} {{s.count}}
-                        {{'Truck' | translate}})
-                      </td>
-                    </tr>
-                  </table>
+									<div class="no-break-page">
+										<table cellpadding="0" cellspacing="0">
+											<tr>
+												<td class="">
+													<div class="line2">
+														{{'All parties please carefully check the goods and doccuments before leaving the warehouse.' | translate}} <br />
+														{{'Distributor will be held accountable for addressing further complaints' | translate}}
+													</div>
+												</td>
+											</tr>
+										</table>
 
-                  <div class="ds-san-pham">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr class="head">
-                        <td class="cen">{{'No.' | translate}}</td>
-                        <td>
-                          <div class="ten-sp">{{'Product name' | translate}}</div>
-                        </td>
+										<table class="chu-ky" cellpadding="0" cellspacing="0">
+											<tr>
+												<td>
+													{{'Warehouse keeper' | translate}}
+													<div class="line2">{{'Sign and write full name' | translate}}</div>
+												</td>
+												<td>
+													{{'Shipper' | translate}}
+													<div class="line2">{{'Sign and write full name' | translate}}</div>
+												</td>
+												<td>
+													{{'Sales staff' | translate}}
+													<div class="line2">{{'Sign and write full name' | translate}}</div>
+												</td>
+												<td>
+													{{'Accountant' | translate}}
+													<div class="line2">{{'Sign and write full name' | translate}}</div>
+												</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
 
-                        <td class="num">{{'Box' | translate}}</td>
-                        <td class="num">{{'LCL' | translate}}</td>
-                        <td class="ghi-chu cen">{{'Remark' | translate}}</td>
-                      </tr>
+					<tfoot>
+						<tr>
+							<td>
+								<div class="page-footer-space"></div>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			</section>
+		</ng-container>
 
-                      <ng-container *ngFor="let i of s.itemList; let idx = index; ">
-                        <tr *ngIf="i.isShowGroup" class="head">
-                          <td colspan="5">
-                            <div class="ten-sp">{{i.ItemGroupName}}</div>
-                          </td>
-                        </tr>
-                        <ng-container *ngFor="let uom of i.UoMs; let gdx = index; ">
-                          <tr>
-                            <td class="cen" [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">{{idx+1}}</td>
-                            <td [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">
-                              <div class="ten-sp">
-                                <b *ngIf="i.ItemCode">{{i.ItemCode}}</b><b *ngIf="!i.ItemCode">{{i.IDItem}}</b>
-                                - {{i.ItemName}}
-                              </div>
-                            </td>
+		<section class="sheet rpt" *ngFor="let s of sheets">
+			<table>
+				<thead>
+					<tr>
+						<td>
+							<div class="page-header-space"></div>
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<div class="top-zone">
+								<table class="rpt-header" cellpadding="0" cellspacing="0">
+									<tr>
+										<td class="head-c1">{{'Pick - up warehouse' | translate}}:</td>
+										<td class="bol">{{s.WarehouseName}} ({{s.WarehousePhone}})</td>
+										<td class="num"></td>
+										<td class="bol"></td>
+										<td class="num">{{'Delivery date' | translate}}:</td>
+										<td class="num bol ngay-hd">{{s.DeliveryDateText}}</td>
+									</tr>
+									<tr>
+										<td colspan="6" class="bol title">{{'Picked - up goods list - Warehouse' | translate}}</td>
+									</tr>
+								</table>
 
-                            <td class="num big" *ngIf="uom.IDUoM == 0">
-                              <span *ngIf="uom.InventoryQuantity">{{uom.InventoryQuantity}}</span>
-                            </td>
-                            <td class="num big" *ngIf="uom.IDUoM == 0">
-                              <span *ngIf="uom.BaseQuantity"> {{uom.BaseQuantity}} </span>
-                            </td>
+								<table class="rpt-header rpt-nvgh-header" cellpadding="0" cellspacing="0">
+									<tbody>
+										<tr>
+											<td class="head-c1">{{'shipper' | translate}}:</td>
+											<td class="bol">
+												{{s.Vehicle}} - {{s.ShipperName}}
+												<span *ngIf="s.ShipperPhone"> - {{s.ShipperPhone}}</span>
+											</td>
+										</tr>
+									</tbody>
+								</table>
 
-                            <td colspan="2" class="ion-text-center big" *ngIf="uom.IDUoM != 0">
-                              {{uom.Quantity}} {{uom.UoMName}}
-                            </td>
+								<div class="ds-san-pham">
+									<table cellpadding="0" cellspacing="0">
+										<tr class="head">
+											<td class="cen">{{'No.' | translate}}</td>
+											<td>
+												<div class="ten-sp">{{'Product name' | translate}}</div>
+											</td>
 
-                            <td></td>
-                          </tr>
-                        </ng-container>
-                      </ng-container>
-                    </table>
-                  </div>
+											<td class="num">{{'Box' | translate}}</td>
+											<td class="num">{{'LCL' | translate}}</td>
+											<td class="ghi-chu cen">{{'Remark' | translate}}</td>
+										</tr>
 
-                  <div class="no-break-page">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td class="">
-                          <div class="line2">
-                            {{'All parties please carefully check the goods and doccuments before leaving the
-                            warehouse.' | translate}} <br />
-                            {{'Distributor will be held accountable for addressing further complaints' | translate}}
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
+										<ng-container *ngFor="let i of s.Items; let idx = index; ">
+											<tr *ngFor="let uom of i.UoMs; let gdx = index; ">
+												<td class="cen" [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">{{idx+1}}</td>
+												<td [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">
+													<div class="ten-sp">
+														<b *ngIf="i.ItemCode">{{i.ItemCode}}</b><b *ngIf="!i.ItemCode">{{i.IDItem}}</b>
+														- {{i.ItemName}}
+													</div>
+												</td>
 
-                    <table class="chu-ky" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td>
-                          {{'Warehouse keeper' | translate}}
-                          <div class="line2">{{'Sign and write full name' | translate}}</div>
-                        </td>
-                        <td>
-                          {{'Shipper' | translate}}
-                          <div class="line2">{{'Sign and write full name' | translate}}</div>
-                        </td>
-                        <td>
-                          {{'Sales staff' | translate}}
-                          <div class="line2">{{'Sign and write full name' | translate}}</div>
-                        </td>
-                        <td>
-                          {{'Accountant' | translate}}
-                          <div class="line2">{{'Sign and write full name' | translate}}</div>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+												<td class="num big" *ngIf="uom.IDUoM == 0">
+													<span *ngIf="uom.InventoryQuantity">{{uom.InventoryQuantity}}</span>
+												</td>
+												<td class="num big" *ngIf="uom.IDUoM == 0">
+													<span *ngIf="uom.BaseQuantity"> {{uom.BaseQuantity}} </span>
+												</td>
 
-          <tfoot>
-            <tr>
-              <td>
-                <div class="page-footer-space"></div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </section>
-    </ng-container>
+												<td colspan="2" class="ion-text-center big" *ngIf="uom.IDUoM != 0">{{uom.Quantity}} {{uom.UoMName}}</td>
 
-    <section class="sheet rpt" *ngFor="let s of sheets">
-      <table>
-        <thead>
-          <tr>
-            <td>
-              <div class="page-header-space"></div>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="top-zone">
-                <table class="rpt-header" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td class="head-c1">{{'Pick - up warehouse' | translate}}:</td>
-                    <td class="bol">{{s.WarehouseName}} ({{s.WarehousePhone}})</td>
-                    <td class="num"></td>
-                    <td class="bol"></td>
-                    <td class="num">{{'Delivery date' | translate}}:</td>
-                    <td class="num bol ngay-hd">{{s.DeliveryDateText}}</td>
-                  </tr>
-                  <tr>
-                    <td colspan="6" class="bol title">{{'Picked - up goods list - Warehouse' | translate}}</td>
-                  </tr>
-                </table>
+												<td></td>
+											</tr>
+										</ng-container>
+									</table>
+								</div>
 
-                <table class="rpt-header rpt-nvgh-header" cellpadding="0" cellspacing="0">
-                  <tbody>
-                    <tr>
-                      <td class="head-c1">{{'shipper' | translate}}:</td>
-                      <td class="bol">
-                        {{s.Vehicle}} - {{s.ShipperName}}
-                        <span *ngIf="s.ShipperPhone"> - {{s.ShipperPhone}}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+								<div class="no-break-page">
+									<table cellpadding="0" cellspacing="0">
+										<tr>
+											<td class="">
+												<div class="line2">
+													{{'All parties please carefully check the goods and doccuments before leaving the warehouse.' | translate}} <br />
+													{{'Distributor will be held accountable for addressing further complaints' | translate}}
+												</div>
+											</td>
+										</tr>
+									</table>
 
-                <div class="ds-san-pham">
-                  <table cellpadding="0" cellspacing="0">
-                    <tr class="head">
-                      <td class="cen">{{'No.' | translate}}</td>
-                      <td>
-                        <div class="ten-sp">{{'Product name' | translate}}</div>
-                      </td>
+									<table class="chu-ky" cellpadding="0" cellspacing="0">
+										<tr>
+											<td>
+												{{'Warehouse keeper' | translate}}
+												<div class="line2">{{'Sign and write full name' | translate}}</div>
+											</td>
+											<td>
+												{{'Shipper' | translate}}
+												<div class="line2">{{'Sign and write full name' | translate}}</div>
+											</td>
+											<td>
+												{{'Sales staff' | translate}}
+												<div class="line2">{{'Sign and write full name' | translate}}</div>
+											</td>
+											<td>
+												{{'Accountant' | translate}}
+												<div class="line2">{{'Sign and write full name' | translate}}</div>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
 
-                      <td class="num">{{'Box' | translate}}</td>
-                      <td class="num">{{'LCL' | translate}}</td>
-                      <td class="ghi-chu cen">{{'Remark' | translate}}</td>
-                    </tr>
-
-                    <ng-container *ngFor="let i of s.Items; let idx = index; ">
-                      <tr *ngFor="let uom of i.UoMs; let gdx = index; ">
-                        <td class="cen" [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">{{idx+1}}</td>
-                        <td [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">
-                          <div class="ten-sp">
-                            <b *ngIf="i.ItemCode">{{i.ItemCode}}</b><b *ngIf="!i.ItemCode">{{i.IDItem}}</b>
-                            - {{i.ItemName}}
-                          </div>
-                        </td>
-
-                        <td class="num big" *ngIf="uom.IDUoM == 0">
-                          <span *ngIf="uom.InventoryQuantity">{{uom.InventoryQuantity}}</span>
-                        </td>
-                        <td class="num big" *ngIf="uom.IDUoM == 0">
-                          <span *ngIf="uom.BaseQuantity"> {{uom.BaseQuantity}} </span>
-                        </td>
-
-                        <td colspan="2" class="ion-text-center big" *ngIf="uom.IDUoM != 0">
-                          {{uom.Quantity}} {{uom.UoMName}}
-                        </td>
-
-                        <td></td>
-                      </tr>
-                    </ng-container>
-                  </table>
-                </div>
-
-                <div class="no-break-page">
-                  <table cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td class="">
-                        <div class="line2">
-                          {{'All parties please carefully check the goods and doccuments before leaving the warehouse.'
-                          | translate}} <br />
-                          {{'Distributor will be held accountable for addressing further complaints' | translate}}
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-
-                  <table class="chu-ky" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td>
-                        {{'Warehouse keeper' | translate}}
-                        <div class="line2">{{'Sign and write full name' | translate}}</div>
-                      </td>
-                      <td>
-                        {{'Shipper' | translate}}
-                        <div class="line2">{{'Sign and write full name' | translate}}</div>
-                      </td>
-                      <td>
-                        {{'Sales staff' | translate}}
-                        <div class="line2">{{'Sign and write full name' | translate}}</div>
-                      </td>
-                      <td>
-                        {{'Accountant' | translate}}
-                        <div class="line2">{{'Sign and write full name' | translate}}</div>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-
-        <tfoot>
-          <tr>
-            <td>
-              <div class="page-footer-space"></div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </section>
-  </div>
+				<tfoot>
+					<tr>
+						<td>
+							<div class="page-footer-space"></div>
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</section>
+	</div>
 </ion-content>

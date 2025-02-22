@@ -6,23 +6,23 @@ import { BRA_BranchProvider, WMS_CartonProvider } from 'src/app/services/static/
 import { Location } from '@angular/common';
 
 @Component({
-    selector: 'app-carton',
-    templateUrl: 'carton.page.html',
-    styleUrls: ['carton.page.scss'],
-    standalone: false
+	selector: 'app-carton',
+	templateUrl: 'carton.page.html',
+	styleUrls: ['carton.page.scss'],
+	standalone: false,
 })
 export class CartonPage extends PageBase {
-  constructor(
-    public pageProvider: WMS_CartonProvider,
-    public branchProvider: BRA_BranchProvider,
-    public modalController: ModalController,
-    public popoverCtrl: PopoverController,
-    public alertCtrl: AlertController,
-    public loadingController: LoadingController,
-    public env: EnvService,
-    public navCtrl: NavController,
-    public location: Location,
-  ) {
-    super();
-  }
+	constructor(
+		public pageProvider: WMS_CartonProvider,
+		public branchProvider: BRA_BranchProvider,
+		public modalController: ModalController,
+		public popoverCtrl: PopoverController,
+		public alertCtrl: AlertController,
+		public loadingController: LoadingController,
+		public env: EnvService,
+		public navCtrl: NavController,
+		public location: Location
+	) {
+		super();
+	}
 }

@@ -36,29 +36,18 @@
 	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 	<div *ngIf="items.length && pageConfig.showSpinner==false">
 		<section class="table">
-					<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-						<div class="col-checkbox cell">
-							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-						</div>
-						<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-id cell">
-							{{i.Id}}
-						</div>
-						<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-name cell">
-							{{i.WarehouseName}}
-						</div>
-						<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-name cell">
-							{{i.WarehouseCode}}
-						</div>
-						<div  class="col-code cell">
-							{{i.Reason}}
-						</div>
-						<div  class="col-status cell">
-							<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-								{{i._Status?.Name}}
-							  </ion-badge>
-						</div>
-					</div>
-				
+			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+				<div class="col-checkbox cell">
+					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
+				</div>
+				<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
+				<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-name cell">{{i.WarehouseName}}</div>
+				<div (click)="nav('adjustment/'+i.Id,'forward')" class="col-name cell">{{i.WarehouseCode}}</div>
+				<div class="col-code cell">{{i.Reason}}</div>
+				<div class="col-status cell">
+					<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
+				</div>
+			</div>
 		</section>
 	</div>
 	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">

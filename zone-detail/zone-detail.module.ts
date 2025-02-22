@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { ZoneDetailPage } from './zone-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: ZoneDetailPage,
-  },
+	{
+		path: '',
+		component: ZoneDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [ZoneDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [ZoneDetailPage],
 })
 export class ZoneDetailPageModule {}

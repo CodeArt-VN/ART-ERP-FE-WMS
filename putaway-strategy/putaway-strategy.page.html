@@ -1,35 +1,52 @@
 <ion-header>
-	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.putaway-strategy.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" ></app-list-toolbar>
-	
+	<app-list-toolbar
+		pageTitle="{{'erp.app.pages.wms.putaway-strategy.page-title' | translate}}"
+		[pageConfig]="pageConfig"
+		[selectedItems]="selectedItems"
+		[query]="query"
+		(approveOrders)="approve()"
+		(disapproveOrders)="disapprove()"
+		(add)="add()"
+		(refresh)="refresh()"
+		(export)="export()"
+		(import)="import($event)"
+		(help)="help()"
+		(unselect)="unselect()"
+		(archiveItems)="archiveItems()"
+		(deleteItems)="deleteItems()"
+	></app-list-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-	<app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems" (dataInfinite)="loadData($event)"
+	<app-data-table
+		class="box-shadow responsive"
+		*ngIf="items"
+		[rows]="items"
+		[(selectedRows)]="selectedItems"
+		(dataInfinite)="loadData($event)"
 		[(query)]="query"
 		(filter)="onDatatableFilter($event)"
-		(sort)="onSort($event)" 
+		(sort)="onSort($event)"
 		[showFilter]="pageConfig.isShowSearch"
-		[showSpinner]="pageConfig.showSpinner" >
-
+		[showSpinner]="pageConfig.showSpinner"
+	>
 		<datatable-column [checkbox]="true"></datatable-column>
 		<datatable-column class="col-id" name="Id" property="Id">
-		  <ng-template let-i="row" datatable-cell-template>
-			<a [routerLink]="['/putaway-strategy/'+i.Id]">{{i.Id}}</a>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				<a [routerLink]="['/putaway-strategy/'+i.Id]">{{i.Id}}</a>
+			</ng-template>
 		</datatable-column>
 
-		
 		<datatable-column class="col-name" name="Name" property="Name"> </datatable-column>
 
 		<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.WarehouseName}}
-			<small class="address" *ngIf="i.WarehouseCode">
-			  <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
-			</small>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				{{i.WarehouseName}}
+				<small class="address" *ngIf="i.WarehouseCode">
+					<ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+				</small>
+			</ng-template>
 		</datatable-column>
 		<datatable-column class="col-code bold" name="Code" property="Code"> </datatable-column>
-
-	  </app-data-table>
+	</app-data-table>
 </ion-content>

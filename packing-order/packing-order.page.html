@@ -3,114 +3,110 @@
 
 	</app-list-toolbar>
 	 -->
-	 <app-toolbar [page]="this" >
-		<ion-toolbar >
-		  <ion-button  (click)="printQRCode()" 
-		  class="ion-hide-sm-down" *ngIf="selectedItems.length>0"  title="{{'Print QR code' | translate}}">
-			  <ion-icon name="qr-code-outline"></ion-icon>
-		  </ion-button>
-		  <ion-button (click)="presentModal()"  *ngIf="selectedItems?.length>0 && isShowCreateShipping">
-			<ion-icon slot="start" name="truck"></ion-icon>
-		</ion-button>
+	<app-toolbar [page]="this">
+		<ion-toolbar>
+			<ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">
+				<ion-icon name="qr-code-outline"></ion-icon>
+			</ion-button>
+			<ion-button (click)="presentModal()" *ngIf="selectedItems?.length>0 && isShowCreateShipping">
+				<ion-icon slot="start" name="truck"></ion-icon>
+			</ion-button>
 		</ion-toolbar>
 	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-	<app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems" (selectedRowsChange)="showCommandBySelectedRows($event)"(dataInfinite)="loadData($event)"
+	<app-data-table
+		class="box-shadow responsive"
+		*ngIf="items"
+		[rows]="items"
+		[(selectedRows)]="selectedItems"
+		(selectedRowsChange)="showCommandBySelectedRows($event)"
+		(dataInfinite)="loadData($event)"
 		[(query)]="query"
 		(filter)="onDatatableFilter($event)"
-		(sort)="onSort($event)" 
+		(sort)="onSort($event)"
 		[showFilter]="pageConfig.isShowSearch"
-		[showSpinner]="pageConfig.showSpinner" >
+		[showSpinner]="pageConfig.showSpinner"
+	>
 		<datatable-column [checkbox]="true"></datatable-column>
 		<datatable-column class="col-id" name="Id" property="Id">
-		  <ng-template let-i="row" datatable-cell-template>
-			<a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				<a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
+			</ng-template>
 		</datatable-column>
 		<datatable-column class="col-id" name="ID outbound" property="IDOutboundOrder">
 			<ng-template let-i="row" datatable-cell-template>
-			  <a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
+				<a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
 			</ng-template>
-		  </datatable-column>
+		</datatable-column>
 		<datatable-column class="col-name" name="Warehouse" property="WarehouseName">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.WarehouseName}}
-			<small class="address" *ngIf="i.WarehouseCode">
-			  <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
-			</small>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				{{i.WarehouseName}}
+				<small class="address" *ngIf="i.WarehouseCode">
+					<ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+				</small>
+			</ng-template>
 		</datatable-column>
 		<datatable-column class="col-name" name="Tag" property="_Tag">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i._Tag?.Code}}
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template> {{i._Tag?.Code}} </ng-template>
 		</datatable-column>
-		<datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
-			</ng-template>
+		<datatable-column class="col-date" filterControlType="date" name="Expected date" property="ExpectedDate">
+			<ng-template let-i="row" datatable-cell-template> {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
 		</datatable-column>
 		<datatable-column class="col-date" filterControlType="date" name="Packaged date" property="PackagedDate">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.PackagedDate | date:'dd/MM/yyyy HH:mm'}}
-			</ng-template>
+			<ng-template let-i="row" datatable-cell-template> {{i.PackagedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
 		</datatable-column>
-	   
+
 		<datatable-column class="col-status" name="Status" property="Status">
-		  <ng-template let-i="row" datatable-cell-template>
-		  <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-			{{i._Status?.Name}}
-		  </ion-badge>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
+			</ng-template>
 		</datatable-column>
 	</app-data-table>
 
-	  <ion-modal [isOpen]="isModalOpen"(willDismiss)="dismissModal()" >
+	<ion-modal [isOpen]="isModalOpen" (willDismiss)="dismissModal()">
 		<ng-template>
-		  <ion-header>
-			<ion-toolbar>
-			  <ion-title>{{'Truck' | translate}} </ion-title>
-			  <ion-buttons slot="end">
-				<ion-button (click)="dismissModal()">
-				  <ion-icon name="close"></ion-icon>
-				</ion-button>
-			  </ion-buttons>
-			</ion-toolbar>
-		  </ion-header>
+			<ion-header>
+				<ion-toolbar>
+					<ion-title>{{'Truck' | translate}} </ion-title>
+					<ion-buttons slot="end">
+						<ion-button (click)="dismissModal()">
+							<ion-icon name="close"></ion-icon>
+						</ion-button>
+					</ion-buttons>
+				</ion-toolbar>
+			</ion-header>
 
-		  <ion-content class="ion-padding">
-			<app-data-table class="box-shadow responsive" *ngIf ="vehicleList" [rows]="vehicleList" [(selectedRows)]="selectedVehicles"(onSelectedRowsChange)="changeSelectionPacking($event)" [showSpinner]="pageConfig.showSpinner" >
-			  <datatable-column [checkbox]="true"></datatable-column>
-			  <datatable-column class="col-id" name="Id" property="Id">
-				<!-- <ng-template let-i="row" datatable-cell-template>
+			<ion-content class="ion-padding">
+				<app-data-table
+					class="box-shadow responsive"
+					*ngIf="vehicleList"
+					[rows]="vehicleList"
+					[(selectedRows)]="selectedVehicles"
+					(onSelectedRowsChange)="changeSelectionPacking($event)"
+					[showSpinner]="pageConfig.showSpinner"
+				>
+					<datatable-column [checkbox]="true"></datatable-column>
+					<datatable-column class="col-id" name="Id" property="Id">
+						<!-- <ng-template let-i="row" datatable-cell-template>
 				  <a [routerLink]="['/packing-order/'+i.Id]">{{i.Id}}</a>
 				</ng-template> -->
-			  </datatable-column>
-			  <datatable-column class="col-name" name="Truck" property="Name">
-				
-			  </datatable-column>
+					</datatable-column>
+					<datatable-column class="col-name" name="Truck" property="Name"> </datatable-column>
 
-			  <datatable-column class="col-name" name="Shipper name" property="ShipperName">
-				
-			  </datatable-column>
+					<datatable-column class="col-name" name="Shipper name" property="ShipperName"> </datatable-column>
 
-			  <datatable-column class="col-number" name="Volumn" property="VolumeRecommend">
-				
-			  </datatable-column>
-			  <datatable-column class="col-number" name="Weight" property="WeightRecommend">
-				
-			  </datatable-column>
-			</app-data-table>
-		  </ion-content>
-		  
-		  <ion-footer>
-			<ion-toolbar>
-			  <ion-button  size="large" slot="end"(click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
-			</ion-toolbar>
-			
-		  </ion-footer>
+					<datatable-column class="col-number" name="Volumn" property="VolumeRecommend"> </datatable-column>
+					<datatable-column class="col-number" name="Weight" property="WeightRecommend"> </datatable-column>
+				</app-data-table>
+			</ion-content>
+
+			<ion-footer>
+				<ion-toolbar>
+					<ion-button size="large" slot="end" (click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
+				</ion-toolbar>
+			</ion-footer>
 		</ng-template>
-	  </ion-modal>
+	</ion-modal>
 </ion-content>

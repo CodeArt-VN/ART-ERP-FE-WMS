@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { WarehouseTransactionPage } from './warehouse-transaction.page';
 
 describe('WarehouseTransactionComponent', () => {
-  let component: WarehouseTransactionPage;
-  let fixture: ComponentFixture<WarehouseTransactionPage>;
+	let component: WarehouseTransactionPage;
+	let fixture: ComponentFixture<WarehouseTransactionPage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [WarehouseTransactionPage],
-      imports: [IonicModule.forRoot()],
-    }).compileComponents();
+	beforeEach(waitForAsync(() => {
+		TestBed.configureTestingModule({
+			declarations: [WarehouseTransactionPage],
+			imports: [IonicModule.forRoot()],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(WarehouseTransactionPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+		fixture = TestBed.createComponent(WarehouseTransactionPage);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	}));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

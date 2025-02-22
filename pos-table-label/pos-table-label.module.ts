@@ -7,14 +7,7 @@ import { POSTableLabelPage } from './pos-table-label.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: POSTableLabelPage }]),
-  ],
-  declarations: [POSTableLabelPage],
+	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, ShareModule, RouterModule.forChild([{ path: '', component: POSTableLabelPage }])],
+	declarations: [POSTableLabelPage],
 })
 export class POSTableLabelPageModule {}

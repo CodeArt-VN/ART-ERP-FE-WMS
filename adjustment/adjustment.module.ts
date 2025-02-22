@@ -7,13 +7,7 @@ import { ShareModule } from 'src/app/share.module';
 import { AdjustmentPage } from './adjustment.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: AdjustmentPage }])
-  ],
-  declarations: [AdjustmentPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: AdjustmentPage }])],
+	declarations: [AdjustmentPage],
 })
 export class AdjustmentPageModule {}

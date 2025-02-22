@@ -8,13 +8,7 @@ import { AllocationStrategyDetailPage } from './allocation-strategy-detail.page'
 // import { AllocationStrategyDetailPage } from './transferring-goods-detail.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: AllocationStrategyDetailPage }])
-  ],
-  declarations: [AllocationStrategyDetailPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: AllocationStrategyDetailPage }])],
+	declarations: [AllocationStrategyDetailPage],
 })
 export class AllocationStrategyDetailPageModule {}

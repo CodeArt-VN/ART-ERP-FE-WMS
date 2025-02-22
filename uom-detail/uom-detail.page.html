@@ -1,69 +1,52 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>{{item.Name}}</ion-title>
-    <ion-buttons slot="primary">
-      <ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
-        <ion-icon slot="icon-only" name="close"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
+	<ion-toolbar>
+		<ion-title>{{item.Name}}</ion-title>
+		<ion-buttons slot="primary">
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
 </ion-header>
 <ion-content appScrollbarTheme class="ion-padding">
-  <form [formGroup]="formGroup">
-    <ion-grid fixed>
-      <ion-row>
-        <ion-col size="12" size-sm="12" size-md="6">
-          <app-form-control [field]="{id:'Name', form : formGroup }" (change)="saveChange()"></app-form-control>
-          <app-form-control
-            [field]="{id:'Type', type : 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Name', form: formGroup }"
-            (change)="saveChange()"
-          ></app-form-control>
-          <app-form-control [field]="{id:'Sort', form : formGroup }" (change)="saveChange()"></app-form-control>
-        </ion-col>
-        <ion-col size="12" size-sm="12" size-md="6">
-          <app-form-control
-            [field]="{id:'Id', form : formGroup }"
-          ></app-form-control>
-          <app-form-control
-            [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"
-            (change)="saveChange()"
-          ></app-form-control>
-        </ion-col>
-      </ion-row>
+	<form [formGroup]="formGroup">
+		<ion-grid fixed>
+			<ion-row>
+				<ion-col size="12" size-sm="12" size-md="6">
+					<app-form-control [field]="{id:'Name', form : formGroup }" (change)="saveChange()"></app-form-control>
+					<app-form-control
+						[field]="{id:'Type', type : 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Name', form: formGroup }"
+						(change)="saveChange()"
+					></app-form-control>
+					<app-form-control [field]="{id:'Sort', form : formGroup }" (change)="saveChange()"></app-form-control>
+				</ion-col>
+				<ion-col size="12" size-sm="12" size-md="6">
+					<app-form-control [field]="{id:'Id', form : formGroup }"></app-form-control>
+					<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }" (change)="saveChange()"></app-form-control>
+				</ion-col>
+			</ion-row>
 
-      <ion-row>
-        <ion-col size="12" size-sm="12" size-md="6">
-          <app-form-control
-            [field]="{id:'CreatedBy', label: 'Created by', form : formGroup }"
-          ></app-form-control>
-          <app-form-control
-            [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"
-          ></app-form-control>
-          
-        </ion-col>
-        <ion-col size="12" size-sm="12" size-md="6">
-          <app-form-control
-            [field]="{id:'ModifiedBy', label: 'Last modified by', form : formGroup }"
-          ></app-form-control>
-          <app-form-control
-            [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"
-          ></app-form-control>
-          
-          <div class="c-control ion-text-right" *ngIf="item.Id==0">
-            <label class="c-label" for=""></label>
-            <ion-button (click)="saveChange()">{{'Add new' | translate}}</ion-button>
-          </div>
-          <div class="c-control ion-text-right" *ngIf="item.Id!=0">
-            <label class="c-label" for=""></label>
-            <ion-button (click)="saveChange()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
-            <ion-button (click)="refresh()" color="warning">{{'Cancel' | translate}}</ion-button>
-            <ion-button *ngIf="item.Id && pageConfig.canDelete" (click)="delete()" color="danger"
-              >{{'Delete' | translate}}</ion-button
-            >
-          </div>
-        </ion-col>
-      </ion-row>
+			<ion-row>
+				<ion-col size="12" size-sm="12" size-md="6">
+					<app-form-control [field]="{id:'CreatedBy', label: 'Created by', form : formGroup }"></app-form-control>
+					<app-form-control [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"></app-form-control>
+				</ion-col>
+				<ion-col size="12" size-sm="12" size-md="6">
+					<app-form-control [field]="{id:'ModifiedBy', label: 'Last modified by', form : formGroup }"></app-form-control>
+					<app-form-control [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"></app-form-control>
 
-    </ion-grid>
-  </form>
+					<div class="c-control ion-text-right" *ngIf="item.Id==0">
+						<label class="c-label" for=""></label>
+						<ion-button (click)="saveChange()">{{'Add new' | translate}}</ion-button>
+					</div>
+					<div class="c-control ion-text-right" *ngIf="item.Id!=0">
+						<label class="c-label" for=""></label>
+						<ion-button (click)="saveChange()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
+						<ion-button (click)="refresh()" color="warning">{{'Cancel' | translate}}</ion-button>
+						<ion-button *ngIf="item.Id && pageConfig.canDelete" (click)="delete()" color="danger">{{'Delete' | translate}}</ion-button>
+					</div>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
+	</form>
 </ion-content>

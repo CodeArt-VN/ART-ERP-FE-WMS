@@ -6,24 +6,24 @@ import { BRA_BranchProvider, WMS_ZoneProvider } from 'src/app/services/static/se
 import { Location } from '@angular/common';
 
 @Component({
-    selector: 'app-zone',
-    templateUrl: 'zone.page.html',
-    styleUrls: ['zone.page.scss'],
-    standalone: false
+	selector: 'app-zone',
+	templateUrl: 'zone.page.html',
+	styleUrls: ['zone.page.scss'],
+	standalone: false,
 })
 export class ZonePage extends PageBase {
-  constructor(
-    public pageProvider: WMS_ZoneProvider,
-    public branchProvider: BRA_BranchProvider,
-    public modalController: ModalController,
-    public popoverCtrl: PopoverController,
-    public alertCtrl: AlertController,
-    public loadingController: LoadingController,
-    public env: EnvService,
-    public navCtrl: NavController,
-    public location: Location,
-  ) {
-    super();
-    this.query.Type == 'Warehouse'; //For export branch query
-  }
+	constructor(
+		public pageProvider: WMS_ZoneProvider,
+		public branchProvider: BRA_BranchProvider,
+		public modalController: ModalController,
+		public popoverCtrl: PopoverController,
+		public alertCtrl: AlertController,
+		public loadingController: LoadingController,
+		public env: EnvService,
+		public navCtrl: NavController,
+		public location: Location
+	) {
+		super();
+		this.query.Type == 'Warehouse'; //For export branch query
+	}
 }

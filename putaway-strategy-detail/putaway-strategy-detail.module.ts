@@ -8,13 +8,7 @@ import { PutawayStrategyDetailPage } from './putaway-strategy-detail.page';
 // import { PutawayStrategyDetailPage } from './transferring-goods-detail.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: PutawayStrategyDetailPage }])
-  ],
-  declarations: [PutawayStrategyDetailPage]
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: PutawayStrategyDetailPage }])],
+	declarations: [PutawayStrategyDetailPage],
 })
 export class PutawayStrategyDetailPageModule {}

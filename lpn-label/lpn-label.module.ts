@@ -9,15 +9,7 @@ import { PipesModule } from 'src/app/pipes/pipes.module';
 import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    ShareModule,
-    PipesModule,
-    RouterModule.forChild([{ path: '', component: LPNLabelPage }]),
-  ],
-  declarations: [LPNLabelPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, PipesModule, RouterModule.forChild([{ path: '', component: LPNLabelPage }])],
+	declarations: [LPNLabelPage],
 })
 export class LPNLabelPageModule {}

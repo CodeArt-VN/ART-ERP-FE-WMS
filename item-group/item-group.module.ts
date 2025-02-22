@@ -7,13 +7,7 @@ import { ItemGroupPage } from './item-group.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: ItemGroupPage }]),
-  ],
-  declarations: [ItemGroupPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: ItemGroupPage }])],
+	declarations: [ItemGroupPage],
 })
 export class ItemGroupPageModule {}

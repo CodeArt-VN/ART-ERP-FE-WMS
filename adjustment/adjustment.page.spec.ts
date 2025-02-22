@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { AdjustmentPage } from './adjustment.page';
 
 describe('AdjustmentPage', () => {
-  let component: AdjustmentPage;
-  let fixture: ComponentFixture<AdjustmentPage>;
+	let component: AdjustmentPage;
+	let fixture: ComponentFixture<AdjustmentPage>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [AdjustmentPage],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+	beforeEach(async(() => {
+		TestBed.configureTestingModule({
+			declarations: [AdjustmentPage],
+			imports: [IonicModule.forRoot()],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(AdjustmentPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+		fixture = TestBed.createComponent(AdjustmentPage);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	}));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

@@ -1,57 +1,71 @@
 <ion-header>
-	<app-list-toolbar pageTitle="{{'erp.app.pages.wms.shipping.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" ></app-list-toolbar>
-	
+	<app-list-toolbar
+		pageTitle="{{'erp.app.pages.wms.shipping.page-title' | translate}}"
+		[pageConfig]="pageConfig"
+		[selectedItems]="selectedItems"
+		[query]="query"
+		(approveOrders)="approve()"
+		(disapproveOrders)="disapprove()"
+		(add)="add()"
+		(refresh)="refresh()"
+		(export)="export()"
+		(import)="import($event)"
+		(help)="help()"
+		(unselect)="unselect()"
+		(archiveItems)="archiveItems()"
+		(deleteItems)="deleteItems()"
+	></app-list-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-	<app-data-table class="box-shadow responsive" *ngIf ="items" [rows]="items" [(selectedRows)]="selectedItems"
+	<app-data-table
+		class="box-shadow responsive"
+		*ngIf="items"
+		[rows]="items"
+		[(selectedRows)]="selectedItems"
 		[(query)]="query"
 		(filter)="onDatatableFilter($event)"
-		(sort)="onSort($event)" 
+		(sort)="onSort($event)"
 		[showFilter]="pageConfig.isShowSearch"
-		[showSpinner]="pageConfig.showSpinner" > >
+		[showSpinner]="pageConfig.showSpinner"
+	>
+		>
 		<!-- <datatable-column [checkbox]="true"></datatable-column> -->
 		<datatable-column class="col-id" name="Id" property="Id">
-		  <ng-template let-i="row" datatable-cell-template>
-			<a [routerLink]="['/shipping/'+i.Id]">{{i.Id}}</a>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				<a [routerLink]="['/shipping/'+i.Id]">{{i.Id}}</a>
+			</ng-template>
 		</datatable-column>
 		<datatable-column class="col-id" name="ID outbound" property="IDOutboundOrder">
 			<ng-template let-i="row" datatable-cell-template>
-			  <a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
+				<a [routerLink]="['/outbound-order/'+i.IDOutboundOrder]">{{i.IDOutboundOrder}}</a>
 			</ng-template>
-		  </datatable-column>
+		</datatable-column>
 		<datatable-column class="col-name" name="WarehouseName" property="WarehouseName">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.WarehouseName}}
-			<small class="address" *ngIf="i.WarehouseCode">
-			  <ion-text color="dark">{{i.WarehouseCode}}</ion-text>
-			</small>
-		  </ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				{{i.WarehouseName}}
+				<small class="address" *ngIf="i.WarehouseCode">
+					<ion-text color="dark">{{i.WarehouseCode}}</ion-text>
+				</small>
+			</ng-template>
 		</datatable-column>
 		<datatable-column class="col-name" name="Truck" property="Vehicle">
-		  <ng-template let-i="row" datatable-cell-template>
-			<span>{{i.Vehicle}}</span>
-			<small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')">{{i.Shipper}}</small>
-		  </ng-template>
-		</datatable-column>
-		<datatable-column class="col-date"  filterControlType="date" name="Expected date" property="ExpectedDate">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}}
+			<ng-template let-i="row" datatable-cell-template>
+				<span>{{i.Vehicle}}</span>
+				<small title="{{'View shipper information' | translate}}" (click)="nav('staff/'+i.IDShipper,'forward')">{{i.Shipper}}</small>
 			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-date" filterControlType="date" name="Expected date" property="ExpectedDate">
+			<ng-template let-i="row" datatable-cell-template> {{i.ExpectedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
 		</datatable-column>
 		<datatable-column class="col-date" filterControlType="date" name="Shipped date" property="ShippedDate">
-		  <ng-template let-i="row" datatable-cell-template>
-			{{i.ShippedDate | date:'dd/MM/yyyy HH:mm'}}
+			<ng-template let-i="row" datatable-cell-template> {{i.ShippedDate | date:'dd/MM/yyyy HH:mm'}} </ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-status" name="Status" property="Status">
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name}} </ion-badge>
 			</ng-template>
 		</datatable-column>
-	   
-		<datatable-column class="col-status" name="Status" property="Status">
-		  <ng-template let-i="row" datatable-cell-template>
-		  <ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name">
-			{{i._Status?.Name}}
-		  </ion-badge>
-		  </ng-template>
-		</datatable-column>
-	  </app-data-table>
+	</app-data-table>
 </ion-content>
