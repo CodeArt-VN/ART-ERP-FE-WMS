@@ -610,7 +610,7 @@ export class PickingOrderDetailPage extends PageBase {
 		}
 	}
 
-	deleteItems() {
+	delete() {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkedPickingOrderDetails.getRawValue().filter((d) => d.IDParent != null && d.Status == 'Active');
 			this.env
@@ -630,7 +630,7 @@ export class PickingOrderDetailPage extends PageBase {
 							this.isAllChecked = false;
 						})
 						.catch((err) => {
-							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');;
 							console.log(err);
 						});
 				});

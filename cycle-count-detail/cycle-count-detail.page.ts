@@ -451,7 +451,7 @@ export class CycleCountDetailPage extends PageBase {
 								});
 						})
 						.catch((err) => {
-							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');;
 							this.submitAttempt = false;
 						});
 				})
@@ -616,7 +616,7 @@ export class CycleCountDetailPage extends PageBase {
 		}
 	}
 
-	deleteItems() {
+	delete() {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkCycleCountDetails.getRawValue();
 			this.env
@@ -633,7 +633,7 @@ export class CycleCountDetailPage extends PageBase {
 							this.isAllChecked = false;
 						})
 						.catch((err) => {
-							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');;
 						});
 				});
 		}

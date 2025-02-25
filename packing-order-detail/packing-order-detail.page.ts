@@ -480,7 +480,7 @@ export class PackingOrderDetailPage extends PageBase {
 		});
 	}
 
-	deleteItems() {
+	delete() {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkedPackingDetails.getRawValue();
 
@@ -498,7 +498,7 @@ export class PackingOrderDetailPage extends PageBase {
 							this.isAllChecked = false;
 						})
 						.catch((err) => {
-							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');;
 							console.log(err);
 						});
 				});

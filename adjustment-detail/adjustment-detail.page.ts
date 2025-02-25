@@ -430,7 +430,7 @@ export class AdjustmentDetailPage extends PageBase {
 			if (this.isAllChecked) this.checkAdjustmentDetails.push(i);
 		});
 	}
-	deleteItems() {
+	delete() {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkAdjustmentDetails.getRawValue();
 			this.env
@@ -447,7 +447,8 @@ export class AdjustmentDetailPage extends PageBase {
 							this.isAllChecked = false;
 						})
 						.catch((err) => {
-							this.env.showMessage('Không xóa được, xin vui lòng kiểm tra lại.');
+							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');
+							console.log(err);
 						});
 				});
 		}
