@@ -625,7 +625,7 @@ export class OutboundOrderDetailPage extends PageBase {
 							this.isAllChecked = false;
 						})
 						.catch((err) => {
-							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');;
+							this.env.showMessage('DELETE_RESULT_FAIL', 'danger');
 							console.log(err);
 						});
 				});
