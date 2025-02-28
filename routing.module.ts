@@ -80,4 +80,6 @@ export const WMSRoutes: Routes = [
 
      { path: 'stock-card', loadChildren: () => import('./stock-card/stock-card.module').then(m => m.StockCardPageModule), canActivate: [AuthGuard]},
 
+     { path: 'warehouse-item-balance', loadChildren: () => import('./warehouse-item-balance/warehouse-item-balance.module').then(m => m.WareHouseItemBalancePageModule), canActivate: [AuthGuard]},
+
 ];
