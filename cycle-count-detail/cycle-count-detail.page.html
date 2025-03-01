@@ -335,134 +335,59 @@
 			</ion-toolbar>
 
 			<div class="table-contain" *ngIf="segmentView == 's1'">
-				<section class="table responsive">
-					<header class="bold">
-						<div class="col-checkbox cell">
+				<app-data-table [rows]="formGroup.get('CycleCountDetails')['controls']" [showSpinner]="pageConfig.showSpinner">
+					<datatable-empty-message subMessage="Please click add new to start...">
+						<ng-template datatable-empty-message-template>
+							<!-- <div>
+								<ion-button size="small" (click)="addLine({}, true)">
+									<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+									{{ 'Add product' | translate }}
+								</ion-button>
+							</div> -->
+						</ng-template>
+					</datatable-empty-message>
+
+					<datatable-column [checkbox]="true" name="" property="value">
+						<ng-template datatable-header-template>
 							<input (change)="toggleSelectAll()" [(ngModel)]="isAllChecked" class="c-checkbox" type="checkbox" />
-						</div>
-						<div class="col-id cell">#</div>
-						<div class="col-name cell" (click)="sortToggle('ItemName')">
-							{{'Item name' | translate}}
-							<ion-icon class="min-btn" *ngIf="sortDetail.ItemName" [name]="sortDetail.ItemName == 'ItemName'?'arrow-down': 'arrow-up'"></ion-icon>
-							<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
-										name="search" color="primary"></ion-icon> -->
-						</div>
+						</ng-template>
 
-						<div class="col-uom cell" (click)="sortToggle('UoMName')">
-							{{'Unit' | translate}}
-							<ion-icon class="min-btn" *ngIf="sortDetail.UoMName" [name]="sortDetail.UoMName == 'UoMName'?'arrow-down': 'arrow-up'"></ion-icon>
-						</div>
+						<ng-template let-g="row" datatable-cell-template>
+							<app-input-control (change)="changeSelection(g,'main', $event)" [field]="{ id: 'IsChecked', type: 'checkbox', form: g }"> </app-input-control>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-id" name="No." property="#"></datatable-column>
 
-						<div class="col-name cell" (click)="sortToggle('ZoneName')" *ngIf="formGroup.get('IsCountByLocation').value">
-							{{'Zone' | translate}}
-							<ion-icon class="min-btn" *ngIf="sortDetail.ZoneName" [name]="sortDetail.ZoneName == 'ZoneName'?'arrow-down': 'arrow-up'"></ion-icon>
-						</div>
-
-						<div class="col-code cell" (click)="sortToggle('LocationName')" *ngIf="formGroup.get('IsCountByLocation').value">
-							{{'Location' | translate}}
-							<ion-icon class="min-btn" *ngIf="sortDetail.LocationName" [name]="sortDetail.LocationName == 'LocationName'?'arrow-down': 'arrow-up'"></ion-icon>
-							<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
-										name="search" color="primary"></ion-icon> -->
-						</div>
-
-						<div class="col-code cell" (click)="sortToggle('LotName')" *ngIf="formGroup.get('IsCountByLot').value">
-							{{'Lot' | translate}}
-							<ion-icon class="min-btn" *ngIf="sortDetail.LotName" [name]="sortDetail.LotName == 'LotName'?'arrow-down': 'arrow-up'"></ion-icon>
-							<!-- <ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="sortDetail.ItemName"
-										name="search" color="primary"></ion-icon> -->
-						</div>
-
-						<div class="col-qty cell" (click)="sortToggle('CurrentQuantity')">
-							{{'Current quantity' | translate}}
-							<ion-icon
-								class="min-btn"
-								*ngIf="sortDetail.CurrentQuantity"
-								[name]="sortDetail.CurrentQuantity == 'CurrentQuantity'?'arrow-down': 'arrow-up'"
-							></ion-icon>
-						</div>
-
-						<div class="col-qty cell" (click)="sortToggle('CountedQuantity')">
-							{{'Counted quantity' | translate}}
-							<ion-icon
-								class="min-btn"
-								*ngIf="sortDetail.CountedQuantity"
-								[name]="sortDetail.CountedQuantity == 'CountedQuantity'?'arrow-down': 'arrow-up'"
-							></ion-icon>
-						</div>
-
-						<ng-container *ngIf="formGroup.get('CountType').value =='Validation' && formGroup.get('_Counters').value">
-							<div class="col-qty cell" *ngFor="let c of formGroup?.controls?._Counters?.value; let j = index">{{'Counter' | translate}} {{ (j+1)}}</div>
-						</ng-container>
-
-						<ng-container *ngIf="formGroup.get('CountType').value == 'Simple'">
-							<div class="col-qty cell">{{'Counter' | translate}}</div>
-						</ng-container>
-						<!-- <ng-container *ngIf="formGroup.get('CountType').value == 'Validation' && formGroup.get('_Counters').value" >
-									<div *ngFor="let counter of formGroup.get('_Counters').value ; let j = index" class="col-qty cell">
-										<div *ngIf="j >0">	{{'Counter' | translate}} {{ j}}</div> 
-										<div *ngIf="j == 0"> {{'Counter' | translate}}</div> 
-									</div>
-								</ng-container>
-								 -->
-						<div class="col-promotion cell" (click)="sortToggle('Counted')">
-							{{'Counted' | translate}}
-							<ion-icon class="min-btn" *ngIf="sortDetail.Counted" [name]="sortDetail.Counted == 'Counted'?'arrow-down': 'arrow-up'"></ion-icon>
-						</div>
-
-						<!-- <div class="col-number cell" (click)="sortToggle('Name')">
-									{{'Row' | translate}}
-								</div>
-								<div class="col-number cell" (click)="sortToggle('Name')">
-									{{'Level' | translate}}
-								</div>
-							 -->
-
-						<div class="col-icon cell">
-							<ion-icon
-								*ngIf="checkCycleCountDetails.controls.length>0 && pageConfig.canEdit"
-								(click)="delete()"
-								color="danger"
-								slot="icon-only"
-								size="large"
-								name="trash"
-								slot="start"
-							></ion-icon>
-						</div>
-					</header>
-					<app-page-message [itemsLength]="formGroup.get('CycleCountDetails')['controls']" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-					<ng-container *ngIf="!pageConfig.showSpinner">
-						<div *ngFor="let c of formGroup.get('CycleCountDetails')['controls'] ;let j = index" class="row" [ngClass]="{odd: j % 2 != 0}">
-							<div class="col-checkbox cell" style="text-align: center">
-								<app-input-control [field]="{id:'IsChecked', type : 'checkbox', form : c, }" (change)="changeSelection(c,'main', $event)"></app-input-control>
+					<datatable-column class="col-name" name="Product" property="value">
+						<ng-template let-g="row" datatable-cell-template>
+							<div *ngIf="g.get('IDItem')?.value">
+								<a [routerLink]="['/item/'+g.get('IDItem').value]" (mousedown)="$event.stopPropagation()"
+									>#{{g.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon
+								></a>
+								<span [title]="g.get('ItemName')?.value"> {{g.get('ItemName').value}}</span>
 							</div>
-							<div class="col-id cell">{{j+1}}</div>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-number" name="Current quantity" property="value">
+						<ng-template let-g="row" datatable-cell-template>
+							<app-input-control [field]="{ id: 'CurrentQuantity', type: 'span-text', form: g }"></app-input-control>
+						</ng-template>
+					</datatable-column>
 
-							<div class="col-name cell">
-								<div *ngIf="c.get('IDItem')?.value">
-									<a [routerLink]="['/item/'+c.get('IDItem').value]" (mousedown)="$event.stopPropagation()"
-										>#{{c.get('IDItem').value}} <ion-icon name="open-outline"></ion-icon
-									></a>
-									<span [title]="c.get('ItemName')?.value"> {{c.get('ItemName').value}}</span>
-								</div>
-							</div>
-							<div class="col-uom cell">{{c.get('UoMName')?.value}}</div>
+					<datatable-column class="col-remark flex-break" name="Remark" property="value">
+						<ng-template let-g="row" datatable-cell-template>
+							<app-format-quantity [quantity]="g.controls.CurrentQuantity.value" [splitQuantityList]="g.controls._SplitUoMS_CurrentQuantity.value"></app-format-quantity>
+						</ng-template>
+					</datatable-column>
 
-							<div class="col-name cell" *ngIf="formGroup.get('IsCountByLocation').value">{{c.get('ZoneName')?.value}}</div>
+					<datatable-column class="col-number" name="Counted quantity" property="value">
+						<ng-template let-g="row" datatable-cell-template>
+							<app-input-control [field]="{ id: 'CountedQuantity', type: 'number', form: g }" (change)="saveChangeDetail(g)"></app-input-control>
+						</ng-template>
+					</datatable-column>
 
-							<div class="col-code cell" *ngIf="formGroup.get('IsCountByLocation').value">{{c.get('LocationName')?.value}}</div>
-
-							<div class="col-code cell" *ngIf="formGroup.get('IsCountByLot').value">{{c.get('LotName')?.value}}</div>
-
-							<div class="col-qty cell">{{c.get('CurrentQuantity')?.value}}</div>
-							<div class="col-qty cell">
-								<app-input-control [field]="{id:'CountedQuantity', type : 'text', form : c, }" (change)="saveChangeDetail(c)"></app-input-control>
-							</div>
-
-							<!-- <ng-container *ngIf="formGroup.get('CountType').value =='Validation'">
-											<div  class="col-qty cell" *ngFor="let d of c?.controls?.CycleCountTasks?.controls; let j = index">
-												{{ d.value.CountedQuantity}}
-											</div>
-										</ng-container> -->
+					<datatable-column class="col-number" name="Counter" property="value">
+						<ng-template let-g="row" let-idx="idx" datatable-cell-template>
 							<ng-container *ngIf="item.CycleCountTasks.length>0">
 								<div *ngFor="let d of item.CycleCountTasks" class="col-qty cell clickable">
 									<ng-container *ngFor="let taskDetail of c.controls.CycleCountTaskDetails.value; let j = index">
@@ -475,38 +400,24 @@
 								<div class="col-qty cell" *ngFor="let c of formGroup.controls?._Counters?.value"></div>
 							</ng-container>
 
-							<!-- 
-										<div *ngIf="formGroup.get('CountType').value == 'Simple' " class="col-qty cell"  [ngStyle]="{'color': c.get('CycleCountTasks')[0]?.value != c.get('CurrentQuantity').value? 'red':'green' }">
-												{{c.get('CycleCountTasks').controls[0]?.value?.CountedQuantity}}
-										</div> -->
+						</ng-template>
+					</datatable-column>
 
-							<!-- <ng-container >
-											<div class="col-qty cell" (click)="presentViewCounter($event,c)"><ion-icon name="eye-outline"></ion-icon></div>
-										</ng-container> -->
 
-							<div class="col-promotion cell">
-								<app-input-control [field]="{id:'IsCounted', type : 'checkbox', form : c, }" (change)="saveChangeDetail(c)"></app-input-control>
-							</div>
+					<datatable-column [checkbox]="true" name="Counted" property="value">
+						<ng-template let-g="row" datatable-cell-template>
+							<app-input-control (change)="saveChangeDetail(g)" [field]="{ id: 'IsCounted', type: 'checkbox', form: g }"> </app-input-control>
+						</ng-template>
+					</datatable-column> 
 
-							<!-- <div class="col-name cell" (click)="sortToggle('Name')">
-											{{c.get('Zone')?.value}}
-										</div>
-										<div class="col-number cell" (click)="sortToggle('Name')">
-											{{c.get('Row')?.value}}
-										</div>
-										<div class="col-number cell" (click)="sortToggle('Name')">
-											{{c.get('Level')?.value}}
-										</div>
-										<div class="col-name cell" (click)="sortToggle('Name')">
-											{{c.get('Location')?.value}}
-										</div> -->
+					<datatable-column class="col-icon" name="" property="value">
+						<ng-template let-g="row" let-idx="idx" datatable-cell-template>
+							<ion-icon (click)="removeField(g,idx)" color="danger" *ngIf="pageConfig.canEdit && pageConfig.canDelete" name="trash"></ion-icon>
 
-							<div class="col-icon cell" (click)="removeField(c,j)" clickable>
-								<ion-icon color="danger" *ngIf="pageConfig.canEdit && pageConfig.canDelete" name="trash"></ion-icon>
-							</div>
-						</div>
-					</ng-container>
-				</section>
+						</ng-template>
+					</datatable-column>
+				</app-data-table>
+
 			</div>
 			<div *ngIf="segmentView == 's2'">
 				<ion-row class="hr-group" *ngIf="item?.Id">
