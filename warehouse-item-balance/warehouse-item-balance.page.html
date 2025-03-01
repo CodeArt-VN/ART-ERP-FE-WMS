@@ -1,103 +1,100 @@
 <ion-header>
-	<app-toolbar [page]="this">
-		<!-- <ion-button (click)="print()" title="{{'Form printing' | translate}}">
-			<ion-icon slot="icon-only" name="print"></ion-icon>
-		</ion-button> -->
-	</app-toolbar>
+	<app-toolbar [page]="this"> </app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="A4 left withFeature" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false" appPrintFix>
+<ion-content appScrollbarTheme class="scrollx left withFeature" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control
-				[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
-					,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-				}"
-				(change)="changeFilter()"
-			></app-form-control>
-
-			<app-form-control
-				[field]="{id:'IDPeriod', label: 'Year', type : 'ng-select',dataSource:listYear,bindLabel:'Name',bindValue:'Id', form : formGroup}"
-				(controlChange)="changePeriodCategory()"
+				[field]="{id: 'IDBranch', label: 'Warehouse', type : 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form : formGroup, branchConfig:{showingType:'Warehouse'} }"
+				(change)="loadData()"
 			></app-form-control>
 			<app-form-control
-				[field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}"
-				(change)="changeFilter()"
+				[field]="{id: 'IDStorer', label: 'Goods owner', type : 'ng-select', dataSource: storerList, bindLabel: 'Name', bindValue: 'Id', form : formGroup, clearable: true}"
+				(change)="loadData()"
+			></app-form-control>
+			<app-form-control
+				[field]="{id: 'IDPeriodCategory', label: 'Period category', type : 'ng-select', dataSource: periodCategoryList, bindLabel: 'Name', bindValue: 'Id', form : formGroup}"
+				(controlChange)="onChangePeriodCategory()"
 			></app-form-control>
 		</div>
 
-		<ng-container *ngIf="listPeriod.length>0">
+		<ng-container *ngIf="periodList.length>0">
 			<ion-list>
 				<ion-list-header lines="full">
-					<ion-label color="dark">{{'Notes' | translate}}</ion-label>
+					<ion-label color="dark">{{'Period list' | translate}}</ion-label>
 				</ion-list-header>
 			</ion-list>
 
 			<ion-list>
-			<ion-item
-				[color]="i.Id == selectedShipmentID? 'primary': '' "
-				button
-				detail="true"
-				lines="full"
-				class="clickable"
-				*ngFor="let i of listPeriod"
-				(click)="loadItemBalance(i)"
-			>
-				<ion-label class="ion-text-wrap">
-					<ion-text>
-						<h3>{{i.Code}} </h3>
-						<!-- - {{i.ShipperName}} -->
-					</ion-text>
-					<!-- <p>
-						<b>
-							<small>
-								<ion-text [color]="i.Id == selectedShipmentID? '': 'primary' ">{{'SH' | translate}}:{{i.Id}}</ion-text>
-							</small>
-							<ion-text [color]="i.Id == selectedShipmentID? '': 'dark' "> - {{i.DeliveryDateText}}</ion-text>
-						</b>
-					</p> -->
-				</ion-label>
-			</ion-item>
-		</ion-list>
+				<ion-item
+					[color]="i.Id == query.IDPeriod? 'primary': '' "
+					button
+					detail="true"
+					lines="full"
+					*ngFor="let i of periodList"
+					(click)="formGroup.controls.IDPeriod.setValue(i.Id); loadData()"
+				>
+					<ion-icon
+						aria-hidden="true"
+						[color]="i.Status=='Locked'? 'success': 'warning'"
+						[name]="i.Status=='Locked'? 'lock-closed': 'lock-open' "
+						slot="start"
+					></ion-icon>
+					<ion-label class="ion-text-wrap">
+						<h3>{{i.Code}}</h3>
+						<p>{{i.PostingDateFrom | date: 'yyyy-MM-dd'}} - {{i.PostingDateTo | date: 'yyyy-MM-dd'}}</p>
+					</ion-label>
+				</ion-item>
+			</ion-list>
 		</ng-container>
 	</ion-fab>
 
-	<div class="table-contain">
-		<app-data-table [rows]="formGroup.get('Lines')['controls']" [showSpinner]="pageConfig.showSpinner">
-			<datatable-column class="col-name" name="Items" property="value">
-				<ng-template let-g="row" datatable-cell-template>
-					<app-input-control
-						[field]="{
-									id: 'IDItem',
-									label: 'Item',
-									type: 'ng-select-item',
-									form: g,
-									dataSource: g.get('_IDItemDataSource').value,
-									bindValue: 'Id',
-									bindLabel: 'Name',
-									clearable: true,
-									placeholder: 'Type to search...',
-									appendTo: '#ng-select-header',
-								}"
-						(change)="submitData(g)"
-					></app-input-control>
-				</ng-template>
-			</datatable-column>
-			<datatable-column class="col-number" name="Open quantity" property="value">
-				<ng-template let-g="row" datatable-cell-template>
-					<app-input-control [field]="{ id: 'OpenQuantity', label: 'Opening quantity', form: g }" (change)="submitData(g)"></app-input-control>
-				</ng-template>
-			</datatable-column>
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
-			<datatable-column class="col-number" name="Closed quantity" property="value">
-				<ng-template let-g="row" datatable-cell-template>
-					<app-input-control [field]="{ id: 'ClosedQuantity', label: 'Closed quantity', form: g }" (change)="submitData(g)"></app-input-control>
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<!-- <datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column> -->
+
+			<datatable-column class="col-name flex-break" name="Items" property="IDItem">
+				<ng-template let-i="row" datatable-cell-template>
+					<span *ngIf="i?._Item" [title]="i._Item.Name">
+						<a [routerLink]="'/item/' + i._Item.Id" class="clickable">
+							<ion-icon color="warning" *ngIf="i._Item.IsDisabled" name="archive"></ion-icon>
+							<span *ngIf="!i._Item.IsDisabled">#</span>{{ i._Item.Id }}&nbsp;</a
+						>
+						<b>{{ i._Item.Code }}</b> {{ i._Item.Name }}
+					</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-number bold open-qty" format="1.0-0" name="Open quantity" property="OpenQuantity">
+				<ng-template let-i="row" datatable-cell-template>
+					<app-format-quantity [quantity]="i.OpenQuantity" [splitQuantityList]="i._SplitOpenQuantity"></app-format-quantity>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-number bold closed-qty" format="1.0-0" name="Closed quantity" property="ClosedQuantity">
+				<ng-template let-i="row" datatable-cell-template>
+					<app-format-quantity [quantity]="i.ClosedQuantity" [splitQuantityList]="i._SplitClosedQuantity"></app-format-quantity>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>
 	</div>
 
-	<!-- <app-page-message [itemsLength]="item?.data?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-
-	<div *ngIf="item && item.data?.length>0" style="overflow: auto"></div> -->
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
 </ion-content>
