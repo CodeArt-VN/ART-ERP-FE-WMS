@@ -7,7 +7,7 @@
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control
 				[field]="{id: 'IDBranch', label: 'Warehouse', type : 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form : formGroup, branchConfig:{showingType:'Warehouse'} }"
-				(change)="loadData()"
+				(change)="changeWarehouse()"
 			></app-form-control>
 			<app-form-control
 				[field]="{id: 'IDStorer', label: 'Goods owner', type : 'ng-select', dataSource: storerList, bindLabel: 'Name', bindValue: 'Id', form : formGroup, clearable: true}"
@@ -61,33 +61,64 @@
 			[showSpinner]="pageConfig.showSpinner"
 			[showFilter]="pageConfig.isShowSearch"
 			[(query)]="query"
-			(dataInfinite)="loadData($event)"
+			
 			(filter)="onDatatableFilter($event)"
 			(sort)="onSort($event)"
 			(selectedRowsChange)="showCommandBySelectedRows($event)"
 		>
+		<!-- (dataInfinite)="loadData($event)" -->
 			<datatable-column [checkbox]="true" name=""></datatable-column>
 			<!-- <datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column> -->
 
 			<datatable-column class="col-name flex-break" name="Items" property="IDItem">
 				<ng-template let-i="row" datatable-cell-template>
-					<span *ngIf="i?._Item" [title]="i._Item.Name">
+					<span *ngIf="i?._Item && !i?.isEdit" [title]="i._Item.Name">
 						<a [routerLink]="'/item/' + i._Item.Id" class="clickable">
 							<ion-icon color="warning" *ngIf="i._Item.IsDisabled" name="archive"></ion-icon>
 							<span *ngIf="!i._Item.IsDisabled">#</span>{{ i._Item.Id }}&nbsp;</a
 						>
 						<b>{{ i._Item.Code }}</b> {{ i._Item.Name }}
 					</span>
+					<app-input-control
+						*ngIf="i?.isEdit"
+						[field]="{
+									id: 'IDItem',
+									label: 'Item',
+									type: 'ng-select-item',
+									form: i?._formGroup,
+									dataSource: i?._formGroup.get('_IDItemDataSource').value,
+									bindValue: 'Id',
+									bindLabel: 'Name',
+									clearable: true,
+									placeholder: 'Type to search...',
+									appendTo: '#ng-select-header',
+								}"
+					></app-input-control>
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-number bold open-qty" format="1.0-0" name="Open quantity" property="OpenQuantity">
 				<ng-template let-i="row" datatable-cell-template>
-					<app-format-quantity [quantity]="i.OpenQuantity" [splitQuantityList]="i._SplitOpenQuantity"></app-format-quantity>
+					<app-format-quantity *ngIf="!i?.isEdit"  [quantity]="i.OpenQuantity" [splitQuantityList]="i._SplitOpenQuantity"></app-format-quantity>
+					<app-input-control *ngIf="i?.isEdit" [field]="{ id: 'OpenQuantity', type: 'number', form: i?._formGroup }" > </app-input-control> 
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-number bold closed-qty" format="1.0-0" name="Closed quantity" property="ClosedQuantity">
 				<ng-template let-i="row" datatable-cell-template>
-					<app-format-quantity [quantity]="i.ClosedQuantity" [splitQuantityList]="i._SplitClosedQuantity"></app-format-quantity>
+					<app-format-quantity  *ngIf="!i?.isEdit" [quantity]="i.ClosedQuantity" [splitQuantityList]="i._SplitClosedQuantity"></app-format-quantity>
+					<app-input-control *ngIf="i?.isEdit" [field]="{ id: 'ClosedQuantity', type: 'number', form: i?._formGroup }" > </app-input-control> 
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-button *ngIf="!i?.isEdit" (click)="editRow(i)" size="small" title="{{'Edit' | translate}}" fill="clear">
+						<ion-icon slot="icon-only" name="pencil"></ion-icon>
+					</ion-button>
+					<div class="text-center">
+						<ion-button *ngIf="i?.isEdit" (click)="saveRow(i)" size="small"> {{'Save' | translate}} </ion-button>
+						<br />
+						<ion-button *ngIf="i?.isEdit" (click)="cancelRow(i)" size="small" fill="outline"> {{'Cancel' | translate}} </ion-button>
+					</div>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>
