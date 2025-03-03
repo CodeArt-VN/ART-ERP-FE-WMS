@@ -55,7 +55,7 @@ export class AdjustmentPage extends PageBase {
 					this.pageConfig[e.Code] = JSON.parse(e.Value);
 					if (this.pageConfig.AdjustmentUsedApprovalModule) {
 						this.pageConfig.canApprove = false;
-						this.pageConfig.canDisapprove = false;
+						this.pageConfig.canApprove = false;
 					}
 				});
 			}

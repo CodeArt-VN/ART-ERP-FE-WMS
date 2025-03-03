@@ -376,7 +376,10 @@
 
 					<datatable-column class="col-remark flex-break" name="Remark" property="value">
 						<ng-template let-g="row" datatable-cell-template>
-							<app-format-quantity [quantity]="g.controls.CurrentQuantity.value" [splitQuantityList]="g.controls._SplitUoMS_CurrentQuantity.value"></app-format-quantity>
+							<app-format-quantity
+								[quantity]="g.controls.CurrentQuantity.value"
+								[splitQuantityList]="g.controls._SplitUoMS_CurrentQuantity.value"
+							></app-format-quantity>
 						</ng-template>
 					</datatable-column>
 
@@ -399,25 +402,21 @@
 								<div class="col-qty cell" *ngIf="!formGroup.controls?._Counters?.value && formGroup.get('CountType').value =='Simple'"></div>
 								<div class="col-qty cell" *ngFor="let c of formGroup.controls?._Counters?.value"></div>
 							</ng-container>
-
 						</ng-template>
 					</datatable-column>
-
 
 					<datatable-column [checkbox]="true" name="Counted" property="value">
 						<ng-template let-g="row" datatable-cell-template>
 							<app-input-control (change)="saveChangeDetail(g)" [field]="{ id: 'IsCounted', type: 'checkbox', form: g }"> </app-input-control>
 						</ng-template>
-					</datatable-column> 
+					</datatable-column>
 
 					<datatable-column class="col-icon" name="" property="value">
 						<ng-template let-g="row" let-idx="idx" datatable-cell-template>
 							<ion-icon (click)="removeField(g,idx)" color="danger" *ngIf="pageConfig.canEdit && pageConfig.canDelete" name="trash"></ion-icon>
-
 						</ng-template>
 					</datatable-column>
 				</app-data-table>
-
 			</div>
 			<div *ngIf="segmentView == 's2'">
 				<ion-row class="hr-group" *ngIf="item?.Id">

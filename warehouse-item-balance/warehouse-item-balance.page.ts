@@ -55,13 +55,16 @@ export class WareHouseItemBalancePage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.contactProvider.read({ IsStorer: true }), this.periodCategoryProvider.read({ IgnoredBranch: true }), 
+		Promise.all([
+			this.contactProvider.read({ IsStorer: true }),
+			this.periodCategoryProvider.read({ IgnoredBranch: true }),
 			//this.env.searchBranch((b) => b.Type == 'Warehouse')
 		])
 			.then((resp: any) => {
 				this.storerList = resp[0].data;
 				this.periodCategoryList = resp[1].data;
-				this.branchList = lib.cloneObject(this.env.branchList); resp[2];
+				this.branchList = lib.cloneObject(this.env.branchList);
+				resp[2];
 
 				console.log('this.branchList', this.branchList);
 				console.log('this.periodCategoryList', this.periodCategoryList);

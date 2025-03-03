@@ -254,7 +254,7 @@ export class CycleCountDetailPage extends PageBase {
 			CreatedDate: new FormControl({ value: field.CreatedDate, disabled: true }),
 			ModifiedBy: new FormControl({ value: field.ModifiedBy, disabled: true }),
 			ModifiedDate: new FormControl({ value: field.ModifiedDate, disabled: true }),
-			_SplitUoMS_CurrentQuantity : [field._SplitUoMS_CurrentQuantity],
+			_SplitUoMS_CurrentQuantity: [field._SplitUoMS_CurrentQuantity],
 		});
 		// field.DetailCounters?.forEach(d=>d.)
 		if (field.CycleCountTaskDetails?.length <= 0 || !field.IsCounted) {
