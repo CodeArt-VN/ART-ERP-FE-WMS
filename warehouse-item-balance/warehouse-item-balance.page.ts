@@ -52,6 +52,7 @@ export class WareHouseItemBalancePage extends PageBase {
 			IDStorer: ['', Validators.required],
 			IDPeriodCategory: ['', Validators.required],
 			IDPeriod: ['', Validators.required],
+			IDBranchPeriod: [''],
 		});
 	}
 
@@ -157,6 +158,12 @@ export class WareHouseItemBalancePage extends PageBase {
 			});
 	}
 
+	periodClick(i) {
+		this.formGroup.controls.IDPeriod.setValue(i.Id);
+		this.formGroup.controls.IDBranchPeriod.setValue(i.IDBranch);
+		this.loadData();
+	}
+
 	add(): void {
 		if (!this.formGroup.valid) {
 			let invalidControls = this.findInvalidControlsRecursive(this.formGroup);
@@ -175,13 +182,13 @@ export class WareHouseItemBalancePage extends PageBase {
 			IDItem: 0,
 			OpenQuantity: 0,
 			ClosedQuantity: 0,
-			_Item : {}
+			_Item: {},
 		}); //Add new row to top of list
 
-		this.editRow(this.items[0],true);
+		this.editRow(this.items[0], true);
 	}
 
-	editRow(row , makeAsDirty = false) {
+	editRow(row, makeAsDirty = false) {
 		row.isEdit = true;
 		let selectedItem = row._Item;
 		//Create formGroup of row
@@ -204,10 +211,9 @@ export class WareHouseItemBalancePage extends PageBase {
 		});
 		if (selectedItem) row._formGroup.get('_IDItemDataSource').value.selected.push(selectedItem);
 		row._formGroup.get('_IDItemDataSource').value?.initSearch();
-		if(makeAsDirty){
+		if (makeAsDirty) {
 			row._formGroup.get('IDStorer').markAsDirty();
 			row._formGroup.get('IDPeriod').markAsDirty();
-
 		}
 	}
 	cancelRow(row) {
@@ -219,6 +225,6 @@ export class WareHouseItemBalancePage extends PageBase {
 	}
 
 	saveRow(row) {
-		this.saveChange2(row._formGroup, '').then(reps => this.loadData());
+		this.saveChange2(row._formGroup, '').then((reps) => this.loadData());
 	}
 }

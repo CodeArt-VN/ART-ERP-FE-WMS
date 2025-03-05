@@ -33,7 +33,7 @@
 					detail="true"
 					lines="full"
 					*ngFor="let i of periodList"
-					(click)="formGroup.controls.IDPeriod.setValue(i.Id); loadData()"
+					(click)="periodClick(i)"
 				>
 					<ion-icon
 						aria-hidden="true"
