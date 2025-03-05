@@ -49,12 +49,7 @@ export class ReceiptPage extends PageBase {
 			this.sort.Id = 'Id';
 			this.sortToggle('Id', true);
 		}
-		Promise.all([
-			this.contactProvider.read({ IsStorer: true }),
-			
-			this.env.getStatus('ReceiptStatus'),
-			this.env.getType('ReceiptType'),
-		]).then((values) => {
+		Promise.all([this.contactProvider.read({ IsStorer: true }), this.env.getStatus('ReceiptStatus'), this.env.getType('ReceiptType')]).then((values) => {
 			this.storerList = values[0]['data'];
 			this.statusList = values[1];
 			this.typeList = values[2];
@@ -289,54 +284,50 @@ export class ReceiptPage extends PageBase {
 			});
 	}
 
- 	copyToReceipt(id) {
-		this.env
-		.showLoading('Please wait for a few moments',this.purchaseOrderProvider.getAnItem(id)).then(async(rs:any) => {
-			
-		const modal = await this.modalController.create({
-			component: CopyFromPurchaseOrderToReceiptModalPage,
-			componentProps: { _item: rs },
-			cssClass: 'modal90',
-		});
-		await modal.present();
-		const { data } = await modal.onWillDismiss();
-		if (data) {
-			this.env.showPrompt(null, 'Do you want to move to the just created ASN page ?', 'ASN created!').then((_) => {
-				this.env.publishEvent({ Code: this.pageConfig.pageName });
-				this.nav('/receipt/' + data.Id);
+	copyToReceipt(id) {
+		this.env.showLoading('Please wait for a few moments', this.purchaseOrderProvider.getAnItem(id)).then(async (rs: any) => {
+			const modal = await this.modalController.create({
+				component: CopyFromPurchaseOrderToReceiptModalPage,
+				componentProps: { _item: rs },
+				cssClass: 'modal90',
 			});
-		}
-		})
-		
+			await modal.present();
+			const { data } = await modal.onWillDismiss();
+			if (data) {
+				this.env.showPrompt(null, 'Do you want to move to the just created ASN page ?', 'ASN created!').then((_) => {
+					this.env.publishEvent({ Code: this.pageConfig.pageName });
+					this.nav('/receipt/' + data.Id);
+				});
+			}
+		});
 	}
 
 	initPODatasource = [];
 	isOpenPurchaseOrderPopover = false;
-	async openPurchaseOrderPopover(ev: any){
+	async openPurchaseOrderPopover(ev: any) {
 		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
 		let queryPO = {
-			IDBranch:this.env.selectedBranchAndChildren,
-			Take:20,
-			Skip:0,
-			Status:'["Ordered","Confirmed","PartialReceived"]',
-		}
-		let searchFn = this.buildSelectDataSource(
-			(term) => {
-			return this.purchaseOrderProvider.search({...queryPO, Term: term});
-		},false);
-		if(this.initPODatasource.length == 0 ){
-			this.purchaseOrderProvider.read(queryPO).then(async(rs:any)=>{
-				if(rs && rs.data){
+			IDBranch: this.env.selectedBranchAndChildren,
+			Take: 20,
+			Skip: 0,
+			Status: '["Ordered","Confirmed","PartialReceived"]',
+		};
+		let searchFn = this.buildSelectDataSource((term) => {
+			return this.purchaseOrderProvider.search({ ...queryPO, Term: term });
+		}, false);
+		if (this.initPODatasource.length == 0) {
+			this.purchaseOrderProvider.read(queryPO).then(async (rs: any) => {
+				if (rs && rs.data) {
 					this.initPODatasource = rs.data;
-					searchFn.selected =this.initPODatasource;
+					searchFn.selected = this.initPODatasource;
 					let popover = await this.popoverCtrl.create({
 						component: SearchAsyncPopoverPage,
 						componentProps: {
-							type:'PurchaseOrder',
-							title:'Purchase order',
+							type: 'PurchaseOrder',
+							title: 'Purchase order',
 							provider: this.purchaseOrderProvider,
 							query: queryPO,
-							searchFunction:searchFn
+							searchFunction: searchFn,
 						},
 						event: ev,
 						cssClass: 'w300',
@@ -345,26 +336,22 @@ export class ReceiptPage extends PageBase {
 					popover.onDidDismiss().then((result: any) => {
 						console.log(result);
 						if (result?.data?.Id) {
-
 							this.copyToReceipt(result.data.Id);
 						}
 					});
 					return await popover.present();
 				}
-			})
-			
-			
-		}
-		else {
-			searchFn.selected =this.initPODatasource;
+			});
+		} else {
+			searchFn.selected = this.initPODatasource;
 			let popover = await this.popoverCtrl.create({
 				component: SearchAsyncPopoverPage,
 				componentProps: {
-					type:'PurchaseOrder',
-					title:'Purchase order',
+					type: 'PurchaseOrder',
+					title: 'Purchase order',
 					provider: this.purchaseOrderProvider,
 					query: queryPO,
-					searchFunction:searchFn
+					searchFunction: searchFn,
 				},
 				event: ev,
 				cssClass: 'w300',
@@ -374,14 +361,11 @@ export class ReceiptPage extends PageBase {
 				console.log(result);
 				if (result?.data?.Id) {
 					this.copyToReceipt(result.data.Id);
-
 				}
 			});
 			return await popover.present();
 		}
-		
 	}
-	
 
 	isOpenAddNewPopover = false;
 	@ViewChild('addNewPopover') addNewPopover!: HTMLIonPopoverElement;
