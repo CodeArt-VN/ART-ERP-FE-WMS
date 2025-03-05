@@ -8,7 +8,7 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import { BRA_BranchProvider, CRM_ContactProvider, PURCHASE_OrderProvider, WMS_ReceiptProvider } from 'src/app/services/static/services.service';
 import { SearchAsyncPopoverPage } from '../../PURCHASE/search-async-popover/search-async-popover.page';
-import { CopyToReceiptModalPage } from '../../PURCHASE/copy-to-receipt-modal/copy-to-receipt-modal.page';
+import { CopyFromPurchaseOrderToReceiptModalPage } from '../../PURCHASE/copy-from-purchase-order-to-receipt-modal/copy-from-purchase-order-to-receipt-modal.page';
 
 @Component({
 	selector: 'app-receipt',
@@ -294,7 +294,7 @@ export class ReceiptPage extends PageBase {
 		.showLoading('Please wait for a few moments',this.purchaseOrderProvider.getAnItem(id)).then(async(rs:any) => {
 			
 		const modal = await this.modalController.create({
-			component: CopyToReceiptModalPage,
+			component: CopyFromPurchaseOrderToReceiptModalPage,
 			componentProps: { _item: rs },
 			cssClass: 'modal90',
 		});
