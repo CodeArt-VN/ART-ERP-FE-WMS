@@ -16,8 +16,45 @@
     (submitReceipt)="submitReceipt()"
   >
 </app-list-toolbar> -->
+<!-- *ngIf="
+(pageConfig.ShowAddNew && pageConfig.canAdd)" -->
+	<app-toolbar [page]="this">
+		<ion-button
+			*ngIf="selectedItems?.length == 0"
+			class="clickable"
+			title="{{'Add' | translate}}"
+			(click)="presentAddNewPopover($event)"
+		
+		>
+			<ion-icon color="success" slot="icon-only" name="duplicate-outline"></ion-icon>
+		</ion-button>
+		<ion-popover #addNewPopover [isOpen]="isOpenAddNewPopover" (didDismiss)="isOpenAddNewPopover = false">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item
+							[button]="true"
+							[detail]="false"
+							(click)="add()"
+							title="{{'Add' | translate}}"
+						>
+							<ion-icon color="success" slot="start" name="add-outline"></ion-icon>
+							<ion-label> {{'Add' | translate}}</ion-label>
+						</ion-item>
 
-	<app-toolbar [page]="this" [ShowDelete]="pageConfig.ShowDelete">
+						<ion-item
+							title="{{'Copy from purchase order' | translate}}"
+							[button]="true"
+							[detail]="false"
+							(click)="openPurchaseOrderPopover()"
+						>
+							<ion-icon name="clipboard-list" color="success" slot="start"></ion-icon>
+							<ion-label>{{'Copy from purchase order' | translate}}</ion-label>
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+		</ion-popover>
 		<ion-button tollbarSelected title="Goods receipt" *ngIf="pageConfig.canReceive" (click)="submitReceipt()">
 			<ion-icon color="success" slot="icon-only" name="bag-check-outline"></ion-icon>
 		</ion-button>
@@ -175,7 +212,7 @@
 					</span>
 				</div>
 				<div (click)="nav('receipt/'+i.Id,'forward')" class="col-code cell">{{i.StorerName}}</div>
-				<div class="col-date cell">{{i.ExpectedReceiptDateText}}</div>
+				<div class="col-date cell">{{i.ExpectedReceiptDate | date:'dd/mm/yy hh:MM'}}</div>
 				<div class="col-date col-estReceivingDate cell">
 					<span *ngIf="i.ReceiptedDateText"> {{i.ReceiptedDateText}}</span>
 				</div>

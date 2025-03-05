@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { AlertController, LoadingController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
@@ -7,6 +7,8 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import { BRA_BranchProvider, CRM_ContactProvider, PURCHASE_OrderProvider, WMS_ReceiptProvider } from 'src/app/services/static/services.service';
+import { SearchAsyncPopoverPage } from '../../PURCHASE/search-async-popover/search-async-popover.page';
+import { CopyToReceiptModalPage } from '../../PURCHASE/copy-to-receipt-modal/copy-to-receipt-modal.page';
 
 @Component({
 	selector: 'app-receipt',
@@ -15,8 +17,10 @@ import { BRA_BranchProvider, CRM_ContactProvider, PURCHASE_OrderProvider, WMS_Re
 	standalone: false,
 })
 export class ReceiptPage extends PageBase {
+	canAddNew = false;
 	constructor(
 		public pageProvider: WMS_ReceiptProvider,
+		public purchaseOrderProvider: PURCHASE_OrderProvider,
 		public branchProvider: BRA_BranchProvider,
 		public contactProvider: CRM_ContactProvider,
 		public purchaseProvider: PURCHASE_OrderProvider,
@@ -29,29 +33,13 @@ export class ReceiptPage extends PageBase {
 		public navCtrl: NavController
 	) {
 		super();
-
-		Object.assign(purchaseProvider, {
-			copyToReceipt(item) {
-				console.log(item);
-				return new Promise((resolve, reject) => {
-					this.commonService
-						.connect('POST', ApiSetting.apiDomain('PURCHASE/Order/CopyToReceipt/'), item)
-						.toPromise()
-						.then((data) => {
-							resolve(data);
-						})
-						.catch((err) => {
-							reject(err);
-						});
-				});
-			},
-		});
+		this.pageConfig.ShowAddNew = this.pageConfig.canAdd;
+		this.pageConfig.ShowAdd = false;
 
 		if (this.env.user.IDBusinessPartner > 0 && this.env.user.SysRoles.includes('VENDOR')) this.vendorView = true;
 	}
 
 	storerList = [];
-	warehouseList = [];
 	statusList = [];
 	typeList = [];
 	vendorView = false;
@@ -63,17 +51,13 @@ export class ReceiptPage extends PageBase {
 		}
 		Promise.all([
 			this.contactProvider.read({ IsStorer: true }),
-			this.branchProvider.read({
-				Id: this.env.selectedBranchAndChildren,
-				Type: 'Warehouse',
-			}),
+			
 			this.env.getStatus('ReceiptStatus'),
 			this.env.getType('ReceiptType'),
 		]).then((values) => {
 			this.storerList = values[0]['data'];
-			this.warehouseList = values[1]['data'];
-			this.statusList = values[2];
-			this.typeList = values[3];
+			this.statusList = values[1];
+			this.typeList = values[2];
 
 			super.preLoadData(event);
 		});
@@ -101,8 +85,6 @@ export class ReceiptPage extends PageBase {
 		this.pageConfig.canDelivery = this.selectedItems.every((i) => i.Status == 'Confirmed') && this.vendorView;
 		// this.pageConfig.ShowSubmit = this.selectedItems.every(i => submitSet.has(i.Status));
 		// this.pageConfig.ShowCancel = this.selectedItems.every(i => cancelSet.has(i.Status));
-		this.pageConfig.ShowDelete = this.selectedItems.every((i) => i.Status == 'New');
-
 		// if (uniqueSellerIDs.size > 1) {
 		//   this.IDBusinessPartner = null;
 		// } else {
@@ -273,51 +255,6 @@ export class ReceiptPage extends PageBase {
 			});
 	}
 
-	async copyToReceipt(POItem: any) {
-		const loading = await this.loadingController.create({
-			cssClass: 'my-custom-class',
-			message: 'Please wait for a few moments',
-		});
-		await loading.present().then(() => {
-			this.purchaseProvider['copyToReceipt'](POItem)
-				.then((resp: any) => {
-					if (loading) loading.dismiss();
-					this.alertCtrl
-						.create({
-							header: 'Đã tạo ASN/Receipt',
-
-							message: 'Bạn có muốn di chuyển đến ASN mới tạo?',
-							cssClass: 'alert-text-left',
-							buttons: [
-								{
-									text: 'Không',
-									role: 'cancel',
-									handler: () => {},
-								},
-								{
-									text: 'Có',
-									cssClass: 'success-btn',
-									handler: () => {
-										this.nav('/receipt/' + resp);
-									},
-								},
-							],
-						})
-						.then((alert) => {
-							alert.present();
-						});
-					this.env.showMessage('ASN created!', 'success');
-					this.env.publishEvent({ Code: this.pageConfig.pageName });
-				})
-				.catch((err) => {
-					console.log(err);
-
-					this.env.showMessage('Cannot create ASN, please try again later', 'danger');
-					if (loading) loading.dismiss();
-				});
-		});
-	}
-
 	scanning = false;
 	async scanQRCode() {
 		try {
@@ -350,5 +287,106 @@ export class ReceiptPage extends PageBase {
 				this.env.showMessage('Đã chuyển trạng thái thành công', 'success');
 				this.refresh();
 			});
+	}
+
+ 	copyToReceipt(id) {
+		this.env
+		.showLoading('Please wait for a few moments',this.purchaseOrderProvider.getAnItem(id)).then(async(rs:any) => {
+			
+		const modal = await this.modalController.create({
+			component: CopyToReceiptModalPage,
+			componentProps: { _item: rs },
+			cssClass: 'modal90',
+		});
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if (data) {
+			this.env.showPrompt(null, 'Do you want to move to the just created ASN page ?', 'ASN created!').then((_) => {
+				this.env.publishEvent({ Code: this.pageConfig.pageName });
+				this.nav('/receipt/' + data.Id);
+			});
+		}
+		})
+		
+	}
+
+	initPODatasource = [];
+	isOpenPurchaseOrderPopover = false;
+	async openPurchaseOrderPopover(ev: any){
+		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
+		let queryPO = {
+			IDBranch:this.env.selectedBranchAndChildren,
+			Take:20,
+			Skip:0,
+			Status:'["Ordered","Confirmed","PartialReceived"]',
+		}
+		let searchFn = this.buildSelectDataSource(
+			(term) => {
+			return this.purchaseOrderProvider.search({...queryPO, Term: term});
+		},false);
+		if(this.initPODatasource.length == 0 ){
+			this.purchaseOrderProvider.read(queryPO).then(async(rs:any)=>{
+				if(rs && rs.data){
+					this.initPODatasource = rs.data;
+					searchFn.selected =this.initPODatasource;
+					let popover = await this.popoverCtrl.create({
+						component: SearchAsyncPopoverPage,
+						componentProps: {
+							type:'PurchaseOrder',
+							title:'Purchase order',
+							provider: this.purchaseOrderProvider,
+							query: queryPO,
+							searchFunction:searchFn
+						},
+						event: ev,
+						cssClass: 'w300',
+						translucent: true,
+					});
+					popover.onDidDismiss().then((result: any) => {
+						console.log(result);
+						if (result?.data?.Id) {
+
+							this.copyToReceipt(result.data.Id);
+						}
+					});
+					return await popover.present();
+				}
+			})
+			
+			
+		}
+		else {
+			searchFn.selected =this.initPODatasource;
+			let popover = await this.popoverCtrl.create({
+				component: SearchAsyncPopoverPage,
+				componentProps: {
+					type:'PurchaseOrder',
+					title:'Purchase order',
+					provider: this.purchaseOrderProvider,
+					query: queryPO,
+					searchFunction:searchFn
+				},
+				event: ev,
+				cssClass: 'w300',
+				translucent: true,
+			});
+			popover.onDidDismiss().then((result: any) => {
+				console.log(result);
+				if (result?.data?.Id) {
+					this.copyToReceipt(result.data.Id);
+
+				}
+			});
+			return await popover.present();
+		}
+		
+	}
+	
+
+	isOpenAddNewPopover = false;
+	@ViewChild('addNewPopover') addNewPopover!: HTMLIonPopoverElement;
+	presentAddNewPopover(e) {
+		this.addNewPopover.event = e;
+		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
 	}
 }
