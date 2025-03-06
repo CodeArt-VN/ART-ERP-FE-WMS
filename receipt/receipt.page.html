@@ -35,7 +35,7 @@
 						<ion-item
 							[button]="true"
 							[detail]="false"
-							(click)="add()"
+							(click)="addNewPopover.dismiss() ;add()"
 							title="{{'Add' | translate}}"
 						>
 							<ion-icon color="success" slot="start" name="add-outline"></ion-icon>
