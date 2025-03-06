@@ -16,16 +16,10 @@
     (submitReceipt)="submitReceipt()"
   >
 </app-list-toolbar> -->
-<!-- *ngIf="
+	<!-- *ngIf="
 (pageConfig.ShowAddNew && pageConfig.canAdd)" -->
 	<app-toolbar [page]="this">
-		<ion-button
-			*ngIf="selectedItems?.length == 0"
-			class="clickable"
-			title="{{'Add' | translate}}"
-			(click)="presentAddNewPopover($event)"
-		
-		>
+		<ion-button *ngIf="selectedItems?.length == 0" class="clickable" title="{{'Add' | translate}}" (click)="presentAddNewPopover($event)">
 			<ion-icon color="success" slot="icon-only" name="duplicate-outline"></ion-icon>
 		</ion-button>
 		<ion-popover #addNewPopover [isOpen]="isOpenAddNewPopover" (didDismiss)="isOpenAddNewPopover = false">
@@ -42,12 +36,7 @@
 							<ion-label> {{'Add' | translate}}</ion-label>
 						</ion-item>
 
-						<ion-item
-							title="{{'Copy from purchase order' | translate}}"
-							[button]="true"
-							[detail]="false"
-							(click)="openPurchaseOrderPopover()"
-						>
+						<ion-item title="{{'Copy from purchase order' | translate}}" [button]="true" [detail]="false" (click)="openPurchaseOrderPopover()">
 							<ion-icon name="clipboard-list" color="success" slot="start"></ion-icon>
 							<ion-label>{{'Copy from purchase order' | translate}}</ion-label>
 						</ion-item>

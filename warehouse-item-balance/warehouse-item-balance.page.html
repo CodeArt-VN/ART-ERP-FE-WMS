@@ -27,14 +27,7 @@
 			</ion-list>
 
 			<ion-list>
-				<ion-item
-					[color]="i.Id == query.IDPeriod? 'primary': '' "
-					button
-					detail="true"
-					lines="full"
-					*ngFor="let i of periodList"
-					(click)="periodClick(i)"
-				>
+				<ion-item [color]="i.Id == query.IDPeriod? 'primary': '' " button detail="true" lines="full" *ngFor="let i of periodList" (click)="periodClick(i)">
 					<ion-icon
 						aria-hidden="true"
 						[color]="i.Status=='Locked'? 'success': 'warning'"
@@ -61,12 +54,11 @@
 			[showSpinner]="pageConfig.showSpinner"
 			[showFilter]="pageConfig.isShowSearch"
 			[(query)]="query"
-			
 			(filter)="onDatatableFilter($event)"
 			(sort)="onSort($event)"
 			(selectedRowsChange)="showCommandBySelectedRows($event)"
 		>
-		<!-- (dataInfinite)="loadData($event)" -->
+			<!-- (dataInfinite)="loadData($event)" -->
 			<datatable-column [checkbox]="true" name=""></datatable-column>
 			<!-- <datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column> -->
 
@@ -98,14 +90,14 @@
 			</datatable-column>
 			<datatable-column class="col-number bold open-qty" format="1.0-0" name="Open quantity" property="OpenQuantity">
 				<ng-template let-i="row" datatable-cell-template>
-					<app-format-quantity *ngIf="!i?.isEdit"  [quantity]="i.OpenQuantity" [splitQuantityList]="i._SplitOpenQuantity"></app-format-quantity>
-					<app-input-control *ngIf="i?.isEdit" [field]="{ id: 'OpenQuantity', type: 'number', form: i?._formGroup }" > </app-input-control> 
+					<app-format-quantity *ngIf="!i?.isEdit" [quantity]="i.OpenQuantity" [splitQuantityList]="i._SplitOpenQuantity"></app-format-quantity>
+					<app-input-control *ngIf="i?.isEdit" [field]="{ id: 'OpenQuantity', type: 'number', form: i?._formGroup }"> </app-input-control>
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-number bold closed-qty" format="1.0-0" name="Closed quantity" property="ClosedQuantity">
 				<ng-template let-i="row" datatable-cell-template>
-					<app-format-quantity  *ngIf="!i?.isEdit" [quantity]="i.ClosedQuantity" [splitQuantityList]="i._SplitClosedQuantity"></app-format-quantity>
-					<app-input-control *ngIf="i?.isEdit" [field]="{ id: 'ClosedQuantity', type: 'number', form: i?._formGroup }" > </app-input-control> 
+					<app-format-quantity *ngIf="!i?.isEdit" [quantity]="i.ClosedQuantity" [splitQuantityList]="i._SplitClosedQuantity"></app-format-quantity>
+					<app-input-control *ngIf="i?.isEdit" [field]="{ id: 'ClosedQuantity', type: 'number', form: i?._formGroup }"> </app-input-control>
 				</ng-template>
 			</datatable-column>
 
