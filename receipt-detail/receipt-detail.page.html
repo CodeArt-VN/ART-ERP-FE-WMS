@@ -1,5 +1,5 @@
 <ion-header>
-	<app-detail-toolbar [page]="this">
+	<app-toolbar [page]="this">
 		<ion-button title="Goods receipt" (click)="submitReceipt()" *ngIf="formGroup.get('Status').value == 'Palletized'">
 			<ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
 		</ion-button>
@@ -8,11 +8,11 @@
 			<ion-icon slot="icon-only" name="print"></ion-icon>
 		</ion-button>
 
-		<ion-button title="{{'Copy to A/P invoice' | translate}}" *ngIf="pageConfig.canCopyToAPInvoice" (click)="createInvoice()">
+		<ion-button title="{{'Copy to A/P invoice' | translate}}" *ngIf="pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice" (click)="createInvoice()">
 			<ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
 		</ion-button>
 
-		<ion-button title="Delivering" *ngIf="pageConfig.canDelivery " (click)="deliveryReceipt()">
+		<ion-button title="Delivering" *ngIf="pageConfig.ShowDelivery && pageConfig.canDelivery" (click)="deliveryReceipt()">
 			<ion-icon slot="icon-only" name="shipping-fast"></ion-icon>
 		</ion-button>
 
@@ -34,7 +34,7 @@
 			</ion-button>
 			<span class="split ion-hide-sm-down">|</span>
 		</div>
-	</app-detail-toolbar>
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding">
