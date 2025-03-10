@@ -78,6 +78,7 @@ export class ReceiptPage extends PageBase {
 		// const uniqueSellerIDs = new Set(this.selectedItems.map((i) => i.IDVendor));
 		// this.pageConfig.ShowApprove = this.selectedItems.every(i => approveSet.has(i.Status));
 		this.pageConfig.canDelivery = this.selectedItems.every((i) => i.Status == 'Confirmed') && this.vendorView;
+
 		// this.pageConfig.ShowSubmit = this.selectedItems.every(i => submitSet.has(i.Status));
 		// this.pageConfig.ShowCancel = this.selectedItems.every(i => cancelSet.has(i.Status));
 		// if (uniqueSellerIDs.size > 1) {
@@ -250,6 +251,32 @@ export class ReceiptPage extends PageBase {
 			});
 	}
 
+	async createInvoice() {
+		this.env
+			.actionConfirm('createinvoice', this.selectedItems.length, this.item?.Name,this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService
+					.connect('POST', 'WMS/Receipt/CreateInvoice/', {
+						Ids: this.selectedItems.map((d) => d.Id),
+					})
+					.toPromise()
+			)
+			.then((resp: any) => {
+				this.env
+					.showPrompt('Bạn có muốn mở hóa đơn vừa tạo?')
+					.then((_) => {
+						if (resp.length == 1) {
+							this.nav('/ap-invoice/' + resp[0]);
+						} else {
+							this.nav('/ap-invoice/');
+						}
+					})
+					.catch((_) => {});
+			})
+			.catch((err) => {
+				this.env.showMessage(err);
+			});
+	}
+
 	scanning = false;
 	async scanQRCode() {
 		try {
@@ -372,5 +399,12 @@ export class ReceiptPage extends PageBase {
 	presentAddNewPopover(e) {
 		this.addNewPopover.event = e;
 		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
+	}
+	
+	isOpenCopyPopover: boolean = false;
+	@ViewChild('copyPopover') copyPopover!: HTMLIonPopoverElement;
+	presentCopyPopover(e) {
+		this.copyPopover.event = e;
+		this.isOpenCopyPopover = !this.isOpenCopyPopover;
 	}
 }
