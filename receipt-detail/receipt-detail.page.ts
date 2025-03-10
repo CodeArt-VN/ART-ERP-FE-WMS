@@ -516,6 +516,9 @@ export class ReceiptDetailPage extends PageBase {
 														Code: publishEventCode,
 													});
 												}
+												this.env.publishEvent({
+													Code: 'purchase-order',
+												});
 												this.env.showMessage('Saving completed!', 'success');
 												this.submitAttempt = false;
 												if (loading) loading.dismiss();
