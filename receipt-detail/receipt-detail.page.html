@@ -1,15 +1,37 @@
 <ion-header>
 	<app-toolbar [page]="this">
+		<ion-button
+		class="clickable"
+		title="{{'Copy' | translate}}"
+		(click)="presentCopyPopover($event)"
+	*ngIf=" (pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice)"
+	>
+		<ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+	</ion-button>
+	<ion-popover #copyPopover [isOpen]="isOpenCopyPopover" (didDismiss)="isOpenCopyPopover = false" [dismissOnSelect]="true">
+		<ng-template>
+			<ion-content scroll-y="false">
+				<ion-list lines="none">
+					<ion-item
+						title="{{'Copy to A/P invoice' | translate}}"
+						*ngIf="pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice"
+						[button]="true"
+						[detail]="false"
+						(click)="createInvoice()"
+					>
+						<ion-icon slot="start" name="receipt-outline"></ion-icon>
+						<ion-label>{{'Copy to A/P invoice' | translate}}</ion-label>
+					</ion-item>
+				</ion-list>
+			</ion-content>
+		</ng-template>
+	</ion-popover>
 		<ion-button title="Goods receipt" (click)="submitReceipt()" *ngIf="formGroup.get('Status').value == 'Palletized'">
 			<ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
 		</ion-button>
 
 		<ion-button title="In nhãn" (click)="createLabel()" *ngIf="formGroup.get('Id').value">
 			<ion-icon slot="icon-only" name="print"></ion-icon>
-		</ion-button>
-
-		<ion-button title="{{'Copy to A/P invoice' | translate}}" *ngIf="pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice" (click)="createInvoice()">
-			<ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
 		</ion-button>
 
 		<ion-button title="Delivering" *ngIf="pageConfig.ShowDelivery && pageConfig.canDelivery" (click)="deliveryReceipt()">

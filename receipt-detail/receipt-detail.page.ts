@@ -643,4 +643,10 @@ export class ReceiptDetailPage extends PageBase {
 				this.refresh();
 			});
 	}
+		isOpenCopyPopover: boolean = false;
+		@ViewChild('copyPopover') copyPopover!: HTMLIonPopoverElement;
+		presentCopyPopover(e) {
+			this.copyPopover.event = e;
+			this.isOpenCopyPopover = !this.isOpenCopyPopover;
+		}
 }

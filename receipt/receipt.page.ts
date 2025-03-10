@@ -400,4 +400,11 @@ export class ReceiptPage extends PageBase {
 		this.addNewPopover.event = e;
 		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
 	}
+	
+	isOpenCopyPopover: boolean = false;
+	@ViewChild('copyPopover') copyPopover!: HTMLIonPopoverElement;
+	presentCopyPopover(e) {
+		this.copyPopover.event = e;
+		this.isOpenCopyPopover = !this.isOpenCopyPopover;
+	}
 }
