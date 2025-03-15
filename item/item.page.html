@@ -19,13 +19,12 @@
 </ion-header>
 
 <ion-content appScrollbarTheme class="scrollx">
-	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature" vertical="top" horizontal="end" slot="fixed">
-		<div class="ion-padding">
-			<div class="c-control" *ngIf="pageConfig.canImportItemInVendor">
-				<ion-button [disabled]="submitAttempt" color="primary" expand="block" (click)="importItemInVendor()"> {{'Import item theo NCC' | translate}}</ion-button>
-				<!-- shape="round" -->
-				<input class="hide-all" #importfile2 type="file" accept=".xlsx" (change)="uploadItemInVendor($event)" />
-			</div>
+	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature ion-padding" vertical="top" horizontal="end" slot="fixed">
+		<div *ngIf="pageConfig.canImportItemInVendor">
+			<ion-button [disabled]="submitAttempt" color="primary" expand="block" (click)="importItemInVendor()"> {{'Import item theo NCC' | translate}}</ion-button>
+			<ion-button color="primary" expand="block" fill="clear" [href]="linkVendorTemplate"> {{'Download file template' | translate}}</ion-button>
+			<!-- shape="round" -->
+			<input class="hide-all" #importfile2 type="file" accept=".xlsx" (change)="uploadItemInVendor($event)" />
 		</div>
 	</ion-fab>
 
