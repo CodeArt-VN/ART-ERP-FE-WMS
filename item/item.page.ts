@@ -6,6 +6,7 @@ import { WMS_ItemGroupProvider, WMS_ItemProvider } from 'src/app/services/static
 import { ItemDetailPage } from '../item-detail/item-detail.page';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
+import { environment } from 'src/environments/environment';
 
 @Component({
 	selector: 'app-item',
@@ -15,7 +16,7 @@ import { lib } from 'src/app/services/static/global-functions';
 })
 export class ItemPage extends PageBase {
 	itemGroupList = [];
-
+	linkVendorTemplate = environment.appDomain + 'Uploads/FileTemplate/PROD_ItemsInVendors-Template.xlsx';
 	constructor(
 		public pageProvider: WMS_ItemProvider,
 		public itemGroupProvider: WMS_ItemGroupProvider,
