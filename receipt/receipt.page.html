@@ -223,7 +223,7 @@
 					</span>
 				</div>
 				<div (click)="nav('receipt/'+i.Id,'forward')" class="col-code cell">{{i.StorerName}}</div>
-				<div class="col-date cell">{{i.ExpectedReceiptDate | date:'dd/mm/yy hh:MM'}}</div>
+				<div class="col-date cell">{{i.ExpectedReceiptDate | date:'dd/MM/yy HH:mm'}}</div>
 				<div class="col-date col-estReceivingDate cell">
 					<span *ngIf="i.ReceiptedDateText"> {{i.ReceiptedDateText}}</span>
 				</div>
