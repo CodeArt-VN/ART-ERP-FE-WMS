@@ -1,6 +1,6 @@
 <ion-header>
 	<app-toolbar [page]="this" pageTitle="{{'Item detail in branch' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" (refresh)="refresh()" (help)="help()">
-		<ion-buttons rightScreen *ngIf="segmentView.Page == 'Inventory'">
+		<ion-buttons *ngIf="segmentView.Page == 'Inventory'">
 			<ion-button (click)="isAdjust = !isAdjust">
 				<label> {{ 'Điều chỉnh' | translate }}</label>
 			</ion-button>
