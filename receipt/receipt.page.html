@@ -1,25 +1,6 @@
 <ion-header>
-	<!-- <app-list-toolbar
-    pageTitle="{{'Goods receipt' | translate}}"
-    [pageConfig]="pageConfig"
-    [selectedItems]="selectedItems"
-    [query]="query"
-    (add)="add()"
-    (refresh)="refresh()"
-    (export)="export()"
-    (import)="import($event)"
-    (help)="help()"
-    (unselect)="unselect()"
-    (archiveItems)="archiveItems()"
-    (deleteItems)="delete()"
-    (changeBranch)="changeBranch($event)"
-    (submitReceipt)="submitReceipt()"
-  >
-</app-list-toolbar> -->
-	<!-- *ngIf="
-(pageConfig.ShowAddNew && pageConfig.canAdd)" -->
 	<app-toolbar [page]="this">
-		<ion-button *ngIf="selectedItems?.length == 0" class="clickable" title="{{'Add' | translate}}" (click)="presentAddNewPopover($event)">
+		<ion-button class="clickable" title="{{'Add' | translate}}" (click)="presentAddNewPopover($event)">
 			<ion-icon color="success" slot="icon-only" name="duplicate-outline"></ion-icon>
 		</ion-button>
 		<ion-popover #addNewPopover [isOpen]="isOpenAddNewPopover" (didDismiss)="isOpenAddNewPopover = false">
@@ -39,32 +20,32 @@
 				</ion-content>
 			</ng-template>
 		</ion-popover>
-		<ion-button
-		class="clickable"
-		title="{{'Copy' | translate}}"
-		(click)="presentCopyPopover($event)"
-	*ngIf=" (pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice)"
-	>
-		<ion-icon slot="icon-only" name="copy-outline"></ion-icon>
-	</ion-button>
-	<ion-popover #copyPopover [isOpen]="isOpenCopyPopover" (didDismiss)="isOpenCopyPopover = false" [dismissOnSelect]="true">
-		<ng-template>
-			<ion-content scroll-y="false">
-				<ion-list lines="none">
-					<ion-item
-						title="{{'Copy to A/P invoice' | translate}}"
-						*ngIf="pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice"
-						[button]="true"
-						[detail]="false"
-						(click)="createInvoice()"
-					>
-						<ion-icon slot="start" name="receipt-outline"></ion-icon>
-						<ion-label>{{'Copy to A/P invoice' | translate}}</ion-label>
-					</ion-item>
-				</ion-list>
-			</ion-content>
-		</ng-template>
-	</ion-popover>
+		<ion-button tollbarSelected
+			class="clickable"
+			title="{{'Copy' | translate}}"
+			(click)="presentCopyPopover($event)"
+			*ngIf=" (pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice)"
+		>
+			<ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+		</ion-button>
+		<ion-popover #copyPopover tollbarSelected [isOpen]="isOpenCopyPopover" (didDismiss)="isOpenCopyPopover = false" [dismissOnSelect]="true">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item
+							title="{{'Copy to A/P invoice' | translate}}"
+							*ngIf="pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice"
+							[button]="true"
+							[detail]="false"
+							(click)="createInvoice()"
+						>
+							<ion-icon slot="start" name="receipt-outline"></ion-icon>
+							<ion-label>{{'Copy to A/P invoice' | translate}}</ion-label>
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+		</ion-popover>
 		<ion-button tollbarSelected title="Goods receipt" *ngIf="pageConfig.ShowReceive" (click)="submitReceipt()">
 			<ion-icon color="success" slot="icon-only" name="bag-check-outline"></ion-icon>
 		</ion-button>
@@ -72,7 +53,6 @@
 		<ion-button tollbarSelected title="Delivering" *ngIf="pageConfig.canDelivery && pageConfig.ShowDelivery" (click)="deliveryReceipt()">
 			<ion-icon slot="icon-only" name="shipping-fast"></ion-icon>
 		</ion-button>
-
 	</app-toolbar>
 </ion-header>
 
