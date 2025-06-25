@@ -291,21 +291,13 @@ export class ItemDetailPage extends PageBase {
 				})
 				.toPromise(),
 			this.itemGroupProvider.read({
-				SortBy: ['Id_desc'],
-				Take: 5000,
-				Skip: 0,
-				SkipMCP: true,
-				SkipAddress: true,
+				Take: 5000
 			}),
 			this.putawayStrategyProvider.read({
-				SortBy: ['Id_desc'],
-				Take: 5000,
-				Skip: 0,
+				Take: 5000
 			}),
 			this.allocationStrategyProvider.read({
-				SortBy: ['Id_desc'],
-				Take: 5000,
-				Skip: 0,
+				Take: 5000
 			}),
 			this.env.getType('ExpiryUnit'),
 			this.contactProvider.read({ IsStorer: true, Take: 5000 }),
