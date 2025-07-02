@@ -523,7 +523,12 @@
 															<app-input-control
 																*ngIf="i.get('Id').value"
 																[field]="{id:'Height',label:'Height',type:'number',form:i}"
-																`
+																(change)="saveUoM(i)"
+															></app-input-control>
+														</div>
+														<div class="col8 cell">
+															<app-input-control
+																*ngIf="i.get('Id').value"
 																[field]="{id:'Weight',label:'Weight',type:'number',form:i}"
 																(change)="saveUoM(i)"
 															></app-input-control>
