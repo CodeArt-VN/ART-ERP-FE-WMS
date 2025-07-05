@@ -17,6 +17,7 @@ import QRCode from 'qrcode';
 export class BatchPickingPage extends PageBase {
 	warehouses = [];
 	ngayIn = '';
+	isHighLightItem = false;
 
 	constructor(
 		public pageProvider: SHIP_ShipmentProvider,
@@ -36,6 +37,11 @@ export class BatchPickingPage extends PageBase {
 		this.ngayIn = lib.dateFormat(today, 'dd/mm/yy hh:MM');
 		//this.query.DeliveryDate = lib.dateFormat(today.setDate(today.getDate() + 1), 'yyyy-mm-dd');
 		this.query.IDStatus = '[301]';
+	}
+
+
+	showHighlightItem(e:any){
+		this.isHighLightItem = e.target.checked;;
 	}
 
 	loadData(event) {
@@ -177,6 +183,14 @@ export class BatchPickingPage extends PageBase {
 												calcUom.InventoryQuantity += qdThung;
 												calcUom.BaseQuantity =
 													calcUom.BaseQuantity - (qdThung * l.Item.InventoryUoM.BaseQuantity) / l.Item.InventoryUoM.AlternativeQuantity;
+
+												if (l.Item.InventoryUoM.Length == 0 || l.Item.InventoryUoM.Weight == 0 || l.Item.InventoryUoM.Height == 0 ||  l.Item.InventoryUoM.Width == 0) {
+													calcUom._isUnValid = true;
+												}
+											} else {
+												if (l.Item.UoM.Weight == 0) {
+													calcUom._isUnValid = true;
+												}
 											}
 										} else {
 											let uom = findItem.UoMs.find((d) => d.IDUoM == l.Item.UoM.Id);
@@ -196,6 +210,10 @@ export class BatchPickingPage extends PageBase {
 
 											if (qdThung > 0) {
 												calcUom.InventoryQuantity += qdThung;
+												if (l.Item.InventoryUoM.Length == 0 || l.Item.InventoryUoM.Weight == 0 || l.Item.InventoryUoM.Height == 0 ||  l.Item.InventoryUoM.Width == 0) {
+													calcUom._isUnValid = true;
+												}
+
 												let leConLai = tongLeQty - (qdThung * l.Item.InventoryUoM.BaseQuantity) / l.Item.InventoryUoM.AlternativeQuantity;
 
 												let uomLe = (leConLai * l.Item.UoM.AlternativeQuantity) / l.Item.UoM.BaseQuantity;
@@ -206,6 +224,9 @@ export class BatchPickingPage extends PageBase {
 											if (qdLe > 0 && l.Item.UoM.BaseQuantity < l.Item.UoM.AlternativeQuantity) {
 												calcUom.BaseQuantity += qdLe;
 												uom.Quantity = uom.Quantity - (qdLe * l.Item.UoM.AlternativeQuantity) / l.Item.UoM.BaseQuantity;
+												if (l.Item.UoM.Weight == 0) {
+													calcUom._isUnValid = true;
+												}
 											}
 
 											if (uom.Quantity == 0) {
@@ -220,6 +241,9 @@ export class BatchPickingPage extends PageBase {
 												calcUom.InventoryQuantity += qdThung;
 												calcUom.BaseQuantity =
 													calcUom.BaseQuantity - (qdThung * l.Item.InventoryUoM.BaseQuantity) / l.Item.InventoryUoM.AlternativeQuantity;
+												if (l.Item.InventoryUoM.Length == 0 || l.Item.InventoryUoM.Weight == 0 || l.Item.InventoryUoM.Height == 0 ||  l.Item.InventoryUoM.Width == 0) {
+													calcUom._isUnValid = true;
+												}
 											}
 										}
 
@@ -276,6 +300,14 @@ export class BatchPickingPage extends PageBase {
 												calcWarehouseUOM.InventoryQuantity += qdThung;
 												calcWarehouseUOM.BaseQuantity =
 													calcWarehouseUOM.BaseQuantity - (qdThung * l.Item.InventoryUoM.BaseQuantity) / l.Item.InventoryUoM.AlternativeQuantity;
+
+												if (l.Item.InventoryUoM.Length == 0 || l.Item.InventoryUoM.Weight == 0 || l.Item.InventoryUoM.Height == 0 ||  l.Item.InventoryUoM.Width == 0) {
+													calcWarehouseUOM._isUnValid = true;
+												}
+											} else {
+												if (l.Item.UoM.Weight == 0) {
+													calcWarehouseUOM._isUnValid = true;
+												}
 											}
 										} else {
 											let uom = findWarehoseItem.UoMs.find((d) => d.IDUoM == l.Item.UoM.Id);
@@ -295,6 +327,9 @@ export class BatchPickingPage extends PageBase {
 
 											if (qdThung > 0) {
 												calcWarehouseUOM.InventoryQuantity += qdThung;
+												if (l.Item.InventoryUoM.Length == 0 || l.Item.InventoryUoM.Weight == 0 || l.Item.InventoryUoM.Height == 0 ||  l.Item.InventoryUoM.Width == 0) {
+													calcWarehouseUOM._isUnValid = true;
+												}
 												let leConLai = tongLeQty - (qdThung * l.Item.InventoryUoM.BaseQuantity) / l.Item.InventoryUoM.AlternativeQuantity;
 
 												let uomLe = (leConLai * l.Item.UoM.AlternativeQuantity) / l.Item.UoM.BaseQuantity;
@@ -304,6 +339,9 @@ export class BatchPickingPage extends PageBase {
 											let qdLe = parseInt(((uom.Quantity * l.Item.UoM.BaseQuantity) / l.Item.UoM.AlternativeQuantity).toString());
 											if (qdLe > 0 && l.Item.UoM.BaseQuantity < l.Item.UoM.AlternativeQuantity) {
 												calcWarehouseUOM.BaseQuantity += qdLe;
+												if (l.Item.UoM.Weight == 0 ) {
+													calcWarehouseUOM._isUnValid = true;
+												}
 												uom.Quantity = uom.Quantity - (qdLe * l.Item.UoM.AlternativeQuantity) / l.Item.UoM.BaseQuantity;
 											}
 
@@ -321,6 +359,9 @@ export class BatchPickingPage extends PageBase {
 												calcWarehouseUOM.InventoryQuantity += qdThung;
 												calcWarehouseUOM.BaseQuantity =
 													calcWarehouseUOM.BaseQuantity - (qdThung * l.Item.InventoryUoM.BaseQuantity) / l.Item.InventoryUoM.AlternativeQuantity;
+												if (l.Item.InventoryUoM.Length == 0 || l.Item.InventoryUoM.Weight == 0 || l.Item.InventoryUoM.Height == 0 ||  l.Item.InventoryUoM.Width == 0) {
+													calcWarehouseUOM._isUnValid = true;
+												}
 											}
 										}
 
@@ -336,6 +377,8 @@ export class BatchPickingPage extends PageBase {
 
 							s.Items = itemList.sort((a, b) => parseFloat(b.ItemSort) - parseFloat(a.ItemSort) || a.ItemCode.localeCompare(b.ItemCode));
 							warehouse.itemList = warehouse.itemList.sort((a, b) => parseFloat(b.ItemSort) - parseFloat(a.ItemSort) || a.ItemCode.localeCompare(b.ItemCode));
+							console.log('Items: ', s.Items);
+							console.log('itemList: ', itemList);
 						}
 
 						this.currentGroup = null;
@@ -348,17 +391,17 @@ export class BatchPickingPage extends PageBase {
 							}
 						}
 
-						console.log(this.warehouses);
+						console.log('Warehouses: ', this.warehouses);
 
 						this.submitAttempt = false;
 						if (loading) loading.dismiss();
 					})
 					.catch((err) => {
-						if (err.message != null) {
-							this.env.showMessage(err.message, 'danger');
-						} else {
-							this.env.showMessage('Cannote create list', 'danger');
-						}
+						// if (err.message != null) {
+						// 	this.env.showMessage(err.message, 'danger');
+						// } else {
+						// 	this.env.showMessage('Cannote create list', 'danger');
+						// }
 						this.submitAttempt = false;
 						if (loading) loading.dismiss();
 					});
@@ -383,9 +426,6 @@ export class BatchPickingPage extends PageBase {
 				} else {
 					this.env.showMessage('cannot save!', 'danger');
 				}
-			})
-			.catch((err) => {
-				this.env.showMessage(err.message, 'danger');
 			});
 	}
 	exportPicking() {

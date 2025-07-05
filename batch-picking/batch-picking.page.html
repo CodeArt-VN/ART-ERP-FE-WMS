@@ -5,6 +5,9 @@
 		</ion-buttons>
 
 		<ion-buttons slot="end">
+
+			<ion-toggle [checked]="isHighLightItem" (ionChange)="showHighlightItem($event)" [title]="'Data check highlight' | translate"></ion-toggle>
+
 			<ion-button *ngIf="pageConfig.canCreateOutbound && selectedItems.length>0" (click)="createOutbound()" title="{{'Create outbound order' | translate}}">
 				<ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
 			</ion-button>
@@ -133,7 +136,7 @@
 												<ng-container *ngFor="let uom of i.UoMs; let gdx = index; ">
 													<tr>
 														<td class="cen" [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">{{idx+1}}</td>
-														<td [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">
+														<td [attr.rowspan]="i.UoMs.length" [ngStyle]="uom._isUnValid && isHighLightItem ? {'color': 'red'} : {}" *ngIf="gdx == 0">
 															<div class="ten-sp">
 																<b *ngIf="i.ItemCode">{{i.ItemCode}}</b><b *ngIf="!i.ItemCode">{{i.IDItem}}</b>
 																- {{i.ItemName}}
@@ -260,14 +263,14 @@
 										<ng-container *ngFor="let i of s.Items; let idx = index; ">
 											<tr *ngFor="let uom of i.UoMs; let gdx = index; ">
 												<td class="cen" [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">{{idx+1}}</td>
-												<td [attr.rowspan]="i.UoMs.length" *ngIf="gdx == 0">
+												<td [attr.rowspan]="i.UoMs.length" [ngStyle]="uom._isUnValid && isHighLightItem ? {'color': 'red'} : {}" *ngIf="gdx == 0">
 													<div class="ten-sp">
 														<b *ngIf="i.ItemCode">{{i.ItemCode}}</b><b *ngIf="!i.ItemCode">{{i.IDItem}}</b>
 														- {{i.ItemName}}
 													</div>
 												</td>
 
-												<td class="num big" *ngIf="uom.IDUoM == 0">
+												<td class="num big"  *ngIf="uom.IDUoM == 0">
 													<span *ngIf="uom.InventoryQuantity">{{uom.InventoryQuantity}}</span>
 												</td>
 												<td class="num big" *ngIf="uom.IDUoM == 0">
