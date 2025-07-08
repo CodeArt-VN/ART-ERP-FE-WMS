@@ -6,7 +6,7 @@
 
 		<ion-buttons slot="end">
 
-			<ion-toggle [checked]="isHighLightItem" (ionChange)="showHighlightItem($event)" [title]="'Data check highlight' | translate"></ion-toggle>
+			<ion-toggle [checked]="isHighLightItem" (ionChange)="showHighlightItem($event)" [title]="'Highlight items missing weight and volume' | translate"></ion-toggle>
 
 			<ion-button *ngIf="pageConfig.canCreateOutbound && selectedItems.length>0" (click)="createOutbound()" title="{{'Create outbound order' | translate}}">
 				<ion-icon slot="icon-only" name="receipt-outline"></ion-icon>
