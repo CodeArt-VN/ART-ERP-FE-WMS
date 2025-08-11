@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, LoadingController, NavController, PopoverController } from '@ionic/angular';
+import { AlertController, LoadingController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { AbstractControl, FormArray, FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
@@ -27,7 +27,9 @@ import {
 	vw_WMS_LotLocLPNProvider,
 	WMS_PutawayStrategyProvider,
 	WMS_AllocationStrategyProvider,
+	PURCHASE_ItemPlanningDataProvider,
 } from 'src/app/services/static/services.service';
+import { ItemPlanningDataDetailPage } from '../../PURCHASE/item-planning-data-detail/item-planning-data-detail.page';
 
 @Component({
 	selector: 'app-item-detail',
@@ -140,6 +142,7 @@ export class ItemDetailPage extends PageBase {
 		public itemInBranchProvider: WMS_ItemInBranchProvider,
 		public itemGroupProvider: WMS_ItemGroupProvider,
 		public itemUoMProvider: WMS_ItemUoMProvider,
+		public itemPlanningDataProvider: PURCHASE_ItemPlanningDataProvider,
 		public putawayStrategyProvider: WMS_PutawayStrategyProvider,
 		public allocationStrategyProvider: WMS_AllocationStrategyProvider,
 		public vwLotLocLPNProvider: vw_WMS_LotLocLPNProvider,
@@ -160,6 +163,7 @@ export class ItemDetailPage extends PageBase {
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
 		public navCtrl: NavController,
+		public modalController: ModalController,
 		public formBuilder: FormBuilder,
 		public cdr: ChangeDetectorRef,
 		public loadingController: LoadingController,
@@ -291,13 +295,13 @@ export class ItemDetailPage extends PageBase {
 				})
 				.toPromise(),
 			this.itemGroupProvider.read({
-				Take: 5000
+				Take: 5000,
 			}),
 			this.putawayStrategyProvider.read({
-				Take: 5000
+				Take: 5000,
 			}),
 			this.allocationStrategyProvider.read({
-				Take: 5000
+				Take: 5000,
 			}),
 			this.env.getType('ExpiryUnit'),
 			this.contactProvider.read({ IsStorer: true, Take: 5000 }),
@@ -666,6 +670,44 @@ export class ItemDetailPage extends PageBase {
 	changeGroup() {
 		this.env.setStorage('item.IDItemGroup', this.item?.IDItemGroup);
 	}
+	loadItemPlanningData() {
+		const branchList = this.env.branchList;
+		const selectedBranchId = this.formGroup.get('IDBranchItemInBranch').value;
+		let selectedBranch = [selectedBranchId];
+		const findChildren = (parentId: number) => {
+			const findChild = (parentId: any) => {
+				branchList.forEach((b) => {
+					const currentId = b.Id;
+					if (b.IDParent == parentId) {
+						selectedBranch.push(currentId);
+						findChild(currentId);
+					}
+				});
+			};
+			findChild(parentId);
+		};
+		if (selectedBranchId != undefined) {
+			findChildren(selectedBranchId);
+		}
+
+		let query = {
+			IDItem: this.id,
+			IDBranch: selectedBranch,
+		};
+		this.env
+			.showLoading(
+				'Please wait for a few moments',
+				this.itemPlanningDataProvider.read(query).then((data: any) => {
+					this.itemsPlaningData = data?.data;
+
+					this.segmentView.ShowSpinner = false;
+				})
+			)
+			.catch((error) => {
+				console.error(error);
+				this.segmentView.ShowSpinner = false;
+			});
+	}
 	loadInventory() {
 		const branchList = this.env.branchList;
 		const selectedBranchId = this.formGroup.get('IDBranchItemInBranch').value;
@@ -819,6 +861,9 @@ export class ItemDetailPage extends PageBase {
 		}
 		if (this.segmentView.Page == 'Inventory') {
 			this.loadInventory();
+		}
+		if (this.segmentView.Page == 'PlanningData') {
+			this.loadItemPlanningData();
 		}
 	}
 	changeBaseUoM(i) {
@@ -1046,6 +1091,7 @@ export class ItemDetailPage extends PageBase {
 					submitItem.IDItem = this.id;
 					submitItem.Id = idItemInBranch;
 					submitItem.IDBranch = this.formGroup.get('IDBranchItemInBranch').value;
+
 					this.itemInBranchProvider
 						.save(submitItem, this.pageConfig.isForceCreate)
 						.then((savedItem: any) => {
@@ -1057,7 +1103,18 @@ export class ItemDetailPage extends PageBase {
 								this.item.IDItemInBranch = savedItem.IDItemInBranch;
 								this.item.IDBranchItemInBranch = savedItem.IDBranch;
 								this.item.IDBranch = formGroupIDBranch;
+								let existedItem = this.itemPlanningDataProvider
+									.read({
+										IDItem: savedItem.IDItem,
+										IDBranch: savedItem.IDBranch,
+										IDVendor: null,
+									})
+									.then((rs: any) => {
+										if (rs && rs.length > 0) submitItem.Id == rs.data[0]?.Id;
+										this.itemPlanningDataProvider.save(submitItem).then((r) => this.env.showMessage('Saved planning data!'));
+									});
 							}
+
 							this.savedChange(savedItem, this.formGroup);
 							// if (this.pageConfig.pageName) this.env.publishEvent({ Code: this.pageConfig.pageName });
 							this.formGroup.get('Id').setValue(this.id);
@@ -1267,6 +1324,32 @@ export class ItemDetailPage extends PageBase {
 		});
 		if (this.item?.TransactionsExist || this.formGroup.get('IDBranchItemInBranch').value) {
 			group.get('IsBaseUoM').disable();
+		}
+	}
+	itemsPlaningData = [];
+	addPlanningVendor() {
+		let newItem = {
+			Id: 0,
+			IsDisabled: false,
+			IDItem: this.id,
+			IDBranch: this.formGroup.controls.IDBranchItemInBranch.value,
+		};
+		this.showPlanningVendorModal(newItem);
+	}
+	async showPlanningVendorModal(i) {
+		const modal = await this.modalController.create({
+			component: ItemPlanningDataDetailPage,
+			componentProps: {
+				item: i,
+				id: i.Id,
+				FromPage:'Item'
+			},
+			cssClass: 'my-custom-class',
+		});
+		await modal.present();
+		const { data } = await modal.onDidDismiss();
+		if (data) {
+			this.loadItemPlanningData();
 		}
 	}
 }
