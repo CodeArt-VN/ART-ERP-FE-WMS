@@ -8,7 +8,7 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import QRCode from 'qrcode';
 import { ActivatedRoute } from '@angular/router';
-import { SortConfig } from 'src/app/models/options-interface';
+import { SortConfig } from 'src/app/interfaces/options-interface';
 
 @Component({
 	selector: 'app-cycle-count-note',

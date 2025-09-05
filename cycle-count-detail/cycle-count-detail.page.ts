@@ -14,7 +14,7 @@ import {
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
-import { Schema } from 'src/app/models/options-interface';
+import { Schema } from 'src/app/interfaces/options-interface';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
@@ -738,15 +738,6 @@ export class CycleCountDetailPage extends PageBase {
 			return;
 		}
 		this.submitAttempt = true;
-		this.env.publishEvent({
-			Code: 'app:ShowAppMessage',
-			IsShow: true,
-			Id: 'FileImport',
-			Icon: 'flash',
-			IsBlink: true,
-			Color: 'danger',
-			Message: 'đang import',
-		});
 		const formData: FormData = new FormData();
 		formData.append('fileKey', event.target.files[0], event.target.files[0].name);
 		this.env
@@ -756,7 +747,6 @@ export class CycleCountDetailPage extends PageBase {
 			)
 			.then((resp: any) => {
 				this.submitAttempt = false;
-				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
 				this.refresh();
 				if (resp.ErrorList && resp.ErrorList.length) {
 					let message = '';
@@ -786,7 +776,6 @@ export class CycleCountDetailPage extends PageBase {
 			})
 			.catch((err) => {
 				this.submitAttempt = false;
-				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
 				this.refresh();
 				this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
 			});
@@ -821,15 +810,6 @@ export class CycleCountDetailPage extends PageBase {
 		this.submitAttempt = true;
 
 		this.dismissModal('merge');
-		this.env.publishEvent({
-			Code: 'app:ShowAppMessage',
-			IsShow: true,
-			Id: 'FileImport',
-			Icon: 'flash',
-			IsBlink: true,
-			Color: 'danger',
-			Message: 'đang import',
-		});
 		const formData: FormData = new FormData();
 		formData.append('fileKey', event.target.files[0], event.target.files[0].name);
 		this.env
@@ -839,7 +819,6 @@ export class CycleCountDetailPage extends PageBase {
 			)
 			.then((resp: any) => {
 				this.submitAttempt = false;
-				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
 				if (resp.ErrorList && resp.ErrorList.length) {
 					let message = '';
 					for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
@@ -871,7 +850,6 @@ export class CycleCountDetailPage extends PageBase {
 			})
 			.catch((err) => {
 				this.submitAttempt = false;
-				this.env.publishEvent({ Code: 'app:ShowAppMessage', IsShow: false, Id: 'FileImport' });
 				this.env.showMessage('erp.app.pages.sale.sale-order.message.import-error', 'danger');
 			});
 	}

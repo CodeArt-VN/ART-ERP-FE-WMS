@@ -6,7 +6,7 @@ import { BRA_BranchProvider, CRM_ContactProvider, PURCHASE_OrderProvider, WMS_Re
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import { Capacitor } from '@capacitor/core';
-import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
+import { BarcodeScannerService } from 'src/app/services/util/barcode-scanner.service';
 
 @Component({
 	selector: 'app-goods-receiving',

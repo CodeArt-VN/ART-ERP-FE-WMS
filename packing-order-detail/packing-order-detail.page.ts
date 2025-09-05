@@ -5,7 +5,7 @@ import { PageBase } from 'src/app/page-base';
 import { BRA_BranchProvider, SHIP_VehicleProvider, WMS_ItemProvider, WMS_PackingDetailProvider, WMS_PackingProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, RequiredValidator, Validators } from '@angular/forms';
-import { Schema } from 'src/app/models/options-interface';
+import { Schema } from 'src/app/interfaces/options-interface';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';

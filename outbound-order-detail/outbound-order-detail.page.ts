@@ -13,7 +13,7 @@ import {
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { Schema } from 'src/app/models/options-interface';
+import { Schema } from 'src/app/interfaces/options-interface';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 import { Subject, catchError, concat, distinctUntilChanged, of, switchMap, tap } from 'rxjs';

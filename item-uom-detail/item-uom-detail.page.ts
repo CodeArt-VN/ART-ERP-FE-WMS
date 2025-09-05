@@ -7,7 +7,7 @@ import { WMS_ItemProvider, WMS_ItemUoMProvider } from 'src/app/services/static/s
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { Capacitor } from '@capacitor/core';
-import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
+import { BarcodeScannerService } from 'src/app/services/util/barcode-scanner.service';
 
 @Component({
 	selector: 'app-item-uom-detail',
