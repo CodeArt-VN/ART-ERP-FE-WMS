@@ -29,7 +29,7 @@ export class ItemPickerPage extends PageBase {
 	}
 
 	preLoadData(event) {
-		this.query.Take = 2000;
+		this.query.Take = 200;
 		this.itemGroupProvider.read({ Take: 5000, IgnoredBranch: true }).then((resp) => {
 			lib.buildFlatTree(resp['data'], this.itemGroupList).then((tree: any) => {
 				let ls = tree;
