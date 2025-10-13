@@ -1,7 +1,8 @@
 <ion-header>
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
-			<ion-button color="dark" class="ion-hide-sm-down"> {{'Tạo và in nhãn cho item' | translate}} </ion-button>
+			<ion-button color="dark" class="ion-hide-sm-down"> {{'Creating and printing voucher label' | translate}}
+			</ion-button>
 		</ion-buttons>
 		<ion-buttons slot="end">
 			<!-- <ion-button (click)="changePrintMode()" title="{{'Printing option' | translate}}">
@@ -10,6 +11,9 @@
 			<span class="split ion-hide-sm-down">|</span>
 			<ion-button (click)="print()" title="{{'Form printing' | translate}}">
 				<ion-icon slot="icon-only" name="print"></ion-icon>
+			</ion-button>
+			<ion-button (click)="downloadZip()" title="{{'Download vouchers' | translate}}">
+				<ion-icon slot="icon-only" name="code-download-outline"></ion-icon>
 			</ion-button>
 			<ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
 				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
@@ -23,16 +27,20 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme appPrintFix class="Ruy96 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+<ion-content appScrollbarTheme appPrintFix [ngClass]="[
+    formGroup?.get('PrintMode')?.value,
+    pageConfig.isShowFeature ? 'withFeature' : ''
+  ]" class="left" [style.--custom-width.mm]="formGroup?.get('Width')?.value"
+	[style.--custom-height.mm]="formGroup?.get('Height')?.value">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print"
 		vertical="top" horizontal="start" slot="fixed">
 		<div class="ion-padding">
 			<ion-row>
 				<ion-col size="12">
 					<app-form-control (change)="changePRProgram($event)"
-						[field]="{id:'IDProgram', type:'ng-select-async', label: 'Program', dataSource:programDataSource,bindLabel:Name,bindValue:Id, form:formGroup,clearable:true,placeholder:'text to search...'}"></app-form-control>
-					<app-form-control
-						[field]="{id:'Code', type:'textarea', label: 'Voucher code', form:formGroup}"></app-form-control>
+						[field]="{id:'IDProgram', type:'ng-select-async', label: 'Program', dataSource:programDataSource,bindLabel:'Name',bindValue:'Id', form:formGroup,clearable:true,placeholder:'text to search...',noCheckDirty:true}"></app-form-control>
+					<app-form-control  *ngIf="pageConfig.canViewCode"
+						[field]="{id:'Code', type:'textarea', label: 'Voucher code', form:formGroup,noCheckDirty:true}"></app-form-control>
 				</ion-col>
 			</ion-row>
 		</div>
@@ -43,6 +51,44 @@
 			<ion-list lines="full" *ngIf="formGroup">
 
 				<ion-list lines="full">
+					<ion-item>
+						<ion-label> {{'Print mode' | translate}}</ion-label>
+						<ion-row>
+							<ion-col size="12">
+								<div class="c-control" style="margin-bottom: 8px;margin-top: 8px;">
+									<app-input-control
+										[field]="{id:'PrintMode', type:'ng-select', dataSource:printModeList, bindLabel:'Name',bindValue:'Code',form:formGroup,noCheckDirty:true}"></app-input-control>
+								</div>
+
+							</ion-col>
+
+
+						</ion-row>
+						<!-- <ion-toggle slot="end" [checked]=" lableConfig.IsOneColumn"
+							[(ngModel)]="lableConfig.IsOneColumn" (ionChange)="changeIsOneColumn()"></ion-toggle> -->
+					</ion-item>
+					<ion-item *ngIf="formGroup.get('PrintMode').value == 'Custom'">
+						<ion-label> {{'Width' | translate}}(mm)</ion-label>
+						<ion-row>
+							<ion-col size="12">
+								<div class="c-control" style="margin-bottom: 8px;margin-top: 8px;">
+									<app-input-control
+										[field]="{id:'Width', type:'number',  bindLabel:'Width',form:formGroup,noCheckDirty:true}"></app-input-control>
+								</div>
+							</ion-col>
+						</ion-row>
+					</ion-item>
+					<ion-item *ngIf="formGroup.get('PrintMode').value == 'Custom'">
+						<ion-label> {{'Height' | translate}}(mm)</ion-label>
+						<ion-row>
+							<ion-col size="12">
+								<div class="c-control" style="margin-bottom: 8px;margin-top: 8px;">
+									<app-input-control
+										[field]="{id:'Height', type:'number',  bindLabel:'Height',form:formGroup,noCheckDirty:true}"></app-input-control>
+								</div>
+							</ion-col>
+						</ion-row>
+					</ion-item>
 					<ion-item>
 						<ion-icon name="qr-code-outline" slot="start"></ion-icon>
 						<ion-range [(ngModel)]="lableConfig.QRCodeWidth" [pin]="true" [step]="2" [min]="100"
@@ -59,8 +105,8 @@
 						<ion-row>
 							<ion-col>
 								<ion-button expand="block" fill="outline"
-									(click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2}">
-									{{'Reset về mặc định' | translate}}
+									(click)="resetToDefault()">
+									{{'Reset to default' | translate}}
 								</ion-button>
 							</ion-col>
 						</ion-row>
@@ -105,7 +151,7 @@
 												[ngStyle]="{width: ''+ lableConfig.QRCodeWidth + 'px' }" />
 										</div>
 										<div class="l-logo"></div>
-										<div class="l-title">
+										<div class="l-title" *ngIf="pageConfig.canViewCode">
 											<div class="l-read-code"
 												[ngStyle]="{'font-size': ''+ lableConfig.CodeFontSize + 'px' }">
 												{{l.Value}} </div>
