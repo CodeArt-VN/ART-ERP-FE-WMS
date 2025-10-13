@@ -1,17 +1,63 @@
+/* ---------- MODE A3 ---------- */
+.A3 .sheet {
+	width: 297mm;
+	height: 420mm;
+	padding: 10mm;
+}
+.A3.landscape .sheet {
+	width: 420mm;
+	height: 297mm;
+	padding: 10mm;
+}
+
+/* ---------- MODE A4 ---------- */
+.A4 .sheet {
+	width: 210mm;
+	height: 297mm;
+	padding: 10mm;
+}
+.A4.landscape .sheet {
+	width: 297mm;
+	height: 210mm;
+	padding: 10mm;
+}
+
+/* ---------- MODE A5 ---------- */
+.A5 .sheet {
+	width: 148mm;
+	height: 210mm;
+	padding: 10mm;
+}
+.A5.landscape .sheet {
+	width: 210mm;
+	height: 148mm;
+	padding: 10mm;
+}
+
+/* ---------- MODE Ruy96 ---------- */
 .Ruy96 .sheet {
 	width: 96mm;
+	min-height: auto;
 	height: auto;
-	min-height: auto; //295mm;
 	padding: 0;
 }
-
-.A5.landscape .sheet {
-	width: 96mm;
-	height: auto;
-	min-height: 147mm;
-	padding: 0 10mm;
+.Custom .sheet {
+  width: var(--custom-width, 100mm);
+  height: var(--custom-height, 150mm);
+  margin: 0 auto;
+  box-sizing: border-box;
+  background: white;
 }
 
+@media print {
+  .Custom {
+    @page {
+      size: var(--custom-width, 100mm) var(--custom-height, 150mm);
+      margin: 0;
+    }
+  }
+}
+/* ---------- COMMON SHEET STYLE ---------- */
 .sheet {
 	&.huong-dan {
 		padding: 10mm !important;
@@ -26,7 +72,6 @@
 
 	.top-zone {
 		display: flex;
-		flex-direction: row;
 		flex-wrap: wrap;
 		min-height: calc(96mm / 2 - 2px);
 	}
@@ -54,6 +99,7 @@
 			.l-read-code {
 				font-size: 15px;
 			}
+
 			.l-item-name {
 				width: 100%;
 				font-size: 9px;
@@ -67,12 +113,12 @@
 	}
 }
 
+/* ---------- STICKY TOOLBAR ---------- */
 .functions-list {
-	top: auto;
-	border-top: solid 1px var(--menu-right-border-color);
-	box-shadow: 0px -2px 5px 0 rgb(0 0 0 / 10%);
-
 	position: sticky;
 	bottom: 0;
+	top: auto;
 	background: linear-gradient(180deg, var(--feature-background-top), var(--feature-background-bottom));
+	border-top: 1px solid var(--menu-right-border-color);
+	box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
 }
