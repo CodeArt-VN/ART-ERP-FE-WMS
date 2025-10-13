@@ -47,7 +47,7 @@ export class VoucherPrintingPage extends PageBase {
 		this.pageConfig.isShowFeature = true;
 		this.formGroup = this.formBuilder.group({
 			IDProgram: [''],
-			Code: ['',Validators.required]
+			Code: ['', Validators.required]
 		});
 	}
 	programDataSource = this.buildSelectDataSource((term) => {
@@ -104,12 +104,10 @@ export class VoucherPrintingPage extends PageBase {
 		if (ev) {
 			if (!ev?.IsGenerateVoucher) {
 				this.formGroup.controls['Code'].setValue(ev.VoucherCode);
-				this.formGroup.controls['Code'].markAsDirty();
 			}
 			else {
 				this.programVoucherProvider.read({ IDProgram: ev.Id, IsUsed: false }).then((resp: any) => {
 					if (resp.data && resp.data.length) {
-
 						this.formGroup.controls['Code'].setValue(resp.data.map(i => i.Code).join('\n'));
 
 					}
@@ -120,6 +118,8 @@ export class VoucherPrintingPage extends PageBase {
 			this.formGroup.controls['Code'].setValue('');
 			this.formGroup.controls['IDProgram'].setValue('');
 		}
+		this.formGroup.controls['IDProgram'].markAsPristine();
+
 	}
 	changeIsOneColumn() {
 		this.lableConfig.maxQRCodeWidth = this.lableConfig.IsOneColumn ? 500 : 250;
@@ -136,15 +136,15 @@ export class VoucherPrintingPage extends PageBase {
 		this.submitAttempt = true;
 		this.env
 			.showLoading('Please wait for a few moments', () => this.loadLabel())
-				.then((data) => {
-					this.items = data;
-					this.pageConfig.showSpinner = false;
-					this.submitAttempt = false;
-					this.env.showMessage('Đã tạo {{value}} mã.', null, this.items.length);
-				})
-				.catch((err) => {
-					console.log(err);
-				});
+			.then((data) => {
+				this.items = data;
+				this.pageConfig.showSpinner = false;
+				this.submitAttempt = false;
+				this.env.showMessage('Đã tạo {{value}} mã.', null, this.items.length);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	loadLabel() {
