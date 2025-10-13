@@ -8,7 +8,6 @@ import QRCode from 'qrcode';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 import { PR_Program } from 'src/app/models/model-list-interface';
-import * as JSZip from 'jszip';
 @Component({
 	selector: 'app-voucher-printing',
 	templateUrl: 'voucher-printing.page.html',
