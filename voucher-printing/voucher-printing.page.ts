@@ -180,74 +180,132 @@ export class VoucherPrintingPage extends PageBase {
 			for (const label of labels) {
 				totalCount++;
 				const fileName = this.pageConfig.canViewCode ? `${label.Value}.png` : `${totalCount}.png`;
+				
+				// Kiểm tra QR code đã được tạo
+				if (!label.QRC) {
+					console.warn(`QR code for ${fileName} not ready, skipping...`);
+					continue;
+				}
+				
 				const fileBytes = Uint8Array.from(atob(label.QRC.split(',')[1]), c => c.charCodeAt(0));
 				const nameBytes = encoder.encode(fileName);
 
 				const crc = this.crc32(fileBytes);
 				const compSize = fileBytes.length;
 				const uncompSize = fileBytes.length;
+				
+				// Tạo timestamp hợp lệ (DOS format)
+				const now = new Date();
+				const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+				const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
 
-				// ---- Local File Header (30 bytes + name)
-				const header = new Uint8Array([
-					0x50, 0x4B, 0x03, 0x04,       // signature
-					20, 0,                        // version needed
-					0, 0,                         // flags
-					0, 0,                         // compression (store)
-					0, 0, 0, 0,                   // time/date
-					crc & 0xff, (crc >> 8) & 0xff, (crc >> 16) & 0xff, (crc >> 24) & 0xff,
-					compSize & 0xff, (compSize >> 8) & 0xff, (compSize >> 16) & 0xff, (compSize >> 24) & 0xff,
-					uncompSize & 0xff, (uncompSize >> 8) & 0xff, (uncompSize >> 16) & 0xff, (uncompSize >> 24) & 0xff,
-					nameBytes.length & 0xff, (nameBytes.length >> 8) & 0xff, // filename len
-					0, 0 // extra field len
-				]);
+				// Local File Header
+				const header = new Uint8Array(30 + nameBytes.length);
+				const headerView = new DataView(header.buffer);
+				
+				// Signature
+				headerView.setUint32(0, 0x04034b50, true);
+				// Version needed
+				headerView.setUint16(4, 20, true);
+				// Flags
+				headerView.setUint16(6, 0, true);
+				// Compression method
+				headerView.setUint16(8, 0, true);
+				// Time & Date
+				headerView.setUint16(10, dosTime, true);
+				headerView.setUint16(12, dosDate, true);
+				// CRC32
+				headerView.setUint32(14, crc, true);
+				// Compressed size
+				headerView.setUint32(18, compSize, true);
+				// Uncompressed size
+				headerView.setUint32(22, uncompSize, true);
+				// Filename length
+				headerView.setUint16(26, nameBytes.length, true);
+				// Extra field length
+				headerView.setUint16(28, 0, true);
+				
+				// Copy filename
+				header.set(nameBytes, 30);
 
-				chunks.push(header, nameBytes, fileBytes);
+				chunks.push(header, fileBytes);
 				const localHeaderOffset = offset;
-				offset += header.length + nameBytes.length + fileBytes.length;
+				offset += header.length + fileBytes.length;
 
-				// ---- Central Directory Entry (46 bytes + name)
-				const cdir = new Uint8Array([
-					0x50, 0x4B, 0x01, 0x02, // signature
-					20, 3,                  // version made by + version needed
-					0, 0,                   // flags
-					0, 0,                   // compression (store)
-					0, 0, 0, 0,             // time/date
-					crc & 0xff, (crc >> 8) & 0xff, (crc >> 16) & 0xff, (crc >> 24) & 0xff,
-					compSize & 0xff, (compSize >> 8) & 0xff, (compSize >> 16) & 0xff, (compSize >> 24) & 0xff,
-					uncompSize & 0xff, (uncompSize >> 8) & 0xff, (uncompSize >> 16) & 0xff, (uncompSize >> 24) & 0xff,
-					nameBytes.length & 0xff, (nameBytes.length >> 8) & 0xff, // filename length
-					0, 0, // extra
-					0, 0, // comment
-					0, 0, // disk number start
-					0, 0, // internal file attrs
-					0, 0, 0, 0, // external file attrs
-					localHeaderOffset & 0xff, (localHeaderOffset >> 8) & 0xff, (localHeaderOffset >> 16) & 0xff, (localHeaderOffset >> 24) & 0xff
-				]);
+				// Central Directory Entry
+				const cdir = new Uint8Array(46 + nameBytes.length);
+				const cdirView = new DataView(cdir.buffer);
+				
+				// Signature
+				cdirView.setUint32(0, 0x02014b50, true);
+				// Version made by
+				cdirView.setUint16(4, 0x0314, true);
+				// Version needed
+				cdirView.setUint16(6, 20, true);
+				// Flags
+				cdirView.setUint16(8, 0, true);
+				// Compression method
+				cdirView.setUint16(10, 0, true);
+				// Time & Date
+				cdirView.setUint16(12, dosTime, true);
+				cdirView.setUint16(14, dosDate, true);
+				// CRC32
+				cdirView.setUint32(16, crc, true);
+				// Compressed size
+				cdirView.setUint32(20, compSize, true);
+				// Uncompressed size
+				cdirView.setUint32(24, uncompSize, true);
+				// Filename length
+				cdirView.setUint16(28, nameBytes.length, true);
+				// Extra field length
+				cdirView.setUint16(30, 0, true);
+				// Comment length
+				cdirView.setUint16(32, 0, true);
+				// Disk number start
+				cdirView.setUint16(34, 0, true);
+				// Internal file attributes
+				cdirView.setUint16(36, 0, true);
+				// External file attributes
+				cdirView.setUint32(38, 0x81a40000, true); // File permissions
+				// Local header offset
+				cdirView.setUint32(42, localHeaderOffset, true);
+				
+				// Copy filename
+				cdir.set(nameBytes, 46);
 
-				centralDir.push({ cdir, nameBytes });
+				centralDir.push(cdir);
 			}
 
+			// Tính toán Central Directory
 			const centralDirStart = offset;
-			for (const { cdir, nameBytes } of centralDir) {
-				chunks.push(cdir, nameBytes);
-				offset += cdir.length + nameBytes.length;
+			for (const cdir of centralDir) {
+				chunks.push(cdir);
+				offset += cdir.length;
 			}
 			const centralDirSize = offset - centralDirStart;
 
-			// ---- End of Central Directory (22 bytes)
-			const cdirCount = centralDir.length;
-			const eocd = new Uint8Array([
-				0x50, 0x4B, 0x05, 0x06,
-				0, 0, 0, 0,
-				cdirCount & 0xff, (cdirCount >> 8) & 0xff,
-				cdirCount & 0xff, (cdirCount >> 8) & 0xff,
-				centralDirSize & 0xff, (centralDirSize >> 8) & 0xff, (centralDirSize >> 16) & 0xff, (centralDirSize >> 24) & 0xff,
-				centralDirStart & 0xff, (centralDirStart >> 8) & 0xff, (centralDirStart >> 16) & 0xff, (centralDirStart >> 24) & 0xff,
-				0, 0 // comment len
-			]);
+			// End of Central Directory
+			const eocd = new Uint8Array(22);
+			const eocdView = new DataView(eocd.buffer);
+			
+			// Signature
+			eocdView.setUint32(0, 0x06054b50, true);
+			// Disk numbers
+			eocdView.setUint16(4, 0, true);
+			eocdView.setUint16(6, 0, true);
+			// Number of entries
+			eocdView.setUint16(8, centralDir.length, true);
+			eocdView.setUint16(10, centralDir.length, true);
+			// Central directory size
+			eocdView.setUint32(12, centralDirSize, true);
+			// Central directory offset
+			eocdView.setUint32(16, centralDirStart, true);
+			// Comment length
+			eocdView.setUint16(20, 0, true);
+			
 			chunks.push(eocd);
 
-			// ---- Save ZIP
+			// Tạo và download file ZIP
 			const blob = new Blob(chunks, { type: 'application/zip' });
 			const url = URL.createObjectURL(blob);
 
@@ -256,8 +314,13 @@ export class VoucherPrintingPage extends PageBase {
 			const a = document.createElement('a');
 			a.href = url;
 			a.download = `Labels_QR_${this.id}_${formatted}.zip`;
+			document.body.appendChild(a);
 			a.click();
+			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
+		}).catch(err => {
+			console.error('Error creating ZIP:', err);
+			this.env.showMessage('Có lỗi xảy ra khi tạo file ZIP', 'danger');
 		});
 	}
 
