@@ -12,7 +12,7 @@
 			<ion-button (click)="print()" title="{{'Form printing' | translate}}">
 				<ion-icon slot="icon-only" name="print"></ion-icon>
 			</ion-button>
-			<ion-button (click)="downloadZip()" title="{{'Download vouchers' | translate}}">
+			<ion-button *ngIf="this.formGroup.controls.Code.value" (click)="downloadQrZip()" title="{{'Download vouchers' | translate}}">
 				<ion-icon slot="icon-only" name="code-download-outline"></ion-icon>
 			</ion-button>
 			<ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
