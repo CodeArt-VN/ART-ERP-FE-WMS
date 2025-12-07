@@ -75,6 +75,11 @@
 				<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 
 				<app-form-control
+					[field]="{id: 'IDStorer', label: 'Storer', type: 'ng-select-bp', form: formGroup,  dataSource: _storerDataSource,  bindLabel: 'Name',  bindValue: 'Id',appendTo:'#ng-select-header',multiple:true,clearable:true }"
+				>
+				</app-form-control>
+
+				<app-form-control
 					[field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id',appendTo:'#ng-select-header',multiple:true,clearable:true,
           treeConfig:{searchFnDefault:true,isTree:true, isCollapsed:true}}"
 				>

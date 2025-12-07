@@ -156,7 +156,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 							this.loading = false;
 							return of(this.selected);
 						} else {
-							return this.searchProvider.search({ Term: term, SortBy: ['Id_desc'], Take: 20, Skip: 0, IsStorer: true, SkipAddress: true }).pipe(
+							return this.searchProvider.search({ Keyword: term, SortBy: ['Id_desc'], Take: 20, Skip: 0, IsStorer: true, SkipAddress: true }).pipe(
 								catchError(() => of([])), // empty list on error
 								tap(() => (this.loading = false))
 							);
