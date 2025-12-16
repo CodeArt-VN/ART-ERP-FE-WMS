@@ -65,7 +65,7 @@ export class WarehouseTransactionPage extends PageBase {
 					SortBy: ['Id_desc'],
 					Take: 200,
 					Skip: 0,
-					Term: term,
+					Keyword: term
 				});
 			}),
 		});

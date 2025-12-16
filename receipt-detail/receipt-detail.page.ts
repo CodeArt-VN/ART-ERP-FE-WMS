@@ -103,7 +103,7 @@ export class ReceiptDetailPage extends PageBase {
 			});
 		}
 		this._vendorDataSource = this.buildSelectDataSource((term) => {
-			return this.contactProvider.search({ SkipAddress: true, IsVendor: true, SortBy: ['Id_desc'], Take: 20, Skip: 0, Term: term });
+			return this.contactProvider.search({ SkipAddress: true, IsVendor: true, SortBy: ['Id_desc'], Take: 20, Skip: 0, Keyword: term });
 		});
 	}
 
