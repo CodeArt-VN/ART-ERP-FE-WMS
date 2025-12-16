@@ -1,11 +1,11 @@
-import { Component, SimpleChanges } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, SYS_ConfigProvider, WMS_AdjustmentProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, WMS_AdjustmentProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { SortConfig } from 'src/app/interfaces/options-interface';
-import { isForOfStatement } from 'typescript';
+import { SYS_ConfigService } from 'src/app/services/custom/system-config.service';
 
 @Component({
 	selector: 'app-adjustment',
@@ -19,7 +19,7 @@ export class AdjustmentPage extends PageBase {
 		public pageProvider: WMS_AdjustmentProvider,
 		public branchProvider: BRA_BranchProvider,
 		public modalController: ModalController,
-		public sysConfigProvider: SYS_ConfigProvider,
+		public sysConfigService: SYS_ConfigService,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
 		public loadingController: LoadingController,
@@ -40,24 +40,18 @@ export class AdjustmentPage extends PageBase {
 		let sorted: SortConfig[] = [{ Dimension: 'Id', Order: 'DESC' }];
 		this.pageConfig.sort = sorted;
 
-		let sysConfigQuery = ['AdjustmentUsedApprovalModule'];
 		Promise.all([
-			this.sysConfigProvider.read({
-				Code_in: sysConfigQuery,
-				IDBranch: this.env.selectedBranch,
-			}),
+			this.sysConfigService.getConfig(this.env.selectedBranch, ['AdjustmentUsedApprovalModule']),
 		]).then((values: any) => {
-			if (values[0]['data']) {
-				values[0]['data'].forEach((e) => {
-					if ((e.Value == null || e.Value == 'null') && e._InheritedConfig) {
-						e.Value = e._InheritedConfig.Value;
-					}
-					this.pageConfig[e.Code] = JSON.parse(e.Value);
-					if (this.pageConfig.AdjustmentUsedApprovalModule) {
-						this.pageConfig.canApprove = false;
-						this.pageConfig.canApprove = false;
-					}
-				});
+			if (values[0]) {
+				this.pageConfig = {
+					...this.pageConfig,
+					...values[0]
+				};
+				if (this.pageConfig.AdjustmentUsedApprovalModule) {
+					this.pageConfig.canApprove = false;
+					this.pageConfig.canApprove = false;
+				}
 			}
 		});
 		super.preLoadData(event);
