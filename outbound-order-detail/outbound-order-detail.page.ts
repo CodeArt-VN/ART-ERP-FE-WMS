@@ -109,7 +109,7 @@ export class OutboundOrderDetailPage extends PageBase {
 								SkipMCP: true,
 								SkipAddress: true,
 								IsStorer: true,
-								Term: term,
+								Keyword: term
 							})
 							.pipe(
 								catchError(() => of([])), // empty list on error
@@ -232,7 +232,7 @@ export class OutboundOrderDetailPage extends PageBase {
 											Take: 20,
 											Skip: 0,
 											AllUoM: true,
-											Term: term,
+											Keyword: term,
 											Id_ne: this.that.getExistedItem().length > 0 ? this.that.getExistedItem() : '',
 										})
 										.pipe(

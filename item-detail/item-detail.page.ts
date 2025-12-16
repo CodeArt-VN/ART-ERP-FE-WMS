@@ -117,7 +117,7 @@ export class ItemDetailPage extends PageBase {
 						} else {
 							return this.searchProvider
 								.search({
-									Term: term,
+									Keyword: term,
 									SortBy: ['Id_desc'],
 									Take: 20,
 									Skip: 0,

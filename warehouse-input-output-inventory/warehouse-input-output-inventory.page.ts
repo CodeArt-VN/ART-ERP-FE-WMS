@@ -358,7 +358,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 								Skip: 0,
 								AllUoM: true,
 								IDItemGroup: this.that.formGroup.get('IDItemGroup').value ? `[${this.that.formGroup.get('IDItemGroup').value.join(',')}]` : '[]',
-								Term: term,
+								Keyword: term
 							})
 							.pipe(
 								catchError(() => of([])), // empty list on error
