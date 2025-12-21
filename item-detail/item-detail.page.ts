@@ -1344,7 +1344,7 @@ export class ItemDetailPage extends PageBase {
 				id: i.Id,
 				FromPage:'Item'
 			},
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 		await modal.present();
 		const { data } = await modal.onDidDismiss();
