@@ -28,6 +28,7 @@ import {
 	WMS_PutawayStrategyProvider,
 	WMS_AllocationStrategyProvider,
 	PURCHASE_ItemPlanningDataProvider,
+	PURCHASE_OrderIntervalProvider,
 } from 'src/app/services/static/services.service';
 import { ItemPlanningDataDetailPage } from '../../PURCHASE/item-planning-data-detail/item-planning-data-detail.page';
 
@@ -156,6 +157,7 @@ export class ItemDetailPage extends PageBase {
 		public priceListDetailProvider: WMS_PriceListDetailProvider,
 		public itemInWarehouseConfig: WMS_ItemInWarehouseConfigProvider,
 		public taxProvider: FINANCE_TaxDefinitionProvider,
+		public purchaseOrderInterval: PURCHASE_OrderIntervalProvider,
 
 		public env: EnvService,
 		public route: ActivatedRoute,
@@ -258,11 +260,11 @@ export class ItemDetailPage extends PageBase {
 	ExpiryUnitList = [];
 	PlanningMethodList = [];
 	ProcurementMethodList = [];
-	OrderIntervalList = [];
 
 	IndustryList = [];
 	DivisionList = [];
 	vendorList = [];
+	_orderIntervalDataSource;
 
 	preLoadData(event) {
 		this.branchList = [...this.env.branchList];
@@ -319,7 +321,7 @@ export class ItemDetailPage extends PageBase {
 			this.env.getType('PlanningMethod'),
 
 			this.env.getType('ProcurementMethod'),
-			this.env.getType('OrderInterval'),
+			
 		]).then((values: any) => {
 			if (values[0]['Value'] && this.item?.Id == 0) {
 				let idTaxInput = JSON.parse(values[0]['Value']).Id;
@@ -369,10 +371,16 @@ export class ItemDetailPage extends PageBase {
 			}
 			if (values[13]) {
 				this.ProcurementMethodList = values[13];
-			}
-			if (values[14]) {
-				this.OrderIntervalList = values[14];
-			}
+			}	
+			this._orderIntervalDataSource = this.buildSelectDataSource((term) => {
+				return this.purchaseOrderInterval.search({
+					Keyword: term,
+					SortBy: ['Id_desc'],
+					Take: 20,
+					Skip: 0,
+					
+				});
+			});
 			super.preLoadData();
 		});
 
@@ -788,12 +796,16 @@ export class ItemDetailPage extends PageBase {
 							}
 							this.formGroup.get('IDBranchItemInBranch').setValue(IDBranchItemInBranch);
 							this.formGroup.get('IDBranch').setValue(formGroupIDBranch);
+							if(this.item?.OrderInterval){
+								this._orderIntervalDataSource.selected = [this.item.OrderInterval];
+							}
 						})
 				)
 				.catch((error) => {
 					this.segmentView.ShowSpinner = false;
 				});
 			this.branchSelected = true;
+			this._orderIntervalDataSource.initSearch();
 		} else {
 			this.resetItemInBranch();
 			this.branchSelected = false;
@@ -1098,20 +1110,20 @@ export class ItemDetailPage extends PageBase {
 							resolve(savedItem);
 							if (savedItem) {
 								// savedItem.IDItemInBranch = savedItem.Id;
-								savedItem.IDBranchItemInBranch = savedItem.IDBranch;
-								savedItem.IDBranch = formGroupIDBranch;
-								this.item.IDItemInBranch = savedItem.IDItemInBranch;
-								this.item.IDBranchItemInBranch = savedItem.IDBranch;
-								this.item.IDBranch = formGroupIDBranch;
+								savedItem.IDBranchItemInBranch = submitItem.IDBranch; // id branch tbl_ItemInBranch
+								savedItem.IDBranch = formGroupIDBranch; // id branch tbl_Item
+								this.item.IDItemInBranch = savedItem.IDItemInBranch; // gán id tbl_ItemInBranch
+								this.item.IDBranchItemInBranch = submitItem.IDBranch; // gán id branch tbl_ItemInBranch
+								this.item.IDBranch = formGroupIDBranch; // gán id branch tbl_Item
 								let existedItem = this.itemPlanningDataProvider
 									.read({
-										IDItem: savedItem.IDItem,
-										IDBranch: savedItem.IDBranch,
+										IDItem: this.id,
+										IDBranch: submitItem.IDBranch,
 										IDVendor: null,
 									})
 									.then((rs: any) => {
-										if (rs && rs.length > 0) submitItem.Id == rs.data[0]?.Id;
-										this.itemPlanningDataProvider.save(submitItem).then((r) => this.env.showMessage('Saved planning data!'));
+										if (rs && rs.data.length > 0) submitItem.Id = rs.data[0]?.Id;
+										this.itemPlanningDataProvider.save(submitItem).then((r) => this.env.showMessage('Saved planning data!', 'success'));
 									});
 							}
 
