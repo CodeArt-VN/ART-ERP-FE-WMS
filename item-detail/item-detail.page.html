@@ -835,30 +835,10 @@
 																(controlChange)="saveItemInBranch();"
 															>
 															</app-form-control>
+															
+															<app-form-control (change)="saveItemInBranch()" [field]="{id:'OrderInterval', label: 'Order interval', type : 'ng-select-async', dataSource: _orderIntervalDataSource, bindLabel: 'Name', bindValue: 'Name', form: formGroup}">
 
-															<div class="c-control">
-																<label class="c-label" for="OrderInterval">{{'Order Interval' | translate}} </label>
-																<ng-select
-																	class="c-input"
-																	(change)="saveItemInBranch();"
-																	[readonly]="!(branchSelected && (pageConfig.canEdit || pageConfig.canAdd))"
-																	labelForId="OrderInterval"
-																	formControlName="OrderInterval"
-																	[items]="OrderIntervalList"
-																	bindLabel="Name"
-																	bindValue="Code"
-																	placeholder="{{'Search' | translate}}"
-																>
-																	<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-																		<div *ngIf="i">
-																			<div>
-																				<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-																				<span [ngOptionHighlight]="search">{{i.Name}}</span>
-																			</div>
-																		</div>
-																	</ng-template>
-																</ng-select>
-															</div>
+															</app-form-control>
 
 															<app-form-control
 																[field]="{id: 'OrderMultiple', label: 'Order Multiple', type: 'number', form: formGroup}"
