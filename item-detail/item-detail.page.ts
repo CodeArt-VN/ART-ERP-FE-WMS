@@ -265,6 +265,19 @@ export class ItemDetailPage extends PageBase {
 	DivisionList = [];
 	vendorList = [];
 	_orderIntervalDataSource;
+	selectedIntervalData;
+	setOrderIntervalSelected(orderInterval: string) {
+		if (!this._orderIntervalDataSource || !orderInterval) return;
+		const selected = this.selectedIntervalData ?? [];
+
+		const exists = selected.some(item => item.Name === orderInterval);
+		if (!exists) {
+			selected.push({ Name: orderInterval });
+		}
+
+		this._orderIntervalDataSource.selected = selected;
+		this._orderIntervalDataSource.initSearch();
+	}
 
 	preLoadData(event) {
 		this.branchList = [...this.env.branchList];
@@ -321,7 +334,7 @@ export class ItemDetailPage extends PageBase {
 			this.env.getType('PlanningMethod'),
 
 			this.env.getType('ProcurementMethod'),
-			
+			this.purchaseOrderInterval.read({SortBy: ['Id_desc'],Take: 20})
 		]).then((values: any) => {
 			if (values[0]['Value'] && this.item?.Id == 0) {
 				let idTaxInput = JSON.parse(values[0]['Value']).Id;
@@ -371,6 +384,9 @@ export class ItemDetailPage extends PageBase {
 			}
 			if (values[13]) {
 				this.ProcurementMethodList = values[13];
+			}	
+			if (values[14]) {
+				this.selectedIntervalData = values[14].data?.map( (d) => d.Name );
 			}	
 			this._orderIntervalDataSource = this.buildSelectDataSource((term) => {
 				return this.purchaseOrderInterval.search({
@@ -709,6 +725,7 @@ export class ItemDetailPage extends PageBase {
 					this.itemsPlaningData = data?.data;
 
 					this.segmentView.ShowSpinner = false;
+					if (this.formGroup.get('IDBranchItemInBranch').value) this.setOrderIntervalSelected(this.item?.OrderInterval);
 				})
 			)
 			.catch((error) => {
@@ -796,16 +813,13 @@ export class ItemDetailPage extends PageBase {
 							}
 							this.formGroup.get('IDBranchItemInBranch').setValue(IDBranchItemInBranch);
 							this.formGroup.get('IDBranch').setValue(formGroupIDBranch);
-							if(this.item?.OrderInterval){
-								this._orderIntervalDataSource.selected = [this.item.OrderInterval];
-							}
+							this.setOrderIntervalSelected(this.item?.OrderInterval);
 						})
 				)
 				.catch((error) => {
 					this.segmentView.ShowSpinner = false;
 				});
 			this.branchSelected = true;
-			this._orderIntervalDataSource.initSearch();
 		} else {
 			this.resetItemInBranch();
 			this.branchSelected = false;
@@ -1123,6 +1137,7 @@ export class ItemDetailPage extends PageBase {
 									})
 									.then((rs: any) => {
 										if (rs && rs.data.length > 0) submitItem.Id = rs.data[0]?.Id;
+										else submitItem.Id = 0;
 										this.itemPlanningDataProvider.save(submitItem).then((r) => this.env.showMessage('Saved planning data!', 'success'));
 									});
 							}
