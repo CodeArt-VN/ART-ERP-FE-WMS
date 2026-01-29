@@ -91,7 +91,7 @@ export class AdjustmentDetailPage extends PageBase {
 					distinctUntilChanged(),
 					tap(() => (this.loading = true)),
 					switchMap((term) =>
-						this.searchProvider.search({ Take: 20, Skip: 0, Term: term, IsStorer: true }).pipe(
+						this.searchProvider.search({ Take: 20, Skip: 0, Keyword: term, IsStorer: true }).pipe(
 							catchError(() => of([])), // empty list on error
 							tap(() => (this.loading = false))
 						)
@@ -184,7 +184,7 @@ export class AdjustmentDetailPage extends PageBase {
 									.search({
 										Take: 20,
 										Skip: 0,
-										Term: term,
+										Keyword: term,
 										IDStorer: that.formGroup.get('IDStorer').value,
 										IDBranch: that.formGroup.get('IDBranch').value,
 									})
