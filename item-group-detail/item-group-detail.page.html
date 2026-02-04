@@ -33,37 +33,17 @@
 		slot="fixed"
 	>
 		<app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+		<div id="detail-page" style="position: absolute; z-index: 30005"></div>
 		<div *ngIf="pageConfig.showSpinner==false">
 			<div class="ion-padding" style="padding-bottom: 0">
-				<div class="c-control">
-					<label class="c-label" for="IDBranch">
-						<ion-text color="primary"> {{'Unit' | translate}} </ion-text>
-					</label>
-					<ng-select
-						class="c-input no-check-dirty"
-						[searchFn]="searchShowAllChildren"
-						(change)="selectBranch();"
-						[clearable]="true"
-						appendTo=""
-						#IDBranch
-						[(ngModel)]="selectedBranch"
-						labelForId="IDBranch"
-						[items]="branchList"
-						bindLabel="Name"
-						bindValue=""
-						placeholder="{{'Select unit' | translate}}"
-					>
-						<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-							<div *ngIf="i">
-								<div>
-									<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-									<ion-text [color]=" i.Type == 'Company'? 'primary':'dark'" [ngOptionHighlight]="search">{{i.Name}}</ion-text>
-								</div>
-							</div>
-						</ng-template>
-					</ng-select>
-				</div>
 				<form [formGroup]="formGroup">
+					<app-form-control (change)="selectBranch()"
+						[field]="{
+							branchConfig:{showingType:'Company',showingMode:'showAll', selectedBranch:formGroup.get('IDBranch').value},
+							id:'IDBranch',label:'Unit',type:'ng-select-branch',
+							dataSource:branchList,bindLabel:'Name',bindValue:'Id',
+							form:formGroup, clearable: true, appendTo: '#detail-page', placeholder:'Select unit'}"
+					></app-form-control>
 					<div class="c-control">
 						<label class="c-label" for="Id">Id</label>
 						<input class="c-input" readonly id="Id" formControlName="Id" type="number" />
