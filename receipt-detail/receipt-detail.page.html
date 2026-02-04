@@ -525,39 +525,26 @@
 										<label class="c-label" for="Id"># {{'Id' | translate}}</label>
 										<input class="c-input" id="Id" formControlName="Id" type="number" />
 									</div>
-
-									<div class="c-control">
-										<label class="c-label" for="IDBranch"
-											>{{'Warehouse' | translate}}<small *ngIf="item.Id">({{'Id' | translate}}: {{item.Id}})</small>
-											<span
-												*ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)"
-												ion-text
-												color="danger"
-												>(*)</span
-											>
-										</label>
-										<ng-select
-											class="c-input"
-											(change)="saveOrder();"
-											labelForId="IDBranch"
-											formControlName="IDBranch"
-											[items]="branchList"
-											[virtualScroll]="true"
-											bindLabel="Name"
-											bindValue="Id"
-											placeholder="{{'Search' | translate}}"
-										>
-											<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-												<div *ngIf="i">
-													<div>
-														<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-														<span [ngOptionHighlight]="search">{{i.Name}}</span>
-													</div>
-												</div>
-											</ng-template>
-										</ng-select>
-									</div>
-
+									<app-form-control
+										[field]="{
+											id:'IDBranch',
+											label: 'Warehouse',
+											type : 'ng-select-branch',
+											dataSource:branchList,
+											bindLabel:'Name',
+											bindValue:'Id',
+											form : formGroup,
+											virtualScroll: false,
+											placeholder:'Search',
+											clearable: true,
+											appendTo:'#order-detail-page',
+											branchConfig:{showingType:'Warehouse',showingMode:'showAll',selectedBranch:this.env.selectedBranch}
+										}"
+										(change)="saveOrder()"
+									>
+										<small label *ngIf="item.Id">({{'Id' | translate}}: {{item.Id}})</small>
+									</app-form-control>
+								
 									<app-form-control
 										[field]="{id:'IDVendor', label: 'Vendor', type : 'ng-select-bp',dataSource:_vendorDataSource,bindLabel:'Name',bindValue:'Id', form : formGroup,clearable:true}"
 										(change)="saveOrder()"

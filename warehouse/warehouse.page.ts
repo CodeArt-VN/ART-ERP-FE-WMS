@@ -8,6 +8,7 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { lib } from 'src/app/services/static/global-functions';
 import { TranslateService } from '@ngx-translate/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
 	selector: 'app-warehouse',
@@ -29,6 +30,7 @@ export class WarehousePage extends PageBase {
 	toDate = '';
 
 	setQuery;
+	formGroup: FormGroup;
 
 	segmentView = '';
 	optionGroup = [
@@ -60,11 +62,15 @@ export class WarehousePage extends PageBase {
 		public env: EnvService,
 		public route: ActivatedRoute,
 		public navCtrl: NavController,
-		public translate: TranslateService
+		public translate: TranslateService,
+		public formBuilder: FormBuilder
 	) {
 		super();
 		this.pageConfig.isShowFeature = true;
 		this.segmentView = this.route.snapshot?.paramMap?.get('segment');
+		this.formGroup = this.formBuilder.group({
+			IDBranch: [''],
+		});
 	}
 
 	preLoadData(event) {
@@ -101,6 +107,7 @@ export class WarehousePage extends PageBase {
 		if (!this.selectedBranch || this.selectedBranch.disabled) {
 			this.selectedBranch = this.branchList.find((d) => d.disabled == false);
 		}
+		this.formGroup.get('IDBranch')?.setValue(this.selectedBranch?.Id || null, { emitEvent: false });
 		this.selectBranch();
 		this.itemSearch();
 	}
@@ -163,6 +170,8 @@ export class WarehousePage extends PageBase {
 	}
 
 	selectBranch() {
+		const branchId = this.formGroup.get('IDBranch')?.value;
+		this.selectedBranch = branchId ? this.branchList.find((d) => d.Id === branchId) : null;
 		if (!this.selectedBranch) {
 			this.loadNode();
 		} else {
