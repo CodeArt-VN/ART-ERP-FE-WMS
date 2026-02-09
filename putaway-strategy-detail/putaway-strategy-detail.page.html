@@ -13,6 +13,7 @@
 
 	<div class="main-view ion-padding" *ngIf="item && pageConfig.showSpinner==false">
 		<div class="row-full shadow full-screen">
+			<div id="detail-page" style="position: absolute; z-index: 30005"></div>
 			<div>
 				<div *ngIf="segmentView == 's1'">
 					<div class="ion-padding">
@@ -27,37 +28,9 @@
 									<ion-col size="12" size-sm="8" size-xl="8">
 										<app-form-control [field]="{id:'Name', label: 'Name', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'Code', label: 'Code', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
-										<div class="c-control">
-											<label class="c-label" for="IDBranch"
-												>{{'Warehouse' | translate}}
-												<span
-													*ngIf="!formGroup.controls.IDBranch.valid && !formGroup.controls.IDBranch.pending && (formGroup.controls.IDBranch.dirty || submitAttempt)"
-													ion-text
-													color="danger"
-													>(*)</span
-												>
-											</label>
-											<ng-select
-												class="c-input"
-												(change)="IDBranchChange();"
-												labelForId="IDBranch"
-												formControlName="IDBranch"
-												[items]="branchList"
-												[virtualScroll]="true"
-												bindLabel="Name"
-												bindValue="Id"
-												placeholder="{{'Search...' | translate}}"
-											>
-												<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-													<div *ngIf="i">
-														<div>
-															<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-															<span [ngOptionHighlight]="search">{{i.Name}}</span>
-														</div>
-													</div>
-												</ng-template>
-											</ng-select>
-										</div>
+										<app-form-control (change)="IDBranchChange()"
+											[field]="{branchConfig: {showingType: 'Warehouse', showingMode:'showAll'}, id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', placeholder: 'Search', form: formGroup, virtualScroll :true, clearable: true, appendTo:'#detail-page', placeholder:'Search...'}">
+										</app-form-control>
 									</ion-col>
 								</ion-row>
 								<ion-row class="hr-group">

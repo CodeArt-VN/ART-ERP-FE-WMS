@@ -122,6 +122,8 @@ export class ItemGroupDetailPage extends PageBase {
 	}
 
 	selectBranch() {
+		const branchId = this.formGroup.get('IDBranch')?.value;
+		this.selectedBranch = branchId ? this.branchList.find((d) => d.Id === branchId) : null;
 		this.loadItemGroupAccountInBranch();
 		if (!this.selectedBranch) {
 			this.loadNode(this.optionGroup[0]);

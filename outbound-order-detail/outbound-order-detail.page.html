@@ -7,6 +7,7 @@
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
 <ion-content appScrollbarTheme class="ion-padding">
+	<div id="detail-page" style="position: absolute; z-index: 30005"></div>
 	<div class="main-view" id="outbound-detail-page">
 		<ion-grid fixed>
 			<form [formGroup]="formGroup">
@@ -18,37 +19,23 @@
 					</ion-col>
 
 					<ion-col size="12" size-sm size-xl="4">
-						<div class="c-control">
-							<label class="c-label" for="IDWarehouse"
-								>{{'Warehouse' | translate}}
-								<span
-									*ngIf="!formGroup.controls.IDWarehouse.valid && !formGroup.controls.IDWarehouse.pending && (formGroup.controls.IDWarehouse.dirty || submitAttempt)"
-									ion-text
-									color="danger"
-									>(*)</span
-								>
-							</label>
-							<ng-select
-								class="c-input"
-								(change)="saveChange();"
-								labelForId="IDWarehouse"
-								formControlName="IDWarehouse"
-								[items]="branchList"
-								[virtualScroll]="true"
-								bindLabel="Name"
-								bindValue="Id"
-								placeholder="{{'Search...' | translate}}"
-							>
-								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-									<div *ngIf="i">
-										<div>
-											<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-											<span [ngOptionHighlight]="search">{{i.Name}}</span>
-										</div>
-									</div>
-								</ng-template>
-							</ng-select>
-						</div>
+						<app-form-control
+							[field]="{
+								id:'IDWarehouse',
+								label: 'Warehouse',
+								type :'ng-select-branch',
+								dataSource: branchList,
+								bindLabel:'Name',
+								bindValue:'Id',
+								form : formGroup,
+								virtualScroll: true,
+								clearable: true,
+								placeholder:'Search...',
+								appendTo: '#detail-page',
+								branchConfig:{showingType:'Warehouse', showingMode:'showAll'}
+							}"
+							(change)="saveChange()">
+						</app-form-control>
 						<div class="c-control">
 							<app-form-control
 								[field]="{id:'IDStorer', label: 'Storer', type : 'ng-select-bp', dataSource: _contactDataSource, bindValue:'Id', bindLabel:'Name', clearable:true, form : formGroup }"

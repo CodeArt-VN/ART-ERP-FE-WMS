@@ -9,6 +9,7 @@
 <ion-content appScrollbarTheme class="ion-padding">
 	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
 		<div class="row-full shadow full-screen" style="max-width: 1440px; margin: auto; width: 100%; position: relative; z-index: 0">
+			<div id="detail-page" style="position: absolute; z-index: 30005"></div>
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
 					<ion-segment-button value="s1">
@@ -122,42 +123,23 @@
 										</ion-list-header>
 									</ion-col>
 									<ion-col size="12" size-sm="6" size-xl="4">
-										<div class="c-control">
-											<label class="c-label" for="IDWarehouse"
-												>{{ 'Warehouse' | translate }}
-												<span
-													*ngIf="
-                            !g.controls.IDWarehouse.valid &&
-                            !g.controls.IDWarehouse.pending &&
-                            (g.controls.IDWarehouse.dirty || submitAttempt)
-                          "
-													ion-text
-													color="danger"
-													>(*)</span
-												>
-											</label>
-											<ng-select
-												class="c-input"
-												(change)="IDWarehouseChange(idx,$event)"
-												labelForId="IDWarehouse"
-												formControlName="IDWarehouse"
-												[items]="branchList"
-												[virtualScroll]="true"
-												bindLabel="Name"
-												bindValue="Id"
-												placeholder="{{ 'Search...' | translate }}"
-											>
-												<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-													<div *ngIf="i">
-														<div>
-															<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-															<span [ngOptionHighlight]="search">{{ i.Name }}</span>
-														</div>
-													</div>
-												</ng-template>
-											</ng-select>
-										</div>
-
+										<app-form-control
+											[field]="{
+												id:'IDWarehouse',
+												label: 'Warehouse',
+												type :'ng-select-branch',
+												dataSource: branchList,
+												bindLabel:'Name',
+												bindValue:'Id',
+												form : g,
+												virtualScroll: true,
+												clearable: true,
+												placeholder:'Search...',
+												appendTo: '#detail-page',
+												branchConfig:{showingType:'Warehouse', showingMode:'showAll'}
+											}"
+											(change)="IDWarehouseChange(idx,$event)">
+										</app-form-control>
 										<div class="c-control">
 											<label class="c-label" for="StandardCarrierAlphaCode"
 												>{{ 'StandardCarrierAlphaCode' | translate }}

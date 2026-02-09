@@ -267,7 +267,7 @@ export class ItemDetailPage extends PageBase {
 	_orderIntervalDataSource;
 	selectedIntervalData;
 	setOrderIntervalSelected(orderInterval: string) {
-		if (!this._orderIntervalDataSource || !orderInterval) return;
+		if (!this._orderIntervalDataSource) return;
 		const selected = this.selectedIntervalData ?? [];
 
 		const exists = selected.some(item => item.Name === orderInterval);
