@@ -46,7 +46,7 @@
 											<input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text" />
 										</div>
 										<app-form-control (change)="saveChange()"
-											[field]="{branchConfig: {showingType: 'Warehouse', showingMode:'showAll'}, id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', placeholder: 'Search', form: formGroup, virtualScroll :true, clearable: true, appendTo:'#detail-page', placeholder:'Search...'}">
+											[field]="{branchConfig: {showingType: 'Warehouse', showingMode:'showAll'}, id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form: formGroup, virtualScroll :true, clearable: true, appendTo:'#detail-page', placeholder:'Search...'}">
 										</app-form-control>
 										<div class="c-control">
 											<label class="c-label" for="MaxPalletsPerItem"

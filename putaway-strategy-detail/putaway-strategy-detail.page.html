@@ -29,7 +29,7 @@
 										<app-form-control [field]="{id:'Name', label: 'Name', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control [field]="{id:'Code', label: 'Code', type :'text', form : formGroup }" (change)="saveChange()"></app-form-control>
 										<app-form-control (change)="IDBranchChange()"
-											[field]="{branchConfig: {showingType: 'Warehouse', showingMode:'showAll'}, id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', placeholder: 'Search', form: formGroup, virtualScroll :true, clearable: true, appendTo:'#detail-page', placeholder:'Search...'}">
+											[field]="{branchConfig: {showingType: 'Warehouse', showingMode:'showAll'}, id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form: formGroup, virtualScroll :true, clearable: true, appendTo:'#detail-page', placeholder:'Search...'}">
 										</app-form-control>
 									</ion-col>
 								</ion-row>
