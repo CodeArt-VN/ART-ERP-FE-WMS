@@ -1,8 +1,8 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this" [ShowExport]="true"> </app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content [fullscreen]="true" appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 		<div *ngIf="pageConfig.showSpinner==false">

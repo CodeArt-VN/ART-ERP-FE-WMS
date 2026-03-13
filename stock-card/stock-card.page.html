@@ -1,11 +1,11 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 		<ion-button (click)="print()" title="{{'Form printing' | translate}}">
 			<ion-icon slot="icon-only" name="print"></ion-icon>
 		</ion-button>
 	</app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="A4 left withFeature" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false" appPrintFix>
+<ion-content [fullscreen]="true" appScrollbarTheme class="A4 left withFeature" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false" appPrintFix>
 	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 		<ion-button title="Stock card" *ngIf="formGroup.valid && formGroup.get('IDItem').value && items?.length>0" (click)="createWarehouseCard()">
 			{{ 'Stock card' | translate }}
@@ -6,7 +6,7 @@
 		</ion-button>
 	</app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content [fullscreen]="true" appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control

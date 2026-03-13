@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this"> </app-toolbar>
 	<div class="withFeature left" [ngClass]="{withFeature: pageConfig.isShowFeature}" *ngIf="pageConfig.isShowSearch">
 		<section class="table">
@@ -23,7 +23,7 @@
 	</div>
 </ion-header>
 
-<ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content [fullscreen]="true" appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab
 		*ngIf="pageConfig.isShowFeature"
 		[ngClass]="{withSearch: pageConfig.isShowSearch,'ion-hide-md-down': pageConfig.isSubActive}"

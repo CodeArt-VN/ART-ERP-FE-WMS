@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<ion-toolbar class="no-padding">
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
 			<ion-button color="dark" class="ion-hide-sm-down"> {{'Select item' | translate}} </ion-button>
@@ -43,7 +43,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table scrollx">
+<ion-content [fullscreen]="true" appScrollbarTheme class="header-table scrollx">
 	<app-data-table
 		class="box-shadow"
 		[rows]="items"

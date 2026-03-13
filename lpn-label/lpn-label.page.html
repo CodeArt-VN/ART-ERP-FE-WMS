@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
 			<ion-button color="dark" class="ion-hide-sm-down"> {{'LPN Label Printing' | translate}} </ion-button>
@@ -21,7 +21,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme appPrintFix class="A5 landscape left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+<ion-content [fullscreen]="true" appScrollbarTheme appPrintFix class="A5 landscape left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
 	<ion-fab
 		*ngIf="pageConfig.isShowFeature"
 		style="height: calc(100% - 93px)"

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-detail-toolbar [page]="this">
 		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value == 'Draft'  && item?.CycleCountDetails?.length >0">
 			<ion-button title="{{'Open' | translate}}" color="secondary" (click)="changeStatus()">
@@ -15,7 +15,7 @@
 	</app-detail-toolbar>
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
 	<div class="main-view" *ngIf="item">
 		<ion-grid fixed>
 			<form [formGroup]="formGroup">
@@ -77,7 +77,7 @@
 
 		<ion-modal [isOpen]="isModalAddRangesOpen" (willDismiss)="dismissModal('addRanges')">
 			<ng-template>
-				<ion-header>
+				<ion-header [translucent]="true">
 					<ion-toolbar>
 						<ion-title>{{'Filter' | translate}} </ion-title>
 						<ion-buttons slot="end">
@@ -101,7 +101,7 @@
 		</ion-modal>
 		<ion-modal [isOpen]="isModalMergeOpen" (willDismiss)="dismissModal('merge')">
 			<ng-template>
-				<ion-header>
+				<ion-header [translucent]="true">
 					<ion-toolbar>
 						<ion-title>{{'Merge counter' | translate}} </ion-title>
 						<ion-buttons slot="end">

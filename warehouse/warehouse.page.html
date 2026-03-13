@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-list-toolbar
 		pageTitle="{{'Warehouse information' | translate}}"
 		[pageConfig]="pageConfig"
@@ -17,7 +17,7 @@
 	></app-list-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content [fullscreen]="true" appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<app-page-message [itemsLength]="1" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 		<div id="detail-page" style="position: absolute; z-index: 30005"></div>

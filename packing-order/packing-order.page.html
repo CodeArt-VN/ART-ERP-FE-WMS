@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<!-- <app-list-toolbar pageTitle="{{'erp.app.pages.wms.packing-order.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="delete()" >
 
 	</app-list-toolbar>
@@ -15,7 +15,7 @@
 	</app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
+<ion-content [fullscreen]="true" appScrollbarTheme class="header-table">
 	<app-data-table
 		class="box-shadow responsive padding-number-right"
 		*ngIf="items"
@@ -67,7 +67,7 @@
 
 	<ion-modal [isOpen]="isModalOpen" (willDismiss)="dismissModal()">
 		<ng-template>
-			<ion-header>
+			<ion-header [translucent]="true">
 				<ion-toolbar>
 					<ion-title>{{'Truck' | translate}} </ion-title>
 					<ion-buttons slot="end">

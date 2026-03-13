@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 		<ion-button class="clickable" title="{{'Add' | translate}}" (click)="presentAddNewPopover($event)">
 			<ion-icon color="success" slot="icon-only" name="duplicate-outline"></ion-icon>
@@ -56,7 +56,7 @@
 	</app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
+<ion-content [fullscreen]="true" appScrollbarTheme class="header-table">
 	<section class="table">
 		<header class="bold">
 			<div class="col-checkbox cell"></div>

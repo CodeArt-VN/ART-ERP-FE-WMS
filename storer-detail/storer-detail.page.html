@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 		<ion-button *ngIf="pageConfig.canRequestDataCorrection" title="{{'Request data correction' | translate}}" color="secondary" (click)="openRequestDataConnectionModal()">
 			{{'Request data correction' | translate}}
@@ -6,7 +6,7 @@
 	</app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
 	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
 		<div class="row-full shadow full-screen" style="max-width: 1440px; margin: auto; width: 100%; position: relative; z-index: 0">
 			<div id="detail-page" style="position: absolute; z-index: 30005"></div>

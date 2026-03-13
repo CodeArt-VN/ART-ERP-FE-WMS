@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
 			<ion-button color="dark" class="ion-hide-sm-down">{{'Tạo nhãn bàn' | translate}}</ion-button>
@@ -21,7 +21,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme appPrintFix class="Ruy96 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+<ion-content [fullscreen]="true" appScrollbarTheme appPrintFix class="Ruy96 left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print" vertical="top" horizontal="start" slot="fixed">
 		<div class="ion-padding">
 			<div class="c-control">

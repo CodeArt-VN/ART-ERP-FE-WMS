@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-detail-toolbar [page]="this">
 		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Close'  && item?.ShippingDetails?.length >0">
 			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeShip()">
@@ -8,7 +8,7 @@
 	</app-detail-toolbar>
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
 	<div id="detail-page" style="position: absolute; z-index: 30005"></div>
 	<div class="main-view">
 		<ion-grid fixed>

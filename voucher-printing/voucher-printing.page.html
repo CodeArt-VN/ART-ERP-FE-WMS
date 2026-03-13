@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
 			<ion-button color="dark" class="ion-hide-sm-down"> {{'Creating and printing voucher label' | translate}}
@@ -27,7 +27,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme appPrintFix [ngClass]="[
+<ion-content [fullscreen]="true" appScrollbarTheme appPrintFix [ngClass]="[
     formGroup?.get('PrintMode')?.value,
     pageConfig.isShowFeature ? 'withFeature' : ''
   ]" class="left" [style.--custom-width.mm]="formGroup?.get('Width')?.value"
