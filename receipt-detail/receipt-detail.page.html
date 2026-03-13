@@ -407,14 +407,14 @@
                                                     <div class="col-date cell">Lottable8</div>
                                                     <div class="col-date cell">Lottable9</div> -->
 													<div class="col-total cell">
-														<span class="c-input disabled">{{ (p.controls['Cube'].value /(1000000.0)) | mask: 'separator.3':',' }}</span>
+														<span class="c-input disabled">{{ (p.controls['Cube'].value /(1000000.0)) | mask: 'separator.3':maskConfig }}</span>
 														<!-- <input formControlName="Cube" (focus)="$event.target.select()" (change)="saveOrder()" class="c-input" type="tel" mask="separator.3" [dropSpecialCharacters]="false" thousandSeparator="," [allowNegativeNumbers]="true"> -->
 													</div>
 													<div class="col-total cell">
-														<span class="c-input disabled">{{p.controls['GrossWeight'].value /1000 | mask: 'separator.3':',' }}</span>
+														<span class="c-input disabled">{{p.controls['GrossWeight'].value /1000 | mask: 'separator.3':maskConfig }}</span>
 													</div>
 													<div class="col-total cell">
-														<span class="c-input disabled">{{p.controls['NetWeight'].value /1000 | mask: 'separator.3':',' }}</span>
+														<span class="c-input disabled">{{p.controls['NetWeight'].value /1000 | mask: 'separator.3':maskConfig }}</span>
 														<!-- <input formControlName="NetWeight" (focus)="$event.target.select()" (change)="saveOrder()" class="c-input" type="tel" mask="separator.3" thousandSeparator="," [allowNegativeNumbers]="true"> -->
 													</div>
 													<div class="col-del cell" *ngIf="pageConfig.canEdit"></div>

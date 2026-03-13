@@ -39,6 +39,9 @@ import { ItemPlanningDataDetailPage } from '../../PURCHASE/item-planning-data-de
 	standalone: false,
 })
 export class ItemDetailPage extends PageBase {
+	//TODO: Remove empty functions
+	optionQuery: any = { Keyword: '' };
+
 	branchList = [];
 	branchInWarehouse = [];
 	selectedBranch = null;
@@ -497,7 +500,7 @@ export class ItemDetailPage extends PageBase {
 		// this.selectedBranch = e
 		// this.selectBranch();
 	}
-	changeIDBranchItemInBranch() {
+	changeIDBranchItemInBranch(e = null) {
 		this.loadItemInBranch();
 		this.loadNode();
 		if (this.formGroup.get('IDBranchItemInBranch').value && (this.pageConfig.canEdit || this.pageConfig.canAdd)) {

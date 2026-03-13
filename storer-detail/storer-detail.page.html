@@ -111,7 +111,7 @@
 				</ion-grid>
 			</div>
 			<ng-container *ngFor="let g of formGroup.get('StorerConfig')['controls']; let idx = index;">
-				<div *ngIf="segmentView == idx">
+				<div *ngIf="('' + segmentView) === ('' + idx)">
 					<div class="ion-padding">
 						<ion-grid fixed>
 							<form [formGroup]="g">

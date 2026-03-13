@@ -506,7 +506,7 @@ export class OutboundOrderDetailPage extends PageBase {
 		super.saveChange2();
 	}
 
-	saveChangeDetail(fg, index) {
+	saveChangeDetail(fg, index = null) {
 		fg.get('IDOutboundOrder').markAsDirty();
 		fg.get('IDItem').markAsDirty();
 		fg.get('IDUoM').markAsDirty();

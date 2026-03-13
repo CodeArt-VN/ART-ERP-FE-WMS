@@ -619,4 +619,7 @@ export class PackingOrderDetailPage extends PageBase {
 			this.markNestedNode(ls, i.Id);
 		});
 	}
+
+	//TODO: Remove empty functions
+	onClickImport() {}
 }

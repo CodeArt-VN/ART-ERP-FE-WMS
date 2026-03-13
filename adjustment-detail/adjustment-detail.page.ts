@@ -518,4 +518,8 @@ export class AdjustmentDetailPage extends PageBase {
 	segmentChanged(ev: any) {
 		this.segmentView = ev.detail.value;
 	}
+
+	//TODO: Remove empty functions
+	onClickImport() {}
+	noCheckDirty = false;
 }

@@ -355,4 +355,7 @@ export class PutawayStrategyDetailPage extends PageBase {
 			this.markNestedNode(ls, i.Id);
 		});
 	}
+
+	//TODO: Remove empty functions
+	show = false;
 }

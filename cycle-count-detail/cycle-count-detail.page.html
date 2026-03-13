@@ -231,7 +231,7 @@
 								<div class="col-qty cell">{{c.get('CurrentQuantity').value}}</div>
 								<ng-container *ngIf="formGroup.get('CountType').value == 'Validation'">
 									<div *ngFor="let d of item.CycleCountTasks" class="col-qty cell clickable">
-										<ng-container *ngFor="let taskDetail of c.controls.CycleCountTaskDetails.value; let j = index">
+										<ng-container *ngFor="let taskDetail of c.get('CycleCountTaskDetails').value; let j = index">
 											<ng-container *ngIf="taskDetail.IDTask == d.Id">
 												<div
 													*ngIf="c.get('Status').value != 'Closed'  && taskDetail.Status == 'Closed'"
@@ -255,32 +255,32 @@
 
 								<ng-container *ngIf="formGroup.get('CountType').value == 'Simple'">
 									<div
-										[ngClass]="{bold: (c.get('IDCycleCountTask')?.value == c.controls.CycleCountTaskDetails.value[0]?.IDTask) &&  c.controls.CycleCountTaskDetails.value[0]?.IDTask>0}"
-										[ngStyle]="{'color': c.controls.CycleCountTaskDetails.value[0]?.Status !='Closed'? 'gray' : c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}"
+										[ngClass]="{bold: (c.get('IDCycleCountTask')?.value == c.get('CycleCountTaskDetails').value[0]?.IDTask) &&  c.get('CycleCountTaskDetails').value[0]?.IDTask>0}"
+										[ngStyle]="{'color': c.get('CycleCountTaskDetails').value[0]?.Status !='Closed'? 'gray' : c.get('CycleCountTaskDetails').value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}"
 										class="col-qty cell clickable"
 									>
-										<ng-container *ngIf="c.get('Status').value != 'Closed'  && c.controls.CycleCountTaskDetails.value[0]?.Status == 'Closed'">
-											<div (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTaskDetails.value[0])">
-												{{c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity}}
+										<ng-container *ngIf="c.get('Status').value != 'Closed'  && c.get('CycleCountTaskDetails').value[0]?.Status == 'Closed'">
+											<div (click)="setCounterForCycleCountDetail(c,c.get('CycleCountTaskDetails').value[0])">
+												{{c.get('CycleCountTaskDetails').value[0]?.CountedQuantity}}
 											</div>
 										</ng-container>
-										<ng-container *ngIf="c.get('Status').value == 'Closed'  || c.controls.CycleCountTaskDetails.value[0]?.Status != 'Closed'">
-											{{c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity}}
+										<ng-container *ngIf="c.get('Status').value == 'Closed'  || c.get('CycleCountTaskDetails').value[0]?.Status != 'Closed'">
+											{{c.get('CycleCountTaskDetails').value[0]?.CountedQuantity}}
 										</ng-container>
 									</div>
 								</ng-container>
 
-								<!-- <ng-container *ngIf="formGroup.get('CountType').value == 'Simple' && c.get('Status').value != 'Closed' && c.controls.CycleCountTaskDetails.value[0].Status == 'Closed'">
-										<div  (click)="setCounterForCycleCountDetail(c,c.controls.CycleCountTaskDetails.controls[0]?.value)"  [ngStyle]="{'color': c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
-											{{c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity}}
-											<ion-icon name="checkmark-outline" color="success" *ngIf="(c.get('IDCycleCountTask').value == c.controls.CycleCountTaskDetails?.value[0]?.Id) &&  c.controls.CycleCountTaskDetails?.value[0]?.Id>0"></ion-icon>
+								<!-- <ng-container *ngIf="formGroup.get('CountType').value == 'Simple' && c.get('Status').value != 'Closed' && c.get('CycleCountTaskDetails').value[0].Status == 'Closed'">
+										<div  (click)="setCounterForCycleCountDetail(c,c.get('CycleCountTaskDetails')?.value?.[0])"  [ngStyle]="{'color': c.get('CycleCountTaskDetails').value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											{{c.get('CycleCountTaskDetails').value[0]?.CountedQuantity}}
+											<ion-icon name="checkmark-outline" color="success" *ngIf="(c.get('IDCycleCountTask').value == c.get('CycleCountTaskDetails')?.value[0]?.Id) &&  c.get('CycleCountTaskDetails')?.value[0]?.Id>0"></ion-icon>
 										</div>
 									</ng-container>
 									
-									<ng-container *ngIf="formGroup.get('CountType').value == 'Simple' && (c.get('Status').value == 'Closed' || c.controls.CycleCountTaskDetails.value[0].Status != 'Closed')" >
-										<div   [ngStyle]="{'color': c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
-											{{c.controls.CycleCountTaskDetails.value[0]?.CountedQuantity}}
-											<ion-icon name="checkmark-outline" color="success" *ngIf="(c.get('IDCycleCountTask').value == c.controls.CycleCountTaskDetails?.value[0]?.Id) &&  c.controls.CycleCountTaskDetails?.value[0]?.Id>0"></ion-icon>
+									<ng-container *ngIf="formGroup.get('CountType').value == 'Simple' && (c.get('Status').value == 'Closed' || c.get('CycleCountTaskDetails').value[0].Status != 'Closed')" >
+										<div   [ngStyle]="{'color': c.get('CycleCountTaskDetails').value[0]?.CountedQuantity != c.get('CurrentQuantity').value? 'red':'green'}" class="col-qty cell clickable">
+											{{c.get('CycleCountTaskDetails').value[0]?.CountedQuantity}}
+											<ion-icon name="checkmark-outline" color="success" *ngIf="(c.get('IDCycleCountTask').value == c.get('CycleCountTaskDetails')?.value[0]?.Id) &&  c.get('CycleCountTaskDetails')?.value[0]?.Id>0"></ion-icon>
 										</div>
 									</ng-container> -->
 							</div>
@@ -393,12 +393,12 @@
 						<ng-template let-g="row" let-idx="idx" datatable-cell-template>
 							<ng-container *ngIf="item.CycleCountTasks.length>0">
 								<div *ngFor="let d of item.CycleCountTasks" class="col-qty cell clickable">
-									<ng-container *ngFor="let taskDetail of c.controls.CycleCountTaskDetails.value; let j = index">
+									<ng-container *ngFor="let taskDetail of g.get('CycleCountTaskDetails')?.value; let j = index">
 										<ng-container *ngIf="taskDetail.IDTask == d.Id"> {{taskDetail.CountedQuantity}} </ng-container>
 									</ng-container>
 								</div>
 							</ng-container>
-							<ng-container *ngIf="!item.CycleCountTasks.length>0">
+							<ng-container *ngIf="(item.CycleCountTasks?.length ?? 0) <= 0">
 								<div class="col-qty cell" *ngIf="!formGroup.controls?._Counters?.value && formGroup.get('CountType').value =='Simple'"></div>
 								<div class="col-qty cell" *ngFor="let c of formGroup.controls?._Counters?.value"></div>
 							</ng-container>

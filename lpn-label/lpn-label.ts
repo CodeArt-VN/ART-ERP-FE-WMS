@@ -175,7 +175,7 @@ export class LPNLabelPage extends PageBase {
 		);
 	}
 
-	changedIDReceipt() {
+	changedIDReceipt(e = null) {
 		this.query.IDReceipt = this.IDReceipt;
 		this.query.FromLPN = undefined;
 		this.query.ToLPN = undefined;
@@ -533,4 +533,7 @@ export class LPNLabelPage extends PageBase {
 		this.IDItem = null;
 		super.refresh(event);
 	}
+
+	//TODO: Remove empty functions
+	noCheckDirty = false;
 }

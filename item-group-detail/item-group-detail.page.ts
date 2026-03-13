@@ -15,6 +15,9 @@ import { lib } from 'src/app/services/static/global-functions';
 	standalone: false,
 })
 export class ItemGroupDetailPage extends PageBase {
+	//TODO: Remove empty functions
+	optionQuery: any = { Keyword: '' };
+
 	branchList = [];
 	selectedBranch = null;
 	optionGroup = [

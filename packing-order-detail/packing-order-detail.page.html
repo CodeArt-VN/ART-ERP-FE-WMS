@@ -221,7 +221,6 @@
 									*ngIf="vehicleList"
 									[rows]="vehicleList"
 									[(selectedRows)]="selectedVehicles"
-									(onSelectedRowsChange)="changeSelectionPacking($event)"
 									[showSpinner]="pageConfig.showSpinner"
 								>
 									<datatable-column [checkbox]="true"></datatable-column>

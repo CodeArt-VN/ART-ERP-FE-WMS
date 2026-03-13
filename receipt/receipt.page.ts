@@ -331,7 +331,7 @@ export class ReceiptPage extends PageBase {
 
 	initPODatasource = [];
 	isOpenPurchaseOrderPopover = false;
-	async openPurchaseOrderPopover(ev: any) {
+	async openPurchaseOrderPopover(ev: any = null) {
 		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
 		let queryPO = {
 			IDBranch: this.env.selectedBranchAndChildren,

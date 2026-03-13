@@ -549,4 +549,7 @@ export class ShippingDetailPage extends PageBase {
 			this.markNestedNode(ls, i.Id);
 		});
 	}
+
+	//TODO: Remove empty functions
+	onClickImport() {}
 }
