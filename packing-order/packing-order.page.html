@@ -1,8 +1,4 @@
 <ion-header [translucent]="true">
-	<!-- <app-list-toolbar pageTitle="{{'erp.app.pages.wms.packing-order.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (approveOrders)="approve()" (disapproveOrders)="disapprove()" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="delete()" >
-
-	</app-list-toolbar>
-	 -->
 	<app-toolbar [page]="this">
 		<ion-toolbar>
 			<ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">

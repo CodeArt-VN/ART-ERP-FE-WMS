@@ -1,21 +1,9 @@
 <ion-header [translucent]="true">
-	<app-list-toolbar
-		pageTitle="{{'erp.app.pages.wms.outbound-order.page-title' | translate}}"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(approveOrders)="approve()"
-		(disapproveOrders)="disapprove()"
-		(add)="add()"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(mergeOrders)="mergeOrders()"
-	></app-list-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button *ngIf="pageConfig.canMerge && selectedItems.length > 1" (click)="mergeOrders()" title="{{ 'Merge order' | translate }}">
+			<ion-icon slot="icon-only" name="git-pull-request"></ion-icon>
+		</ion-button>
+	</app-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" appScrollbarTheme class="header-table">

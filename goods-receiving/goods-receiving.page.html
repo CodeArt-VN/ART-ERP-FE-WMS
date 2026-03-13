@@ -1,20 +1,9 @@
 <ion-header [translucent]="true">
-	<app-list-toolbar
-		pageTitle="{{'Goods receipt' | translate}}"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(add)="add()"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(changeBranch)="changeBranch($event)"
-		(submitReceipt)="submitReceipt()"
-	></app-list-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button *ngIf="pageConfig.canReceive && !query.IsDisabled" (click)="submitReceipt()" title="{{ 'Goods receipt' | translate }}">
+			<ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
+		</ion-button>
+	</app-toolbar>
 
 	<section class="table">
 		<header class="bold">
