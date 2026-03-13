@@ -1,5 +1,5 @@
 <ion-header [translucent]="true">
-	<app-detail-toolbar [page]="this">
+	<app-toolbar [page]="this">
 		<ion-buttons slot="primary" *ngIf="item && pageConfig.canEdit && formGroup.get('Status').value != 'Closed'  && item?.PackingDetails?.length >0">
 			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closePack()">
 				<ion-icon color="success" slot="icon-only" name="logo-buffer"></ion-icon>
@@ -8,7 +8,7 @@
 				<ion-icon slot="start" name="truck"></ion-icon>
 			</ion-button>
 		</ion-buttons>
-	</app-detail-toolbar>
+	</app-toolbar>
 </ion-header>
 <!-- *ngIf="item && pageConfig.showSpinner==false" -->
 <ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
