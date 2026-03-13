@@ -232,7 +232,7 @@
 										<tbody>
 											<tr>
 												<!-- <td rowspan="10" class="logo">
-													<img [src]="o.BranchLogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'">
+													<img [src]="o.BranchLogoURL" (error)="$any($event.target).src='assets/RPT-Logo-ART.png'">
 												</td> -->
 												<td colspan="4" class="bol title">{{'LPN Label' | translate}}</td>
 

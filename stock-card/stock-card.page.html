@@ -48,7 +48,7 @@
 										<tbody>
 											<tr>
 												<td rowspan="5" class="logo">
-													<img [src]="item?._Branch.LogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
+													<img [src]="item?._Branch.LogoURL" (error)="$any($event.target).src='assets/RPT-Logo-ART.png'" />
 												</td>
 												<td colspan="2" class="bol title ion-text-uppercase">{{'Stock card' | translate}}</td>
 												<!-- <td rowspan="6" class="topQR">

@@ -90,7 +90,7 @@
 									<tbody>
 										<tr>
 											<td rowspan="7" class="logo">
-												<img [src]="s.BranchLogoURL" (error)="$event.src='assets/RPT-Logo-ART.png'" />
+												<img [src]="s.BranchLogoURL" (error)="$any($event.target).src='assets/RPT-Logo-ART.png'" />
 											</td>
 											<td colspan="2" class="bol title">{{'Cycle count detail listings' | translate}}</td>
 
