@@ -1325,13 +1325,14 @@ export class ItemDetailPage extends PageBase {
 		if (group.get('IsBaseUoM')?.value) {
 			group.get('IsBaseUoM')?.disable({ emitEvent: false });
 		}
-		group.get('IsBaseUoM')?.valueChanges.subscribe((value: boolean) => {
+		const sub1 = group.get('IsBaseUoM')?.valueChanges.subscribe((value: boolean) => {
 			if (value) {
 				group.get('IsBaseUoM')?.disable({ emitEvent: false });
 			} else {
 				group.get('IsBaseUoM')?.enable({ emitEvent: false });
 			}
 		});
+		if (sub1) this.subscriptions.push(sub1);
 
 		if (group.get('IsBaseUoM')?.value) {
 			group.get('BaseQuantity')?.clearValidators();
@@ -1341,7 +1342,7 @@ export class ItemDetailPage extends PageBase {
 		group.get('BaseQuantity')?.updateValueAndValidity();
 
 		// Subscribe to changes in IsBaseUoM
-		group.get('IsBaseUoM')?.valueChanges.subscribe((isBaseUoM: boolean) => {
+		const sub2 = group.get('IsBaseUoM')?.valueChanges.subscribe((isBaseUoM: boolean) => {
 			if (isBaseUoM) {
 				group.get('BaseQuantity')?.clearValidators(); // Remove required validator
 			} else {
@@ -1349,6 +1350,7 @@ export class ItemDetailPage extends PageBase {
 			}
 			group.get('BaseQuantity')?.updateValueAndValidity(); // Refresh validation state
 		});
+		if (sub2) this.subscriptions.push(sub2);
 		if (this.item?.TransactionsExist || this.formGroup.get('IDBranchItemInBranch').value) {
 			group.get('IsBaseUoM').disable();
 		}

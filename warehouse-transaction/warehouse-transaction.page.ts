@@ -76,18 +76,20 @@ export class WarehouseTransactionPage extends PageBase {
 		this.contactProvider.read({ IsStorer: true }).then((resp) => {
 			this.storerList = resp['data'];
 		});
-		this.route.queryParams.subscribe((params) => {
-			if (this.router.getCurrentNavigation()?.extras.state) {
-				this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state);
-				this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
-				this.formGroup.get('_IDItemDataSource').value.initSearch();
-				this.firstLoad = false;
-			}
-			if (!this.formGroup.get('IDBranch').value) {
-				this.getNearestWarehouse(this.env.selectedBranch);
-			}
-			super.preLoadData(event);
-		});
+		this.subscriptions.push(
+			this.route.queryParams.subscribe((params) => {
+				if (this.router.getCurrentNavigation()?.extras.state) {
+					this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state);
+					this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
+					this.formGroup.get('_IDItemDataSource').value.initSearch();
+					this.firstLoad = false;
+				}
+				if (!this.formGroup.get('IDBranch').value) {
+					this.getNearestWarehouse(this.env.selectedBranch);
+				}
+				super.preLoadData(event);
+			})
+		);
 	}
 	subItem: any = {};
 	firstLoad = true;

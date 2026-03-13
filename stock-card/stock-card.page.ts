@@ -58,22 +58,24 @@ export class StockCardPage extends PageBase {
 	preLoadData(event?: any): void {
 		this.fromDate = this.formGroup.get('TransactionDateFrom').value;
 		this.toDate = this.formGroup.get('TransactionDateTo').value;
-		this.route.queryParams.subscribe((params) => {
-			if (this.router.getCurrentNavigation()?.extras.state) {
-				this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state.query);
-				this.subItem = this.router.getCurrentNavigation()?.extras.state.subItem;
+		this.subscriptions.push(
+			this.route.queryParams.subscribe((params) => {
+				if (this.router.getCurrentNavigation()?.extras.state) {
+					this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state.query);
+					this.subItem = this.router.getCurrentNavigation()?.extras.state.subItem;
 
-				this.formGroup.get('_IDItemDataSource').value.selected = [...this.subItem._Items];
-				this.formGroup.get('_IDItemDataSource').value.initSearch();
-				this.patchValue(this.router.getCurrentNavigation()?.extras.state.items);
-				this.fromDate = this.formGroup.get('TransactionDateFrom').value;
-				this.toDate = this.formGroup.get('TransactionDateTo').value;
-				// if(this.formGroup.valid)  this.changeFilter();
-				// this.formGroup.get('IDBranch').setValue(this.router.getCurrentNavigation().extras.state.IDBranch);
-				// this.formGroup.get('IDItem').setValue(this.router.getCurrentNavigation().extras.state.Item?.Id);
-			}
-			this.loadedData(event);
-		});
+					this.formGroup.get('_IDItemDataSource').value.selected = [...this.subItem._Items];
+					this.formGroup.get('_IDItemDataSource').value.initSearch();
+					this.patchValue(this.router.getCurrentNavigation()?.extras.state.items);
+					this.fromDate = this.formGroup.get('TransactionDateFrom').value;
+					this.toDate = this.formGroup.get('TransactionDateTo').value;
+					// if(this.formGroup.valid)  this.changeFilter();
+					// this.formGroup.get('IDBranch').setValue(this.router.getCurrentNavigation().extras.state.IDBranch);
+					// this.formGroup.get('IDItem').setValue(this.router.getCurrentNavigation().extras.state.Item?.Id);
+				}
+				this.loadedData(event);
+			})
+		);
 		this.branchList = [...this.env.branchList];
 		this.contactProvider.read({ IsStorer: true }).then((resp) => {
 			this.storerList = resp['data'];
