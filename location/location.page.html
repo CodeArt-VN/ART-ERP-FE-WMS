@@ -1,13 +1,11 @@
 <ion-header [translucent]="true">
 	<app-toolbar [page]="this">
-		<ion-toolbar>
-			<ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">
-				<ion-icon name="qr-code-outline"></ion-icon>
-			</ion-button>
-			<ion-button (click)="isShowModal = true" class="ion-hide-sm-down" title="{{'Sort route sequence' | translate}}">
-				<ion-icon name="reorder-three-outline"></ion-icon>
-			</ion-button>
-		</ion-toolbar>
+		<ion-button (click)="printQRCode()" class="ion-hide-sm-down" *ngIf="selectedItems.length>0" title="{{'Print QR code' | translate}}">
+			<ion-icon name="qr-code-outline"></ion-icon>
+		</ion-button>
+		<ion-button (click)="isShowModal = true" class="ion-hide-sm-down" title="{{'Sort route sequence' | translate}}">
+			<ion-icon name="reorder-three-outline"></ion-icon>
+		</ion-button>
 	</app-toolbar>
 </ion-header>
 
@@ -31,30 +29,30 @@
 			</ng-template>
 		</datatable-column>
 
-		<datatable-column class="col-name" name="Location" property="Name"> </datatable-column>
+		<datatable-column class="col-code" name="Location" property="Name"> </datatable-column>
 
-		<datatable-column class="col-name" name="Zone" property="Zone"> </datatable-column>
-		<datatable-column class="col-name" name="Route sequence" property="RouteSequence"> </datatable-column>
+		<datatable-column class="col-name flex-break" name="Zone" property="Zone"> </datatable-column>
+		<datatable-column class="col-code" name="Route sequence" property="RouteSequence"> </datatable-column>
 	</app-data-table>
 
 	<ion-modal [isOpen]="isShowModal" (willDismiss)="dismissModal()">
 		<ng-template>
-			<ion-header [translucent]="true">
+			<ion-header [translucent]="true" collapse="fade">
 				<ion-toolbar>
 					<ion-title>{{'Reorder route sequence' | translate}} </ion-title>
-					<ion-buttons slot="end">
+					<div slot="end">
 						<ion-button (click)="dismissModal()">
 							<ion-icon name="close"></ion-icon>
 						</ion-button>
-					</ion-buttons>
+					</div>
 				</ion-toolbar>
 			</ion-header>
-			<ion-content class="ion-padding">
+			<ion-content class="ion-padding" [fullscreen]="true" appScrollbarTheme>
 				<section class="table table-contain responsive">
 					<app-reorder *ngIf="items.length>0" [items]="items" sortProperty="RouteSequence" (reoder)="doReorder($event)"> </app-reorder>
 				</section>
 			</ion-content>
-			<ion-footer>
+			<ion-footer [translucent]="true" collapse="fade">
 				<ion-toolbar>
 					<ion-button color="warning" size="default" slot="end" (click)="dismissModal(true)"> {{'Apply' | translate}} </ion-button>
 				</ion-toolbar>

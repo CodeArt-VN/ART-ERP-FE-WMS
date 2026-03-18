@@ -63,18 +63,18 @@
 
 	<ion-modal [isOpen]="isModalOpen" (willDismiss)="dismissModal()">
 		<ng-template>
-			<ion-header [translucent]="true">
+			<ion-header [translucent]="true" collapse="fade">
 				<ion-toolbar>
 					<ion-title>{{'Truck' | translate}} </ion-title>
-					<ion-buttons slot="end">
+					<div slot="end">
 						<ion-button (click)="dismissModal()">
 							<ion-icon name="close"></ion-icon>
 						</ion-button>
-					</ion-buttons>
+					</div>
 				</ion-toolbar>
 			</ion-header>
 
-			<ion-content class="ion-padding">
+			<ion-content class="ion-padding" [fullscreen]="true" appScrollbarTheme>
 				<app-data-table
 					class="box-shadow responsive padding-number-right"
 					*ngIf="vehicleList"
@@ -97,9 +97,11 @@
 				</app-data-table>
 			</ion-content>
 
-			<ion-footer>
+			<ion-footer [translucent]="true" collapse="fade">
 				<ion-toolbar>
-					<ion-button size="large" slot="end" (click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
+					<div slot="end">
+						<ion-button size="large" (click)="dismissModal(true)">{{'Chọn' | translate}}</ion-button>
+					</div>
 				</ion-toolbar>
 			</ion-footer>
 		</ng-template>
