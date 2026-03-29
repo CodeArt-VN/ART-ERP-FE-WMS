@@ -340,7 +340,7 @@ export class ReceiptPage extends PageBase {
 			Status: '["Ordered","Confirmed","PartialReceived"]',
 		};
 		let searchFn = this.buildSelectDataSource((term) => {
-			return this.purchaseOrderProvider.search({ ...queryPO, Term: term });
+			return this.purchaseOrderProvider.search({ ...queryPO, Keyword: term });
 		}, false);
 		if (this.initPODatasource.length == 0) {
 			this.purchaseOrderProvider.read(queryPO).then(async (rs: any) => {
