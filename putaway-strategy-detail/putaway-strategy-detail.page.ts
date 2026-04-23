@@ -43,6 +43,7 @@ export class PutawayStrategyDetailPage extends PageBase {
 	arrangeDataSource: any;
 	locationSortTypeDataSource: any;
 	typeDataSource: any;
+	dimensionRestrictionDataSource: any;
 	pickedRuleList: any;
 	branchList;
 	openedFields: any = [];
@@ -102,18 +103,14 @@ export class PutawayStrategyDetailPage extends PageBase {
 		//   { Name: 'Left to right', Code: 'LTR' },
 		//   { Name: 'Right to left', Code: 'RTL' },
 		// ];
-		this.locationSortTypeDataSource = [
-			{ Name: 'Name', Code: 'Name' },
-			{ Name: 'RouteSequence', Code: 'RouteSequence' },
-		];
-		this.typeDataSource = [
-			{ Name: 'Find an open location in zone', Code: 'findAnOpenLocationInZone' },
-			{ Name: 'Find all open location in zone', Code: 'findAllOpenLocationsInZone' },
-			{ Name: 'Find an open location in default zone', Code: 'findAnOpenLocationInDefaultZone' },
-			{ Name: 'Find locations with space in default zone', Code: 'findLocationsWithSpaceInDefaultZone' },
-		];
-		this.branchProvider.read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren }).then((resp) => {
-			lib.buildFlatTree(resp['data'], this.branchList).then((result: any) => {
+
+		Promise.all([
+			this.branchProvider.read({ Skip: 0, Take: 5000, Type: 'Warehouse', AllParent: true, Id: this.env.selectedBranchAndChildren }),
+			this.env.getType('PutawayLocationSortType'),
+			this.env.getType('PutawayRuleType'),
+			this.env.getType('PutawayDimensionRestriction'),
+		]).then((values) => {
+			lib.buildFlatTree(values[0]['data'], this.branchList).then((result: any) => {
 				this.branchList = result;
 				this.branchList.forEach((i) => {
 					i.disabled = true;
@@ -121,8 +118,11 @@ export class PutawayStrategyDetailPage extends PageBase {
 				});
 				this.markNestedNode(this.branchList, this.env.selectedBranch);
 			});
+			this.locationSortTypeDataSource = values[1];
+			this.typeDataSource = values[2];
+			this.dimensionRestrictionDataSource = values[3];
+			super.preLoadData(event);
 		});
-		super.preLoadData(event);
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {

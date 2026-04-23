@@ -39,7 +39,7 @@
 		</ion-button>
 
 		<div *ngIf="pageConfig.canEdit">
-			<ion-button (click)="palletize()" title="{{'Pallet Allocation' | translate}}" *ngIf="formGroup.controls.Status.value=='New'">
+			<ion-button (click)="palletize()" title="{{'Pallet Allocation' | translate}}" *ngIf="formGroup.controls.Status.value== 'New' || formGroup.controls.Status.value=='Delivering'">
 				<ion-icon slot="icon-only" name="file-tray-full-outline"></ion-icon>
 			</ion-button>
 
@@ -492,7 +492,7 @@
 								{{'Import product' | translate}}
 							</ion-button>
 
-							<ion-button fill="clear" size="small" (click)="palletize()" *ngIf="formGroup.controls.Status.value=='New'">
+							<ion-button fill="clear" size="small" (click)="palletize()" *ngIf="formGroup.controls.Status.value=='New' || formGroup.controls.Status.value=='Delivering' ">
 								<ion-icon slot="start" name="file-tray-full"></ion-icon>
 								{{'Pallet Allocation' | translate}}
 							</ion-button>
