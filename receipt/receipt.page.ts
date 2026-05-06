@@ -88,6 +88,12 @@ export class ReceiptPage extends PageBase {
 		// }
 	}
 
+	onSelectedRowsChange(selectedRows) {
+		this.selectedItems = selectedRows || [];
+		this.showCommandBySelectedRows(this.selectedItems);
+		this.pageConfig.canDelivery = this.selectedItems.every((i) => i.Status == 'Confirmed') && this.vendorView;
+	}
+
 	submitReceipt() {
 		if (!this.pageConfig.canReceive) {
 			return;
