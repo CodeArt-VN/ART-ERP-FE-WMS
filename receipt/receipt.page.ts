@@ -193,7 +193,7 @@ export class ReceiptPage extends PageBase {
 										text: 'Đồng ý',
 										cssClass: 'danger-btn',
 										handler: () => {
-											this.navCtrl.navigateForward('/receipt/' + asnItems[0].Id);
+											this.navCtrl.navigateForward('/receipt-mobile/' + asnItems[0].Id);
 										},
 									},
 								],
