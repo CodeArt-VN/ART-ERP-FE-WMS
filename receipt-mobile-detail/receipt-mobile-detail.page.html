@@ -1,0 +1,85 @@
+<ion-header [translucent]="true">
+	<app-toolbar [page]="this" [CenterTitle]="item ? item.Id :''"> </app-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
+	<div *ngIf="pageConfig.showSpinner" class="page-loading">
+		<ion-spinner name="dots"></ion-spinner>
+	</div>
+
+	<div class="empty-message" *ngIf=" !item && pageConfig.showSpinner==false">
+		<div class="icon">
+			<img style="width: 51vw; max-width: 300px" src="./assets/undraw_empty.svg" />
+		</div>
+		<div class="message">
+			<div class="title">{{'Cannot find order' | translate}}</div>
+			<div class="detail"></div>
+		</div>
+	</div>
+
+	<div class="main-view" *ngIf="item">
+		<div class="summary">
+			<div class="time">{{item._Vendor.Name}}</div>
+		</div>
+
+		<div class="full-screen">
+			<div style="min-height: calc(100vh - 410px)">
+				<ion-card class="booking ion-no-margin">
+					<div class="logo"></div>
+
+					<ion-card-header>
+						<ion-card-title>
+							<ion-text color="primary">
+								{{item.QuantityReceived}} /
+								<small>{{item.QuantityExpected}}</small>
+							</ion-text>
+						</ion-card-title>
+					</ion-card-header>
+					<ion-card-content class="info barcode" *ngFor="let i of formGroup.get('Lines')['controls']; let idx = index;">
+						<form [formGroup]="i">
+							<div class="field"><b>{{i.get('_Item')?.value?.Code}}</b> - {{i.get('_Item')?.value?.Name}}</div>
+							<ion-range
+								(click)="i.txtQtyShow = !i.txtQtyShow"
+								*ngIf="i.get('UoMQuantityExpected')?.value"
+								debounce="300"
+								min="0"
+								[max]="i.get('UoMQuantityExpected')?.value"
+								color="success"
+								pin="true"
+								step="1"
+								formControlName="QuantityReceived"
+							>
+								<div slot="start">
+									<ion-badge
+										class="ion-text-lowercase"
+										slot="start"
+										[color]="i.get('UoMQuantityExpected')?.value == i.get('QuantityReceived')?.value ? 'success' : 'warning'"
+										*ngIf="i.get('UoMQuantityExpected')?.value"
+									>
+										{{i.get('QuantityReceived')?.value}} {{i.get('_Item')?.value?.UoMName}}</ion-badge
+									>
+									<input
+										(focus)="$event.target.select()"
+										[readonly]="!pageConfig.canEdit "
+										class="txtQtyInput"
+										type="number"
+										formControlName="QuantityReceived"
+										min="0"
+										step="1"
+										max="999999999999999999"
+									/>
+								</div>
+							</ion-range>
+							<app-form-control [field]="{id: 'Lottable0', label: 'LOT/Batch', type: 'text', form: i }" (change)="saveChange2()"></app-form-control>
+							<app-form-control [field]="{id: 'Lottable5', label: 'Manufacture date', type: 'date', form: i }" (change)="saveChange2()"></app-form-control>
+							<app-form-control [field]="{id: 'Lottable6', label: 'Expiration date', type: 'date', form: i }" (change)="saveChange2()"></app-form-control>
+						</form>
+					</ion-card-content>
+					<ion-button  expand="full" size="large" title="Goods receipt" (click)="submitReceipt()" [disabled]="!pageConfig.canEdit && pageConfig.canReceive">
+						<ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
+						{{'Goods receipt' | translate}}
+					</ion-button>
+				</ion-card>
+			</div>
+		</div>
+	</div>
+</ion-content>

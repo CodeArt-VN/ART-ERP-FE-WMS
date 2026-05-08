@@ -134,7 +134,7 @@ export class ReceiptDetailPage extends PageBase {
 				});
 			}
 
-			if (!(this.item.Status == 'New' || this.item.Status == 'Palletized')) {
+			if (!(this.item.Status == 'New' || this.item.Status == 'Delivering' ||this.item.Status == 'Palletized')) {
 				this.pageConfig.canEdit = false;
 			}
 		}

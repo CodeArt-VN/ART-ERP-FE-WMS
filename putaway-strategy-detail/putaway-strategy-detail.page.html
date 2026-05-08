@@ -88,7 +88,7 @@
 																					(change)="saveChange()"
 																				></app-form-control>
 																				<app-form-control
-																					[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:typeDataSource, bindLabel:'Name', bindValue:'Code', form : g }"
+																					[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:typeDataSource, bindLabel:'Name', bindValue:'Code', form : g, appendTo:'#detail-page' }"
 																					(change)="saveChange()"
 																				></app-form-control>
 																			</ion-col>
@@ -126,11 +126,11 @@
 
 																			<ion-col size="12" size-xl="12">
 																				<app-form-control
-																					[field]="{id:'DimensionRestriction', label: 'Dimension restriction', type : 'text', form : g }"
+																					[field]="{id:'DimensionRestriction', label: 'Dimension restriction', type : 'ng-select',dataSource:dimensionRestrictionDataSource, bindLabel:'Name', bindValue:'Code', form : g, appendTo:'#detail-page' }"
 																					(change)="saveChange()"
 																				></app-form-control>
 																				<app-form-control
-																					[field]="{id:'LocationSortType', label: 'Location sort type', type : 'ng-select', dataSource: locationSortTypeDataSource, bindValue:'Code', bindLabel:'Name', form : g }"
+																					[field]="{id:'LocationSortType', label: 'Location sort type', type : 'ng-select', dataSource: locationSortTypeDataSource, bindValue:'Code', bindLabel:'Name', form : g, appendTo:'#detail-page' }"
 																					(change)="saveChange()"
 																				></app-form-control>
 																				<app-form-control
