@@ -1,0 +1,135 @@
+<ion-header [translucent]="true">
+	<app-toolbar [page]="this">
+		<ion-button *ngIf="pageConfig.canAdd" class="clickable" title="{{'Add' | translate}}" (click)="presentAddNewPopover($event)">
+			<ion-icon color="success" slot="icon-only" name="duplicate-outline"></ion-icon>
+		</ion-button>
+		<ion-popover #addNewPopover [isOpen]="isOpenAddNewPopover" (didDismiss)="isOpenAddNewPopover = false">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item [button]="true" [detail]="false" (click)="addNewPopover.dismiss() ;add()" title="{{'Add' | translate}}">
+							<ion-icon color="success" slot="start" name="add-outline"></ion-icon>
+							<ion-label> {{'Add' | translate}}</ion-label>
+						</ion-item>
+
+						<ion-item title="{{'Copy from purchase order' | translate}}" [button]="true" [detail]="false" (click)="openPurchaseOrderPopover()">
+							<ion-icon name="clipboard-list" color="success" slot="start"></ion-icon>
+							<ion-label>{{'Copy from purchase order' | translate}}</ion-label>
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+		</ion-popover>
+		<ion-button tollbarSelected
+			class="clickable"
+			title="{{'Copy' | translate}}"
+			(click)="presentCopyPopover($event)"
+			*ngIf=" (pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice)"
+		>
+			<ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+		</ion-button>
+		<ion-popover #copyPopover tollbarSelected [isOpen]="isOpenCopyPopover" (didDismiss)="isOpenCopyPopover = false" [dismissOnSelect]="true">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item
+							title="{{'Copy to A/P invoice' | translate}}"
+							*ngIf="pageConfig.canCopyToAPInvoice && pageConfig.ShowCopyToAPInvoice"
+							[button]="true"
+							[detail]="false"
+							(click)="createInvoice()"
+						>
+							<ion-icon slot="start" name="receipt-outline"></ion-icon>
+							<ion-label>{{'Copy to A/P invoice' | translate}}</ion-label>
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+		</ion-popover>
+		<ion-button tollbarSelected title="Goods receipt" *ngIf="pageConfig.ShowReceive" (click)="submitReceipt()">
+			<ion-icon color="success" slot="icon-only" name="bag-check-outline"></ion-icon>
+		</ion-button>
+
+		<ion-button tollbarSelected title="Delivering" *ngIf="pageConfig.canDelivery && pageConfig.ShowDelivery" (click)="deliveryReceipt()">
+			<ion-icon slot="icon-only" name="shipping-fast"></ion-icon>
+		</ion-button>
+	</app-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" appScrollbarTheme class="header-table">
+	<app-data-table
+		class="box-shadow responsive"
+		[rows]="items"
+		[(selectedRows)]="selectedItems"
+		(selectedRowsChange)="onSelectedRowsChange($event)"
+		(dataInfinite)="loadData($event)"
+		[(query)]="query"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+		[showFilter]="pageConfig.isShowSearch"
+		[showSpinner]="pageConfig.showSpinner"
+	>
+		<datatable-column [checkbox]="true"></datatable-column>
+
+		<datatable-column class="col-id" name="Id" property="Id">
+			<ng-template let-i="row" datatable-cell-template>
+				<a [routerLink]="['/receipt-mobile/' + i.Id]">{{i.Id}}</a>
+			</ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-status" name="Status" property="Status" filterControlType="ng-select" [filterDataSource]="statusList">
+			<ng-template let-i="row" datatable-cell-template>
+				<span class="bar-holder">
+					<ion-text class="bar-title" [color]="i.StatusColor">{{i.StatusText}}</ion-text>
+					<span
+						class="bar"
+						[ngClass]="{active: s.Code==i.Status}"
+						[ngStyle]="{'background-color': 'var(--ion-color-'+s.Color+')'}"
+						*ngFor="let s of statusList"
+						[title]="s.Name"
+					></span>
+				</span>
+			</ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-code" name="Goods owner" property="IDStorer" filterControlType="ng-select" [filterDataSource]="storerList">
+			<ng-template let-i="row" datatable-cell-template>
+				<div (click)="nav('receipt-mobile/'+i.Id,'forward')" class="col-code cell">{{i.StorerName}}</div>
+			</ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-date" name="Expected date" property="ExpectedReceiptDate" filterControlType="date">
+			<ng-template let-i="row" datatable-cell-template>
+				{{i.ExpectedReceiptDate | date:'dd/MM/yy HH:mm'}}
+			</ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-date col-estReceivingDate" name="Receipt date" property="ReceiptedDate" filterControlType="date">
+			<ng-template let-i="row" datatable-cell-template>
+				<span *ngIf="i.ReceiptedDateText">{{i.ReceiptedDateText}}</span>
+			</ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-name" name="Delivery truck" property="VehicleNumber" ></datatable-column>
+
+		<datatable-column class="col-status col-ImportStatus" name="Classification" property="Type" filterControlType="ng-select" [filterDataSource]="typeList">
+			<ng-template let-i="row" datatable-cell-template>
+				<span>{{i.TypeText}} <small *ngIf="i.IDPurchaseOrder">{{i.IDPurchaseOrder}}</small></span>
+			</ng-template>
+		</datatable-column>
+
+		<datatable-column class="col-id" name="IDPO" property="IDPurchaseOrder">
+			<ng-template let-i="row" datatable-cell-template>
+				<span *ngIf="i.IDPurchaseOrder">{{i.IDPurchaseOrder}}</span>
+			</ng-template>
+		</datatable-column>
+	</app-data-table>
+
+	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+
+	<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+		<ion-fab-button color="secondary" (click)="scanQRCode()">
+			<ion-icon name="qr-code-outline"></ion-icon>
+		</ion-fab-button>
+	</ion-fab>
+</ion-content>
