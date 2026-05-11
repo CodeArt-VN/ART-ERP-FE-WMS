@@ -26,6 +26,7 @@ export const WMSRoutes: Routes = [
     
     { path: 'receipt', loadChildren: () => import('./receipt/receipt.module').then(m => m.ReceiptPageModule), canActivate: [AuthGuard] },
     { path: 'receipt/:id', loadChildren: () => import('./receipt-detail/receipt-detail.module').then(m => m.ReceiptDetailPageModule), canActivate: [AuthGuard] },
+    { path: 'receipt-mobile', loadChildren: () => import('./receipt-mobile/receipt-mobile.module').then(m => m.ReceiptMobilePageModule), canActivate: [AuthGuard] },
     { path: 'receipt-mobile/:id', loadChildren: () => import('./receipt-mobile-detail/receipt-mobile-detail.module').then(m => m.ReceiptMobileDetailPageModule), canActivate: [AuthGuard] },
     
     { path: 'carton', loadChildren: () => import('./carton/carton.module').then(m => m.CartonPageModule), canActivate: [AuthGuard] },
