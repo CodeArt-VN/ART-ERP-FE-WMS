@@ -22,7 +22,7 @@ export class ReceiptMobileDetailPage extends PageBase {
 	carrierList = [];
 	typeList = [];
 	branchList = [];
-
+	listNoLock =['New','Confirmed','Scheduled','Delivering'];
 	constructor(
 		public pageProvider: WMS_ReceiptProvider,
 
@@ -112,7 +112,8 @@ export class ReceiptMobileDetailPage extends PageBase {
 		this.setLines();
 
 		this.pageConfig.canDelivery = this.item.Status == 'Confirmed' && this.vendorView;
-		if (this.item.Status != 'New') this.formGroup.disable();
+		if (!this.listNoLock.includes(this.item.Status)) this.formGroup.disable();
+		
 	}
 
 	setLines() {

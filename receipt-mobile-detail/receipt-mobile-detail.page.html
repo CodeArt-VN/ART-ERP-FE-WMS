@@ -74,7 +74,7 @@
 							<app-form-control [field]="{id: 'Lottable6', label: 'Expiration date', type: 'date', form: i }" (change)="saveChange2()"></app-form-control>
 						</form>
 					</ion-card-content>
-					<ion-button  expand="full" size="large" title="Goods receipt" (click)="submitReceipt()" [disabled]="!pageConfig.canEdit && pageConfig.canReceive">
+					<ion-button  expand="full" size="large" title="Goods receipt" (click)="submitReceipt()" [disabled]="!listNoLock.includes(item.Status)">
 						<ion-icon slot="icon-only" name="bag-check-outline"></ion-icon>
 						{{'Goods receipt' | translate}}
 					</ion-button>
