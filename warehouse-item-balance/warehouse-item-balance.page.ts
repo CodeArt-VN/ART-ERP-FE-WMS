@@ -107,7 +107,10 @@ export class WareHouseItemBalancePage extends PageBase {
 		}
 		Object.assign(this.query, this.formGroup.getRawValue());
 
-		super.clearData();
+		// Chỉ reset list khi đổi filter; infinite scroll phải giữ items để Skip tăng đúng
+		if (event?.type !== 'ionInfinite') {
+			super.clearData();
+		}
 		super.loadData(event);
 		this.formGroup.markAsPristine();
 		this.pageConfig.isSubActive = true;

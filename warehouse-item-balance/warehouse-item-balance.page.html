@@ -49,7 +49,7 @@
 		<app-data-table
 			class="box-shadow"
 			[rows]="items"
-			[trackBy]="'Id'"
+			[trackBy]="'IDItem'"
 			[(selectedRows)]="selectedItems"
 			[showSpinner]="pageConfig.showSpinner"
 			[showFilter]="pageConfig.isShowSearch"
@@ -101,7 +101,7 @@
 				</ng-template>
 			</datatable-column>
 
-			<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
+			<!-- <datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
 				<ng-template let-i="row" datatable-cell-template>
 					<ion-button *ngIf="!i?.isEdit" (click)="editRow(i)" size="small" title="{{'Edit' | translate}}" fill="clear">
 						<ion-icon slot="icon-only" name="pencil"></ion-icon>
@@ -112,7 +112,7 @@
 						<ion-button *ngIf="i?.isEdit" (click)="cancelRow(i)" size="small" fill="outline"> {{'Cancel' | translate}} </ion-button>
 					</div>
 				</ng-template>
-			</datatable-column>
+			</datatable-column> -->
 		</app-data-table>
 	</div>
 
