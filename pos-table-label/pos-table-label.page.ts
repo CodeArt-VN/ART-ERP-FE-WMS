@@ -53,6 +53,12 @@ export class POSTableLabelPage extends PageBase {
 		this.TableGroupDataSource.initSearch();
 	}
 
+	private getCustomerOrderUrl(tableId: number | string) {
+		const url = new URL(window.location.href);
+		url.hash = `/pos-welcome/${tableId}`;
+		return url.toString();
+	}
+
 	createPages() {
 		if (this.submitAttempt) {
 			this.env.showMessage('Please wait for a few moments');
@@ -149,7 +155,7 @@ export class POSTableLabelPage extends PageBase {
 				label.Value = '' + (i.Barcode ? i.Barcode : i.Id);
 				label.data = i;
 				QRCode.toDataURL(
-					'http://app.inholdings.vn/#/pos-welcome/' + label.Value,
+					this.getCustomerOrderUrl(label.Value),
 					{
 						errorCorrectionLevel: 'M',
 						version: 4,
