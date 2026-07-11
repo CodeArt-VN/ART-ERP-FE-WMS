@@ -52,6 +52,7 @@ export class WarehouseTransactionPage extends PageBase {
 	) {
 		super();
 		this.pageConfig.isShowFeature = true;
+		this.pageConfig.isFeatureAsMain = true;
 		this.formGroup = this.formBuilder.group({
 			IDItem: [''],
 			IDBranch: ['', Validators.required],
@@ -73,26 +74,31 @@ export class WarehouseTransactionPage extends PageBase {
 
 	preLoadData(event) {
 		this.branchList = [...this.env.branchList];
-		this.contactProvider.read({ IsStorer: true }).then((resp) => {
+		this.contactProvider.read({ IsStorer: true, Take: 500, Skip: 0, SkipAddress: true }).then((resp) => {
 			this.storerList = resp['data'];
 		});
-		this.subscriptions.push(
-			this.route.queryParams.subscribe((params) => {
-				if (this.router.getCurrentNavigation()?.extras.state) {
-					this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state);
-					this.formGroup.get('_IDItemDataSource').value.selected.push(this.router.getCurrentNavigation().extras.state.Item);
-					this.formGroup.get('_IDItemDataSource').value.initSearch();
-					this.firstLoad = false;
-				}
-				if (!this.formGroup.get('IDBranch').value) {
-					this.getNearestWarehouse(this.env.selectedBranch);
-				}
-				super.preLoadData(event);
-			})
-		);
+		const navState = this.router.getCurrentNavigation()?.extras.state;
+		if (navState) {
+			this.formGroup.patchValue(navState);
+			if (navState.Item) {
+				this.formGroup.get('_IDItemDataSource').value.selected.push(navState.Item);
+			}
+			this.formGroup.get('_IDItemDataSource').value.initSearch();
+			this.firstLoad = false;
+		}
+		if (!this.formGroup.get('IDBranch').value) {
+			this.getNearestWarehouse(this.env.selectedBranch);
+		}
+		super.preLoadData(event);
 	}
 	subItem: any = {};
 	firstLoad = true;
+	itemById = new Map<number, any>();
+
+	trackTransaction(index: number, item: any) {
+		return item?.Id ?? index;
+	}
+
 	loadData(event) {
 		if (this.firstLoad) {
 			this.loadedData(event);
@@ -107,22 +113,50 @@ export class WarehouseTransactionPage extends PageBase {
 			.then((rs: any) => {
 				if (rs._RefList) {
 					const { _RefList, ...SubData } = rs;
-
-					this.items = _RefList.sort((a, b) => new Date(b.TransactionDate).getTime() - new Date(a.TransactionDate).getTime()).map((i) => ({ ...i }));
-
-					//        this.items = _RefList.sort((a, b) => new Date(a.TransactionDate).getTime() - new Date(b.TransactionDate).getTime()).map(i => ({ ...i }));
 					this.subItem = SubData;
-					this.items.forEach((i) => {
-						let item = this.subItem._Items?.find((d) => d.Id == i.IDItem);
-						console.log(item);
-						i._Item = item;
-					});
-					this.loadedData(event);
+					this.itemById = new Map((this.subItem._Items ?? []).map((item) => [item.Id, item]));
+					this.items = this.buildTransactionRows(_RefList);
+					this.pageConfig.isSubActive = true;
+					this.cdr.detectChanges();
 				}
+				this.loadedData(event);
 			})
-			.catch((err) => {
+			.catch(() => {
 				this.loadedData(event);
 			});
+	}
+
+	buildTransactionRows(refList: any[]) {
+		const sorted = refList
+			.slice()
+			.sort((a, b) => new Date(b.TransactionDate).getTime() - new Date(a.TransactionDate).getTime());
+
+		return sorted.map((row, index) => {
+			const item = this.itemById.get(row.IDItem);
+			let groupHeader: string = null;
+
+			if (index === 0) {
+				groupHeader = lib.dateFormatFriendly(row.TransactionDate);
+			} else {
+				const prev = sorted[index - 1];
+				const mins = Math.floor(
+					(new Date(prev.TransactionDate).getTime() - new Date(row.TransactionDate).getTime()) / 1000 / 60
+				);
+				if (mins >= 30) {
+					const prevDate = lib.dateFormatFriendly(prev.TransactionDate);
+					const currentDate = lib.dateFormatFriendly(row.TransactionDate);
+					if (prevDate !== currentDate) {
+						groupHeader = currentDate;
+					}
+				}
+			}
+
+			return {
+				...row,
+				_Item: item,
+				_groupHeader: groupHeader,
+			};
+		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
@@ -165,7 +199,8 @@ export class WarehouseTransactionPage extends PageBase {
 			return;
 		}
 		this.firstLoad = false;
-		super.preLoadData(event);
+		this.pageConfig.isSubActive = true;
+		super.preLoadData(null);
 	}
 
 	changeIDBranch() {
@@ -202,23 +237,6 @@ export class WarehouseTransactionPage extends PageBase {
 					this.changeFilter();
 				});
 		}
-	}
-
-	myHeaderFn(record, recordIndex, records) {
-		if (recordIndex == 0) {
-			return lib.dateFormatFriendly(record.TransactionDate);
-		}
-		let b: any = recordIndex == 0 ? new Date() : new Date(records[recordIndex - 1].TransactionDate); //'2000-01-01'
-		let a: any = new Date(record.TransactionDate);
-		let mins = Math.floor((b - a) / 1000 / 60);
-
-		if (mins < 30) {
-			return null;
-		}
-		let lastRenderedDate = lib.dateFormatFriendly(records[recordIndex - 1]?.TransactionDate);
-
-		if (lastRenderedDate != lib.dateFormatFriendly(record.TransactionDate)) return lib.dateFormatFriendly(record.TransactionDate);
-		return null;
 	}
 
 	createWarehouseCard() {

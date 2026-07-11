@@ -1,0 +1,26 @@
+.table {
+	width: 100%;
+	max-width: 100%;
+
+	.col-date,
+	.col-code {
+		flex: 0 0 auto;
+		flex-shrink: 0;
+	}
+
+	.col-name.col-sticky {
+		flex: 1 1 0;
+		min-width: 200px;
+		max-width: calc(100% - 125px - 150px - 140px);
+		overflow: hidden;
+	}
+
+	.col-number {
+		flex: 0 0 120px;
+		min-width: 96px;
+		max-width: 140px;
+		white-space: normal;
+		justify-content: flex-end;
+		text-align: right;
+	}
+}

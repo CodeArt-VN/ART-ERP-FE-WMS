@@ -124,18 +124,33 @@
 		[(query)]="query"
 		(filter)="onDatatableFilter($event)"
 		(sort)="onSort($event)"
-		[isTreeList]="true"
+		[isTreeList]="formGroup?.controls?.ViewItemGroup?.value"
 	>
-		<datatable-column class="col-icon" name="" property="ItemName">
+		<datatable-column class="col-icon" name="" property="_WarehouseTransaction">
+			<ng-template datatable-header-template>
+				<ion-icon class="min-btn" name="time-outline" title="{{'Warehouse transaction' | translate}}"></ion-icon>
+			</ng-template>
 			<ng-template let-i="row" datatable-cell-template>
-				<div class="text-center">
+				<div class="text-center" *ngIf="i?.IDItem">
 					<ion-button (click)="navWarehouseTransaction(i)" size="small" title="{{'Warehouse transaction' | translate}}" fill="clear">
 						<ion-icon slot="icon-only" name="time-outline"></ion-icon>
 					</ion-button>
 				</div>
 			</ng-template>
 		</datatable-column>
-		<datatable-column class="col-name" name="Item" property="ItemName">
+		<datatable-column class="col-icon" name="" property="_StockCard">
+			<ng-template datatable-header-template>
+				<ion-icon class="min-btn" name="card-outline" title="{{'Stock card' | translate}}"></ion-icon>
+			</ng-template>
+			<ng-template let-i="row" datatable-cell-template>
+				<div class="text-center" *ngIf="i?.IDItem">
+					<ion-button (click)="navStockCard(i)" size="small" title="{{'Stock card' | translate}}" fill="clear">
+						<ion-icon slot="icon-only" name="card-outline"></ion-icon>
+					</ion-button>
+				</div>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-name" name="Item" property="ItemName" [sticky]="true">
 			<ng-template datatable-header-template>
 				<ion-icon
 					class="min-btn"

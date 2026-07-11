@@ -6,25 +6,31 @@
 	</app-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" appScrollbarTheme class="A4 left withFeature" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false" appPrintFix>
-	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control
 				[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
         ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
        }"
-				(change)="changeFilter()"
 			></app-form-control>
 
 			<app-form-control
 				[field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id', form : formGroup}"
-				(controlChange)="changeFilter()"
 			></app-form-control>
 			<app-form-control
-				[field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}"
-				(change)="changeFilter()"
+				[field]="{id:'IDStorer', label: 'Storer', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true, multiple:true}"
 			></app-form-control>
-			<app-form-control [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup, clearable:true}" (change)="changeFilter()"></app-form-control>
-			<app-form-control [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup, clearable:true}" (change)="changeFilter()"></app-form-control>
+			<app-form-control [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup, clearable:true}"></app-form-control>
+			<app-form-control [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup, clearable:true}"></app-form-control>
+		</div>
+		<div class="action-buttons sticky-bottom">
+			<ion-grid>
+				<ion-row>
+					<ion-col size="12">
+						<ion-button (click)="changeFilter()" color="success" expand="block">{{ 'Stock card' | translate }}</ion-button>
+					</ion-col>
+				</ion-row>
+			</ion-grid>
 		</div>
 	</ion-fab>
 	<app-page-message [itemsLength]="item?.data?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
@@ -61,6 +67,9 @@
 											<tr>
 												<td class="" colspan="2">
 													<p class="ion-no-margin">{{'Warehouse' | translate}}: <span class="bol">{{item?._Branch?.Name}}</span></p>
+													<p class="ion-no-margin" *ngIf="selectedStorerNames">
+														{{'Storer' | translate}}: <span class="bol">{{selectedStorerNames}}</span>
+													</p>
 													<p class="ion-no-margin">
 														{{'Product' | translate}}:
 														<span class="bol"> {{item?._Item?.Name}} - {{item?._Item?.Code}} </span>

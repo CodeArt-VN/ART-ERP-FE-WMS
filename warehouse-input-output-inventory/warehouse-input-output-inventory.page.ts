@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
-import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, NavController } from '@ionic/angular';
 
 import { PageBase } from 'src/app/page-base';
@@ -34,6 +34,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 	periodList = [];
 	isFristLoaded = true;
 	itemGroups = [];
+	itemGroupById = new Map<number, any>();
 	isAllRowOpened = true;
 	constructor(
 		public pageProvider: WMS_TransactionProvider,
@@ -85,6 +86,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 			}
 			if (values[2] && values[2].data) {
 				this.itemGroups = values[2].data;
+				this.itemGroupById = new Map(this.itemGroups.map((g) => [g.Id, g]));
 				lib.buildFlatTree(values[2].data, []).then((result: any) => {
 					this.itemGroupList = result;
 				});
@@ -200,67 +202,85 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 	//   // }
 	// }
 
-	recurDifference(resp: any) {
-		this.items = resp.filter((d) => d.IDItem || resp.some((s) => d.Id == s.IDParent));
-		if (this.items.some((d) => !d.IDItem && !this.items.some((f) => f.IDParent == d.Id))) {
-			this.recurDifference(this.items);
+	recurDifference(resp: any[]) {
+		let items = resp;
+		let changed = true;
+		while (changed) {
+			const parentIds = new Set(items.filter((s) => s.IDParent != null).map((s) => s.IDParent));
+			const next = items.filter((d) => d.IDItem || parentIds.has(d.Id));
+			changed = next.length !== items.length;
+			items = next;
 		}
+		this.items = items;
+	}
+
+	buildItemGroupNodesForTree(result: any[]) {
+		const neededGroupIds = new Set<number>();
+		for (const item of result) {
+			let groupId = item.IDItemGroup;
+			while (groupId) {
+				if (neededGroupIds.has(groupId)) {
+					break;
+				}
+				neededGroupIds.add(groupId);
+				groupId = this.itemGroupById.get(groupId)?.IDParent;
+			}
+		}
+
+		return this.itemGroups
+			.filter((x) => neededGroupIds.has(x.Id))
+			.map((x) => ({
+				IDParent: x.IDParent,
+				Id: x.Id,
+				Code: x.Code,
+				ItemName: x.Name,
+				_OpenQuantity: '',
+				_InputQuantity: '',
+				_OutputQuantity: '',
+				_ClosingQuantity: '',
+			}));
 	}
 
 	getInputOutputInventory(event = null) {
 		if (this.submitAttempt) return;
 		this.submitAttempt = true;
-		let query = this.formGroup.getRawValue();
-		// query = {...query,...this.query};
-		let groups = [];
+		const query = this.formGroup.getRawValue();
 		this.pageConfig.isSubActive = true;
-		if (query.ViewItemGroup) {
-			groups = this.itemGroups.map((x) => {
-				return {
-					IDParent: x.IDParent,
-					Id: x.Id,
-					Code: x.Code,
-					ItemName: x.Name,
-					_OpenQuantity: '',
-					_InputQuantity: '',
-					_OutputQuantity: '',
-					_ClosingQuantity: '',
-				};
-			});
-		}
 
 		this.env
 			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/Transaction/InputOutputInventory/', query).toPromise())
 			.then((result: any) => {
 				if (result) {
-					result.forEach((m) => {
+					for (const m of result) {
 						m.ClosingQuantity = m.OpenQuantity + m.InputQuantity - m.OutputQuantity;
-					});
-					if (query.ViewItemGroup) {
-						result = result.map((x) => {
-							return { ...x, IDParent: x.IDItemGroup, Id: lib.generateUID() };
-						});
-						let itemView = [...groups, ...result];
-						this.buildFlatTree(itemView, this.items, this.isAllRowOpened).then((resp: any) => {
-							this.items = resp
-								.map((x) => {
-									if (x.IDItem) return { ...x, HasChild: false };
-									else return x;
-								})
-								.filter((d) => d.HasChild || d.IDItem);
-							this.recurDifference(this.items);
-							console.log(this.items.filter((d) => d.IDItem));
-						});
-					} else {
-						this.items = result;
-						console.log(this.items);
 					}
+
+					if (query.ViewItemGroup) {
+						const groups = this.buildItemGroupNodesForTree(result);
+						const itemsWithTreeMeta = result.map((x) => ({
+							...x,
+							IDParent: x.IDItemGroup,
+							Id: lib.generateUID(),
+						}));
+						const itemView = [...groups, ...itemsWithTreeMeta];
+
+						return this.buildFlatTree(itemView, this.items, this.isAllRowOpened).then((resp: any) => {
+							const treeItems = resp
+								.map((x) => (x.IDItem ? { ...x, HasChild: false } : x))
+								.filter((d) => d.HasChild || d.IDItem);
+							this.recurDifference(treeItems);
+							this.cdr.detectChanges();
+						});
+					}
+
+					this.items = result;
+					this.cdr.detectChanges();
 				}
-				this.submitAttempt = false;
 			})
-			.catch((err) => {
-				console.log(err);
+			.catch(() => {
 				this.env.showMessage('error!', 'danger');
+			})
+			.finally(() => {
 				this.submitAttempt = false;
 			});
 	}
@@ -301,17 +321,35 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 		}
 	}
 
-	navWarehouseTransaction(i) {
-		let navigationExtras: NavigationExtras = {
-			state: {
-				IDBranch: this.formGroup.get('IDBranch').value,
-				Item: { Id: i.IDItem, Code: i.ItemCode, Name: i.ItemName },
-				IDItem: i.IDItem,
-				TransactionDateFrom: this.formGroup.get('FromDate').value,
-				TransactionDateTo: this.formGroup.get('ToDate').value,
-			},
+	getInventoryNavigationState(i) {
+		return {
+			IDBranch: this.formGroup.get('IDBranch').value,
+			Item: { Id: i.IDItem, Code: i.ItemCode, Name: i.ItemName },
+			IDItem: i.IDItem,
+			IDStorer: this.formGroup.get('IDStorer').value,
+			TransactionDateFrom: this.formGroup.get('FromDate').value,
+			TransactionDateTo: this.formGroup.get('ToDate').value,
 		};
-		this.nav('/warehouse-transaction', 'forward', navigationExtras);
+	}
+
+	navWarehouseTransaction(i) {
+		this.nav('/warehouse-transaction', 'forward', { state: this.getInventoryNavigationState(i) });
+	}
+
+	navStockCard(i) {
+		const state = this.getInventoryNavigationState(i);
+		this.nav('/stock-card', 'forward', {
+			state: {
+				query: {
+					IDBranch: state.IDBranch,
+					IDItem: state.IDItem,
+					IDStorer: state.IDStorer,
+					TransactionDateFrom: state.TransactionDateFrom,
+					TransactionDateTo: state.TransactionDateTo,
+				},
+				Item: state.Item,
+			},
+		});
 	}
 	IDPeriodDataSource = {
 		searchProvider: this.postingPeriodProvider,

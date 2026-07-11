@@ -7,7 +7,7 @@
 	</app-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
-	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control
 				[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
@@ -18,10 +18,9 @@
 				[field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
      form : formGroup,clearable:true}"
 			></app-form-control>
-			<!-- <app-form-control  [field]="{id:'IDStorer', label: 'Goods owner', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
-    ></app-form-control>
-    <app-form-control  [field]="{id:'IDZone', label: 'Zone', type : 'ng-select',dataSource:zoneList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true}" 
-    ></app-form-control> -->
+			<app-form-control
+				[field]="{id:'IDStorer', label: 'Storer', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true, multiple:true}"
+			></app-form-control>
 			<app-form-control [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}"></app-form-control>
 			<app-form-control [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}"></app-form-control>
 			<app-form-control [field]="{id:'IsExcludeInternalTransaction',label:'Exclude internal transaction', type:'checkbox', form:formGroup}"> </app-form-control>
@@ -64,8 +63,15 @@
 
     <datatable-column class="col-name" name="Item" property="IDItem">
       <ng-template let-i="row" datatable-cell-template>
-        {{i._Item.Code}} - 
-        {{i._Item.Name}}
+        <ng-container *ngIf="i?._Item">
+          <span [title]="i._Item.Name">
+            <a [routerLink]="'/item/' + i._Item.Id" class="clickable">
+              <ion-icon color="warning" *ngIf="i._Item.IsDisabled" name="archive"></ion-icon>
+              <span *ngIf="!i._Item.IsDisabled">#</span>{{ i._Item.Id }}&nbsp;</a
+            >
+            <ion-text class="clickable"><b>{{ i._Item.Code }}</b> {{ i._Item.Name }}</ion-text>
+          </span>
+        </ng-container>
       </ng-template>
     </datatable-column>
     
@@ -84,12 +90,12 @@
 
 	<app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 	<div style="min-width: 300px; height: calc(100vh - 65px)">
-		<section class="table" style="min-width: 1100px" *ngIf="items.length && pageConfig.showSpinner == false">
+		<section class="table" *ngIf="items.length && pageConfig.showSpinner == false">
 			<div class="sticky-header">
 				<header class="bold">
 					<!-- <div class="col-checkbox cell"></div> -->
 					<div class="col-date cell">
-						{{'TransactionDate' | translate}}
+						{{'Date' | translate}}
 						<!-- <ion-icon
               class="min-btn"
               *ngIf="sort.TransactionDate"
@@ -104,7 +110,7 @@
             ></ion-icon> -->
 					</div>
 					<div class="col-code cell">{{'Source' | translate}}</div>
-					<div class="col-name cell">{{'Item' | translate}}</div>
+					<div class="col-name col-sticky cell">{{'Item' | translate}}</div>
 
 					<div class="col-number cell">{{'Quantity' | translate}}</div>
 				</header>
@@ -121,7 +127,7 @@
 							/>
 							<ion-icon class="min-btn" (click)="query.TransactionDate = ''; refresh()" *ngIf="query.TransactionDate" name="close-circle-outline"></ion-icon>
 						</div>
-						<div class="col-name cell"></div>
+						<div class="col-name col-sticky cell"></div>
 						<div class="col-code cell"></div>
 						<div class="col-code cell"></div>
 						<div class="col-code cell"></div>
@@ -133,17 +139,16 @@
 				</form>
 			</div>
 
-			<ng-container *ngFor="let i of items; let j = index">
-				<div class="row" *ngIf="myHeaderFn(i, j, items); let header">
-					<!-- <div class="col-checkbox cell"></div> -->
+			<ng-container *ngFor="let i of items; let j = index; trackBy: trackTransaction">
+				<div class="row" *ngIf="i._groupHeader">
 					<div class="col-name cell">
 						<ion-text color="primary">
-							<b> {{ header }} </b>
+							<b>{{ i._groupHeader }}</b>
 						</ion-text>
 					</div>
 				</div>
 
-				<div class="row" [ngClass]="{ odd: j % 2 != 0 }" [ngClass]="{ selected: i.checked }">
+				<div class="row" [ngClass]="{ odd: j % 2 != 0, selected: i.checked }">
 					<!-- <div class="col-checkbox cell">
             <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
           </div> -->
@@ -159,8 +164,16 @@
 						</a>
 					</div>
 
-					<div class="col-name cell">
-						<span><b>{{ i._Item.Code }}</b> - {{ i._Item.Name }}</span>
+					<div class="col-name col-sticky cell">
+						<ng-container *ngIf="i?._Item">
+							<span [title]="i._Item.Name">
+								<a [routerLink]="'/item/' + i._Item.Id" class="clickable">
+									<ion-icon color="warning" *ngIf="i._Item.IsDisabled" name="archive"></ion-icon>
+									<span *ngIf="!i._Item.IsDisabled">#</span>{{ i._Item.Id }}&nbsp;</a
+								>
+								<ion-text class="clickable"><b>{{ i._Item.Code }}</b> {{ i._Item.Name }}</ion-text>
+							</span>
+						</ng-container>
 					</div>
 
 					<!-- <div class="col-code cell">{{ i._Lot.Lottable0 }}</div>

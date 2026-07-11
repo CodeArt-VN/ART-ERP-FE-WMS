@@ -35,7 +35,7 @@ export class StockCardPage extends PageBase {
 	) {
 		super();
 		this.pageConfig.isShowFeature = true;
-		// this.pageConfig.isDetailPage = true;
+		this.pageConfig.isFeatureAsMain = true;
 		this.formGroup = this.formBuilder.group({
 			IDItem: ['', Validators.required],
 			IDBranch: ['', Validators.required],
@@ -59,19 +59,26 @@ export class StockCardPage extends PageBase {
 		this.fromDate = this.formGroup.get('TransactionDateFrom').value;
 		this.toDate = this.formGroup.get('TransactionDateTo').value;
 		this.subscriptions.push(
-			this.route.queryParams.subscribe((params) => {
-				if (this.router.getCurrentNavigation()?.extras.state) {
-					this.formGroup.patchValue(this.router.getCurrentNavigation()?.extras.state.query);
-					this.subItem = this.router.getCurrentNavigation()?.extras.state.subItem;
-
-					this.formGroup.get('_IDItemDataSource').value.selected = [...this.subItem._Items];
+			this.route.queryParams.subscribe(() => {
+				const navState = this.router.getCurrentNavigation()?.extras.state;
+				if (navState) {
+					if (navState.query) {
+						this.formGroup.patchValue(navState.query);
+					}
+					if (navState.subItem) {
+						this.subItem = navState.subItem;
+						this.formGroup.get('_IDItemDataSource').value.selected = [...this.subItem._Items];
+					} else if (navState.Item) {
+						this.formGroup.get('_IDItemDataSource').value.selected = [navState.Item];
+					}
 					this.formGroup.get('_IDItemDataSource').value.initSearch();
-					this.patchValue(this.router.getCurrentNavigation()?.extras.state.items);
 					this.fromDate = this.formGroup.get('TransactionDateFrom').value;
 					this.toDate = this.formGroup.get('TransactionDateTo').value;
-					// if(this.formGroup.valid)  this.changeFilter();
-					// this.formGroup.get('IDBranch').setValue(this.router.getCurrentNavigation().extras.state.IDBranch);
-					// this.formGroup.get('IDItem').setValue(this.router.getCurrentNavigation().extras.state.Item?.Id);
+					if (navState.items) {
+						this.patchValue(navState.items);
+					} else if (this.formGroup.get('IDItem').value) {
+						this.changeFilter();
+					}
 				}
 				this.loadedData(event);
 			})
@@ -91,17 +98,16 @@ export class StockCardPage extends PageBase {
 			.connect('GET', 'WMS/Transaction', this.query)
 			.toPromise()
 			.then((rs: any) => {
-				if (rs._RefList) {
+				if (Array.isArray(rs._RefList)) {
 					const { _RefList, ...SubData } = rs;
 					this.items = _RefList;
 					this.subItem = SubData;
 					this.items.forEach((i) => {
 						let item = this.subItem._Items?.find((d) => d.Id == i.IDItem);
-						console.log(item);
 						i._Item = item;
 					});
-					this.loadedData(event);
 				}
+				this.loadedData(event);
 			})
 			.catch((err) => {
 				this.loadedData(event);
@@ -134,6 +140,7 @@ export class StockCardPage extends PageBase {
 			this.env.showMessage('The difference between From Date and To Date should not exceed 3 months.', 'danger');
 			return;
 		}
+		this.pageConfig.isSubActive = true;
 		this.query = this.formGroup.getRawValue();
 		this.fromDate = this.query.TransactionDateFrom;
 		this.toDate = this.query.TransactionDateTo;
@@ -146,7 +153,7 @@ export class StockCardPage extends PageBase {
 			.connect('GET', 'WMS/Transaction', this.query)
 			.toPromise()
 			.then((rs: any) => {
-				if (rs._RefList) {
+				if (Array.isArray(rs._RefList)) {
 					const { _RefList, ...SubData } = rs;
 					this.items = _RefList;
 					this.subItem = SubData;
@@ -155,18 +162,20 @@ export class StockCardPage extends PageBase {
 						i._Item = item;
 					});
 					this.patchValue(this.items);
-
-					this.loadedData();
 				}
+				this.loadedData();
 			})
 			.catch((err) => {
 				this.env.showMessage(err.error?.InnerException?.ExceptionMessage || err, 'danger');
+				this.loadedData();
 			});
 	}
 	patchValue(data) {
 		this.item = {};
 		//    this.sheets = [];
-		this.subItem.SplitOpeningQuantity = this.subItem._SplitOpeningQuantity.map((s) => s.Quantity + ' ' + s.UoMName).join(this.subItem.OpeningQuantity < 0 ? ' - ' : ' + ');
+		this.subItem.SplitOpeningQuantity = (this.subItem._SplitOpeningQuantity ?? [])
+			.map((s) => s.Quantity + ' ' + s.UoMName)
+			.join(this.subItem.OpeningQuantity < 0 ? ' - ' : ' + ');
 		this.item.data = [
 			...data
 				// .filter(i => (!i._FromLocation && i._ToLocation) || (i._FromLocation && !i._ToLocation))
@@ -175,13 +184,16 @@ export class StockCardPage extends PageBase {
 		];
 		// Initialize sheets
 
-		if (this.item.data?.length > 0) {
-			this.item._Branch = this.subItem._Branch;
-		} else this.item._Branch = this.env.branchList.find((x) => x.Id == this.formGroup.get('IDBranch').value);
+		this.item._Branch =
+			this.subItem._Branch ?? this.env.branchList.find((x) => x.Id == this.formGroup.get('IDBranch').value);
 
 		// Assign other properties
-		this.item._Item = this.subItem._Items.find((d) => d.Id == data[0].IDItem);
+		const idItem = data.length > 0 ? data[0].IDItem : this.formGroup.get('IDItem').value;
+		this.item._Item = this.subItem._Items?.find((d) => d.Id == idItem);
 		this.item.Id = this.formGroup.get('IDItem').value;
+		if (this.item.data?.length) {
+			this.pageConfig.isSubActive = true;
+		}
 		QRCode.toDataURL(
 			'Id:' + this.item.Id,
 			{
@@ -208,6 +220,18 @@ export class StockCardPage extends PageBase {
 			previousCount += this.sheets[i]?.data.length || 0;
 		}
 		return previousCount + rowIndex + 1;
+	}
+
+	get selectedStorerNames(): string {
+		const idStorer = this.formGroup?.get('IDStorer')?.value;
+		if (!idStorer || !this.storerList?.length) {
+			return '';
+		}
+		const ids = Array.isArray(idStorer) ? idStorer : [idStorer];
+		return ids
+			.map((id) => this.storerList.find((s) => s.Id == id)?.Name)
+			.filter(Boolean)
+			.join(', ');
 	}
 
 	getNearestWarehouse(IDBranch) {

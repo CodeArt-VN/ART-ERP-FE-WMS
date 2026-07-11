@@ -1,4 +1,8 @@
 :host ::ng-deep {
+	.col-name {
+		min-width: 350px;
+	}
+
 	.col-text {
 		min-width: 170px;
 	}
