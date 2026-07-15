@@ -195,6 +195,18 @@
 														</ion-col>
 														<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
 															<app-form-control
+																[field]="{id: 'Industry', label: 'Industry', type: 'ng-select', form: formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code', clearable: true, appendTo:'#ng-select-header' }"
+																(change)="changeIndustry($event)"
+															>
+															</app-form-control>
+
+															<app-form-control
+																[field]="{id: 'Division', label: 'Division', type: 'ng-select', form: formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code', clearable: true, appendTo:'#ng-select-header' }"
+																(change)="branchSelected ? saveItemInBranch() : saveChange();"
+															>
+															</app-form-control>
+
+															<app-form-control
 																[field]="{id: 'IDItemGroup', label: 'Belonged to group', type: 'ng-select', form: formGroup,  dataSource: itemGroupList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header',
                                   treeConfig:{searchFnDefault:true,isTree:true, isCollapsed:true}}"
 																(change)="branchSelected ? saveItemInBranch() : saveChange();"
@@ -210,18 +222,6 @@
 
 															<app-form-control
 																[field]="{id: 'IDCartonGroup', label: 'Carton group', type: 'ng-select', form: formGroup,  dataSource: cartonGroupList,  bindLabel: 'Name',  bindValue: 'Id', appendTo:'#ng-select-header' }"
-																(change)="branchSelected ? saveItemInBranch() : saveChange();"
-															>
-															</app-form-control>
-
-															<app-form-control
-																[field]="{id: 'Industry', label: 'Industry', type: 'ng-select', form: formGroup,  dataSource: IndustryList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' }"
-																(change)="branchSelected ? saveItemInBranch() : saveChange();"
-															>
-															</app-form-control>
-
-															<app-form-control
-																[field]="{id: 'Division', label: 'Division', type: 'ng-select', form: formGroup,  dataSource: DivisionList,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#ng-select-header' }"
 																(change)="branchSelected ? saveItemInBranch() : saveChange();"
 															>
 															</app-form-control>
@@ -835,9 +835,11 @@
 																(controlChange)="saveItemInBranch();"
 															>
 															</app-form-control>
-															
-															<app-form-control (change)="saveItemInBranch()" [field]="{id:'OrderInterval', label: 'Order interval', type : 'ng-select-async', dataSource: _orderIntervalDataSource, bindLabel: 'Name', bindValue: 'Name', form: formGroup}">
 
+															<app-form-control
+																(change)="saveItemInBranch()"
+																[field]="{id:'OrderInterval', label: 'Order interval', type : 'ng-select-async', dataSource: _orderIntervalDataSource, bindLabel: 'Name', bindValue: 'Name', form: formGroup}"
+															>
 															</app-form-control>
 
 															<app-form-control

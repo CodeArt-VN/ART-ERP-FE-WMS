@@ -264,6 +264,7 @@ export class ItemDetailPage extends PageBase {
 	PlanningMethodList = [];
 	ProcurementMethodList = [];
 
+	ProductsClassificationList = [];
 	IndustryList = [];
 	DivisionList = [];
 	vendorList = [];
@@ -335,9 +336,9 @@ export class ItemDetailPage extends PageBase {
 			}),
 			this.taxProvider.read(),
 			this.env.getType('PlanningMethod'),
-
 			this.env.getType('ProcurementMethod'),
-			this.purchaseOrderInterval.read({SortBy: ['Id_desc'],Take: 20})
+			this.purchaseOrderInterval.read({SortBy: ['Id_desc'],Take: 20}),
+			this.env.getType('ProductsClassification', true),
 		]).then((values: any) => {
 			if (values[0]['Value'] && this.item?.Id == 0) {
 				let idTaxInput = JSON.parse(values[0]['Value']).Id;
@@ -390,7 +391,12 @@ export class ItemDetailPage extends PageBase {
 			}	
 			if (values[14]) {
 				this.selectedIntervalData = values[14].data?.map( (d) => d.Name );
-			}	
+			}
+			if (values[15]) {
+				console.log(values[15]);
+				this.ProductsClassificationList = values[15];
+				this.IndustryList = this.ProductsClassificationList.filter((d) => d.level == 1);
+			}
 			this._orderIntervalDataSource = this.buildSelectDataSource((term) => {
 				return this.purchaseOrderInterval.search({
 					Keyword: term,
@@ -477,7 +483,32 @@ export class ItemDetailPage extends PageBase {
 			this._vendorDataSource.selected = [...this._vendorDataSource.selected, ...this.item._Vendors];
 		}
 		this._vendorDataSource.initSearch();
+		this.loadDivisionList(this.formGroup.get('Industry')?.value);
 	}
+
+	changeIndustry(ev) {
+		const industryCode = ev?.Code ?? this.formGroup.get('Industry')?.value;
+		this.formGroup.controls.Division.setValue(null);
+		this.formGroup.controls.Division.markAsDirty();
+		this.loadDivisionList(industryCode);
+		if (this.branchSelected) {
+			this.saveItemInBranch();
+		} else {
+			this.saveChange();
+		}
+	}
+
+	loadDivisionList(industryCode) {
+		if (!industryCode) {
+			this.DivisionList = [];
+			return;
+		}
+		const industry = this.ProductsClassificationList.find((d) => d.Code == industryCode);
+		this.DivisionList = industry
+			? this.ProductsClassificationList.filter((d) => d.IDParent == industry.Id)
+			: [];
+	}
+
 	refresh() {
 		this.loadItemInBranch();
 	}
