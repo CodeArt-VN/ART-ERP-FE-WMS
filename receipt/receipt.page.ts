@@ -287,8 +287,8 @@ export class ReceiptPage extends PageBase {
 	async scanQRCode() {
 		try {
 			let code = await this.scanner.scan();
-			if (code.indexOf('O:') == 0) {
-				let IDPurchaseOrder = code.replace('O:', '');
+			if (code.indexOf('PO:') == 0) {
+				let IDPurchaseOrder = code.replace('PO:', '');
 				//scan IDPO tìm ASN
 				this.findASNByPOId(IDPurchaseOrder);
 				return;
