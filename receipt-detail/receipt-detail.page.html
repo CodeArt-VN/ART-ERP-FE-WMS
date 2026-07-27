@@ -43,7 +43,7 @@
 				<ion-icon slot="icon-only" name="file-tray-full-outline"></ion-icon>
 			</ion-button>
 
-			<ion-button (click)="unpalletize()" title="{{'Bỏ chia để chỉnh số liệu' | translate}}" *ngIf="formGroup.controls.Status.value=='Palletized'">
+			<ion-button (click)="unpalletize()" title="{{'Undo split to edit data' | translate}}" *ngIf="formGroup.controls.Status.value=='Palletized'">
 				<ion-icon slot="icon-only" name="file-tray-outline"></ion-icon>
 			</ion-button>
 
@@ -323,7 +323,7 @@
 											<div class="col-name cell" (click)="g.controls._IsShowPallets.setValue(!g.controls._IsShowPallets.value)">
 												<span>
 													<ion-icon [name]="g.controls._IsShowPallets.value? 'chevron-down-outline':'chevron-forward-outline'"></ion-icon>
-													{{'Chia thành' | translate}}
+													{{'Split into' | translate}}
 													<b> {{g.get('Pallets').length}} pallet</b>
 												</span>
 											</div>
@@ -331,7 +331,7 @@
 												<div class="col-uom cell"></div>
 												<div class="col-qty cell"></div>
 												<div class="col-code cell">
-													<b>{{'Vị trí cất hàng' | translate}}</b>
+													<b>{{'Putaway location' | translate}}</b>
 												</div>
 												<!-- <div class="col-code cell">Lottable1</div>
                                                 <div class="col-code cell">Lottable2</div>
@@ -427,7 +427,7 @@
 									<div class="col-id cell"></div>
 									<div class="col-name cell"></div>
 									<div class="col-uom cell">
-										<b>{{'Tổng cộng' | translate}}:</b>
+										<b>{{'Total' | translate}}:</b>
 									</div>
 									<div class="col-qty cell disable"></div>
 									<div class="col-code cell disable"></div>
@@ -499,7 +499,7 @@
 
 							<ion-button fill="clear" size="small" (click)="unpalletize()" *ngIf="formGroup.controls.Status.value=='Palletized'">
 								<ion-icon slot="start" name="file-tray"></ion-icon>
-								{{'Bỏ chia để chỉnh số liệu' | translate}}
+								{{'Undo split to edit data' | translate}}
 							</ion-button>
 
 							<ion-button fill="clear" size="small" title="Goods receipt" (click)="submitReceipt()" *ngIf="formGroup.get('Status').value == 'Palletized'">

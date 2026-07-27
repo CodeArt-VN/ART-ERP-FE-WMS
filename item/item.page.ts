@@ -139,8 +139,8 @@ export class ItemPage extends PageBase {
 
 						this.alertCtrl
 							.create({
-								header: 'Có lỗi import dữ liệu',
-								subHeader: 'Bạn có muốn xem lại các mục bị lỗi?',
+								header: 'Data import error',
+								subHeader: 'Do you want to review the items with errors?',
 								message: 'Có ' + resp.ErrorList.length + ' lỗi khi import:' + message,
 								cssClass: 'alert-text-left',
 								buttons: [
@@ -183,12 +183,12 @@ export class ItemPage extends PageBase {
 
 	duplicateItem() {
 		if (this.submitAttempt) {
-			this.env.showMessage('Xin vui lòng chờ xử lý hoàn tất.');
+			this.env.showMessage('Please wait until processing is complete');
 			return;
 		}
 
 		this.env
-			.showPrompt('Bạn muốn tạo mã Z cho các item đang chọn?', null, 'Copy sản phẩm')
+			.showPrompt('Do you want to create Z codes for the selected items?', null, 'Copy product')
 			.then((_) => {
 				this.env
 					.showLoading(

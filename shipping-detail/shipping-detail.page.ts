@@ -182,7 +182,7 @@ export class ShippingDetailPage extends PageBase {
 	//#region Business logic
 	closeShip() {
 		this.query.Id = this.formGroup.get('Id').value;
-		this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm giao hàng?', null, 'Đóng giao hàng').then((_) => {
+		this.env.showPrompt('Are you sure you want to close all shipping items?', null, 'Close the delivery').then((_) => {
 			this.env
 				.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/Shipping/CloseShipping/', this.query).toPromise())
 				.then(async (result: any) => {
@@ -370,7 +370,7 @@ export class ShippingDetailPage extends PageBase {
 	removeField(fg, j) {
 		let groups = <FormArray>this.formGroup.controls.ShippingDetails;
 		let itemToDelete = fg.getRawValue();
-		this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+		this.env.showPrompt('Are you sure you want to delete?', null, 'Delete 1 row').then((_) => {
 			this.shippingDetailService.delete(itemToDelete).then((result) => {
 				groups.removeAt(j);
 			});
@@ -381,8 +381,8 @@ export class ShippingDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkedShippingDetails.getRawValue();
 			this.env
-				.showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: itemsToDelete.length }, null, {
-					code: 'Xóa {{value1}} dòng',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: itemsToDelete.length }, null, {
+					code: 'Delete {{value1}} line(s)',
 					value: itemsToDelete.length,
 				})
 				.then((_) => {
@@ -422,7 +422,7 @@ export class ShippingDetailPage extends PageBase {
 					},
 				];
 				if (this.submitAttempt == false) {
-					this.env.showPrompt('Bạn có chắc muốn hoàn tất?', null, 'Hoàn tất').then((_) => {
+					this.env.showPrompt('Are you sure you want to complete?', null, 'Complete').then((_) => {
 						this.submitAttempt = true;
 						this.pageProvider.commonService
 							.connect('PUT', 'WMS/Shipping/UpdateQuantityOnHand/', obj)

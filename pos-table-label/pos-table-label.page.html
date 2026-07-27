@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
-			<ion-button color="dark" class="ion-hide-sm-down">{{'Tạo nhãn bàn' | translate}}</ion-button>
+			<ion-button color="dark" class="ion-hide-sm-down">{{'Create the table label' | translate}}</ion-button>
 		</ion-buttons>
 		<ion-buttons slot="end">
 			<!-- <ion-button (click)="changePrintMode()" title="{{'Printing option' | translate}}">
@@ -25,7 +25,7 @@
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{withSearch: pageConfig.isShowSearch}" class="feature no-print" vertical="top" horizontal="start" slot="fixed">
 		<div class="ion-padding">
 			<div class="c-control">
-				<label class="c-label" for="TableGroup">{{'Thuộc khu' | translate}}</label>
+				<label class="c-label" for="TableGroup">{{'Belong to zone' | translate}}</label>
 				<ng-select
 					(change)="changeGroup($event);"
 					bindLabel="Name"
@@ -52,7 +52,7 @@
 
 			<div class="c-control">
 				<label class="c-label" for="IDTable">
-					<ion-text color="primary">{{'Tìm bàn' | translate}}</ion-text>
+					<ion-text color="primary">{{'Look for table' | translate}}</ion-text>
 				</label>
 				<ng-select
 					(change)="TableChange($event);"
@@ -92,7 +92,7 @@
 			<ion-grid fixed>
 				<ion-row>
 					<ion-col>
-						<ion-button expand="block" (click)="createPages()" [disabled]="!item.Table.length || submitAttempt"> {{'Tạo nhãn in' | translate}} </ion-button>
+						<ion-button expand="block" (click)="createPages()" [disabled]="!item.Table.length || submitAttempt"> {{'Create print labels' | translate}} </ion-button>
 					</ion-col>
 				</ion-row>
 			</ion-grid>

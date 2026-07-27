@@ -275,9 +275,9 @@ export class GoodReceivingDetailPage extends PageBase {
 	removeOrderLine(index) {
 		this.alertCtrl
 			.create({
-				header: 'Xóa sản phẩm',
+				header: 'Delete the product',
 				//subHeader: '---',
-				message: 'Bạn có chắc muốn xóa sản phẩm?',
+				message: 'Are you sure you want to delete the product?',
 				buttons: [
 					{
 						text: 'Không',

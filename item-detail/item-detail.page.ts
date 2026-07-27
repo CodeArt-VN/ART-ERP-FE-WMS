@@ -181,7 +181,7 @@ export class ItemDetailPage extends PageBase {
 		this.pageConfig.isFeatureAsMain = true;
 		this.pageConfig.ShowArchive = false;
 		this.config.notFoundText = 'Không tìm thấy dữ liệu phù hợp...';
-		this.config.clearAllText = 'Xóa';
+		this.config.clearAllText = 'Delete';
 
 		this.id = this.route.snapshot.paramMap.get('id');
 		this.formGroup = formBuilder.group({
@@ -650,7 +650,7 @@ export class ItemDetailPage extends PageBase {
 	removeStorer(index) {
 		this.alertCtrl
 			.create({
-				header: 'Xóa địa chỉ',
+				header: 'Delete address',
 				//subHeader: '---',
 				message: 'Bạn có chắc muốn xóa chủ hàng và các cấu hình này?',
 				buttons: [
@@ -1309,7 +1309,7 @@ export class ItemDetailPage extends PageBase {
 			AdjustLotLPNLocations: groupedInventories[key],
 		}));
 		if (result.length > 0) {
-			this.env.showPrompt('Bạn có chắc muốn tạo phiếu điều chỉnh không?', null, 'Tạo phiếu điều chỉnh').then((_) => {
+			this.env.showPrompt('Are you sure you want to create an adjustment note?', null, 'Creating the adjustment slip').then((_) => {
 				this.env
 					.showLoading(
 						'Please wait for a few moments',
@@ -1318,7 +1318,7 @@ export class ItemDetailPage extends PageBase {
 							.toPromise()
 							.then((res) => {
 								if (res) {
-									this.env.showAlert('Tạo phiếu điều chỉnh thành công!');
+									this.env.showAlert('Sucessfully create an adjustment note');
 									this.isAdjust = false;
 									this.Inventories.forEach((d) => {
 										d.QtyAdjust = 0;

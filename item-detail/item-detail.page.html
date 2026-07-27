@@ -2,10 +2,10 @@
 	<app-toolbar [page]="this">
 		<ion-buttons *ngIf="segmentView.Page == 'Inventory'">
 			<ion-button (click)="isAdjust = !isAdjust">
-				<label> {{ 'Điều chỉnh' | translate }}</label>
+				<label> {{ 'Adjustment' | translate }}</label>
 			</ion-button>
 			<ion-button (click)="createAdjust()">
-				<label> {{ 'Tạo điều chỉnh' | translate }}</label>
+				<label> {{ 'Create adjustment' | translate }}</label>
 			</ion-button>
 		</ion-buttons>
 	</app-toolbar>
@@ -160,7 +160,7 @@
 																	type="checkbox"
 																/>
 																<label class="c-label checkbox" for="IsDisabled"
-																	>{{'Sản phẩm đã ngưng sử dụng' | translate}}
+																	>{{'Stop-using product' | translate}}
 																	<span
 																		*ngIf="!formGroup.controls.IsDisabled.valid && !formGroup.controls.IsDisabled.pending && (formGroup.controls.IsDisabled.dirty || submitAttempt)"
 																		ion-text
@@ -414,13 +414,13 @@
 											<section class="table" style="min-width: 1320px">
 												<header class="bold" style="padding-right: 0">
 													<div class="col-checkbox cell">{{'Original unit' | translate}}</div>
-													<div class="col-checkbox cell">{{'Lẻ KT' | translate}}</div>
+													<div class="col-checkbox cell">{{'Odd unit' | translate}}</div>
 													<div class="col-checkbox cell" *ngIf="formGroup.get('IsPurchaseItem').value" style="padding: 0 !important">
 														{{'Purchase' | translate}}
 													</div>
 													<div class="col-checkbox cell" *ngIf="formGroup.get('IsInventoryItem').value">{{'warehousing' | translate}}</div>
 													<div class="col-checkbox cell" *ngIf="formGroup.get('IsSalesItem').value">{{'Sales' | translate}}</div>
-													<div class="col1 cell">{{'Cứ' | translate}}</div>
+													<div class="col1 cell">{{'Every' | translate}}</div>
 													<div class="col2 cell">{{'Unit' | translate}}</div>
 													<div class="col3 cell">=</div>
 													<div class="col4 cell">{{'Convert' | translate}}</div>

@@ -116,7 +116,7 @@ export class GoodsReceivingPage extends PageBase {
 							},
 						},
 						{
-							text: 'Nhận',
+							text: 'RECEIVE',
 							cssClass: 'danger-btn',
 							handler: () => {
 								let publishEventCode = this.pageConfig.pageName;

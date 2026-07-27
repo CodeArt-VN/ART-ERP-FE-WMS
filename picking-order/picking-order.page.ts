@@ -59,8 +59,8 @@ export class PickingOrderPage extends PageBase {
 			IDs: this.selectedItems.map((s) => s.Id),
 		};
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn duyệt {{value}} đang chọn?', value: this.selectedItems.length }, null, {
-				code: 'Duyệt {{value1}} dòng',
+			.showPrompt({ code: 'Are you sure you want to approve the selected {{value}}?', value: this.selectedItems.length }, null, {
+				code: 'Approve {{value1}} line(s)',
 				value1: this.selectedItems.length,
 			})
 			.then((_) => {
@@ -71,7 +71,7 @@ export class PickingOrderPage extends PageBase {
 						this.refresh();
 					})
 					.catch((err) => {
-						this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Can not save, please try again');
 						console.log(err);
 					});
 			});
@@ -85,8 +85,8 @@ export class PickingOrderPage extends PageBase {
 			IDs: this.selectedItems.map((s) => s.Id),
 		};
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn bỏ duyệt {{value}} đang chọn?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Bỏ duyệt {{value1}} dòng',
+			.showPrompt({ code: 'Are you sure you want to disapprove the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Disapprove {{value1}} line(s)',
 				value: { value1: this.selectedItems.length },
 			})
 			.then((_) => {
@@ -97,7 +97,7 @@ export class PickingOrderPage extends PageBase {
 						this.refresh();
 					})
 					.catch((err) => {
-						this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Can not save, please try again');
 						console.log(err);
 					});
 			});

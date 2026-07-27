@@ -215,7 +215,7 @@ export class PickingOrderDetailPage extends PageBase {
 	//#region Business logic
 	closePick() {
 		this.query.Id = this.item.Id;
-		this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm lấy hàng?', null, 'Đóng lấy hàng').then((_) => {
+		this.env.showPrompt('Are you sure you want to close all picking items?', null, 'Closing pickup goods').then((_) => {
 			this.env
 				.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/Picking/ClosePicking/', this.query).toPromise())
 				.then(async (result: any) => {
@@ -397,7 +397,7 @@ export class PickingOrderDetailPage extends PageBase {
 			}
 
 			if (group.controls.Quantity.value <= 0) {
-				this.env.showMessage('Vui lòng nhập số lượng', 'warning');
+				this.env.showMessage('Please enter quantity', 'warning');
 			} else {
 				this.updatePickingDetail(itemUpdate);
 			}
@@ -409,13 +409,13 @@ export class PickingOrderDetailPage extends PageBase {
 		if (dataRow.Quantity > 0) {
 			let lotLPNLocationSelected = dataRow._LotLPNLocationsDataSource.find((f) => f.IDLot == dataRow.Lot && f.IDLPN == dataRow.LPN && f.IDLocation == dataRow.FromLocation);
 			if (dataRow.Quantity < dataRow.QuantityPicked) {
-				this.env.showMessage('Số lượng nhập vào không thể bé hơn picked quantity', 'warning');
+				this.env.showMessage('Entered quantity cannot be less than picked quantity', 'warning');
 				return;
 			}
 			if (lotLPNLocationSelected) {
 				if (dataRow.Quantity > lotLPNLocationSelected.QuantityOnHand) {
 					group.controls.Quantity.setValue(dataRow.Quantity);
-					this.env.showMessage('Số lượng nhập vào không thể lớn hơn số lượng có trong kho', 'warning');
+					this.env.showMessage('Entered quantity cannot exceed available stock', 'warning');
 				} else {
 					group.controls.Quantity.markAsDirty();
 					this.updatePickingDetail([
@@ -427,10 +427,10 @@ export class PickingOrderDetailPage extends PageBase {
 					]);
 				}
 			} else {
-				this.env.showMessage('Vui lòng chọn From location', 'warning');
+				this.env.showMessage('Please select From location', 'warning');
 			}
 		} else {
-			this.env.showMessage('Số lượng nhập vào phải lớn hơn 0', 'warning');
+			this.env.showMessage('Entered quantity must be greater than 0', 'warning');
 		}
 	}
 
@@ -598,7 +598,7 @@ export class PickingOrderDetailPage extends PageBase {
 		let itemToDelete = fg.getRawValue();
 		let groups = <FormArray>this.formGroup.controls.PickingOrderDetails;
 		if (itemToDelete.Id) {
-			this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+			this.env.showPrompt('Are you sure you want to delete?', null, 'Delete 1 row').then((_) => {
 				this.env
 					.showLoading('Please wait for a few moments', this.commonService.connect('GET', 'WMS/Picking/DeleteDetails', { Id: itemToDelete.Id }).toPromise())
 					.then((_) => {
@@ -614,8 +614,8 @@ export class PickingOrderDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkedPickingOrderDetails.getRawValue().filter((d) => d.IDParent != null && d.Status == 'Active');
 			this.env
-				.showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: itemsToDelete.length }, null, {
-					code: 'Xóa {{value1}} dòng',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: itemsToDelete.length }, null, {
+					code: 'Delete {{value1}} line(s)',
 					value1: itemsToDelete.length,
 				})
 				.then((_) => {
@@ -659,7 +659,7 @@ export class PickingOrderDetailPage extends PageBase {
 				this.submitAttempt = true;
 				if (fg.get('Quantity').value > fg.get('QuantityPicked').value) {
 					this.env
-						.showPrompt('Số lượng hàng lấy chưa đạt yêu cầu, bạn có muốn hoàn tất?')
+						.showPrompt('Number of goods does not meet the demand,do you want to finish?')
 						.then((_) => {
 							this.pageProvider.commonService
 								.connect('PUT', 'WMS/Picking/UpdateQuantityOnHand/', obj)

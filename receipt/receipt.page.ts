@@ -122,7 +122,7 @@ export class ReceiptPage extends PageBase {
 							},
 						},
 						{
-							text: 'Nhận',
+							text: 'RECEIVE',
 							cssClass: 'danger-btn',
 							handler: () => {
 								let publishEventCode = this.pageConfig.pageName;
@@ -268,7 +268,7 @@ export class ReceiptPage extends PageBase {
 			)
 			.then((resp: any) => {
 				this.env
-					.showPrompt('Bạn có muốn mở hóa đơn vừa tạo?')
+					.showPrompt('Do you want to open the newly created invoice?')
 					.then((_) => {
 						if (resp.length == 1) {
 							this.nav('/ap-invoice/' + resp[0]);
@@ -312,7 +312,7 @@ export class ReceiptPage extends PageBase {
 			.connect('POST', 'WMS/Receipt/ChangeStatus/', { Ids: ids, Status: 'Delivering' })
 			.toPromise()
 			.then((resp) => {
-				this.env.showMessage('Đã chuyển trạng thái thành công', 'success');
+				this.env.showMessage('Status changed successfully', 'success');
 				this.refresh();
 			});
 	}

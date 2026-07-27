@@ -91,8 +91,8 @@ export class AdjustmentPage extends PageBase {
 			IDs: this.selectedItems.map((s) => s.Id),
 		};
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn duyệt {{value}} đang chọn?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Duyệt {{value1}} dòng?',
+			.showPrompt({ code: 'Are you sure you want to approve the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Approve {{value1}} row?',
 				value: { value: this.selectedItems.length },
 			})
 			.then((_) => {
@@ -103,7 +103,7 @@ export class AdjustmentPage extends PageBase {
 						this.refresh();
 					})
 					.catch((err) => {
-						this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Can not save, please try again');
 					});
 			});
 	}
@@ -117,8 +117,8 @@ export class AdjustmentPage extends PageBase {
 		};
 
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn duyệt {{value}} đang chọn?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Bỏ duyệt {{value}} dòng',
+			.showPrompt({ code: 'Are you sure you want to approve the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Disapprove {{value}} line(s)',
 				value: { value: this.selectedItems.length },
 			})
 			.then((_) => {
@@ -129,7 +129,7 @@ export class AdjustmentPage extends PageBase {
 						this.refresh();
 					})
 					.catch((err) => {
-						this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Can not save, please try again');
 					});
 			});
 	}

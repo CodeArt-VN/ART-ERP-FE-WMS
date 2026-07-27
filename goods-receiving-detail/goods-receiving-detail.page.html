@@ -142,7 +142,7 @@
 
                             <ion-button fill="clear" size="small" (click)="unpalletize()" *ngIf="formGroup.controls.Status.value=='Palletized'">
                                 <ion-icon slot="start" name="file-tray"></ion-icon>
-                                {{'Bỏ chia để chỉnh số liệu' | translate}}
+                                {{'Undo split to edit data' | translate}}
                             </ion-button>
                         </div>
                     </ion-card-content> -->
@@ -153,17 +153,17 @@
 
 						<div>
 							<ion-badge class="ion-float-right"> {{item.TotalQuantityExpected}}</ion-badge>
-							<ion-badge color="secondary">{{'Tổng hàng ước tính' | translate}}</ion-badge>
+							<ion-badge color="secondary">{{'Total forecacst goods' | translate}}</ion-badge>
 						</div>
 
 						<div>
 							<ion-badge class="ion-float-right"> {{item.TotalQuantityReceived}}</ion-badge>
-							<ion-badge color="secondary">{{'Tổng hàng nhận' | translate}}</ion-badge>
+							<ion-badge color="secondary">{{'Total receivable goods' | translate}}</ion-badge>
 						</div>
 
 						<div>
 							<ion-badge class="ion-float-right"> {{item.TotalQuantityRejected}}</ion-badge>
-							<ion-badge color="secondary">{{'Tổng hàng trả' | translate}}</ion-badge>
+							<ion-badge color="secondary">{{'Total return goods' | translate}}</ion-badge>
 						</div>
 					</ion-card-content>
 

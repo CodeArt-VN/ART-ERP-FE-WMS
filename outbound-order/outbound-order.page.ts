@@ -77,8 +77,8 @@ export class OutboundOrderPage extends PageBase {
 		}
 		let publishEventCode = this.pageConfig.pageName;
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn gộp {{value}} đang chọn?', value: this.selectedItems.length }, null, {
-				code: 'Gộp {{value1}} dòng',
+			.showPrompt({ code: 'Are you sure you want to merge the selected {{value}}?', value: this.selectedItems.length }, null, {
+				code: 'Grouping {{value1}} row',
 				value1: this.selectedItems.length,
 			})
 			.then((_) => {
@@ -93,7 +93,7 @@ export class OutboundOrderPage extends PageBase {
 						this.submitAttempt = false;
 					})
 					.catch((err) => {
-						this.env.showMessage('Không gộp được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Unable to merge. Please check again');
 						this.submitAttempt = false;
 					});
 			});
@@ -107,8 +107,8 @@ export class OutboundOrderPage extends PageBase {
 			IDs: this.selectedItems.map((s) => s.Id),
 		};
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn duyệt {{value}} đang chọn?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Duyệt {{value1}} dòng',
+			.showPrompt({ code: 'Are you sure you want to approve the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Approve {{value1}} line(s)',
 				value: { value1: this.selectedItems.length },
 			})
 			.then((_) => {
@@ -119,7 +119,7 @@ export class OutboundOrderPage extends PageBase {
 						this.refresh();
 					})
 					.catch((err) => {
-						this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Can not save, please try again');
 					});
 			});
 	}
@@ -132,8 +132,8 @@ export class OutboundOrderPage extends PageBase {
 			IDs: this.selectedItems.map((s) => s.Id),
 		};
 		this.env
-			.showPrompt({ code: 'Bạn có chắc muốn bỏ duyệt {{value}} đang chọn?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Bỏ duyệt {{value1}} dòng',
+			.showPrompt({ code: 'Are you sure you want to disapprove the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Disapprove {{value1}} line(s)',
 				value: { value1: this.selectedItems.length },
 			})
 			.then((_) => {
@@ -144,7 +144,7 @@ export class OutboundOrderPage extends PageBase {
 						this.refresh();
 					})
 					.catch((err) => {
-						this.env.showMessage('Không lưu được, xin vui lòng kiểm tra lại.');
+						this.env.showMessage('Can not save, please try again');
 					});
 			});
 	}

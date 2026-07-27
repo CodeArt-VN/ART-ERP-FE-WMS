@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
-			<ion-button color="dark" class="ion-hide-sm-down"> {{'Tạo và in nhãn cho item' | translate}} </ion-button>
+			<ion-button color="dark" class="ion-hide-sm-down"> {{'Create and print item labels' | translate}} </ion-button>
 		</ion-buttons>
 		<ion-buttons slot="end">
 			<!-- <ion-button (click)="changePrintMode()" title="{{'Printing option' | translate}}">
@@ -52,7 +52,7 @@
 
 			<div class="c-control">
 				<label class="c-label" for="IDItemUoM">
-					<ion-text color="primary"> {{'Tìm sản phẩm' | translate}} </ion-text>
+					<ion-text color="primary"> {{'Look for product' | translate}} </ion-text>
 				</label>
 				<ng-select
 					(change)="itemUoMChange($event);"
@@ -129,7 +129,7 @@
 								fill="outline"
 								(click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 15, NameFontSize: 9, NameLineClamp: 2}"
 							>
-								{{'Reset về mặc định' | translate}}
+								{{'Reset to default' | translate}}
 							</ion-button>
 						</ion-col>
 					</ion-row>
@@ -140,7 +140,7 @@
 			<ion-grid fixed>
 				<ion-row>
 					<ion-col>
-						<ion-button expand="block" (click)="createPages()" [disabled]="!item.ItemUoM.length || submitAttempt"> {{' Tạo nhãn in' | translate}} </ion-button>
+						<ion-button expand="block" (click)="createPages()" [disabled]="!item.ItemUoM.length || submitAttempt"> {{'Create print labels' | translate}} </ion-button>
 					</ion-col>
 				</ion-row>
 			</ion-grid>

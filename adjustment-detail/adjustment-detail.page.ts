@@ -244,7 +244,7 @@ export class AdjustmentDetailPage extends PageBase {
 		let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
 		if (groups.controls.length > 0) {
 			this.env
-				.showPrompt('Bạn có muốn tiếp tục?', null, 'Thay đổi kho sẽ mất hết dữ liệu sản phẩm!')
+				.showPrompt('Do you want to continue?', null, 'Changing the warehouse will clear all product data!')
 				.then((_) => {
 					let itemsToDelete = [];
 					itemsToDelete = groups.controls.map((fg) => (fg.get('Id').value ? fg.getRawValue() : undefined)).filter((value) => value !== undefined);
@@ -281,7 +281,7 @@ export class AdjustmentDetailPage extends PageBase {
 		let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
 		if (groups.controls.length > 0) {
 			this.env
-				.showPrompt('Bạn có muốn tiếp tục?', null, 'Thay đổi chủ hàng sẽ mất hết dữ liệu sản phẩm!')
+				.showPrompt('Do you want to continue?', null, 'Changing the owner will clear all product data!')
 				.then((_) => {
 					let itemsToDelete = [];
 					itemsToDelete = groups.controls.map((fg) => (fg.get('Id').value ? fg.getRawValue() : undefined)).filter((value) => value !== undefined);
@@ -401,7 +401,7 @@ export class AdjustmentDetailPage extends PageBase {
 	removeField(fg, j) {
 		let groups = <FormArray>this.formGroup.controls.AdjustmentDetails;
 		let itemToDelete = fg.getRawValue();
-		this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+		this.env.showPrompt('Are you sure you want to delete?', null, 'Delete 1 row').then((_) => {
 			this.adjustmentDetailService.delete(itemToDelete).then((result) => {
 				groups.removeAt(j);
 			});
@@ -434,8 +434,8 @@ export class AdjustmentDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkAdjustmentDetails.getRawValue();
 			this.env
-				.showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: { value: itemsToDelete.length } }, null, {
-					code: 'Xóa {{value1}} đang chọn?',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Delete selected {{{value1}}?',
 					value: { value1: itemsToDelete.length },
 				})
 				.then((_) => {
