@@ -290,8 +290,8 @@ export class CycleCountDetailPage extends PageBase {
 					this.tempItemList = data.Data;
 					this.countItem = data.Data.length;
 					this.env
-						.showPrompt('Bạn có muốn áp dụng?', null, {
-							code: 'Tìm thấy {{value}} dòng dữ liệu',
+						.showPrompt('Do you want to apply?', null, {
+							code: 'Finding out {{value}} data row',
 							value: this.countItem,
 						})
 						.then((_) => {
@@ -376,11 +376,11 @@ export class CycleCountDetailPage extends PageBase {
 			this.env
 				.showPrompt(
 					{
-						code: 'Thay đổi {{value}} sẽ xoá hết chi tiết hàng kiểm hiện tại, bạn có tiếp tục?',
+						code: 'Changing {{value}} will be deleting the currently checking goods, do you want to continue?',
 						value: { value: type },
 					},
 					null,
-					{ code: 'Xóa {{value1}} dòng', value: { value1: detailLength } }
+					{ code: 'Delete {{value1}} line(s)', value: { value1: detailLength } }
 				)
 				.then((_) => {
 					this.cycleCountDetailService
@@ -587,7 +587,7 @@ export class CycleCountDetailPage extends PageBase {
 	removeField(fg, j) {
 		let groups = <FormArray>this.formGroup.controls.CycleCountDetails;
 		let itemToDelete = fg.getRawValue();
-		this.env.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa 1 dòng').then((_) => {
+		this.env.showPrompt('Are you sure you want to delete?', null, 'Delete 1 row').then((_) => {
 			this.cycleCountDetailService.delete(itemToDelete).then((result) => {
 				groups.removeAt(j);
 			});
@@ -620,8 +620,8 @@ export class CycleCountDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkCycleCountDetails.getRawValue();
 			this.env
-				.showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: { value: itemsToDelete.length } }, null, {
-					code: 'Xóa {{value1}} đang chọn?',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Delete selected {{{value1}}?',
 					value: { value1: itemsToDelete.length },
 				})
 				.then((_) => {
@@ -759,11 +759,11 @@ export class CycleCountDetailPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								code: '{{value}} error(s) during import: {{value1}}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
-							'Bạn có muốn xem lại các mục bị lỗi?',
-							'Có lỗi import dữ liệu'
+							'Do you want to review the items with errors?',
+							'Data import error'
 						)
 						.then((_) => {
 							this.downloadURLContent(resp.FileUrl);
@@ -830,11 +830,11 @@ export class CycleCountDetailPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								code: '{{value}} error(s) during import: {{value1}}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
-							'Bạn có muốn xem lại các mục bị lỗi?',
-							'Có lỗi import dữ liệu'
+							'Do you want to review the items with errors?',
+							'Data import error'
 						)
 						.then((_) => {
 							this.downloadURLContent(resp.FileUrl);

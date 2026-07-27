@@ -109,7 +109,7 @@
 					<ion-icon class="min-btn" (click)="query.VehicleNumber=''; refresh()" *ngIf="query.VehicleNumber" name="close-circle-outline"></ion-icon>
 				</div>
 				<div class="col-status cell">
-					<ion-text>{{'Phân loại' | translate}}</ion-text>
+					<ion-text>{{'Classify' | translate}}</ion-text>
 					<select (change)="refresh()" class="c-input c-dropdown" [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Type" [ngClass]="{active: query.Type}">
 						<option value="">{{'Classification' | translate}}</option>
 						<option disabled value="">----------</option>

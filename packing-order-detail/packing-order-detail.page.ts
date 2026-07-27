@@ -160,7 +160,7 @@ export class PackingOrderDetailPage extends PageBase {
 	//#region Business Logic
 	closePack() {
 		this.query.Id = this.formGroup.get('Id').value;
-		this.env.showPrompt('Bạn có chắc muốn đóng tất cả các sản phẩm gói hàng?', null, 'Đóng gói hàng').then((_) => {
+		this.env.showPrompt('Are you sure you want to close all packing items?', null, 'Packaging the goods').then((_) => {
 			this.env
 				.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/Packing/ClosePacking/', this.query).toPromise())
 				.then(async (result: any) => {
@@ -375,7 +375,7 @@ export class PackingOrderDetailPage extends PageBase {
 			.catch((err) => {
 				if (err.error && err.error.Message == 'Need more vehicle to ship!') {
 					this.env
-						.showPrompt('Số lượng xe hiện tại không thể tải hết hàng, bạn có muốn tiếp tục?', null, 'Không đủ tải')
+						.showPrompt('Current vehicles cannot carry all goods. Do you want to continue?', null, 'Insufficient capacity')
 						.then((_) => {
 							this.CreateShippingFromPacking(true);
 							this.formGroup.get('Status').setValue('ShippingAllocated');
@@ -473,7 +473,7 @@ export class PackingOrderDetailPage extends PageBase {
 	removeField(fg, j) {
 		let groups = <FormArray>this.formGroup.controls.PackingDetails;
 		let itemToDelete = fg.getRawValue();
-		this.env.showPrompt('Bạn có chắc muốn xóa?', null, 'Xóa 1 dòng').then((_) => {
+		this.env.showPrompt('Are you sure you want to delete?', null, 'Delete 1 row').then((_) => {
 			this.packingDetailservice.delete(itemToDelete).then((result) => {
 				groups.removeAt(j);
 			});
@@ -485,8 +485,8 @@ export class PackingOrderDetailPage extends PageBase {
 			let itemsToDelete = this.checkedPackingDetails.getRawValue();
 
 			this.env
-				.showPrompt({ code: 'Bạn có chắc muốn xóa {{value}} đang chọn?', value: { value: itemsToDelete.length } }, null, {
-					code: 'Xóa {{value1}} dòng',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Delete {{value1}} line(s)',
 					value: { value1: itemsToDelete.length },
 				})
 				.then((_) => {

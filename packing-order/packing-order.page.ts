@@ -76,7 +76,7 @@ export class PackingOrderPage extends PageBase {
 			.catch((err) => {
 				console.log(err);
 				if (err.message != null) this.env.showMessage(err.message, 'danger');
-				else this.env.showMessage('Không tạo được mã, xin vui lòng kiểm tra lại.', 'danger');
+				else this.env.showMessage('Can not create the code, please check again', 'danger');
 			});
 	}
 
@@ -97,7 +97,7 @@ export class PackingOrderPage extends PageBase {
 			.catch((err) => {
 				if (err.error && err.error.Message == 'Need more vehicle to ship!') {
 					this.env
-						.showPrompt('Số lượng xe hiện tại không thể tải hết hàng, bạn có muốn tiếp tục?', null, 'Không đủ tải')
+						.showPrompt('Current vehicles cannot carry all goods. Do you want to continue?', null, 'Insufficient capacity')
 						.then((_) => {
 							this.CreateShippingFromPacking(true);
 							this.formGroup.get('Status').setValue('ShippingAllocated');
