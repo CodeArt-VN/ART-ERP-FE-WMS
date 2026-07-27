@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
 	<ion-toolbar>
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
-			<ion-button color="dark" class="ion-hide-sm-down"> {{'In nhãn theo serial' | translate}} </ion-button>
+			<ion-button color="dark" class="ion-hide-sm-down"> {{'Print labels by serial' | translate}} </ion-button>
 		</ion-buttons>
 		<ion-buttons slot="end">
 			<!-- <ion-button (click)="changePrintMode()" title="{{'Printing option' | translate}}">
@@ -26,13 +26,13 @@
 		<div class="ion-padding">
 			<div class="c-control">
 				<label class="c-label" for="Storer">
-					<ion-text color="primary">{{'Từ số' | translate}}</ion-text>
+					<ion-text color="primary">{{'To number' | translate}}</ion-text>
 				</label>
 				<input class="c-input" mask="separator.0" thousandSeparator="," [allowNegativeNumbers]="true" [(ngModel)]="item.FromNumber" />
 			</div>
 			<div class="c-control">
 				<label class="c-label" for="Storer">
-					<ion-text color="primary"> {{'Đến số' | translate}} </ion-text>
+					<ion-text color="primary"> {{'From number' | translate}} </ion-text>
 				</label>
 				<input class="c-input" mask="separator.0" thousandSeparator="," [allowNegativeNumbers]="true" [(ngModel)]="item.ToNumber" />
 			</div>
@@ -71,7 +71,7 @@
 								fill="outline"
 								(click)="this.lableConfig = {PageWidth: 96, QRCodeWidth: 206, CodeFontSize: 0, NameFontSize: 48, NameLineClamp: 2}"
 							>
-								{{'Reset về mặc định' | translate}}
+								{{'Reset to default' | translate}}
 							</ion-button>
 						</ion-col>
 					</ion-row>
@@ -83,7 +83,7 @@
 				<ion-row>
 					<ion-col>
 						<ion-button expand="block" (click)="createPages()" [disabled]=" !(item.FromNumber && item.ToNumber) || submitAttempt">
-							{{'Tạo nhãn in' | translate}}
+							{{'Create print labels' | translate}}
 						</ion-button>
 					</ion-col>
 				</ion-row>

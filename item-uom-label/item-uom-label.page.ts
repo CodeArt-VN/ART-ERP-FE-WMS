@@ -59,7 +59,7 @@ export class ItemUomLabelPage extends PageBase {
 			return;
 		}
 		if (this.item.ItemUoM.length == 0) {
-			this.env.showMessage('Xin vui lòng chọn sản phẩm cần in.');
+			this.env.showMessage('Please select the products to print');
 			return;
 		}
 
@@ -71,7 +71,7 @@ export class ItemUomLabelPage extends PageBase {
 				this.items = data;
 				this.pageConfig.showSpinner = false;
 				this.submitAttempt = false;
-				this.env.showMessage('Đã tạo {{value}} mã.', null, this.items.length);
+				this.env.showMessage('Created {{value}} code', null, this.items.length);
 			})
 			.catch((err) => {
 				console.log(err);

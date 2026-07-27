@@ -223,7 +223,7 @@ export class LPNLabelPage extends PageBase {
 		this.query.FromLPN = this.fromLPN;
 		if (this.toLPN > 0) {
 			if (this.toLPN < this.fromLPN) {
-				this.env.showMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
+				this.env.showMessage('From LPN ID must not be greater than To LPN ID. Please check again', 'warning');
 			} else {
 				this.GetLabel();
 			}
@@ -235,7 +235,7 @@ export class LPNLabelPage extends PageBase {
 		if (this.fromLPN > 0 && this.fromLPN < this.toLPN) {
 			this.GetLabel();
 		} else if (this.fromLPN > this.toLPN) {
-			this.env.showMessage('ID from LPN > ID to LPN, vui lòng kiểm tra lại', 'warning');
+			this.env.showMessage('From LPN ID must not be greater than To LPN ID. Please check again', 'warning');
 		}
 	}
 
@@ -246,7 +246,7 @@ export class LPNLabelPage extends PageBase {
 				if (data) {
 					this.itemPalletsList = data;
 					if (this.itemPalletsList.length == 0) {
-						this.env.showMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+						this.env.showMessage('No pallet found. Please check again', 'warning');
 					} else {
 						this.lpnFromListSelected = this.lpnToListSelected = this.itemPalletsList.map((s) => {
 							return {
@@ -263,11 +263,11 @@ export class LPNLabelPage extends PageBase {
 					}
 				} else {
 					this.itemPalletsList = [];
-					this.env.showMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+					this.env.showMessage('No pallet found. Please check again', 'warning');
 				}
 			})
 			.catch((err) => {
-				this.env.showMessage('Không có pallet, vui lòng kiểm tra lại', 'warning');
+				this.env.showMessage('No pallet found. Please check again', 'warning');
 			});
 	}
 

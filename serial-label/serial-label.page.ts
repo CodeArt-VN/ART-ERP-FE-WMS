@@ -51,7 +51,7 @@ export class SerialLabelPage extends PageBase {
 			return;
 		}
 		if (!this.item.FromNumber || !this.item.ToNumber) {
-			this.env.showMessage('Xin vui lòng nhập số bắt đầu và số kết thúc để tạo mã.');
+			this.env.showMessage('Please type the starting and ending number to create the code');
 			return;
 		}
 
@@ -68,7 +68,7 @@ export class SerialLabelPage extends PageBase {
 				this.items = data;
 				this.pageConfig.showSpinner = false;
 				this.submitAttempt = false;
-				this.env.showMessage('Đã tạo {{value}} mã.', null, this.items.length);
+				this.env.showMessage('Created {{value}} code', null, this.items.length);
 			})
 			.catch((err) => {
 				console.log(err);

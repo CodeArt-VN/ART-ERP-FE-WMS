@@ -125,7 +125,7 @@ export class VoucherPrintingPage extends PageBase {
 				this.items = data;
 				this.pageConfig.showSpinner = false;
 				this.submitAttempt = false;
-				this.env.showMessage('Đã tạo {{value}} mã.', null, this.items.length);
+				this.env.showMessage('Created {{value}} code', null, this.items.length);
 			})
 			.catch((err) => {
 				console.log(err);
@@ -320,7 +320,7 @@ export class VoucherPrintingPage extends PageBase {
 			URL.revokeObjectURL(url);
 		}).catch(err => {
 			console.error('Error creating ZIP:', err);
-			this.env.showMessage('Có lỗi xảy ra khi tạo file ZIP', 'danger');
+			this.env.showMessage('An error occurred while creating the ZIP file', 'danger');
 		});
 	}
 
