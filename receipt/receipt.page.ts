@@ -122,7 +122,7 @@ export class ReceiptPage extends PageBase {
 							},
 						},
 						{
-							text: 'RECEIVE',
+							text: 'Receive',
 							cssClass: 'danger-btn',
 							handler: () => {
 								let publishEventCode = this.pageConfig.pageName;

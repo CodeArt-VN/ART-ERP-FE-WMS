@@ -270,7 +270,7 @@ export class ReceiptMobileDetailPage extends PageBase {
 						role: 'cancel',
 					},
 					{
-						text: 'RECEIVE',
+						text: 'Receive',
 						cssClass: 'danger-btn',
 						handler: async () => {
 							if (this.submitAttempt) return;
