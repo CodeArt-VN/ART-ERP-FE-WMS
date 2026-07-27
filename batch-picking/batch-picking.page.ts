@@ -421,7 +421,7 @@ export class BatchPickingPage extends PageBase {
 			.showLoading('Please wait for a few moments', this.outboundProvider.commonService.connect('POST', 'WMS/OutboundOrder/CreateOutboundFromShipments/', obj).toPromise())
 			.then((result: any) => {
 				if (result) {
-					this.env.showMessage('saved!', 'success');
+					this.env.showMessage('Saved', 'success');
 					this.refresh();
 				} else {
 					this.env.showMessage('cannot save!', 'danger');

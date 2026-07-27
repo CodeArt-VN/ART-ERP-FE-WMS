@@ -314,7 +314,7 @@ export class OutboundOrderDetailPage extends PageBase {
 		this.env
 			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/OutboundOrder/ChangeStatus/', this.query).toPromise())
 			.then((result: any) => {
-				this.env.showMessage('saved', 'success');
+				this.env.showMessage('Saved', 'success');
 				this.refresh();
 			})
 			.catch((err) => {
@@ -346,7 +346,7 @@ export class OutboundOrderDetailPage extends PageBase {
 		this.env
 			.showLoading('Please wait for a few moments', this.commonService.connect('GET', 'WMS/Packing/CreateShippingFromPacking', packingQuery).toPromise())
 			.then((rs) => {
-				this.env.showMessage('saved', 'success');
+				this.env.showMessage('Saved', 'success');
 				this.refreshSegmentView();
 			})
 			.catch((err) => {
@@ -596,7 +596,7 @@ export class OutboundOrderDetailPage extends PageBase {
 							this.checkedOutboundOrderDetails.removeAt(indexToRemove);
 						});
 
-						this.env.showMessage('saved', 'success');
+						this.env.showMessage('Saved', 'success');
 					})
 					.catch((err) => {
 						this.env.showMessage(err.error?.Message ?? err.message, 'danger');

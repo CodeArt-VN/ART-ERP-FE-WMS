@@ -92,7 +92,7 @@ export class PackingOrderPage extends PageBase {
 				this.formGroup.get('Status').setValue('ShippingAllocated');
 				this.formGroup.get('Status').markAsPristine();
 
-				this.env.showMessage('saved', 'success');
+				this.env.showMessage('Saved', 'success');
 			})
 			.catch((err) => {
 				if (err.error && err.error.Message == 'Need more vehicle to ship!') {

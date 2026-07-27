@@ -60,7 +60,7 @@ export class LocationPage extends PageBase {
 			this.env
 				.showLoading('Please wait for a few moments', this.commonService.connect('PUT', 'WMS/Location/UpdateRouteSequence', putItems).toPromise())
 				.then((result: any) => {
-					this.env.showMessage('Saved!', 'success');
+					this.env.showMessage('Saved', 'success');
 				});
 		}
 	}

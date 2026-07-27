@@ -341,7 +341,7 @@ export class CycleCountDetailPage extends PageBase {
 			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/CycleCount/ChangeStatus/', this.query).toPromise())
 			.then((result: any) => {
 				this.refresh();
-				this.env.showMessage('success', 'success');
+				this.env.showMessage('Success', 'success');
 			})
 			.catch((err) => {
 				this.env.showMessage(err.error?.ExceptionMessage || err, 'danger');
