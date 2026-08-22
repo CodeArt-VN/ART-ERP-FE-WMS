@@ -91,8 +91,8 @@ export class AdjustmentPage extends PageBase {
 			IDs: this.selectedItems.map((s) => s.Id),
 		};
 		this.env
-			.showPrompt({ code: 'Are you sure you want to approve the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Approve {{value1}} row?',
+			.showPrompt({ code: 'Are you sure you want to approve the selected {value}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Approve {value1} row?',
 				value: { value: this.selectedItems.length },
 			})
 			.then((_) => {
@@ -117,8 +117,8 @@ export class AdjustmentPage extends PageBase {
 		};
 
 		this.env
-			.showPrompt({ code: 'Are you sure you want to approve the selected {{value}}?', value: { value: this.selectedItems.length } }, null, {
-				code: 'Disapprove {{value}} line(s)',
+			.showPrompt({ code: 'Are you sure you want to approve the selected {value}?', value: { value: this.selectedItems.length } }, null, {
+				code: 'Disapprove {value} line(s)',
 				value: { value: this.selectedItems.length },
 			})
 			.then((_) => {

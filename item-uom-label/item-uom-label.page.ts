@@ -71,7 +71,7 @@ export class ItemUomLabelPage extends PageBase {
 				this.items = data;
 				this.pageConfig.showSpinner = false;
 				this.submitAttempt = false;
-				this.env.showMessage('Created {{value}} code', null, this.items.length);
+				this.env.showMessage('Created {value} code', null, this.items.length);
 			})
 			.catch((err) => {
 				console.log(err);

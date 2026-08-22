@@ -614,8 +614,8 @@ export class PickingOrderDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkedPickingOrderDetails.getRawValue().filter((d) => d.IDParent != null && d.Status == 'Active');
 			this.env
-				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: itemsToDelete.length }, null, {
-					code: 'Delete {{value1}} line(s)',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {value}?', value: itemsToDelete.length }, null, {
+					code: 'Delete {value1} line(s)',
 					value1: itemsToDelete.length,
 				})
 				.then((_) => {

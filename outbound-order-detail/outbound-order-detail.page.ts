@@ -582,7 +582,7 @@ export class OutboundOrderDetailPage extends PageBase {
 				itemToDelete.push(i.getRawValue());
 			});
 			itemToDelete.push(fg.getRawValue());
-			this.env.showPrompt('Are you sure you want to delete?', null, { code: 'Delete {{value}} line(s)', value: itemToDelete.length }).then((_) => {
+			this.env.showPrompt('Are you sure you want to delete?', null, { code: 'Delete {value} line(s)', value: itemToDelete.length }).then((_) => {
 				this.outboundOrderDetailService
 					.delete(itemToDelete)
 					.then((result) => {
@@ -612,8 +612,8 @@ export class OutboundOrderDetailPage extends PageBase {
 			let itemsToDelete = this.checkedOutboundOrderDetails.getRawValue();
 
 			this.env
-				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: { value: itemsToDelete.length } }, null, {
-					code: 'Delete {{value1}} line(s)',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {value}?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Delete {value1} line(s)',
 					value: { value1: itemsToDelete.length },
 				})
 				.then((_) => {

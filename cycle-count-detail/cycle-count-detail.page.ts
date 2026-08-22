@@ -291,7 +291,7 @@ export class CycleCountDetailPage extends PageBase {
 					this.countItem = data.Data.length;
 					this.env
 						.showPrompt('Do you want to apply?', null, {
-							code: 'Finding out {{value}} data row',
+							code: 'Finding out {value} data row',
 							value: this.countItem,
 						})
 						.then((_) => {
@@ -376,11 +376,11 @@ export class CycleCountDetailPage extends PageBase {
 			this.env
 				.showPrompt(
 					{
-						code: 'Changing {{value}} will be deleting the currently checking goods, do you want to continue?',
+						code: 'Changing {value} will be deleting the currently checking goods, do you want to continue?',
 						value: { value: type },
 					},
 					null,
-					{ code: 'Delete {{value1}} line(s)', value: { value1: detailLength } }
+					{ code: 'Delete {value1} line(s)', value: { value1: detailLength } }
 				)
 				.then((_) => {
 					this.cycleCountDetailService
@@ -620,8 +620,8 @@ export class CycleCountDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkCycleCountDetails.getRawValue();
 			this.env
-				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: { value: itemsToDelete.length } }, null, {
-					code: 'Delete selected {{{value1}}?',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {value}?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Delete selected {value1}?',
 					value: { value1: itemsToDelete.length },
 				})
 				.then((_) => {
@@ -759,7 +759,7 @@ export class CycleCountDetailPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: '{{value}} error(s) during import: {{value1}}',
+								code: '{value} error(s) during import: {value1}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
 							'Do you want to review the items with errors?',
@@ -830,7 +830,7 @@ export class CycleCountDetailPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: '{{value}} error(s) during import: {{value1}}',
+								code: '{value} error(s) during import: {value1}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
 							'Do you want to review the items with errors?',

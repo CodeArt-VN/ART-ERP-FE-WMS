@@ -381,8 +381,8 @@ export class ShippingDetailPage extends PageBase {
 		if (this.pageConfig.canDelete) {
 			let itemsToDelete = this.checkedShippingDetails.getRawValue();
 			this.env
-				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: itemsToDelete.length }, null, {
-					code: 'Delete {{value1}} line(s)',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {value}?', value: itemsToDelete.length }, null, {
+					code: 'Delete {value1} line(s)',
 					value: itemsToDelete.length,
 				})
 				.then((_) => {

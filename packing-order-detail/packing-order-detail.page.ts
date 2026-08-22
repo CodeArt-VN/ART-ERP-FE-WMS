@@ -485,8 +485,8 @@ export class PackingOrderDetailPage extends PageBase {
 			let itemsToDelete = this.checkedPackingDetails.getRawValue();
 
 			this.env
-				.showPrompt({ code: 'Are you sure you want to delete the selected {{value}}?', value: { value: itemsToDelete.length } }, null, {
-					code: 'Delete {{value1}} line(s)',
+				.showPrompt({ code: 'Are you sure you want to delete the selected {value}?', value: { value: itemsToDelete.length } }, null, {
+					code: 'Delete {value1} line(s)',
 					value: { value1: itemsToDelete.length },
 				})
 				.then((_) => {

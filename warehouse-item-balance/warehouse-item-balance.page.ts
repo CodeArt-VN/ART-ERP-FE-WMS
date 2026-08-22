@@ -100,7 +100,7 @@ export class WareHouseItemBalancePage extends PageBase {
 			const translationPromises = invalidControls.map((control) => this.env.translateResource(control));
 			Promise.all(translationPromises).then((values) => {
 				const invalidControls = values;
-				this.env.showMessage('Please recheck control(s): {{value}}', 'warning', invalidControls.join(' | '));
+				this.env.showMessage('Please recheck control(s): {value}', 'warning', invalidControls.join(' | '));
 			});
 			super.loadedData(event);
 			return;
@@ -173,7 +173,7 @@ export class WareHouseItemBalancePage extends PageBase {
 			const translationPromises = invalidControls.map((control) => this.env.translateResource(control));
 			Promise.all(translationPromises).then((values) => {
 				const invalidControls = values;
-				this.env.showMessage('Please recheck control(s): {{value}}', 'warning', invalidControls.join(' | '));
+				this.env.showMessage('Please recheck control(s): {value}', 'warning', invalidControls.join(' | '));
 			});
 			return;
 		}
