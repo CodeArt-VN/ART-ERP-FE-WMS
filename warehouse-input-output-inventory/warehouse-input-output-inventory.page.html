@@ -8,8 +8,8 @@
 		<div *ngIf="pageConfig.showSpinner==false">
 			<div class="ion-padding" style="padding-bottom: 0; min-height: 100vh">
 				<app-form-control
-					[field]="{branchConfig:{showingType:'Warehouse',selectedBranch:env.selectedBranch}
-        ,id:'IDBranch',label:'Branch',type:'ng-select-branch', bindLabel:'Name', bindValue:'Id',dataSource:branchList, placeholder:'Select unit',form:formGroup}"
+					[field]="{branchConfig:{showingType:'Warehouse',showingMode:'showAll'}
+        ,id:'IDBranch',label:'Warehouse',type:'ng-select-branch', bindLabel:'Name', bindValue:'Id',dataSource:branchList, placeholder:'Select unit',form:formGroup}"
 				>
 				</app-form-control>
 				<!-- 

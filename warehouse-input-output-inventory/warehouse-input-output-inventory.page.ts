@@ -20,6 +20,14 @@ import {
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
+export function pickDefaultWarehouseId(branches: { Id: number; Type?: string }[], currentId: any): number | '' {
+	const warehouses = (branches || []).filter((b) => b.Type === 'Warehouse');
+	if (warehouses.some((w) => w.Id == currentId)) {
+		return Number(currentId);
+	}
+	return warehouses.length ? warehouses[0].Id : '';
+}
+
 @Component({
 	selector: 'app-warehouse-input-output-inventory',
 	templateUrl: './warehouse-input-output-inventory.page.html',
@@ -91,7 +99,6 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 					this.itemGroupList = result;
 				});
 			}
-			this.branchList = lib.cloneObject(this.env.branchList);
 			this.loadedData(event);
 		});
 	}
@@ -113,7 +120,7 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 
 	loadedData(event) {
 		super.loadedData(event);
-		this.getNearestWarehouse(this.env.selectedBranch);
+		this.loadStorerWarehouses();
 		if (this.isFristLoaded) {
 			this.isFristLoaded = false;
 			this._storerDataSource.initSearch();
@@ -285,21 +292,26 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 			});
 	}
 
-	getNearestWarehouse(IDBranch) {
-		let currentBranch = this.env.branchList.find((d) => d.Id == IDBranch);
-		if (currentBranch) {
-			if (currentBranch.Type == 'Warehouse') {
-				this.formGroup.get('IDBranch').setValue(currentBranch.Id);
-				return true;
-			} else {
-				let childrentWarehouse: any = this.env.branchList.filter((d) => d.IDParent == IDBranch);
-				for (let child of childrentWarehouse) {
-					if (this.getNearestWarehouse(child.Id)) {
-						return true;
-					}
-				}
-			}
+	loadStorerWarehouses() {
+		const idBranch = this.env.selectedBranch;
+		if (!idBranch) {
+			this.branchList = [];
+			this.formGroup.get('IDBranch').setValue('');
+			return;
 		}
+		this.pageProvider.commonService
+			.connect('GET', 'WMS/Storer/WarehouseByBranch', { IDBranch: idBranch })
+			.toPromise()
+			.then((result: any) => {
+				this.branchList = result || [];
+				this.formGroup.get('IDBranch').setValue(pickDefaultWarehouseId(this.branchList, this.formGroup.get('IDBranch').value));
+				this.cdr.detectChanges();
+			})
+			.catch(() => {
+				this.branchList = [];
+				this.formGroup.get('IDBranch').setValue('');
+				this.env.showMessage('Cannot extract data', 'danger');
+			});
 	}
 
 	toggleRowAll() {
