@@ -127,16 +127,11 @@
 											[field]="{
 												id:'IDWarehouse',
 												label: 'Warehouse',
-												type :'ng-select-branch',
-												dataSource: branchList,
-												bindLabel:'Name',
-												bindValue:'Id',
-												form : g,
-												virtualScroll: true,
+												type: 'ng-select-warehouse',
+												form: g,
 												clearable: true,
 												placeholder:'Search...',
-												appendTo: '#detail-page',
-												branchConfig:{showingType:'Warehouse', showingMode:'showAll'}
+												appendTo: '#detail-page'
 											}"
 											(change)="IDWarehouseChange(idx,$event)">
 										</app-form-control>

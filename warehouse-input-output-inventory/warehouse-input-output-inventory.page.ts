@@ -20,14 +20,6 @@ import {
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
-export function pickDefaultWarehouseId(branches: { Id: number; Type?: string }[], currentId: any): number | '' {
-	const warehouses = (branches || []).filter((b) => b.Type === 'Warehouse');
-	if (warehouses.some((w) => w.Id == currentId)) {
-		return Number(currentId);
-	}
-	return warehouses.length ? warehouses[0].Id : '';
-}
-
 @Component({
 	selector: 'app-warehouse-input-output-inventory',
 	templateUrl: './warehouse-input-output-inventory.page.html',
@@ -36,7 +28,6 @@ export function pickDefaultWarehouseId(branches: { Id: number; Type?: string }[]
 })
 export class WarehouseInputOutputInventoryPage extends PageBase {
 	selectedBranch;
-	branchList = [];
 	storerList = [];
 	itemGroupList = [];
 	periodList = [];
@@ -120,7 +111,6 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 
 	loadedData(event) {
 		super.loadedData(event);
-		this.loadStorerWarehouses();
 		if (this.isFristLoaded) {
 			this.isFristLoaded = false;
 			this._storerDataSource.initSearch();
@@ -248,69 +238,62 @@ export class WarehouseInputOutputInventoryPage extends PageBase {
 			}));
 	}
 
+	nxtRows: any[] = [];
+
 	getInputOutputInventory(event = null) {
-		if (this.submitAttempt) return;
+		const paging = event?.type === 'ionInfinite' || event?.DataLength != null;
+		if (this.submitAttempt) {
+			event?.target?.complete?.();
+			return;
+		}
 		this.submitAttempt = true;
+		if (!paging) {
+			this.nxtRows = [];
+			this.pageConfig.isEndOfData = false;
+		}
 		const query = this.formGroup.getRawValue();
+		query.Take = 200;
+		query.Skip = this.nxtRows.length;
 		this.pageConfig.isSubActive = true;
+		const request = this.pageProvider.commonService.connect('GET', 'WMS/Transaction/InputOutputInventory/', query).toPromise();
+		const pending = paging ? request : this.env.showLoading('Please wait for a few moments', request);
 
-		this.env
-			.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'WMS/Transaction/InputOutputInventory/', query).toPromise())
+		pending
 			.then((result: any) => {
-				if (result) {
-					for (const m of result) {
-						m.ClosingQuantity = m.OpenQuantity + m.InputQuantity - m.OutputQuantity;
-					}
-
-					if (query.ViewItemGroup) {
-						const groups = this.buildItemGroupNodesForTree(result);
-						const itemsWithTreeMeta = result.map((x) => ({
-							...x,
-							IDParent: x.IDItemGroup,
-							Id: lib.generateUID(),
-						}));
-						const itemView = [...groups, ...itemsWithTreeMeta];
-
-						return this.buildFlatTree(itemView, this.items, this.isAllRowOpened).then((resp: any) => {
-							const treeItems = resp
-								.map((x) => (x.IDItem ? { ...x, HasChild: false } : x))
-								.filter((d) => d.HasChild || d.IDItem);
-							this.recurDifference(treeItems);
-							this.cdr.detectChanges();
-						});
-					}
-
-					this.items = result;
-					this.cdr.detectChanges();
+				const page = Array.isArray(result) ? result : [];
+				for (const row of page) {
+					row.ClosingQuantity = row.OpenQuantity + row.InputQuantity - row.OutputQuantity;
 				}
+				this.nxtRows = paging ? [...this.nxtRows, ...page] : page;
+				this.pageConfig.isEndOfData = page.length < query.Take;
+
+				if (query.ViewItemGroup) {
+					const groups = this.buildItemGroupNodesForTree(this.nxtRows);
+					const itemsWithTreeMeta = this.nxtRows.map((x) => ({
+						...x,
+						IDParent: x.IDItemGroup,
+						Id: lib.generateUID(),
+					}));
+					const itemView = [...groups, ...itemsWithTreeMeta];
+
+					return this.buildFlatTree(itemView, this.items, this.isAllRowOpened).then((resp: any) => {
+						const treeItems = resp
+							.map((x) => (x.IDItem ? { ...x, HasChild: false } : x))
+							.filter((d) => d.HasChild || d.IDItem);
+						this.recurDifference(treeItems);
+						this.cdr.detectChanges();
+					});
+				}
+
+				this.items = [...this.nxtRows];
+				this.cdr.detectChanges();
 			})
 			.catch(() => {
 				this.env.showMessage('error!', 'danger');
 			})
 			.finally(() => {
 				this.submitAttempt = false;
-			});
-	}
-
-	loadStorerWarehouses() {
-		const idBranch = this.env.selectedBranch;
-		if (!idBranch) {
-			this.branchList = [];
-			this.formGroup.get('IDBranch').setValue('');
-			return;
-		}
-		this.pageProvider.commonService
-			.connect('GET', 'WMS/Storer/WarehouseByBranch', { IDBranch: idBranch })
-			.toPromise()
-			.then((result: any) => {
-				this.branchList = result || [];
-				this.formGroup.get('IDBranch').setValue(pickDefaultWarehouseId(this.branchList, this.formGroup.get('IDBranch').value));
-				this.cdr.detectChanges();
-			})
-			.catch(() => {
-				this.branchList = [];
-				this.formGroup.get('IDBranch').setValue('');
-				this.env.showMessage('Cannot extract data', 'danger');
+				event?.target?.complete?.();
 			});
 	}
 

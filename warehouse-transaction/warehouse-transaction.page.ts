@@ -6,6 +6,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { lib } from 'src/app/services/static/global-functions';
+import { WmsTransactionService } from 'src/app/pages/WMS/.services/wms-transaction.service';
+
 import {
 	BRA_BranchProvider,
 	CRM_ContactProvider,
@@ -22,7 +24,6 @@ import {
 	standalone: false,
 })
 export class WarehouseTransactionPage extends PageBase {
-	branchList = [];
 	zoneList = [];
 	storerList = [];
 	locationList = [];
@@ -31,6 +32,9 @@ export class WarehouseTransactionPage extends PageBase {
 	selectedZone = null;
 	selectedLocation = null;
 	selectedItem = null;
+	missingCount = 0;
+	driftCount = 0;
+
 	constructor(
 		public pageProvider: WMS_TransactionProvider,
 		public env: EnvService,
@@ -46,6 +50,7 @@ export class WarehouseTransactionPage extends PageBase {
 		public zoneProvider: WMS_ZoneProvider,
 		public locationProvider: WMS_LocationProvider,
 		public itemProvider: WMS_ItemProvider,
+		public wmsTransaction: WmsTransactionService,
 		public modalController: ModalController,
 
 		public translate: TranslateService
@@ -73,7 +78,6 @@ export class WarehouseTransactionPage extends PageBase {
 	}
 
 	preLoadData(event) {
-		this.branchList = [...this.env.branchList];
 		this.contactProvider.read({ IsStorer: true, Take: 500, Skip: 0, SkipAddress: true }).then((resp) => {
 			this.storerList = resp['data'];
 		});
@@ -86,10 +90,44 @@ export class WarehouseTransactionPage extends PageBase {
 			this.formGroup.get('_IDItemDataSource').value.initSearch();
 			this.firstLoad = false;
 		}
-		if (!this.formGroup.get('IDBranch').value) {
-			this.getNearestWarehouse(this.env.selectedBranch);
+		this.subscriptions.push(this.formGroup.get('IDBranch').valueChanges.subscribe(() => this.loadLedger()));
+		if (this.formGroup.get('IDBranch').value) {
+			this.loadLedger();
 		}
 		super.preLoadData(event);
+	}
+
+	loadLedger() {
+		const warehouseId = this.formGroup.get('IDBranch').value;
+		if (!warehouseId) {
+			this.missingCount = 0;
+			this.driftCount = 0;
+			return;
+		}
+		this.wmsTransaction.reconcile({ IDBranch: warehouseId }).subscribe((rs: any) => {
+			this.missingCount = rs?.MissingCount || 0;
+			this.driftCount = rs?.DriftCount || 0;
+			this.cdr.detectChanges();
+		});
+	}
+
+	rebuildLedger() {
+		const warehouseId = this.formGroup.get('IDBranch').value;
+		if (!warehouseId) return;
+		this.env
+			.showPrompt('Rebuild the warehouse ledger from closed documents? Live lot quantities will be cleared and rewritten.', null, 'Rebuild stock ledger')
+			.then((_) => {
+				this.wmsTransaction.rebuild({ IDBranch: warehouseId, Confirmed: true }).subscribe((rs: any) => {
+					if (rs?.Success) {
+						this.env.showMessage('Saving completed!', 'success');
+					} else {
+						this.env.showMessage('Warehouse stock ledger is missing documents or lot quantities do not match the ledger.', 'warning');
+					}
+					this.loadLedger();
+					if (!this.firstLoad) this.loadData(null);
+				});
+			})
+			.catch(() => {});
 	}
 	subItem: any = {};
 	firstLoad = true;
@@ -104,21 +142,33 @@ export class WarehouseTransactionPage extends PageBase {
 			this.loadedData(event);
 			return;
 		}
+		const paging = event?.type === 'ionInfinite';
+		if (!paging) {
+			this.items = [];
+			this.pageConfig.isEndOfData = false;
+		}
 		this.query = this.formGroup.getRawValue();
 		delete this.query._IDItemDataSource;
 		this.query.SortBy = 'Id_desc';
+		this.query.Take = 200;
+		this.query.Skip = paging ? this.items.length : 0;
 		this.pageProvider.commonService
 			.connect('GET', 'WMS/Transaction', this.query)
 			.toPromise()
 			.then((rs: any) => {
-				if (rs._RefList) {
+				const refList = rs?._RefList || [];
+				if (rs?._RefList) {
 					const { _RefList, ...SubData } = rs;
 					this.subItem = SubData;
 					this.itemById = new Map((this.subItem._Items ?? []).map((item) => [item.Id, item]));
-					this.items = this.buildTransactionRows(_RefList);
-					this.pageConfig.isSubActive = true;
-					this.cdr.detectChanges();
 				}
+				const page = this.buildTransactionRows(refList);
+				this.items = paging ? [...this.items, ...page] : page;
+				this.applyGroupHeaders(this.items);
+				const count = Number(rs?.Count);
+				this.pageConfig.isEndOfData = refList.length < this.query.Take || (count > 0 && this.items.length >= count);
+				this.pageConfig.isSubActive = true;
+				this.cdr.detectChanges();
 				this.loadedData(event);
 			})
 			.catch(() => {
@@ -127,35 +177,34 @@ export class WarehouseTransactionPage extends PageBase {
 	}
 
 	buildTransactionRows(refList: any[]) {
-		const sorted = refList
+		return refList
 			.slice()
-			.sort((a, b) => new Date(b.TransactionDate).getTime() - new Date(a.TransactionDate).getTime());
+			.sort((a, b) => new Date(b.TransactionDate).getTime() - new Date(a.TransactionDate).getTime())
+			.map((row) => ({
+				...row,
+				_Item: this.itemById.get(row.IDItem),
+				_groupHeader: null,
+			}));
+	}
 
-		return sorted.map((row, index) => {
-			const item = this.itemById.get(row.IDItem);
-			let groupHeader: string = null;
-
+	applyGroupHeaders(rows: any[]) {
+		rows.forEach((row, index) => {
+			row._groupHeader = null;
 			if (index === 0) {
-				groupHeader = lib.dateFormatFriendly(row.TransactionDate);
-			} else {
-				const prev = sorted[index - 1];
-				const mins = Math.floor(
-					(new Date(prev.TransactionDate).getTime() - new Date(row.TransactionDate).getTime()) / 1000 / 60
-				);
-				if (mins >= 30) {
-					const prevDate = lib.dateFormatFriendly(prev.TransactionDate);
-					const currentDate = lib.dateFormatFriendly(row.TransactionDate);
-					if (prevDate !== currentDate) {
-						groupHeader = currentDate;
-					}
+				row._groupHeader = lib.dateFormatFriendly(row.TransactionDate);
+				return;
+			}
+			const prev = rows[index - 1];
+			const mins = Math.floor(
+				(new Date(prev.TransactionDate).getTime() - new Date(row.TransactionDate).getTime()) / 1000 / 60
+			);
+			if (mins >= 30) {
+				const prevDate = lib.dateFormatFriendly(prev.TransactionDate);
+				const currentDate = lib.dateFormatFriendly(row.TransactionDate);
+				if (prevDate !== currentDate) {
+					row._groupHeader = currentDate;
 				}
 			}
-
-			return {
-				...row,
-				_Item: item,
-				_groupHeader: groupHeader,
-			};
 		});
 	}
 
@@ -164,23 +213,6 @@ export class WarehouseTransactionPage extends PageBase {
 
 		this.formGroup.get('_IDItemDataSource').value.initSearch();
 		this.formGroup.enable();
-	}
-
-	getNearestWarehouse(IDBranch) {
-		let currentBranch = this.env.branchList.find((d) => d.Id == IDBranch);
-		if (currentBranch) {
-			if (currentBranch.Type == 'Warehouse') {
-				this.formGroup.get('IDBranch').setValue(currentBranch.Id);
-				return true;
-			} else {
-				let childrentWarehouse: any = this.env.branchList.filter((d) => d.IDParent == IDBranch);
-				for (let child of childrentWarehouse) {
-					if (this.getNearestWarehouse(child.Id)) {
-						return true;
-					}
-				}
-			}
-		}
 	}
 
 	changeFilter() {
@@ -200,6 +232,7 @@ export class WarehouseTransactionPage extends PageBase {
 		}
 		this.firstLoad = false;
 		this.pageConfig.isSubActive = true;
+		this.loadLedger();
 		super.preLoadData(null);
 	}
 

@@ -30,16 +30,11 @@
 										[field]="{
 											id:'IDBranch',
 											label: 'Warehouse',
-											type :'ng-select-branch',
-											dataSource: branchList,
-											bindLabel:'Name',
-											bindValue:'Id',
-											form : formGroup,
-											virtualScroll: true,
+											type: 'ng-select-warehouse',
+											form: formGroup,
 											clearable: true,
 											placeholder:'Search...',
-											appendTo: '#detail-page',
-											branchConfig:{showingType:'Warehouse', showingMode:'showAll',selectedBranch:this.env.selectedBranch}
+											appendTo: '#detail-page'
 										}"
 										(change)="IDBranchChange()"
 									>

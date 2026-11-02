@@ -4,15 +4,16 @@
 			{{ 'Stock card' | translate }}
 			<!-- <ion-icon slot="icon-only" name="card-outline"></ion-icon> -->
 		</ion-button>
+		<ion-button title="Rebuild stock ledger" *ngIf="formGroup.get('IDBranch').value" (click)="rebuildLedger()">
+			{{ 'Rebuild stock ledger' | translate }}
+		</ion-button>
 	</app-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control
-				[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
-        ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-       }"
+				[field]="{id:'IDBranch',label:'Warehouse',type:'ng-select-warehouse',placeholder:'Select unit',form:formGroup}"
 			></app-form-control>
 			<app-form-control
 				[field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
@@ -88,6 +89,11 @@
     
   </app-data-table> -->
 
+	<div class="stock-warning" *ngIf="missingCount > 0 || driftCount > 0">
+		{{ 'Warehouse stock ledger is missing documents or lot quantities do not match the ledger.' | translate }}
+		<span *ngIf="missingCount"> {{ 'Missing documents' | translate }}: {{ missingCount }}</span>
+		<span *ngIf="driftCount"> {{ 'Lot rows out of balance' | translate }}: {{ driftCount }}</span>
+	</div>
 	<app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 	<div style="min-width: 300px; height: calc(100vh - 65px)">
 		<section class="table" *ngIf="items.length && pageConfig.showSpinner == false">

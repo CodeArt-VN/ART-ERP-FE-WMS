@@ -8,8 +8,7 @@
 		<div *ngIf="pageConfig.showSpinner==false">
 			<div class="ion-padding" style="padding-bottom: 0; min-height: 100vh">
 				<app-form-control
-					[field]="{branchConfig:{showingType:'Warehouse',showingMode:'showAll'}
-        ,id:'IDBranch',label:'Warehouse',type:'ng-select-branch', bindLabel:'Name', bindValue:'Id',dataSource:branchList, placeholder:'Select unit',form:formGroup}"
+					[field]="{id:'IDBranch',label:'Warehouse',type:'ng-select-warehouse',placeholder:'Select unit',form:formGroup}"
 				>
 				</app-form-control>
 				<!-- 
@@ -122,6 +121,7 @@
 		[showSpinner]="pageConfig.showSpinner"
 		[showFilter]="pageConfig.isShowSearch"
 		[(query)]="query"
+		(dataInfinite)="getInputOutputInventory($event)"
 		(filter)="onDatatableFilter($event)"
 		(sort)="onSort($event)"
 		[isTreeList]="formGroup?.controls?.ViewItemGroup?.value"
@@ -184,44 +184,24 @@
 			</ng-template>
 		</datatable-column>
 		<!-- <datatable-column class="col-code" name="UoM" property="UoMName"> </datatable-column> -->
-		<datatable-column class="col-text Open-Quantity" name="Opening stock" property="OpenQuantity">
+		<datatable-column class="col-text" name="Opening stock" property="OpenQuantity">
 			<ng-template let-i="row" datatable-cell-template>
-				<span *ngIf="i">
-					<ion-text [color]="i.OpenQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OpenQuantity"
-						><strong> <span *ngIf="i.OpenQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-						<small>{{u.UoMName}}</small>
-					</ion-text>
-				</span>
+				<app-format-quantity *ngIf="i" [quantity]="i.OpenQuantity" [splitQuantityList]="i._SplitUoMs_OpenQuantity"></app-format-quantity>
 			</ng-template>
 		</datatable-column>
-		<datatable-column class="col-text Input-Quantity" name="Receipt qty" property="InputQuantity">
+		<datatable-column class="col-text" name="Receipt qty" property="InputQuantity">
 			<ng-template let-i="row" datatable-cell-template>
-				<span *ngIf="i">
-					<ion-text [color]="i.InputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_InputQuantity"
-						><strong> <span *ngIf="i.InputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-						<small>{{u.UoMName}}</small>
-					</ion-text>
-				</span>
+				<app-format-quantity *ngIf="i" [quantity]="i.InputQuantity" [splitQuantityList]="i._SplitUoMs_InputQuantity"></app-format-quantity>
 			</ng-template>
 		</datatable-column>
-		<datatable-column class="col-text Output-Quantity" name="Issue qty" property="OutputQuantity">
+		<datatable-column class="col-text" name="Issue qty" property="OutputQuantity">
 			<ng-template let-i="row" datatable-cell-template>
-				<span *ngIf="i">
-					<ion-text [color]="i.OutputQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_OutputQuantity"
-						><strong> <span *ngIf="i.OutputQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-						<small>{{u.UoMName}}</small>
-					</ion-text>
-				</span>
+				<app-format-quantity *ngIf="i" [quantity]="i.OutputQuantity" [splitQuantityList]="i._SplitUoMs_OutputQuantity"></app-format-quantity>
 			</ng-template>
 		</datatable-column>
-		<datatable-column class="col-text Closing-Inventory" name="Stock qty" property="ClosingQuantity">
+		<datatable-column class="col-text" name="Stock qty" property="ClosingQuantity">
 			<ng-template let-i="row" datatable-cell-template>
-				<span *ngIf="i">
-					<ion-text [color]="i.ClosingQuantity < 0 ? 'danger' : ''" *ngFor="let u of i._SplitUoMs_ClosingQuantity"
-						><strong> <span *ngIf="i.ClosingQuantity < 0">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-						<small>{{u.UoMName}}</small>
-					</ion-text>
-				</span>
+				<app-format-quantity *ngIf="i" [quantity]="i.ClosingQuantity" [splitQuantityList]="i._SplitUoMs_ClosingQuantity"></app-format-quantity>
 			</ng-template>
 		</datatable-column>
 	</app-data-table>

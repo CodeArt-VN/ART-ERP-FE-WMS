@@ -17,9 +17,7 @@
 						<!-- <app-form-control  [field]="{id:'Status', label: 'Status', type : 'ng-select', dataSource: statusDataSource, bindValue: 'Code',binLabel: 'Name',  form : formGroup ,clearable:true}" (change)="saveChange()"></app-form-control> -->
 						<app-form-control [field]="{id:'Status', label: 'Status', type : 'text', form : formGroup ,clearable:true}" (change)="saveChange()"></app-form-control>
 						<app-form-control
-							[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
-							,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-						 }"
+							[field]="{id:'IDBranch', label: 'Warehouse', type: 'ng-select-warehouse', form: formGroup}"
 							(change)="IDBranchChange()"
 						></app-form-control>
 

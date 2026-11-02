@@ -8,11 +8,11 @@ import {
 	CRM_ContactProvider,
 	WMS_ItemBalanceProvider,
 	WMS_ItemProvider,
+	WMS_ItemUoMProvider,
 	WMS_TransactionProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
 	selector: 'app-warehouse-item-balance',
@@ -22,13 +22,14 @@ import { lib } from 'src/app/services/static/global-functions';
 })
 export class WareHouseItemBalancePage extends PageBase {
 	storerList;
-	branchList;
 	periodCategoryList = [];
 	periodList = [];
+	private displayToken = 0;
 
 	constructor(
 		public pageProvider: WMS_ItemBalanceProvider,
 		public itemProvider: WMS_ItemProvider,
+		public uomProvider: WMS_ItemUoMProvider,
 		public contactProvider: CRM_ContactProvider,
 		public periodCategoryProvider: AC_PeriodCategoryProvider,
 		public periodProvider: AC_PostingPeriodProvider,
@@ -57,39 +58,18 @@ export class WareHouseItemBalancePage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([
-			this.contactProvider.read({ IsStorer: true }),
-
-			//this.env.searchBranch((b) => b.Type == 'Warehouse')
-		])
+		this.subscriptions.push(
+			this.formGroup.controls.IDBranch.valueChanges.subscribe((id) => {
+				if (id) this.changeWarehouse();
+			})
+		);
+		this.contactProvider
+			.read({ IsStorer: true })
 			.then((resp: any) => {
-				this.storerList = resp[0].data;
-				// this.periodCategoryList = resp[1].data;
-				this.branchList = lib.cloneObject(this.env.branchList);
-				// resp[2];
-
-				// console.log('this.branchList', this.branchList);
-				// console.log('this.periodCategoryList', this.periodCategoryList);
-				// console.log('this.storerList', this.storerList);
-
-				if (this.branchList.length > 0) {
-					//Get the first branch that is warehouse and index in array > selectedBranch index
-					const selectedBranchIndex = this.branchList.findIndex((b) => b.Id == this.env.selectedBranch);
-					const warehouseBranch = this.branchList.find((b, i) => b.Type == 'Warehouse' && i >= selectedBranchIndex);
-
-					// //Loop through the list of branches and find the first branch that is warehouse then set it disabled = false, else set it disabled = true
-					// this.branchList.forEach((b) => {
-					// 	b.disabled = b.Type != 'Warehouse';
-					// });
-					if (warehouseBranch) {
-						this.formGroup.controls.IDBranch.setValue(warehouseBranch.Id);
-						this.changeWarehouse();
-					}
-				}
-
+				this.storerList = resp.data;
 				super.loadedData(event);
 			})
-			.catch((err) => {
+			.catch(() => {
 				super.loadedData(event);
 			});
 	}
@@ -107,13 +87,94 @@ export class WareHouseItemBalancePage extends PageBase {
 		}
 		Object.assign(this.query, this.formGroup.getRawValue());
 
-		// Chỉ reset list khi đổi filter; infinite scroll phải giữ items để Skip tăng đúng
-		if (event?.type !== 'ionInfinite') {
+		const paging = event?.type === 'ionInfinite' || event?.DataLength != null;
+		if (!paging) {
 			super.clearData();
 		}
 		super.loadData(event);
 		this.formGroup.markAsPristine();
 		this.pageConfig.isSubActive = true;
+	}
+
+	loadedData(event?: any): void {
+		super.loadedData(event);
+		this.fillItemCells();
+	}
+
+	private fillItemCells() {
+		const rows = (this.items || []).filter((row) => row?.IDItem && !row._Item);
+		const ids = [...new Set(rows.map((row) => row.IDItem))];
+		if (ids.length === 0) {
+			return;
+		}
+		const token = ++this.displayToken;
+		Promise.all([
+			this.itemProvider.read({ Id: ids.join(','), Take: ids.length, Skip: 0 }),
+			this.uomProvider.read({ IDItem: ids.join(','), Take: ids.length * 8, Skip: 0 }),
+		]).then((result: any[]) => {
+			if (token !== this.displayToken) {
+				return;
+			}
+			const items = (result[0]?.data || []) as any[];
+			const uomRows = (result[1]?.data || []) as any[];
+			const itemById = new Map(items.map((item) => [item.Id, item]));
+			const uomsByItem = new Map<number, any[]>();
+			for (const uom of uomRows) {
+				const list = uomsByItem.get(uom.IDItem) || [];
+				list.push(uom);
+				uomsByItem.set(uom.IDItem, list);
+			}
+			for (const row of this.items || []) {
+				const item = itemById.get(row.IDItem);
+				if (!item) {
+					continue;
+				}
+				const uoms = uomsByItem.get(row.IDItem) || [];
+				row._Item = { Id: item.Id, Code: item.Code, Name: item.Name, IsDisabled: item.IsDisabled };
+				const targetUoM = item.SalesUoM || item.InventoryUoM;
+				row._SplitOpenQuantity = this.splitQuantity(uoms, row.OpenQuantity, targetUoM);
+				row._SplitClosedQuantity = this.splitQuantity(uoms, row.ClosedQuantity, targetUoM);
+			}
+			this.items = [...this.items];
+			this.cdr.detectChanges();
+		});
+	}
+
+	private splitQuantity(uoms: any[], quantity: number, targetUoMId: number) {
+		const ratio = (uom) => {
+			const alternative = Number(uom.AlternativeQuantity) || 1;
+			return Number(uom.BaseQuantity) / alternative;
+		};
+		let list = (uoms || []).filter((uom) => !uom.IsDeleted).sort((a, b) => ratio(b) - ratio(a));
+		const target = list.find((uom) => uom.Id == targetUoMId);
+		if (target) {
+			const cap = ratio(target);
+			list = list.filter((uom) => ratio(uom) <= cap);
+		}
+		let baseQty = Math.abs(Number(quantity) || 0);
+		const parts = [];
+		list.forEach((uom, index) => {
+			const unit = ratio(uom);
+			if (!unit) {
+				return;
+			}
+			let qty = 0;
+			if (index === list.length - 1) {
+				qty = baseQty / unit;
+				baseQty = 0;
+			} else if (baseQty - unit >= 0) {
+				qty = Math.trunc(baseQty / unit);
+				baseQty -= qty * unit;
+			}
+			if (qty > 0) {
+				parts.push({ Quantity: Math.round(qty * 1000000) / 1000000, UoMName: uom.Name });
+			}
+		});
+		if (parts.length === 0) {
+			const name = (target || list.find((uom) => uom.IsBaseUoM) || list[0])?.Name || '';
+			parts.push({ Quantity: 0, UoMName: name });
+		}
+		return parts;
 	}
 
 	changeWarehouse() {

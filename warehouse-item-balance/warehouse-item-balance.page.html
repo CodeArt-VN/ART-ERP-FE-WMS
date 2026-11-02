@@ -6,8 +6,7 @@
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
 			<app-form-control
-				[field]="{id: 'IDBranch', label: 'Warehouse', type : 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form : formGroup, branchConfig:{showingType:'Warehouse'} }"
-				(change)="changeWarehouse()"
+				[field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-warehouse', form: formGroup}"
 			></app-form-control>
 			<app-form-control
 				[field]="{id: 'IDStorer', label: 'Goods owner', type : 'ng-select', dataSource: storerList, bindLabel: 'Name', bindValue: 'Id', form : formGroup, clearable: true}"

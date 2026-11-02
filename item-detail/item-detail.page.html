@@ -683,9 +683,7 @@
 																</ion-col>
 																<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
 																	<app-form-control
-																		[field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-branch', form: config,  dataSource: branchInWarehouse,  bindLabel: 'Name',  bindValue: 'Id',
-                                    branchConfig:{showingType:'Warehouse'},
-                                    treeConfig:{searchFnDefault:true}, appendTo:'#ng-select-header'}"
+																		[field]="{id: 'IDBranch', label: 'Warehouse', type: 'ng-select-warehouse', form: config, appendTo:'#ng-select-header'}"
 																		(controlChange)="changeBranchInWarehouse(config);"
 																	>
 																	</app-form-control>

@@ -16,7 +16,6 @@ import { FormBuilder, Validators } from '@angular/forms';
 export class StockCardPage extends PageBase {
 	currentDate = new Date();
 	storerList;
-	branchList;
 	sheets = [];
 	constructor(
 		//public pageProvider: WMS_StockCardProvider,
@@ -83,35 +82,13 @@ export class StockCardPage extends PageBase {
 				this.loadedData(event);
 			})
 		);
-		this.branchList = [...this.env.branchList];
 		this.contactProvider.read({ IsStorer: true }).then((resp) => {
 			this.storerList = resp['data'];
 		});
 	}
 	subItem: any = {};
 	loadData(event?: any): void {
-		this.query = this.formGroup.getRawValue();
-		delete this.query._IDItemDataSource;
-		this.query.SortBy = 'Id_desc';
-		this.pageConfig.showSpinner = true;
-		this.pageProvider.commonService
-			.connect('GET', 'WMS/Transaction', this.query)
-			.toPromise()
-			.then((rs: any) => {
-				if (Array.isArray(rs._RefList)) {
-					const { _RefList, ...SubData } = rs;
-					this.items = _RefList;
-					this.subItem = SubData;
-					this.items.forEach((i) => {
-						let item = this.subItem._Items?.find((d) => d.Id == i.IDItem);
-						i._Item = item;
-					});
-				}
-				this.loadedData(event);
-			})
-			.catch((err) => {
-				this.loadedData(event);
-			});
+		this.fetchCard(event?.type === 'ionInfinite', event);
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
@@ -119,9 +96,6 @@ export class StockCardPage extends PageBase {
 
 		this.formGroup.get('_IDItemDataSource').value.initSearch();
 		this.formGroup.enable();
-		if (!this.formGroup.get('IDBranch').value) {
-			this.getNearestWarehouse(this.env.selectedBranch);
-		}
 	}
 	fromDate;
 	toDate;
@@ -141,33 +115,44 @@ export class StockCardPage extends PageBase {
 			return;
 		}
 		this.pageConfig.isSubActive = true;
+		this.pageConfig.isEndOfData = false;
+		this.currentDate = new Date();
+		this.item = {};
+		this.fetchCard(false);
+	}
+
+	fetchCard(paging: boolean, event?: any) {
 		this.query = this.formGroup.getRawValue();
 		this.fromDate = this.query.TransactionDateFrom;
 		this.toDate = this.query.TransactionDateTo;
 		delete this.query._IDItemDataSource;
-		this.pageConfig.isEndOfData = false;
-		this.currentDate = new Date();
-		this.item = {};
-		this.pageConfig.showSpinner = true;
+		this.query.SortBy = 'Id_desc';
+		this.query.Take = 200;
+		this.query.Skip = paging ? this.item?.data?.length || 0 : 0;
+		this.pageConfig.showSpinner = !paging;
 		this.pageProvider.commonService
 			.connect('GET', 'WMS/Transaction', this.query)
 			.toPromise()
 			.then((rs: any) => {
-				if (Array.isArray(rs._RefList)) {
+				const refList = Array.isArray(rs?._RefList) ? rs._RefList : [];
+				if (rs) {
 					const { _RefList, ...SubData } = rs;
-					this.items = _RefList;
 					this.subItem = SubData;
-					this.items.forEach((i) => {
-						let item = this.subItem._Items?.find((d) => d.Id == i.IDItem);
-						i._Item = item;
-					});
-					this.patchValue(this.items);
 				}
-				this.loadedData();
+				const page = refList.map((row) => ({
+					...row,
+					_Item: this.subItem._Items?.find((item) => item.Id == row.IDItem),
+				}));
+				const rows = paging ? [...(this.item?.data || []), ...page] : page;
+				this.items = rows;
+				this.patchValue(rows);
+				const count = Number(rs?.Count);
+				this.pageConfig.isEndOfData = refList.length < this.query.Take || (count > 0 && rows.length >= count);
+				this.loadedData(event);
 			})
 			.catch((err) => {
 				this.env.showMessage(err.error?.InnerException?.ExceptionMessage || err, 'danger');
-				this.loadedData();
+				this.loadedData(event);
 			});
 	}
 	patchValue(data) {
@@ -234,22 +219,6 @@ export class StockCardPage extends PageBase {
 			.join(', ');
 	}
 
-	getNearestWarehouse(IDBranch) {
-		let currentBranch = this.env.branchList.find((d) => d.Id == IDBranch);
-		if (currentBranch) {
-			if (currentBranch.Type == 'Warehouse') {
-				this.formGroup.get('IDBranch').setValue(currentBranch.Id);
-				return true;
-			} else {
-				let childrentWarehouse: any = this.env.branchList.filter((d) => d.IDParent == IDBranch);
-				for (let child of childrentWarehouse) {
-					if (this.getNearestWarehouse(child.Id)) {
-						return true;
-					}
-				}
-			}
-		}
-	}
 	dateMinusMonths(months: number): string {
 		const date = new Date();
 		date.setMonth(date.getMonth() - months);

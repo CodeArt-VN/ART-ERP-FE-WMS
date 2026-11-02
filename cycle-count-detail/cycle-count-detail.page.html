@@ -28,8 +28,7 @@
 
 					<ion-col size="12" size-sm size-xl="4">
 						<app-form-control
-							[field]="{branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-						,id:'IDBranch',label:'Warehouse', type:'ng-select-branch',dataSource:branchList,bindValue:'Id', bindLabel:'Name',form:formGroup}"
+							[field]="{id:'IDBranch',label:'Warehouse', type:'ng-select-warehouse', form:formGroup}"
 							(change)="changeWarehouse($event);"
 						></app-form-control>
 

@@ -1,3 +1,11 @@
+.stock-warning {
+	margin: 8px 12px;
+	padding: 10px 12px;
+	border-radius: 8px;
+	background: var(--ion-color-warning-tint, #fff6e5);
+	color: var(--ion-color-warning-shade, #8a5a00);
+}
+
 .table {
 	width: 100%;
 	max-width: 100%;

@@ -72,9 +72,7 @@
 					</ion-col>
 					<ion-col size="12" size-sm size-xl="4">
 						<app-form-control
-							[field]="{id:'IDBranch', label: 'Warehouse', type : 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form : formGroup
-            ,branchConfig:{showingType:'Warehouse',selectedBranch:this.env.selectedBranch}
-           }"
+							[field]="{id:'IDBranch', label: 'Warehouse', type: 'ng-select-warehouse', form: formGroup}"
 							(change)="saveOrder()"
 						></app-form-control>
 
@@ -529,16 +527,11 @@
 										[field]="{
 											id:'IDBranch',
 											label: 'Warehouse',
-											type : 'ng-select-branch',
-											dataSource:branchList,
-											bindLabel:'Name',
-											bindValue:'Id',
-											form : formGroup,
-											virtualScroll: false,
+											type: 'ng-select-warehouse',
+											form: formGroup,
 											placeholder:'Search',
 											clearable: true,
-											appendTo:'#order-detail-page',
-											branchConfig:{showingType:'Warehouse',showingMode:'showAll',selectedBranch:this.env.selectedBranch}
+											appendTo:'#order-detail-page'
 										}"
 										(change)="saveOrder()"
 									>
