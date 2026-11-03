@@ -13,6 +13,7 @@ import {
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { applyItemDisplay, itemDisplayQuery, itemIdsToLoad, storerIdFromBranch, uomDisplayQuery } from './warehouse-item-balance.util';
 
 @Component({
 	selector: 'app-warehouse-item-balance',
@@ -25,6 +26,7 @@ export class WareHouseItemBalancePage extends PageBase {
 	periodCategoryList = [];
 	periodList = [];
 	private displayToken = 0;
+	private storerToken = 0;
 
 	constructor(
 		public pageProvider: WMS_ItemBalanceProvider,
@@ -60,18 +62,25 @@ export class WareHouseItemBalancePage extends PageBase {
 	preLoadData(event?: any): void {
 		this.subscriptions.push(
 			this.formGroup.controls.IDBranch.valueChanges.subscribe((id) => {
-				if (id) this.changeWarehouse();
+				if (!id) return;
+				this.changeWarehouse();
 			})
 		);
-		this.contactProvider
-			.read({ IsStorer: true })
-			.then((resp: any) => {
-				this.storerList = resp.data;
-				super.loadedData(event);
-			})
-			.catch(() => {
-				super.loadedData(event);
-			});
+		const token = ++this.storerToken;
+		Promise.all([
+			this.contactProvider.read({ IsStorer: true }).catch(() => ({ data: [] })),
+			this.contactProvider.commonService
+				.connect('GET', 'WMS/Storer/ByBranch', {})
+				.toPromise()
+				.catch(() => null),
+		]).then(([resp, storer]: any[]) => {
+			if (token !== this.storerToken) return;
+			this.storerList = resp?.data || [];
+			const id = storerIdFromBranch(storer);
+			if (id) this.ensureStorerOption(storer);
+			this.formGroup.controls.IDStorer.setValue(id || null);
+			super.loadedData(event);
+		});
 	}
 
 	loadData(event?: any): void {
@@ -102,79 +111,27 @@ export class WareHouseItemBalancePage extends PageBase {
 	}
 
 	private fillItemCells() {
-		const rows = (this.items || []).filter((row) => row?.IDItem && !row._Item);
-		const ids = [...new Set(rows.map((row) => row.IDItem))];
+		const ids = itemIdsToLoad(this.items);
 		if (ids.length === 0) {
 			return;
 		}
 		const token = ++this.displayToken;
-		Promise.all([
-			this.itemProvider.read({ Id: ids.join(','), Take: ids.length, Skip: 0 }),
-			this.uomProvider.read({ IDItem: ids.join(','), Take: ids.length * 8, Skip: 0 }),
-		]).then((result: any[]) => {
+		Promise.all([this.itemProvider.read(itemDisplayQuery(ids), true), this.uomProvider.read(uomDisplayQuery(ids), true)]).then((result: any[]) => {
 			if (token !== this.displayToken) {
 				return;
 			}
-			const items = (result[0]?.data || []) as any[];
-			const uomRows = (result[1]?.data || []) as any[];
-			const itemById = new Map(items.map((item) => [item.Id, item]));
-			const uomsByItem = new Map<number, any[]>();
-			for (const uom of uomRows) {
-				const list = uomsByItem.get(uom.IDItem) || [];
-				list.push(uom);
-				uomsByItem.set(uom.IDItem, list);
-			}
-			for (const row of this.items || []) {
-				const item = itemById.get(row.IDItem);
-				if (!item) {
-					continue;
-				}
-				const uoms = uomsByItem.get(row.IDItem) || [];
-				row._Item = { Id: item.Id, Code: item.Code, Name: item.Name, IsDisabled: item.IsDisabled };
-				const targetUoM = item.SalesUoM || item.InventoryUoM;
-				row._SplitOpenQuantity = this.splitQuantity(uoms, row.OpenQuantity, targetUoM);
-				row._SplitClosedQuantity = this.splitQuantity(uoms, row.ClosedQuantity, targetUoM);
-			}
+			applyItemDisplay(this.items, result[0]?.data || [], result[1]?.data || []);
 			this.items = [...this.items];
 			this.cdr.detectChanges();
 		});
 	}
 
-	private splitQuantity(uoms: any[], quantity: number, targetUoMId: number) {
-		const ratio = (uom) => {
-			const alternative = Number(uom.AlternativeQuantity) || 1;
-			return Number(uom.BaseQuantity) / alternative;
-		};
-		let list = (uoms || []).filter((uom) => !uom.IsDeleted).sort((a, b) => ratio(b) - ratio(a));
-		const target = list.find((uom) => uom.Id == targetUoMId);
-		if (target) {
-			const cap = ratio(target);
-			list = list.filter((uom) => ratio(uom) <= cap);
-		}
-		let baseQty = Math.abs(Number(quantity) || 0);
-		const parts = [];
-		list.forEach((uom, index) => {
-			const unit = ratio(uom);
-			if (!unit) {
-				return;
-			}
-			let qty = 0;
-			if (index === list.length - 1) {
-				qty = baseQty / unit;
-				baseQty = 0;
-			} else if (baseQty - unit >= 0) {
-				qty = Math.trunc(baseQty / unit);
-				baseQty -= qty * unit;
-			}
-			if (qty > 0) {
-				parts.push({ Quantity: Math.round(qty * 1000000) / 1000000, UoMName: uom.Name });
-			}
-		});
-		if (parts.length === 0) {
-			const name = (target || list.find((uom) => uom.IsBaseUoM) || list[0])?.Name || '';
-			parts.push({ Quantity: 0, UoMName: name });
-		}
-		return parts;
+	private ensureStorerOption(storer: any) {
+		const id = Number(storer?.Id);
+		if (!id) return;
+		const list = this.storerList || [];
+		if (list.some((item) => item?.Id == id)) return;
+		this.storerList = [...list, { Id: id, Code: storer.Code, Name: storer.Name }];
 	}
 
 	changeWarehouse() {

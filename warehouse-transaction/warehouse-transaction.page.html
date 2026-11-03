@@ -4,23 +4,19 @@
 			{{ 'Stock card' | translate }}
 			<!-- <ion-icon slot="icon-only" name="card-outline"></ion-icon> -->
 		</ion-button>
-		<ion-button title="Rebuild stock ledger" *ngIf="formGroup.get('IDBranch').value" (click)="rebuildLedger()">
-			{{ 'Rebuild stock ledger' | translate }}
-		</ion-button>
+		<ion-button title="Rebuild stock ledger" *ngIf="formGroup.get('IDBranch').value" (click)="rebuildLedger()"> {{ 'Rebuild stock ledger' | translate }} </ion-button>
 	</app-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
 		<div class="ion-padding" style="padding-bottom: 0">
+			<app-form-control [field]="{id:'IDBranch',label:'Warehouse',type:'ng-select-warehouse',placeholder:'Select unit',form:formGroup}"></app-form-control>
 			<app-form-control
-				[field]="{id:'IDBranch',label:'Warehouse',type:'ng-select-warehouse',placeholder:'Select unit',form:formGroup}"
+				[field]="{id:'IDStorer', label: 'Storer', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true, multiple:true}"
 			></app-form-control>
 			<app-form-control
 				[field]="{id:'IDItem', label: 'Item', type : 'ng-select-item',dataSource:formGroup.get('_IDItemDataSource').value,bindLabel:'Name',bindValue:'Id',
      form : formGroup,clearable:true}"
-			></app-form-control>
-			<app-form-control
-				[field]="{id:'IDStorer', label: 'Storer', type : 'ng-select',dataSource:storerList,bindLabel:'Name',bindValue:'Id', form : formGroup, clearable:true, multiple:true}"
 			></app-form-control>
 			<app-form-control [field]="{id:'TransactionDateFrom', label: 'From date', type : 'date',form : formGroup}"></app-form-control>
 			<app-form-control [field]="{id:'TransactionDateTo', label: 'To date', type : 'date', form : formGroup}"></app-form-control>
@@ -36,64 +32,6 @@
 			</ion-grid>
 		</div>
 	</ion-fab>
-	<!-- 
-  <app-data-table
-    class="box-shadow"
-    [rows]="items"
-    [trackBy]="'IDItem'"
-    [showSpinner]="pageConfig.showSpinner"
-    [showFilter]="pageConfig.isShowSearch"
-    [(query)]="query"
-    (filter)="onDatatableFilter($event)"
-    (sort)="onSort($event)"
-    [isTreeList]="true"
-  >
-  
-  <datatable-column class="col-date" name="Transaction date" property="TransactionDate">
-    <ng-template let-i="row" datatable-cell-template>
-      {{ i.TransactionDate|date:'dd/MM/yyyy' }}
-      <small>{{ i.TransactionDate|date:'hh:mm' }}</small>
-    </ng-template>
-  </datatable-column>
-
-  <datatable-column class="col-code" name="Source" property="SourceKey">
-    <ng-template let-i="row" datatable-cell-template>
-      {{i.SourceType}}: {{i.SourceKey}}
-    </ng-template>
-  </datatable-column>
-
-    <datatable-column class="col-name" name="Item" property="IDItem">
-      <ng-template let-i="row" datatable-cell-template>
-        <ng-container *ngIf="i?._Item">
-          <span [title]="i._Item.Name">
-            <a [routerLink]="'/item/' + i._Item.Id" class="clickable">
-              <ion-icon color="warning" *ngIf="i._Item.IsDisabled" name="archive"></ion-icon>
-              <span *ngIf="!i._Item.IsDisabled">#</span>{{ i._Item.Id }}&nbsp;</a
-            >
-            <ion-text class="clickable"><b>{{ i._Item.Code }}</b> {{ i._Item.Name }}</ion-text>
-          </span>
-        </ng-container>
-      </ng-template>
-    </datatable-column>
-    
-    <datatable-column class="col-code" name="Quantity" property="UoMQuantity">
-      <ng-template let-i="row" datatable-cell-template>
-       <ng-container>
-        <ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
-        ><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-        <small>{{u.UoMName}}</small>
-   </ion-text>
-   </ng-container>
-      </ng-template>
-    </datatable-column>
-    
-  </app-data-table> -->
-
-	<div class="stock-warning" *ngIf="missingCount > 0 || driftCount > 0">
-		{{ 'Warehouse stock ledger is missing documents or lot quantities do not match the ledger.' | translate }}
-		<span *ngIf="missingCount"> {{ 'Missing documents' | translate }}: {{ missingCount }}</span>
-		<span *ngIf="driftCount"> {{ 'Lot rows out of balance' | translate }}: {{ driftCount }}</span>
-	</div>
 	<app-page-message [itemsLength]="items?.length>0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 	<div style="min-width: 300px; height: calc(100vh - 65px)">
 		<section class="table" *ngIf="items.length && pageConfig.showSpinner == false">
@@ -195,10 +133,7 @@
             <span *ngIf="i._ToLPN">{{ i._ToLPN.Id }}</span>
           </div> -->
 					<div class="col-number cell">
-						<ion-text [color]="i.TransactionType == 'Outbound' ? 'danger' : ''" *ngFor="let u of i._SplitQuantity"
-							><strong> <span *ngIf="i.TransactionType == 'Outbound'">-</span>{{u.Quantity | number: '1.0-0' }}</strong>
-							<small>{{u.UoMName}}</small>
-						</ion-text>
+						<app-format-quantity [quantity]="signedTransactionQuantity(i.TransactionType, i.Quantity)" [splitQuantityList]="i._SplitQuantity"></app-format-quantity>
 					</div>
 					<!-- <div class="col-number cell">{{ i.CubeText }}</div>
           <div class="col-number cell">{{ i.GrossWeightText }}</div> -->

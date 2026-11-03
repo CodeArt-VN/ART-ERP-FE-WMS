@@ -7,6 +7,7 @@ import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { WmsTransactionService } from 'src/app/pages/WMS/.services/wms-transaction.service';
+import { ledgerWarningMessage, signedTransactionQuantity } from './warehouse-transaction.util';
 
 import {
 	BRA_BranchProvider,
@@ -34,6 +35,7 @@ export class WarehouseTransactionPage extends PageBase {
 	selectedItem = null;
 	missingCount = 0;
 	driftCount = 0;
+	signedTransactionQuantity = signedTransactionQuantity;
 
 	constructor(
 		public pageProvider: WMS_TransactionProvider,
@@ -71,7 +73,7 @@ export class WarehouseTransactionPage extends PageBase {
 					SortBy: ['Id_desc'],
 					Take: 200,
 					Skip: 0,
-					Keyword: term
+					Keyword: term,
 				});
 			}),
 		});
@@ -107,6 +109,8 @@ export class WarehouseTransactionPage extends PageBase {
 		this.wmsTransaction.reconcile({ IDBranch: warehouseId }).subscribe((rs: any) => {
 			this.missingCount = rs?.MissingCount || 0;
 			this.driftCount = rs?.DriftCount || 0;
+			const message = ledgerWarningMessage(this.missingCount, this.driftCount);
+			if (message) this.env.showMessage(message, 'warning');
 			this.cdr.detectChanges();
 		});
 	}
@@ -195,9 +199,7 @@ export class WarehouseTransactionPage extends PageBase {
 				return;
 			}
 			const prev = rows[index - 1];
-			const mins = Math.floor(
-				(new Date(prev.TransactionDate).getTime() - new Date(row.TransactionDate).getTime()) / 1000 / 60
-			);
+			const mins = Math.floor((new Date(prev.TransactionDate).getTime() - new Date(row.TransactionDate).getTime()) / 1000 / 60);
 			if (mins >= 30) {
 				const prevDate = lib.dateFormatFriendly(prev.TransactionDate);
 				const currentDate = lib.dateFormatFriendly(row.TransactionDate);
