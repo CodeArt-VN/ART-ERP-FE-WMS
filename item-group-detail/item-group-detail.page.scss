@@ -1,23 +1,44 @@
 .full-screen {
-	min-height: calc(100vh - 335px);
+	min-height: calc(100vh - 220px);
 }
 
-.table-contain {
-	max-width: 1440px;
-	margin: auto;
-}
+.accounts-mobile {
+	ion-accordion-group {
+		ion-accordion {
+			margin-bottom: 0;
+			border-bottom: solid 1px var(--menu-right-border-color);
 
-@media screen and (min-width: 2048px) {
-	.grid-parent {
-		min-width: fit-content;
+			&:last-child {
+				border-bottom: 0;
+			}
+
+			ion-item[slot='header'] {
+				--background: transparent;
+				--background-hover: transparent;
+				--background-activated: transparent;
+				--background-focused: transparent;
+				--ripple-color: transparent;
+				--border-width: 0;
+				--inner-border-width: 0;
+				--padding-start: 0;
+				--padding-end: 0;
+				--inner-padding-end: 0;
+				border: none;
+				min-height: 44px;
+			}
+
+			ion-icon[slot='end'],
+			.ion-accordion-toggle-icon {
+				font-size: 14px !important;
+				width: 14px;
+				height: 14px;
+				color: var(--ion-color-medium);
+				opacity: 0.65;
+			}
+		}
 	}
-	.main-view .row-full.shadow {
-		width: 1400px;
+
+	.accounts-mobile-content {
+		padding: 8px 0 12px;
 	}
-	.grid-child {
-		min-width: fit-content;
-	}
-}
-.table-contain .table .row .cell {
-	height: 31px;
 }
