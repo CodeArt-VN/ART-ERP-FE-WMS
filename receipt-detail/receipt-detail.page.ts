@@ -17,6 +17,7 @@ import {
 	WMS_ReceiptPalletizationProvider,
 	WMS_ReceiptProvider,
 } from 'src/app/services/static/services.service';
+import { isShipmentReturnReceipt } from './receipt-detail.util';
 
 @Component({
 	selector: 'app-receipt-detail',
@@ -79,6 +80,10 @@ export class ReceiptDetailPage extends PageBase {
 			Type: ['KeyIn'], //new FormControl({ value: '', disabled: false }),
 			Status: new FormControl({ value: '', disabled: true }),
 			IsDisabled: new FormControl({ value: '', disabled: true }),
+			CreatedBy: new FormControl({ value: '', disabled: true }),
+			CreatedDate: new FormControl({ value: '', disabled: true }),
+			ModifiedBy: new FormControl({ value: '', disabled: true }),
+			ModifiedDate: new FormControl({ value: '', disabled: true }),
 			Lines: this.formBuilder.array([]),
 		});
 		if (this.env.user.IDBusinessPartner > 0 && this.env.user.SysRoles.includes('VENDOR')) this.vendorView = true;
@@ -148,9 +153,28 @@ export class ReceiptDetailPage extends PageBase {
 			this._vendorDataSource.selected = [...this._vendorDataSource.selected, this.item._Vendor];
 		}
 		this._vendorDataSource.initSearch();
+		this.applyShipmentReturnVendorRule();
 		this.setLines();
 
 		this.pageConfig.canDelivery = this.item.Status == 'Confirmed' && this.vendorView;
+	}
+
+	onTypeChange() {
+		this.applyShipmentReturnVendorRule();
+		this.saveOrder();
+	}
+
+	applyShipmentReturnVendorRule() {
+		const vendorCtrl = this.formGroup.controls.IDVendor;
+		if (isShipmentReturnReceipt(this.formGroup.controls.Type.value)) {
+			vendorCtrl.clearValidators();
+			vendorCtrl.setValue(null);
+			vendorCtrl.disable({ emitEvent: false });
+		} else {
+			vendorCtrl.setValidators([Validators.required]);
+			if (this.pageConfig.canEdit) vendorCtrl.enable({ emitEvent: false });
+		}
+		vendorCtrl.updateValueAndValidity({ emitEvent: false });
 	}
 
 	setLines() {
